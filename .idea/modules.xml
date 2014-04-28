@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/hello-play.iml" filepath="$PROJECT_DIR$/.idea_modules/hello-play.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/hello-play-build.iml" filepath="$PROJECT_DIR$/.idea_modules/hello-play-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea_modules/CodeRed FlightPub.iml" filepath="$PROJECT_DIR$/.idea_modules/CodeRed FlightPub.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea_modules/CodeRed FlightPub-build.iml" filepath="$PROJECT_DIR$/.idea_modules/CodeRed FlightPub-build.iml" />
     </modules>
   </component>
 </project>
