@@ -6,6 +6,8 @@ import play.data.format.Formats;
 
 import javax.persistence.*;
 
+import java.util.Date;
+
 @Entity
 public class Price extends Model {
 
@@ -30,11 +32,11 @@ public class Price extends Model {
 
     @Constraints.Required
     @Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
-    public String startDate;
+    public Date startDate;
 
     @Constraints.Required
     @Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
-    public String endDate;
+    public Date endDate;
 
     @Constraints.Required
     public double price;
@@ -45,7 +47,7 @@ public class Price extends Model {
     @Constraints.Required
     public double priceLegTwo;
 
-    public Price(Flight flight, Airline airline, TicketClass ticketClass, TicketType ticketType, String startDate, String endDate, double price, double priceLegOne, double priceLegTwo) {
+    public Price(Flight flight, Airline airline, TicketClass ticketClass, TicketType ticketType, Date startDate, Date endDate, double price, double priceLegOne, double priceLegTwo) {
         this.flight = flight;
         this.airline = airline;
         this.ticketClass = ticketClass;

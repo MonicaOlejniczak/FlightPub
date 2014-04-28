@@ -20,6 +20,7 @@ public class Distance extends Model {
     public Airport destination;
 
     @Constraints.Required
+    @Constraints.Min(0)
     @Constraints.MinLength(1)
     @Constraints.MaxLength(6)
     public int distance;

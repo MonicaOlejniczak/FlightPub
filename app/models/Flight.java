@@ -7,6 +7,7 @@ import play.data.validation.Constraints;
 import javax.persistence.*;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -42,46 +43,51 @@ public class Flight extends Model {
 
     @Constraints.Required
     @Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
-    public String departureTime;
+    public Date departureTime;
 
     @Constraints.Required
     @Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
-    public String arrivalTimeStopOver;
+    public Date arrivalTimeStopOver;
 
     @Constraints.Required
     @Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
-    public String departureTimeStopOver;
+    public Date departureTimeStopOver;
 
     @Constraints.Required
     @Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
-    public String arrivalTime;
+    public Date arrivalTime;
 
     @Constraints.Required
-    @Constraints.MinLength(4)
-    @Constraints.MaxLength(4)
-    public String planeCode;
+    @ManyToOne(cascade = CascadeType.ALL)
+    public PlaneType planeType;
 
     @Constraints.Required
-    @Constraints.MinLength(2)
-    @Constraints.MaxLength(4)
     @Constraints.Min(0)
     @Constraints.Max(6000)
+    @Constraints.MinLength(2)
+    @Constraints.MaxLength(4)
     public int duration;
 
     @Constraints.Required
-    @Constraints.MinLength(2)
-    @Constraints.MaxLength(4)
     @Constraints.Min(0)
     @Constraints.Max(6000)
+    @Constraints.MinLength(2)
+    @Constraints.MaxLength(4)
     public int durationSecondLeg;
 
     @OneToMany(mappedBy = "flight", fetch = FetchType.LAZY)
     public List<Availability> availabilities = new ArrayList<>();
 
     @OneToMany(mappedBy = "flight", fetch = FetchType.LAZY)
+    public List<BookingRequest> bookingRequests = new ArrayList<>();
+
+    @OneToMany(mappedBy = "flight", fetch = FetchType.LAZY)
+    public List<Message> messages = new ArrayList<>();
+
+    @OneToMany(mappedBy = "flight", fetch = FetchType.LAZY)
     public List<Price> prices = new ArrayList<>();
 
-    public Flight(Airline airline, String flightNumber, String departureCode, String stopOverCode, String destinationCode, String departureTime, String arrivalTimeStopOver, String departureTimeStopOver, String arrivalTime, String planeCode, int duration, int durationSecondLeg) {
+    public Flight(Airline airline, String flightNumber, String departureCode, String stopOverCode, String destinationCode, Date departureTime, Date arrivalTimeStopOver, Date departureTimeStopOver, Date arrivalTime, PlaneType planeType, int duration, int durationSecondLeg) {
         this.airline = airline;
         this.flightNumber = flightNumber;
         this.departureCode = departureCode;
@@ -91,7 +97,7 @@ public class Flight extends Model {
         this.arrivalTimeStopOver = arrivalTimeStopOver;
         this.departureTimeStopOver = departureTimeStopOver;
         this.arrivalTime = arrivalTime;
-        this.planeCode = planeCode;
+        this.planeType = planeType;
         this.duration = duration;
         this.durationSecondLeg = durationSecondLeg;
     }

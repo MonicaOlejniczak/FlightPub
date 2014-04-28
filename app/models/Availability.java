@@ -24,11 +24,13 @@ public class Availability extends Model {
     public TicketType ticketType;
 
     @Constraints.Required
+    @Constraints.Min(0)
     @Constraints.MinLength(1)
     @Constraints.MaxLength(3)
     public int numberAvailableSeatsLegOne;
 
     @Constraints.Required
+    @Constraints.Min(0)
     @Constraints.MinLength(1)
     @Constraints.MaxLength(3)
     public int numberAvailableSeatsLegTwo;

@@ -3,8 +3,10 @@ package models;
 import play.db.ebean.Model;
 import play.data.validation.Constraints;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class PlaneType extends Model {
@@ -21,24 +23,31 @@ public class PlaneType extends Model {
     public String details;
 
     @Constraints.Required
+    @Constraints.Min(0)
     @Constraints.MinLength(1)
     @Constraints.MaxLength(4)
     public int firstClassAmount;
 
     @Constraints.Required
+    @Constraints.Min(0)
     @Constraints.MinLength(1)
     @Constraints.MaxLength(4)
     public int businessClassAmount;
 
     @Constraints.Required
+    @Constraints.Min(0)
     @Constraints.MinLength(1)
     @Constraints.MaxLength(4)
     public int premiumEconomyClassAmount;
 
     @Constraints.Required
+    @Constraints.Min(0)
     @Constraints.MinLength(1)
     @Constraints.MaxLength(4)
     public int economyClassAmount;
+
+    @OneToMany(mappedBy = "planeType", fetch = FetchType.LAZY)
+    public List<Flight> flights = new ArrayList<>();
 
     public PlaneType(String code, String details, int firstClassAmount, int businessClassAmount, int premiumEconomyClassAmount, int economyClassAmount) {
         this.code = code;
