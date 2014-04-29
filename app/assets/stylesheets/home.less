@@ -1,0 +1,144 @@
+@import 'global';
+
+@findFlightsFontSize: 2em;
+@titleFontSize: 3em;
+
+@findFlightsFont: @findFlightsFontSize 'Roboto', @nextFont;
+@titleFont: @titleFontSize 'Open sans', @nextFont;
+
+@flightsWrapperColor: #fff;
+@flightsWrapperDarkerColor: darken(@flightsWrapperColor, 15%);
+@findFlightsColor: #fff;
+
+@flightsBoxShadow: 1em;
+@destinationsBoxShadow: 0.05em;
+@animationBoxShadow: 0.1em;
+@maskHeight: 1000px;
+
+/* Flights */
+.flightsGradient (@start: transparent, @second: transparent, @third: transparent, @stop: transparent) {
+	@origin: right;
+	@startPercent: 0%;
+	@secondPercent: 25%;
+	@thirdPercent: 75%;
+	@stopPercent: 100%;
+	background-image: -webkit-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+	background-image: -moz-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+	background-image: -o-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+	background-image: -ms-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+	background-image: linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+}
+
+#flightsWrapper {
+	min-height: 100%;
+	background-color: @flightsWrapperColor;
+	color: @fontColor;
+	.flightsGradient(@flightsWrapperDarkerColor, transparent, transparent, @flightsWrapperDarkerColor);
+}
+
+#flights {
+	width: @minWidth;
+	height: 100%;
+	padding: 1em 0 0 0;
+	margin: 0 auto;
+	.boxShadow(0, -@flightsBoxShadow, @flightsBoxShadow, 0, darken(@findFlightsColor, 10%));
+}
+
+#flightsImage {
+	width: 100%;
+	height: 100px;
+	background-color: @secondaryColor;
+	color: @mainFontColor;
+}
+
+#findFlights {
+	width: 25%;
+	background-color: @themeColor;
+	color: @findFlightsColor;
+	font: @findFlightsFont;
+	.textShadow(@findFlightsColor);
+	text-align: center;
+	border: 0;
+	border-radius: 0.1em;
+	padding: 0.1em 0;
+	.gradient(top, transparent, 50%, darken(@themeColor, 10%), 50%);
+}
+
+#findFlights:hover {
+	background-color: lighten(@themeColor, 10%);
+	.gradient(top, transparent, 50%, darken(@themeColor, 5%), 50%);
+}
+
+.text {
+	text-align: justify;
+	padding: 0 1em;
+}
+
+/* Destinations */
+#destinations {
+	.boxShadow(0, -@destinationsBoxShadow, @destinationsBoxShadow, 0, darken(@flightsWrapperColor, 25%))
+}
+
+#mask {
+	height: @maskHeight;
+	overflow: hidden;
+}
+
+.animate (@time: 1s, @type: linear, @repeat: infinite, @loopType: alternate) {
+	animation: move @time @type @repeat @loopType;
+	-moz-animation: move @time @type @repeat @loopType;
+	-webkit-animation: move @time @type @repeat @loopType;
+}
+
+.animation {
+	width: 100%;
+	height: 100%;
+	position: relative;
+	.animate(15s, linear, infinite, alternate);
+}
+
+.animation img {
+	width: 100%;
+	height: 100%;
+	.boxShadow(0, -@animationBoxShadow, @animationBoxShadow, @animationBoxShadow, #000);
+}
+
+@keyframes move {
+	0%   {transform: translateY(0);}
+	10%  {transform: translateY(0);}
+	40%  {transform: translateY(-@maskHeight);}
+	60%  {transform: translateY(-@maskHeight);}
+	90%  {transform: translateY(-@maskHeight * 2);}
+	100% {transform: translateY(-@maskHeight * 2);}
+}
+
+@-moz-keyframes move {
+	0%   {-moz-transform: translateY(0);}
+	10%  {-moz-transform: translateY(0);}
+	40%  {-moz-transform: translateY(-@maskHeight);}
+	60%  {-moz-transform: translateY(-@maskHeight);}
+	90%  {-moz-transform: translateY(-@maskHeight * 2);}
+	100% {-moz-transform: translateY(-@maskHeight * 2);}
+}
+
+@-webkit-keyframes move {
+	0%   {-webkit-transform: translateY(0);}
+	10%  {-webkit-transform: translateY(0);}
+	40%  {-webkit-transform: translateY(-@maskHeight);}
+	60%  {-webkit-transform: translateY(-@maskHeight);}
+	90%  {-webkit-transform: translateY(-@maskHeight * 2);}
+	100% {-webkit-transform: translateY(-@maskHeight * 2);}
+}
+
+.title {
+	left: 0;
+	bottom: 5%;
+	width: 100%;
+	color: #fff;
+	font: @titleFont;
+	padding: 0.5em;
+	.gradient(left, #000, 0, transparent, 50%);
+	display: block;
+	position: absolute;
+}
+

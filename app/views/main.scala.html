@@ -5,21 +5,41 @@
 <head>
 	<title>@title</title>
 	<link rel='shortcut icon' type='image/png' href='@routes.Assets.at("images/favicon.png")'>
-	<link rel='stylesheet' href='@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap.min.css"))'>
-	<link rel='stylesheet' href='@routes.Assets.at("stylesheets/home.css")'>
+	<link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/reset.css")'>
+	<link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/main.css")'>
+	<link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Roboto'>
+	<link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Open+Sans'>
+	<link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Oswald'>
+	<link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Droid+Sans'>
 	<script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("jquery.min.js"))'></script>
 	<script type="text/javascript" src="@routes.MessageController.javascriptRoutes"></script>
 </head>
 <body>
-	<div class="navbar navbar-fixed-top">
-		<div class="navbar-inner">
-			<div class="container-fluid">
-				<a id="titleLink" class="brand" href="/">@title</a>
+	<header>
+		<div id="header">
+			<div id="logo">
+				<a href="home.scala.html">Flight<span>Pub</span></a>
+			</div>
+			<div id="navigationContainer">
+				<nav role="navigation">
+					<span class="active">Home</span>
+					<a href="flights.html"><span>Flights</span></a>
+					<a href="about.html"><span>About</span></a>
+					<a href="contact.html"><span>Contact</span></a>
+					<a href="register.scala.html"><span>Register</span></a>
+					<a href="login.scala.html"><span>Login</span></a>
+				</nav>
+				<!-- insert if statement - icons or register/signup
+				<div id="headerOptions">
+					<a href="register.scala.html">Register</a>
+					<a href="login.scala.html">Login</a>
+				</div>-->
 			</div>
 		</div>
-	</div>
-	<div class="container">
-		@content
-	</div>
+	</header>
+	@content
+	<footer>
+		hello
+	</footer>
 </body>
 </html>

@@ -1,3 +1,196 @@
-body {
-	padding-top: 50px;
+@import 'global';
+
+@bodyFontSize: 1em;
+@headerFontSize: 1em;
+@logoFontSize: 2.5em;
+@navFontSize: 1.5em;
+@h1FontSize: 3em;
+@footerFontSize: 1em;
+
+@bodyFont: 		@bodyFontSize 'Open sans', @nextFont;
+@headerFont:	@headerFontSize 'Open sans', @nextFont;
+@logoFont: 		@logoFontSize 'Roboto', @nextFont;
+@navFont: 		@navFontSize 'Roboto', @nextFont;
+@h1Font:		bold @h1FontSize "Roboto", @nextFont;
+@footerFont: 	@footerFontSize 'Roboto', @nextFont;
+
+@navColor: @mainFontColor;
+@footerColor: #ccc;
+
+@selectionColour: lighten(@themeColor, 30%);
+@headerSelectionColour: #bbb;
+@footerSelectionColour: #bbb;
+
+@headerHeight: 60px;
+@footerHeight: 50px;
+
+@logoLineHeight: @headerHeight - @logoFontSize;
+@navLineHeight: @headerHeight - @navFontSize;
+
+@headerBoxShadow: 0.5em;
+@footerBoxShadow: 5em;
+
+@navBorderWeight: 0.05em;
+@navSpanBorderWeight: 0.1em;
+
+* {
+	padding: 0;
+	margin: 0;
+}
+
+html, body {
+	height: 100%;
+	min-width: 1000px;
+	min-height: 800px;
+	background-color: #fff;
+	color: @fontColor;
+	font: @bodyFont;
+
+}
+
+h1 {
+	color: @themeColor;
+	font: @h1Font;
+	.textShadow(@themeColor);
+	text-align: right;
+	margin: 1.3em 0.5em 0.5em 0;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	.transition(background, 0.5s);
+}
+
+p {
+	margin: 0 0 1em 0;
+}
+
+input {
+	cursor: pointer;
+}
+
+::selection {
+	background-color: @selectionColour;
+}
+
+::-moz-selection {
+	background-color: @selectionColour;
+}
+
+// header
+header, #logo a, nav, nav a, .active, #headerOptions {
+	float: left;
+}
+
+header {
+	width: 100%;
+	height: @headerHeight;
+	background-color: @base;
+	font: @headerFont;
+	overflow: hidden;
+	.boxShadow(0, -@headerBoxShadow, @headerBoxShadow, @headerBoxShadow, darken(@base, 25%));
+}
+
+#header {
+	width: @minWidth;
+	height: 100%;
+	margin: 0 auto;
+}
+
+header::selection {
+	background-color: @headerSelectionColour;
+}
+
+header::-moz-selection {
+	background-color: @headerSelectionColour;
+}
+
+#logo a, nav a {
+	color: @mainFontColor;
+}
+
+#logo a {
+	font: @logoFont;
+	.textShadow(@mainFontColor);
+	line-height: @logoLineHeight;
+}
+
+#logo span {
+	color: @themeColor;
+	.textShadow(@themeColor);
+}
+
+#navigationContainer {
+	float: right;
+}
+
+.navBorder (@top: 0, @right: 0, @bottom: 0, @left: 0, @colour: lighten(@base, 10%)) {
+	.border(@top, @right, @bottom, @left, @colour, solid);
+}
+
+nav {
+	height: 100%;
+	font: @navFont;
+	.navBorder(0, 0, 0, @navBorderWeight);
+}
+
+nav a, .active {
+	height: 100%;
+	color: @navColor;
+	.textShadow(@navColor);
+	text-align: center;
+	line-height: @navLineHeight;
+	.navBorder(0, @navBorderWeight, 0, 0);
+	padding: 0 0.5em;
+}
+
+nav a:hover {
+	background-color: lighten(@base, 5%);
+}
+
+.navTransition {
+	.transition(border-bottom, 0.3s, linear);
+}
+
+// after hover
+nav a span {
+	.navBorder(0, 0, @navSpanBorderWeight, 0, transparent);
+	.navTransition;
+}
+
+// on hover
+nav a:hover span {
+	.navBorder(0, 0, @navSpanBorderWeight, 0, @mainFontColor);
+	.navTransition;
+}
+
+.active {
+	color: @themeColor;
+	.textShadow(@themeColor);
+}
+
+#headerOptions a {
+	color: @mainFontColor;
+}
+
+// footer
+footer {
+	width: 100%;
+	height: @footerHeight;
+	background-color: @base;
+	color: @footerColor;
+	font: @footerFont;
+	padding: 2em 0;
+	.boxShadow(0, -@footerBoxShadow, @footerBoxShadow, 0, @base);
+}
+
+footer::selection {
+	background-color: @footerSelectionColour;
+}
+
+footer::-moz-selection {
+	background-color: @footerSelectionColour;
 }
