@@ -9,10 +9,10 @@ import java.util.List;
 @Entity
 public abstract class Role extends Model {
 
-    @Id
-    public Long id;
+	@Id
+	public Long id;
 
-    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
-    public List<User> users = new ArrayList<>();
+	@OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
+	public List<User> users = new ArrayList<>();
 
 }

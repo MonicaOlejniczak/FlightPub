@@ -1,0 +1,19 @@
+@(flights: java.util.List[Flight])
+
+@main("FlightPub - Home") {
+
+	<script type='text/javascript' src='@routes.Assets.at("javascripts/home.min.js")'></script>
+
+	<div class="well">
+		<h1>hello</h1>
+	</div>
+
+	<ul>
+	@for(flight <- flights) {
+		<li>@flight.flightNumber</li>
+	}
+	</ul>
+
+	<button id="getMessageButton">Do Some Ajax!</button>
+
+}

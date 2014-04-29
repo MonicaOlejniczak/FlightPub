@@ -159,7 +159,6 @@
     <orderEntry type="library" name="javax.resource.jar" level="project" />
     <orderEntry type="library" name="javax.servlet.jsp.jar" level="project" />
     <orderEntry type="library" name="javax.servlet.jsp.jstl.jar" level="project" />
-    <orderEntry type="library" name="SBT: scala:2.10.2" level="project" />
   </component>
 </module>
 

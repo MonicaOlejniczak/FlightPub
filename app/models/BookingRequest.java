@@ -11,42 +11,42 @@ import java.util.Date;
 @Entity
 public class BookingRequest extends Model {
 
-    public enum Status {
-        PENDING,
-        APPROVED,
-        DECLINED
-    }
+	public enum Status {
+		PENDING,
+		APPROVED,
+		DECLINED
+	}
 
-    @Id
-    public Long id;
+	@Id
+	public Long id;
 
-    @Constraints.Required
-    @ManyToOne(cascade = CascadeType.ALL)
-    public Flight flight;
+	@Constraints.Required
+	@ManyToOne(cascade = CascadeType.ALL)
+	public Flight flight;
 
-    @Constraints.Required
-    @ManyToOne(cascade = CascadeType.ALL)
-    public User user;
+	@Constraints.Required
+	@ManyToOne(cascade = CascadeType.ALL)
+	public User user;
 
-    @Constraints.Required
-    @Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
-    public Date date;
+	@Constraints.Required
+	@Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
+	public Date date;
 
-    @Constraints.Required
-    public Status status;
+	@Constraints.Required
+	public Status status;
 
-    @Constraints.Required
-    @Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
-    public Date lastStatusUpdateDate;
+	@Constraints.Required
+	@Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
+	public Date lastStatusUpdateDate;
 
-    @Constraints.Required
-    public User lastUpdatedBy;
+	@Constraints.Required
+	public User lastUpdatedBy;
 
-    @OneToOne(mappedBy = "bookingRequest", fetch = FetchType.LAZY)
-    public Booking booking = new Booking();
+	@OneToOne(mappedBy = "bookingRequest", fetch = FetchType.LAZY)
+	public Booking booking = new Booking();
 
-    //TODO constructor, any reverse mappings
+	//TODO constructor, any reverse mappings
 
-    public static Model.Finder<Long, BookingRequest> find = new Model.Finder<>(Long.class, BookingRequest.class);
+	public static Model.Finder<Long, BookingRequest> find = new Model.Finder<>(Long.class, BookingRequest.class);
 
 }
