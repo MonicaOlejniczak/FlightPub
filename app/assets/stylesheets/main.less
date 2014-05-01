@@ -1,4 +1,5 @@
-@import 'global';
+@import 'globalMethods';
+@import 'globalVariables';
 
 @bodyFontSize: 1em;
 @headerFontSize: 1em;
@@ -21,17 +22,25 @@
 @headerSelectionColour: #bbb;
 @footerSelectionColour: #bbb;
 
+@navBorderWeight: 0.05em;
+@navSpanBorderWeight: 0.1em;
+
 @headerHeight: 60px;
+@logoWidth: 35%;
+@navigationContainerWidth: 100 - @logoWidth;
+@navLinksAmount: 6;
+@navWidth: round(((100% / @navLinksAmount) - (@navBorderWeight * (@navLinksAmount - 1))) + 0.05, 1);
 @footerHeight: 50px;
 
 @logoLineHeight: @headerHeight - @logoFontSize;
 @navLineHeight: @headerHeight - @navFontSize;
 
+@headerBorderWidth: 0.3em;
+
 @headerBoxShadow: 0.5em;
 @footerBoxShadow: 5em;
 
-@navBorderWeight: 0.05em;
-@navSpanBorderWeight: 0.1em;
+@time: 0.3s;
 
 * {
 	padding: 0;
@@ -81,8 +90,12 @@ input {
 }
 
 // header
-header, #logo a, nav, nav a, .active, #headerOptions {
+header, #logo, nav, nav a, .active, #headerOptions {
 	float: left;
+}
+
+#header, #logo, #logo a, #navigationContainer, nav, nav a, .active {
+	height: 100%;
 }
 
 header {
@@ -90,13 +103,15 @@ header {
 	height: @headerHeight;
 	background-color: @base;
 	font: @headerFont;
+	.border(@headerBorderWidth, 0, 0, 0, @themeColor, solid);
 	overflow: hidden;
 	.boxShadow(0, -@headerBoxShadow, @headerBoxShadow, @headerBoxShadow, darken(@base, 25%));
 }
 
 #header {
-	width: @minWidth;
-	height: 100%;
+	width: @width;
+	min-width: @minWidth;
+	max-width: @maxWidth;
 	margin: 0 auto;
 }
 
@@ -108,14 +123,22 @@ header::-moz-selection {
 	background-color: @headerSelectionColour;
 }
 
+#logo {
+	width: @logoWidth;
+}
+
 #logo a, nav a {
 	color: @mainFontColor;
 }
 
 #logo a {
+	width: 100%;
 	font: @logoFont;
 	.textShadow(@mainFontColor);
+	text-align: center;
 	line-height: @logoLineHeight;
+	display: block;
+	.transition(background-color, @time, linear);
 }
 
 #logo span {
@@ -123,7 +146,13 @@ header::-moz-selection {
 	.textShadow(@themeColor);
 }
 
+#logo a:hover {
+	background-color: lighten(@base, 5%);
+	.transition(background-color, @time, linear);
+}
+
 #navigationContainer {
+	width: @navigationContainerWidth;
 	float: right;
 }
 
@@ -132,19 +161,19 @@ header::-moz-selection {
 }
 
 nav {
-	height: 100%;
+	width: 100%;
 	font: @navFont;
 	.navBorder(0, 0, 0, @navBorderWeight);
 }
 
 nav a, .active {
-	height: 100%;
+	width: @navWidth;
 	color: @navColor;
 	.textShadow(@navColor);
 	text-align: center;
 	line-height: @navLineHeight;
 	.navBorder(0, @navBorderWeight, 0, 0);
-	padding: 0 0.5em;
+	display: block;
 }
 
 nav a:hover {
@@ -152,7 +181,7 @@ nav a:hover {
 }
 
 .navTransition {
-	.transition(border-bottom, 0.3s, linear);
+	.transition(border-bottom, @time, linear);
 }
 
 // after hover

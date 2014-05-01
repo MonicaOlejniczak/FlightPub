@@ -1,4 +1,5 @@
-@import 'global';
+@import 'globalMethods';
+@import 'globalVariables';
 
 @findFlightsFontSize: 2em;
 @titleFontSize: 3em;
@@ -13,7 +14,15 @@
 @flightsBoxShadow: 1em;
 @destinationsBoxShadow: 0.05em;
 @animationBoxShadow: 0.1em;
+
+@imageCount: 3;
+@maskWidth: @imageCount * 100%;
 @maskHeight: 1000px;
+@animationWidth: 100% / @imageCount;
+@moveAmount: 100%;
+
+@mapBorderWidth: 0.5em;
+@mapBorderColor: #000;
 
 /* Flights */
 .flightsGradient (@start: transparent, @second: transparent, @third: transparent, @stop: transparent) {
@@ -37,18 +46,27 @@
 }
 
 #flights {
-	width: @minWidth;
+	width: @width;
+	min-width: @minWidth;
+	max-width: @maxWidth;
 	height: 100%;
 	padding: 1em 0 0 0;
 	margin: 0 auto;
 	.boxShadow(0, -@flightsBoxShadow, @flightsBoxShadow, 0, darken(@findFlightsColor, 10%));
 }
 
-#flightsImage {
+#map {
 	width: 100%;
-	height: 100px;
+	height: 500px;
 	background-color: @secondaryColor;
 	color: @mainFontColor;
+	.border(@mapBorderWidth, 0, @mapBorderWidth, 0, @mapBorderColor, solid);
+	position: relative;
+	margin: 1em 0;
+}
+
+#map a {
+	display: none;
 }
 
 #findFlights {
@@ -76,12 +94,15 @@
 
 /* Destinations */
 #destinations {
-	.boxShadow(0, -@destinationsBoxShadow, @destinationsBoxShadow, 0, darken(@flightsWrapperColor, 25%))
+	width: 100%;
+	height: 100%;
+	.boxShadow(0, -@destinationsBoxShadow, @destinationsBoxShadow, 0, darken(@flightsWrapperColor, 25%));
+	overflow: hidden;
 }
 
 #mask {
+	width: @maskWidth;
 	height: @maskHeight;
-	overflow: hidden;
 }
 
 .animate (@time: 1s, @type: linear, @repeat: infinite, @loopType: alternate) {
@@ -91,9 +112,9 @@
 }
 
 .animation {
-	width: 100%;
+	width: @animationWidth;
 	height: 100%;
-	position: relative;
+	float: left;
 	.animate(15s, linear, infinite, alternate);
 }
 
@@ -104,30 +125,30 @@
 }
 
 @keyframes move {
-	0%   {transform: translateY(0);}
-	10%  {transform: translateY(0);}
-	40%  {transform: translateY(-@maskHeight);}
-	60%  {transform: translateY(-@maskHeight);}
-	90%  {transform: translateY(-@maskHeight * 2);}
-	100% {transform: translateY(-@maskHeight * 2);}
+	0%   {transform: translateX(0);}
+	10%  {transform: translateX(0);}
+	40%  {transform: translateX(-@moveAmount);}
+	60%  {transform: translateX(-@moveAmount);}
+	90%  {transform: translateX(-@moveAmount * 2);}
+	100% {transform: translateX(-@moveAmount * 2);}
 }
 
 @-moz-keyframes move {
-	0%   {-moz-transform: translateY(0);}
-	10%  {-moz-transform: translateY(0);}
-	40%  {-moz-transform: translateY(-@maskHeight);}
-	60%  {-moz-transform: translateY(-@maskHeight);}
-	90%  {-moz-transform: translateY(-@maskHeight * 2);}
-	100% {-moz-transform: translateY(-@maskHeight * 2);}
+	0%   {-moz-transform: translateX(0);}
+	10%  {-moz-transform: translateX(0);}
+	40%  {-moz-transform: translateX(-@moveAmount);}
+	60%  {-moz-transform: translateX(-@moveAmount);}
+	90%  {-moz-transform: translateX(-@moveAmount * 2);}
+	100% {-moz-transform: translateX(-@moveAmount * 2);}
 }
 
 @-webkit-keyframes move {
-	0%   {-webkit-transform: translateY(0);}
-	10%  {-webkit-transform: translateY(0);}
-	40%  {-webkit-transform: translateY(-@maskHeight);}
-	60%  {-webkit-transform: translateY(-@maskHeight);}
-	90%  {-webkit-transform: translateY(-@maskHeight * 2);}
-	100% {-webkit-transform: translateY(-@maskHeight * 2);}
+	0%   {-webkit-transform: translateX(0);}
+	10%  {-webkit-transform: translateX(0);}
+	40%  {-webkit-transform: translateX(-@moveAmount);}
+	60%  {-webkit-transform: translateX(-@moveAmount);}
+	90%  {-webkit-transform: translateX(-@moveAmount * 2);}
+	100% {-webkit-transform: translateX(-@moveAmount * 2);}
 }
 
 .title {
