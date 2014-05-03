@@ -22,7 +22,7 @@ function initialize() {
 	var map = new google.maps.Map(map_canvas, map_options);
 	var lastValidCenter = map.getCenter();
 
-	google.maps.event.addListener(map, 'center_changed', function() {
+	google.maps.event.addListener(map, 'center_changed', function () {
 		if (bounds.contains(map.getCenter())) {
 			lastValidCenter = map.getCenter();
 			return;
@@ -30,61 +30,60 @@ function initialize() {
 		map.panTo(lastValidCenter);
 	});
 
-	map.set('styles', [{
-		featureType: 'water',
-		elementType: 'geometry',
-		stylers: [
-			{color: '#0b1f3a'},
-			{weight: 1.6}
-		]
-	},  {
-		featureType: 'water',
-		elementType: 'labels',
-		stylers: [
-			{visibility: 'off'}
-		]
-	},  {
-		featureType: 'road',
-		elementType: 'geometry',
-		stylers: [
-			{color: '#000'},
-			{weight: 1.6},
-			{visibility: "simplified"}
-		]
-	},  {
-		featureType: 'road',
-		elementType: 'labels',
-		stylers: [
-			{color: '#000'}
-		]
-	},  {
-		featureType: 'road',
-		elementType: 'labels.icon',
-		stylers: [
-		{visibility: "off"}
-		]
-	},  {
-		featureType: 'landscape',
-		elementType: 'geometry',
-		stylers: [
-			{hue: '#fff'},
-			{gamma: 1.4},
-			{saturation: 50},
-			{lightness: 80}
-		]
-	},  {
-		featureType: "administrative",
-		elementType: "geometry",
-		stylers: [
-			{visibility: "off"}
-		]
-	},  {
-		featureType: 'poi',
-		elementType: 'all',
-		stylers: [
-			{visibility: 'off'}
-		]
-	}
+	map.set('styles', [
+		{
+			elementType: 'labels',
+			stylers: [
+				{
+					visibility: 'off'
+				}
+			]
+		},
+		{
+			featureType: 'water',
+			stylers: [
+				{
+					color: '#ffffff'
+				}
+			]
+		},
+		{
+			featureType: 'landscape',
+			stylers: [
+				{
+					color: '#333333'
+				}
+			]
+		},
+		{
+			featureType: 'road',
+			elementType: 'geometry',
+			stylers: [
+				{
+					color: '#000000',
+					weight: 1.6,
+					visibility: 'simplified'
+				}
+			]
+		},
+		{
+			featureType: 'administrative',
+			elementType: 'geometry',
+			stylers: [
+				{
+					visibility: 'off'
+				}
+			]
+		},
+		{
+			featureType: 'poi',
+			elementType: 'all',
+			stylers: [
+				{
+					visibility: 'off'
+				}
+			]
+		}
 	]);
 }
 

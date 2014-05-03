@@ -13,17 +13,72 @@
 	<div id="flightsWrapper">
 		<div id="flights">
 			<h1>Flights</h1>
-			<form action="demo_form.asp">
-				<div id="map"></div>
-				<input type="submit" value="Find Flights" id="findFlights" />
+			<form action="seatSelection.scala.html">
+				<div id="flightColumns">
+					<div class="flightColumn">
+						<div class="flightRow">
+							<label for="flightFrom">Flight from</label>
+							<input type="text" id="flightFrom" value="where are you travelling from?" />
+						</div>
+						<div class="flightRow">
+							<label for="departing">Departing</label>
+							<input type="text" id="departing" value="what date are you leaving?" />
+						</div>
+					</div>
+					<div class="flightColumn">
+						<div class="flightRow">
+							<label for="flightTo">Flight to</label>
+							<input type="text" id="flightTo" value="where are you going?" />
+						</div>
+						<div class="flightRow">
+							<label for="returning">Returning</label>
+							<input type="text" id="returning" value="what date are you coming back?" />
+						</div>
+					</div>
+				</div>
 			</form>
-			<h1>Test heading</h1>
-			<div class="text">
-				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam rutrum arcu nec nisl consequat posuere. Nam consectetur, nulla eget pellentesque tempus, elit ante rutrum libero, ut ornare sem turpis vitae metus. Duis id leo non mi condimentum fringilla. Nullam tempus luctus malesuada. Sed facilisis pretium sem. Nunc sed augue tincidunt sem egestas scelerisque. Aliquam erat volutpat. Quisque feugiat purus ac sem aliquet, a iaculis justo hendrerit. Nulla non massa risus. Sed condimentum nisl vitae dignissim cursus. Morbi sem eros, feugiat vel orci eget, adipiscing rhoncus leo. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sit amet neque sem. Mauris est risus, malesuada eu placerat vel, congue ut dolor. In est sem, congue quis mauris varius, sollicitudin tincidunt risus.</p>
-				<p>Sed posuere risus eget mi condimentum mattis et eget augue. In congue, sapien rhoncus interdum vestibulum, tortor ante gravida diam, ut lacinia tellus enim at nisl. Vestibulum in est pharetra, porta odio vitae, suscipit augue. Proin viverra nisl eu elit pretium molestie. Nullam scelerisque, elit id sagittis viverra, nisi enim iaculis nisl, non consectetur odio mi et nibh. Nam ac cursus nisi. Suspendisse potenti. Phasellus convallis tellus viverra dui facilisis aliquet. Sed sed orci eget ipsum ullamcorper egestas. Vestibulum id sapien accumsan, molestie purus eget, iaculis metus.</p>
-				<p>Integer congue justo urna, sed semper neque pulvinar eu. Curabitur elementum vestibulum nibh, nec condimentum tortor tempor a. Fusce sed mauris nec augue condimentum pretium vel id risus. Donec vitae dui erat. Nunc fermentum laoreet arcu, vitae volutpat velit consectetur at. In est sapien, consequat nec tellus id, eleifend ultrices lectus. Sed id diam justo. Donec ultrices volutpat est, a lobortis purus ornare sit amet. Donec sollicitudin neque porta, viverra massa sed, tincidunt mauris. Ut aliquet urna a mi ultricies suscipit. Vestibulum erat leo, venenatis id nulla a, vulputate lobortis urna. Sed consequat justo at varius sagittis. Ut molestie leo eget mauris sagittis, id pretium diam volutpat. Proin accumsan consectetur ornare.</p>
-				<p>Nunc commodo dignissim egestas. Sed lacinia fringilla lectus. Donec vitae accumsan eros. Pellentesque ac egestas dolor. Nam faucibus ante iaculis, hendrerit est quis, ultricies ipsum. Donec bibendum laoreet dui. Nullam in nisi lorem. Cras eget turpis arcu. Vivamus vulputate dictum risus, a ullamcorper ipsum eleifend eu. Proin rhoncus eu erat ut tempus. Suspendisse id rutrum magna.</p>
-				<p>Nulla facilisi. In orci sem, elementum et rhoncus vel, sodales a tortor. Proin sit amet urna eget diam viverra venenatis. Curabitur sodales quis nisl in congue. Vestibulum sem nisl, pharetra at mattis sit amet, vehicula tincidunt felis. Fusce consequat sollicitudin fermentum. Maecenas eu nisl eu enim laoreet vulputate at in justo. Sed egestas in lorem at malesuada. Nam nec quam risus. Sed a placerat diam. Aliquam non est nec nulla euismod hendrerit id in urna.</p>
+		</div>
+		<div id="map"></div>
+		<div id="flights">
+			<form action="seatSelection.scala.html">
+				<div>
+					<label for="passengers">Passengers</label>
+					<select name="adults">
+						<option value="1" selected>1 adult</option>
+						<option value="2">2 adults</option>
+						<option value="3">3 adults</option>
+						<option value="4">3 adults</option>
+					</select>
+					<select name="children">
+						<option value="0" selected>0 children</option>
+						<option value="1">1 child</option>
+						<option value="2">2 children</option>
+						<option value="3">3 children</option>
+					</select>
+					<select name="infants">
+						<option value="0" selected>0 infants</option>
+						<option value="1">1 infant</option>
+						<option value="2">2 infants</option>
+						<option value="3">3 infants</option>
+					</select>
+				</div>
+				<div>
+					<label for="returningBoolean">Returning</label>
+					<input type="checkbox" id="returningBoolean" value="returning" checked="true" />
+				</div>
+				<!--<input type="submit" value="Find Flights" id="findFlights" />-->
+			</form>
+		</div>
+		<div id="informationWrapper">
+			<div id="information">
+				<h1>Test heading</h1>
+				<div class="text">
+					<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam rutrum arcu nec nisl consequat posuere. Nam consectetur, nulla eget pellentesque tempus, elit ante rutrum libero, ut ornare sem turpis vitae metus. Duis id leo non mi condimentum fringilla. Nullam tempus luctus malesuada. Sed facilisis pretium sem. Nunc sed augue tincidunt sem egestas scelerisque. Aliquam erat volutpat. Quisque feugiat purus ac sem aliquet, a iaculis justo hendrerit. Nulla non massa risus. Sed condimentum nisl vitae dignissim cursus. Morbi sem eros, feugiat vel orci eget, adipiscing rhoncus leo. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sit amet neque sem. Mauris est risus, malesuada eu placerat vel, congue ut dolor. In est sem, congue quis mauris varius, sollicitudin tincidunt risus.</p>
+					<p>Sed posuere risus eget mi condimentum mattis et eget augue. In congue, sapien rhoncus interdum vestibulum, tortor ante gravida diam, ut lacinia tellus enim at nisl. Vestibulum in est pharetra, porta odio vitae, suscipit augue. Proin viverra nisl eu elit pretium molestie. Nullam scelerisque, elit id sagittis viverra, nisi enim iaculis nisl, non consectetur odio mi et nibh. Nam ac cursus nisi. Suspendisse potenti. Phasellus convallis tellus viverra dui facilisis aliquet. Sed sed orci eget ipsum ullamcorper egestas. Vestibulum id sapien accumsan, molestie purus eget, iaculis metus.</p>
+					<p>Integer congue justo urna, sed semper neque pulvinar eu. Curabitur elementum vestibulum nibh, nec condimentum tortor tempor a. Fusce sed mauris nec augue condimentum pretium vel id risus. Donec vitae dui erat. Nunc fermentum laoreet arcu, vitae volutpat velit consectetur at. In est sapien, consequat nec tellus id, eleifend ultrices lectus. Sed id diam justo. Donec ultrices volutpat est, a lobortis purus ornare sit amet. Donec sollicitudin neque porta, viverra massa sed, tincidunt mauris. Ut aliquet urna a mi ultricies suscipit. Vestibulum erat leo, venenatis id nulla a, vulputate lobortis urna. Sed consequat justo at varius sagittis. Ut molestie leo eget mauris sagittis, id pretium diam volutpat. Proin accumsan consectetur ornare.</p>
+					<p>Nunc commodo dignissim egestas. Sed lacinia fringilla lectus. Donec vitae accumsan eros. Pellentesque ac egestas dolor. Nam faucibus ante iaculis, hendrerit est quis, ultricies ipsum. Donec bibendum laoreet dui. Nullam in nisi lorem. Cras eget turpis arcu. Vivamus vulputate dictum risus, a ullamcorper ipsum eleifend eu. Proin rhoncus eu erat ut tempus. Suspendisse id rutrum magna.</p>
+					<p>Nulla facilisi. In orci sem, elementum et rhoncus vel, sodales a tortor. Proin sit amet urna eget diam viverra venenatis. Curabitur sodales quis nisl in congue. Vestibulum sem nisl, pharetra at mattis sit amet, vehicula tincidunt felis. Fusce consequat sollicitudin fermentum. Maecenas eu nisl eu enim laoreet vulputate at in justo. Sed egestas in lorem at malesuada. Nam nec quam risus. Sed a placerat diam. Aliquam non est nec nulla euismod hendrerit id in urna.</p>
+				</div>
 			</div>
 		</div>
 	</div>

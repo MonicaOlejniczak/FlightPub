@@ -6,6 +6,7 @@
 	<title>@title</title>
 	<link rel='shortcut icon' type='image/png' href='@routes.Assets.at("images/favicon.png")'>
 	<link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/reset.css")'>
+	<link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/global.css")'>
 	<link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/main.css")'>
 	@styles
 	<link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Roboto'>
@@ -39,7 +40,9 @@
 			</div>
 		</div>
 	</header>
-	@content
+	<div id="content">
+		@content
+	</div>
 	<footer>
 		FlightPub &copy; 2014-present. All rights reserved.
 	</footer>

@@ -1,31 +1,31 @@
 @import 'globalMethods';
 @import 'globalVariables';
 
-@bodyFontSize: 1em;
 @headerFontSize: 1em;
-@logoFontSize: 2.5em;
-@navFontSize: 1.5em;
-@h1FontSize: 3em;
+@logoFontSize: 2em;
+@navFontSize: 1em;
 @footerFontSize: 1em;
 
-@bodyFont: 		@bodyFontSize 'Open sans', @nextFont;
 @headerFont:	@headerFontSize 'Open sans', @nextFont;
-@logoFont: 		@logoFontSize 'Roboto', @nextFont;
-@navFont: 		@navFontSize 'Roboto', @nextFont;
-@h1Font:		bold @h1FontSize "Roboto", @nextFont;
+@logoFont: 		bold @logoFontSize 'Open sans', @nextFont;
+@navFont: 		bold @navFontSize 'Open sans', @nextFont;
 @footerFont: 	@footerFontSize 'Roboto', @nextFont;
 
-@navColor: @mainFontColor;
+@headerBackgroundColor: #fff;
+@headerBackgroundColorDarker: darken(@headerBackgroundColor, 20%);
+@footerBackgroundColor: #111;
+
+@logoColor: darken(@themeColor, 10%);
+@navColor: @logoColor;
 @footerColor: #ccc;
 
-@selectionColour: lighten(@themeColor, 30%);
 @headerSelectionColour: #bbb;
 @footerSelectionColour: #bbb;
 
 @navBorderWeight: 0.05em;
 @navSpanBorderWeight: 0.1em;
 
-@headerHeight: 60px;
+@headerHeight: 40px;
 @logoWidth: 35%;
 @navigationContainerWidth: 100 - @logoWidth;
 @navLinksAmount: 6;
@@ -40,55 +40,6 @@
 @headerBoxShadow: 0.5em;
 @footerBoxShadow: 5em;
 
-@time: 0.3s;
-
-* {
-	padding: 0;
-	margin: 0;
-}
-
-html, body {
-	height: 100%;
-	min-width: 1000px;
-	min-height: 800px;
-	background-color: #fff;
-	color: @fontColor;
-	font: @bodyFont;
-
-}
-
-h1 {
-	color: @themeColor;
-	font: @h1Font;
-	.textShadow(@themeColor);
-	text-align: right;
-	margin: 1.3em 0.5em 0.5em 0;
-}
-
-a {
-	text-decoration: none;
-}
-
-a:hover {
-	.transition(background, 0.5s);
-}
-
-p {
-	margin: 0 0 1em 0;
-}
-
-input {
-	cursor: pointer;
-}
-
-::selection {
-	background-color: @selectionColour;
-}
-
-::-moz-selection {
-	background-color: @selectionColour;
-}
-
 // header
 header, #logo, nav, nav a, .active, #headerOptions {
 	float: left;
@@ -98,14 +49,28 @@ header, #logo, nav, nav a, .active, #headerOptions {
 	height: 100%;
 }
 
+.headerGradient (@start: transparent, @second: transparent, @third: transparent, @stop: transparent) {
+	@origin: right;
+	@startPercent: 0%;
+	@secondPercent: 25%;
+	@thirdPercent: 75%;
+	@stopPercent: 100%;
+	background-image: -webkit-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+	background-image: -moz-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+	background-image: -o-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+	background-image: -ms-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+	background-image: linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+}
+
 header {
 	width: 100%;
 	height: @headerHeight;
-	background-color: @base;
+	background-color: @headerBackgroundColor;
 	font: @headerFont;
 	.border(@headerBorderWidth, 0, 0, 0, @themeColor, solid);
 	overflow: hidden;
-	.boxShadow(0, -@headerBoxShadow, @headerBoxShadow, @headerBoxShadow, darken(@base, 25%));
+	.headerGradient(@headerBackgroundColorDarker, transparent, transparent, @headerBackgroundColorDarker);
+	.boxShadow(0, -@headerBoxShadow, @headerBoxShadow, @headerBoxShadow, darken(@headerBackgroundColor, 25%));
 }
 
 #header {
@@ -123,22 +88,23 @@ header::-moz-selection {
 	background-color: @headerSelectionColour;
 }
 
-#logo {
+/*#logo {
 	width: @logoWidth;
-}
-
-#logo a, nav a {
-	color: @mainFontColor;
-}
+}*/
 
 #logo a {
 	width: 100%;
+	color: @logoColor;
 	font: @logoFont;
 	.textShadow(@mainFontColor);
 	text-align: center;
 	line-height: @logoLineHeight;
 	display: block;
-	.transition(background-color, @time, linear);
+	/*.transition(background-color, @time, linear);*/
+}
+
+#logo a:hover, #logo span, #logo a:hover span, nav a, nav a:hover, .active, .active:hover {
+	.transition(color, @time, linear);
 }
 
 #logo span {
@@ -147,8 +113,13 @@ header::-moz-selection {
 }
 
 #logo a:hover {
-	background-color: lighten(@base, 5%);
-	.transition(background-color, @time, linear);
+	color: @themeColor;
+	/*background-color: lighten(@base, 5%);
+	.transition(background-color, @time, linear);*/
+}
+
+#logo a:hover span {
+	color: @themeColorHover;
 }
 
 #navigationContainer {
@@ -156,28 +127,38 @@ header::-moz-selection {
 	float: right;
 }
 
-.navBorder (@top: 0, @right: 0, @bottom: 0, @left: 0, @colour: lighten(@base, 10%)) {
+.navBorder (@top: 0, @right: 0, @bottom: 0, @left: 0, @colour: darken(@headerBackgroundColor, 15%)) {
 	.border(@top, @right, @bottom, @left, @colour, solid);
 }
 
 nav {
-	width: 100%;
 	font: @navFont;
 	.navBorder(0, 0, 0, @navBorderWeight);
+	float: right;
 }
 
 nav a, .active {
-	width: @navWidth;
-	color: @navColor;
-	.textShadow(@navColor);
+	/*width: @navWidth;*/
 	text-align: center;
 	line-height: @navLineHeight;
 	.navBorder(0, @navBorderWeight, 0, 0);
-	display: block;
+	padding: 0 0.5em;
+	/*display: block;*/
+}
+
+nav a, nav a:hover {
+	.transition(background-color, @time, linear);
+}
+
+nav a {
+	background-color: transparent;
+	color: @navColor;
+	.textShadow(@navColor);
 }
 
 nav a:hover {
-	background-color: lighten(@base, 5%);
+	background-color: darken(@headerBackgroundColor, 2%);
+	color: lighten(@navColor, 5%);
 }
 
 .navTransition {
@@ -192,7 +173,7 @@ nav a span {
 
 // on hover
 nav a:hover span {
-	.navBorder(0, 0, @navSpanBorderWeight, 0, @mainFontColor);
+	.navBorder(0, 0, @navSpanBorderWeight, 0, lighten(@navColor, 10%));
 	.navTransition;
 }
 
@@ -201,19 +182,28 @@ nav a:hover span {
 	.textShadow(@themeColor);
 }
 
+.active:hover{
+	color: @themeColorHover;
+}
+
 #headerOptions a {
 	color: @mainFontColor;
+}
+
+// content
+#content {
+	clear: both;
 }
 
 // footer
 footer {
 	width: 100%;
 	height: @footerHeight;
-	background-color: @base;
+	background-color: @footerBackgroundColor;
 	color: @footerColor;
 	font: @footerFont;
 	padding: 2em 0;
-	.boxShadow(0, -@footerBoxShadow, @footerBoxShadow, 0, @base);
+	.boxShadow(0, -@footerBoxShadow, @footerBoxShadow, 0, @footerBackgroundColor);
 }
 
 footer::selection {

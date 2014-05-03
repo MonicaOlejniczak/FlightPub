@@ -7,11 +7,13 @@
 @findFlightsFont: @findFlightsFontSize 'Roboto', @nextFont;
 @titleFont: @titleFontSize 'Open sans', @nextFont;
 
+@informationPath: '@{imageFolder}/grid.png';
+
 @flightsWrapperColor: #fff;
-@flightsWrapperDarkerColor: darken(@flightsWrapperColor, 15%);
+@informationColor: #fff;
+@informationDarkerColor: darken(@informationColor, 15%);
 @findFlightsColor: #fff;
 
-@flightsBoxShadow: 1em;
 @destinationsBoxShadow: 0.05em;
 @animationBoxShadow: 0.1em;
 
@@ -21,38 +23,55 @@
 @animationWidth: 100% / @imageCount;
 @moveAmount: 100%;
 
-@mapBorderWidth: 0.5em;
+@flightRowLabelWidth: 25%;
+@flightRowInputWidth: 95 - @flightRowLabelWidth;
+@mapBorderWidth: 0.2em;
 @mapBorderColor: #000;
 
 /* Flights */
-.flightsGradient (@start: transparent, @second: transparent, @third: transparent, @stop: transparent) {
-	@origin: right;
-	@startPercent: 0%;
-	@secondPercent: 25%;
-	@thirdPercent: 75%;
-	@stopPercent: 100%;
-	background-image: -webkit-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
-	background-image: -moz-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
-	background-image: -o-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
-	background-image: -ms-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
-	background-image: linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
-}
-
 #flightsWrapper {
 	min-height: 100%;
-	background-color: @flightsWrapperColor;
-	color: @fontColor;
-	.flightsGradient(@flightsWrapperDarkerColor, transparent, transparent, @flightsWrapperDarkerColor);
+	background-color: @secondaryColor;
+	color: @flightsWrapperColor;
 }
 
-#flights {
+#flights, #information {
 	width: @width;
 	min-width: @minWidth;
 	max-width: @maxWidth;
 	height: 100%;
 	padding: 1em 0 0 0;
 	margin: 0 auto;
-	.boxShadow(0, -@flightsBoxShadow, @flightsBoxShadow, 0, darken(@findFlightsColor, 10%));
+}
+
+#flightColumns {
+	width: 100%;
+}
+
+.flightColumn, .flightRow label, .flightRow input {
+	float: left;
+	display: block;
+}
+
+.flightColumn {
+	width: 50%;
+	margin: 0 0 1.5em 0;
+}
+
+.flightRow {
+	clear: both;
+	margin: 0 0 1.5em 0;
+}
+
+.flightRow label {
+	width: @flightRowLabelWidth;
+	text-align: right;
+	line-height: 1em;
+	padding: 0 1em 0 0;
+}
+
+.flightRow input {
+	width: @flightRowInputWidth;
 }
 
 #map {
@@ -60,12 +79,13 @@
 	height: 500px;
 	background-color: @secondaryColor;
 	color: @mainFontColor;
-	.border(@mapBorderWidth, 0, @mapBorderWidth, 0, @mapBorderColor, solid);
-	position: relative;
-	margin: 1em 0;
+	/*border-radius: 0.5em;
+	margin: 1em auto;*/
+	clear: both;
+	.boxShadow(0, 0, 0.05em, 0.05em, darken(@informationColor, 10%));
 }
 
-#map a {
+#map a, #map span {
 	display: none;
 }
 
@@ -87,16 +107,37 @@
 	.gradient(top, transparent, 50%, darken(@themeColor, 5%), 50%);
 }
 
+.informationGradient (@start: transparent, @second: transparent, @third: transparent, @stop: transparent) {
+	@origin: right;
+	@startPercent: 0%;
+	@secondPercent: 25%;
+	@thirdPercent: 75%;
+	@stopPercent: 100%;
+	background-image: url(@informationPath), -webkit-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+	background-image: url(@informationPath), -moz-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+	background-image: url(@informationPath), -o-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+	background-image: url(@informationPath), -ms-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+	background-image: url(@informationPath), linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+}
+
+#informationWrapper {
+	min-height: 100%;
+	background: @informationColor url(@informationPath);
+	color: @fontColor;
+	.informationGradient(@informationDarkerColor, transparent, transparent, @informationDarkerColor);
+}
+
 .text {
 	text-align: justify;
 	padding: 0 1em;
+	clear: both;
 }
 
 /* Destinations */
 #destinations {
 	width: 100%;
 	height: 100%;
-	.boxShadow(0, -@destinationsBoxShadow, @destinationsBoxShadow, 0, darken(@flightsWrapperColor, 25%));
+	.boxShadow(0, -@destinationsBoxShadow, @destinationsBoxShadow, 0, darken(@informationColor, 25%));
 	overflow: hidden;
 }
 

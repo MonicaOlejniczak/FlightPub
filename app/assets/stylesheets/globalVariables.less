@@ -1,12 +1,34 @@
-@base: #111;
-@themeColor: #ff7800;
-@secondaryColor: #0b1f3a;
+@themeColor: #d10000;
+@themeColorHover: lighten(@themeColor, 5%);
+@secondaryColor: #1d2c3f;
+
+@bodyFontSize: 16px;
+@h1FontSize: 3em;
+@formFontSize: 2em;
+@inputFontSize: 0.6em;
+
+@bodyFont: 	@bodyFontSize 'Open sans', @nextFont;
+@h1Font:    bold @h1FontSize "Open sans", @nextFont;
+@formFont:  @formFontSize 'Roboto', @nextFont;
+@inputFont: @inputFontSize 'Open sans', @nextFont;
+@nextFont: verdana, sans-serif;
+
+@inputBackgroundColor: #fff;
 
 @mainFontColor: #fff;
+@h1Color: @mainFontColor;
+@formColor: @mainFontColor;
+@inputColor: #ccc;
 @fontColor: #888;
 
-@nextFont: verdana, sans-serif;
+@selectionColour: lighten(@themeColor, 30%);
+
+@h1BoxShadow: 0.03em;
 
 @width: 80%;
 @minWidth: 1000px;
 @maxWidth: 1920px;
+
+@time: 0.3s;
+@imageFolder: "../images";
+@h1Path: "@{imageFolder}/arrow2.png";
