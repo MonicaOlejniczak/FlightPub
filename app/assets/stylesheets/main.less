@@ -3,13 +3,13 @@
 
 @headerFontSize: 1em;
 @logoFontSize: 2em;
-@navFontSize: 1em;
+@navFontSize: 1.2em;
 @footerFontSize: 1em;
 
 @headerFont:	@headerFontSize 'Open sans', @nextFont;
-@logoFont: 		bold @logoFontSize 'Open sans', @nextFont;
-@navFont: 		bold @navFontSize 'Open sans', @nextFont;
-@footerFont: 	@footerFontSize 'Roboto', @nextFont;
+@logoFont: 		bold @logoFontSize 'Ubuntu', @nextFont;
+@navFont: 		@navFontSize 'Ubuntu', 'Helvetica', @nextFont;
+@footerFont: 	@footerFontSize 'Ubuntu', @nextFont;
 
 @headerBackgroundColor: #fff;
 @headerBackgroundColorDarker: darken(@headerBackgroundColor, 20%);
@@ -23,14 +23,13 @@
 @footerSelectionColour: #bbb;
 
 @navBorderWeight: 0.05em;
-@navSpanBorderWeight: 0.1em;
+@navSpanBorderWeight: 0.15em;
 
 @headerHeight: 40px;
 @logoWidth: 35%;
 @navigationContainerWidth: 100 - @logoWidth;
 @navLinksAmount: 6;
 @navWidth: round(((100% / @navLinksAmount) - (@navBorderWeight * (@navLinksAmount - 1))) + 0.05, 1);
-@footerHeight: 50px;
 
 @logoLineHeight: @headerHeight - @logoFontSize;
 @navLineHeight: @headerHeight - @navFontSize;
@@ -192,17 +191,18 @@ nav a:hover span {
 
 // content
 #content {
+	height: 100%;
 	clear: both;
 }
 
 // footer
 footer {
 	width: 100%;
-	height: @footerHeight;
 	background-color: @footerBackgroundColor;
 	color: @footerColor;
 	font: @footerFont;
-	padding: 2em 0;
+	text-align: center;
+	padding: 1em 0;
 	.boxShadow(0, -@footerBoxShadow, @footerBoxShadow, 0, @footerBackgroundColor);
 }
 

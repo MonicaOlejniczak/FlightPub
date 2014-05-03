@@ -11,8 +11,7 @@
 	@styles
 	<link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Roboto'>
 	<link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Open+Sans'>
-	<link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Oswald'>
-	<link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Droid+Sans'>
+	<link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Ubuntu'>
 	<script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("jquery.min.js"))'></script>
 	<script type="text/javascript" src="@routes.MessageController.javascriptRoutes"></script>
 	@scripts
@@ -20,9 +19,9 @@
 <body>
 	<header>
 		<div id="header">
-			<div id="logo">
+			<!--<div id="logo">
 				<a href="home.scala.html">Flight<span>Pub</span></a>
-			</div>
+			</div>-->
 			<div id="navigationContainer">
 				<nav role="navigation">
 					<span class="active">Home</span>
@@ -42,9 +41,9 @@
 	</header>
 	<div id="content">
 		@content
+		<footer>
+			FlightPub &copy; 2014-present. All rights reserved.
+		</footer>
 	</div>
-	<footer>
-		FlightPub &copy; 2014-present. All rights reserved.
-	</footer>
 </body>
 </html>

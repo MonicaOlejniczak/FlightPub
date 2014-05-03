@@ -10,12 +10,22 @@
 @informationPath: '@{imageFolder}/grid.png';
 
 @flightsWrapperColor: #fff;
-@informationColor: #fff;
-@informationDarkerColor: darken(@informationColor, 15%);
 @findFlightsColor: #fff;
+
+@flightsWrapperBackgroundColor: @secondaryColor;
+@flightsWrapperDarkerBackgroundColor: darken(@flightsWrapperBackgroundColor, 7.5%);
+@informationBackgroundColor: #fff;
+@informationDarkerBackgroundColor: darken(@informationBackgroundColor, 15%);
 
 @destinationsBoxShadow: 0.05em;
 @animationBoxShadow: 0.1em;
+
+@labelWidth: 25%;
+@flightRowInputWidth: 96.6 - @labelWidth;
+@selectWidth: 20%;
+@flightRowLabelLineHeight: @formFontSize - @inputFontSize;
+@mapBorderWidth: 0.2em;
+@mapBorderColor: #000;
 
 @imageCount: 3;
 @maskWidth: @imageCount * 100%;
@@ -23,32 +33,45 @@
 @animationWidth: 100% / @imageCount;
 @moveAmount: 100%;
 
-@flightRowLabelWidth: 25%;
-@flightRowInputWidth: 95 - @flightRowLabelWidth;
-@mapBorderWidth: 0.2em;
-@mapBorderColor: #000;
-
-/* Flights */
-#flightsWrapper {
+#flightsWrapper, #informationWrapper, #destinations, .animation img {
+	width: 100%;
+	height: 100%;
 	min-height: 100%;
-	background-color: @secondaryColor;
-	color: @flightsWrapperColor;
 }
 
-#flights, #information {
+/* Flights */
+.flightsGradient (@start: transparent, @second: transparent, @third: transparent, @stop: transparent) {
+	@origin: right;
+	@startPercent: 0%;
+	@secondPercent: 25%;
+	@thirdPercent: 75%;
+	@stopPercent: 100%;
+	background-image: -webkit-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+	background-image: -moz-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+	background-image: -o-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+	background-image: -ms-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+	background-image: linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+}
+
+#flightsWrapper {
+	background-color: @flightsWrapperBackgroundColor;
+	color: @flightsWrapperColor;
+	.gradient(top, @flightsWrapperDarkerBackgroundColor, 0, transparent, 15%);
+}
+
+.flights, #information {
 	width: @width;
 	min-width: @minWidth;
 	max-width: @maxWidth;
-	height: 100%;
 	padding: 1em 0 0 0;
 	margin: 0 auto;
 }
 
-#flightColumns {
+#flightColumns, #flightRows {
 	width: 100%;
 }
 
-.flightColumn, .flightRow label, .flightRow input {
+.flightColumn, .flightRow label, .flightColumn .flightRow input {
 	float: left;
 	display: block;
 }
@@ -58,20 +81,28 @@
 	margin: 0 0 1.5em 0;
 }
 
+.flightColumn .flightRow input {
+	width: @flightRowInputWidth;
+}
+
 .flightRow {
 	clear: both;
 	margin: 0 0 1.5em 0;
 }
 
 .flightRow label {
-	width: @flightRowLabelWidth;
+	width: @labelWidth;
 	text-align: right;
-	line-height: 1em;
+	line-height: @flightRowLabelLineHeight;
 	padding: 0 1em 0 0;
 }
 
-.flightRow input {
-	width: @flightRowInputWidth;
+#flightRows .flightRow label {
+	width: @labelWidth / 2;
+}
+
+.flightRow select {
+	width: @selectWidth;
 }
 
 #map {
@@ -82,7 +113,7 @@
 	/*border-radius: 0.5em;
 	margin: 1em auto;*/
 	clear: both;
-	.boxShadow(0, 0, 0.05em, 0.05em, darken(@informationColor, 10%));
+	.boxShadow(0, 0, 0.05em, 0.05em, darken(@informationBackgroundColor, 10%));
 }
 
 #map a, #map span {
@@ -121,10 +152,9 @@
 }
 
 #informationWrapper {
-	min-height: 100%;
-	background: @informationColor url(@informationPath);
+	background: @informationBackgroundColor url(@informationPath);
 	color: @fontColor;
-	.informationGradient(@informationDarkerColor, transparent, transparent, @informationDarkerColor);
+	.informationGradient(@informationDarkerBackgroundColor, transparent, transparent, @informationDarkerBackgroundColor);
 }
 
 .text {
@@ -135,9 +165,7 @@
 
 /* Destinations */
 #destinations {
-	width: 100%;
-	height: 100%;
-	.boxShadow(0, -@destinationsBoxShadow, @destinationsBoxShadow, 0, darken(@informationColor, 25%));
+	.boxShadow(0, -@destinationsBoxShadow, @destinationsBoxShadow, 0, darken(@informationBackgroundColor, 25%));
 	overflow: hidden;
 }
 
@@ -160,8 +188,6 @@
 }
 
 .animation img {
-	width: 100%;
-	height: 100%;
 	.boxShadow(0, -@animationBoxShadow, @animationBoxShadow, @animationBoxShadow, #000);
 }
 
@@ -194,7 +220,7 @@
 
 .title {
 	left: 0;
-	bottom: 5%;
+	bottom: 10%;
 	width: 100%;
 	color: #fff;
 	font: @titleFont;
