@@ -32,6 +32,7 @@ public class BookingRequest extends Model {
 	@Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
 	public Date date;
 
+    @Enumerated(EnumType.ORDINAL)
 	@Constraints.Required
 	public Status status;
 
