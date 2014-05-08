@@ -6,32 +6,78 @@ import play.data.validation.Constraints;
 
 import javax.persistence.*;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 public class Booking extends Model {
 
+	/**
+	 * Defines an enumeration for the current status of the booking
+	 */
+	public enum Status {
+		PENDING,
+		APPROVED,
+		DECLINED
+	}
+
+	/**
+	 * Uniquely identifies the booking
+	 */
 	@Id
 	public Long id;
 
+	/**
+	 * The current status of the booking
+	 */
+	@Enumerated(EnumType.ORDINAL)
+	@Constraints.Required
+	public Status status;
+
+	/**
+	 * The user that requested the booking
+	 * A user is able to book for others
+	 */
 	@Constraints.Required
 	@ManyToOne(cascade = CascadeType.ALL)
 	public User user;
 
+	/**
+	 * The flight that was booked by the user
+	 */
 	@Constraints.Required
 	@ManyToOne(cascade = CascadeType.ALL)
 	public Flight flight;
 
+	/**
+	 * The date that the booking was made
+	 */
 	@Constraints.Required
 	@Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
 	public Date date;
 
+	/**
+	 * A reverse mapping of the list of tickets requested by the user
+	 * This enables the user to book for others
+	 */
 	@Constraints.Required
-	@OneToOne(cascade = CascadeType.ALL)
-	public BookingRequest bookingRequest;
+	@OneToMany(mappedBy = "booking", fetch = FetchType.LAZY)
+	public List<Ticket> tickets = new ArrayList<>();
 
-	// todo reverse mappings and constructor
+	/**
+	 * Class constructor setting the required variables of the class
+	 */
+	public Booking(Status status, User user, Flight flight, Date date) {
+		this.status = status;
+		this.user = user;
+		this.flight = flight;
+		this.date = date;
+	}
 
+	/**
+	 * Creates a finder for the Booking entity
+	 */
 	public static Model.Finder<Long, Booking> find = new Model.Finder<>(Long.class, Booking.class);
 
 }

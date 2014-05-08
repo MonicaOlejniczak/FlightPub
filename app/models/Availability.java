@@ -8,9 +8,15 @@ import javax.persistence.*;
 @Entity
 public class Availability extends Model {
 
+	/**
+	 * Uniquely identifies the availability of seats
+	 */
 	@Id
 	public Long id;
 
+	/**
+	 * Specifies the airline associated with the availability of seats
+	 */
 	@Constraints.Required
 	@ManyToOne(cascade = CascadeType.ALL)
 	public Airline airline;
@@ -27,20 +33,20 @@ public class Availability extends Model {
 	@Constraints.Min(0)
 	@Constraints.MinLength(1)
 	@Constraints.MaxLength(3)
-	public int numberAvailableSeatsLegOne;
+	public int numberAvailableSeatsLeg1;
 
 	@Constraints.Required
 	@Constraints.Min(0)
 	@Constraints.MinLength(1)
 	@Constraints.MaxLength(3)
-	public int numberAvailableSeatsLegTwo;
+	public int numberAvailableSeatsLeg2;
 
-	public Availability(Airline airline, Flight flight, TicketType ticketType, int numberAvailableSeatsLegOne, int numberAvailableSeatsLegTwo) {
+	public Availability(Airline airline, Flight flight, TicketType ticketType, int numberAvailableSeatsLeg1, int numberAvailableSeatsLeg2) {
 		this.airline = airline;
 		this.flight = flight;
 		this.ticketType = ticketType;
-		this.numberAvailableSeatsLegOne = numberAvailableSeatsLegOne;
-		this.numberAvailableSeatsLegTwo = numberAvailableSeatsLegTwo;
+		this.numberAvailableSeatsLeg1 = numberAvailableSeatsLeg1;
+		this.numberAvailableSeatsLeg2 = numberAvailableSeatsLeg2;
 	}
 
 	public static Model.Finder<Long, Availability> find = new Model.Finder<>(Long.class, Availability.class);
