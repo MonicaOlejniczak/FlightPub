@@ -7,16 +7,20 @@
 		<fieldset>
 			<legend>Login</legend>
 
+			@if(loginForm.hasGlobalErrors) {
+				<div class="error">@loginForm.globalError.message</div>
+			}
+
 			@inputText(
-				loginForm("emailAddress"),
+				loginForm("email"),
+				'class -> "form-control",
 				'_label -> "Email Address",
-				'_help -> "Please enter a valid email address.",
-				'_error -> loginForm.globalError
+				'_error -> loginForm.error("email")
 			)
 			@inputPassword(
 				loginForm("password"),
+				'class -> "form-control",
 				'_label -> "Password",
-				'_help -> "Please enter a valid password.",
 				'_error -> loginForm.error("password")
 			)
 		</fieldset>
