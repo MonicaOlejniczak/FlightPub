@@ -11,9 +11,9 @@
 @main("FlightPub - Home", styles, scripts) {
 
 	<div id="flightsWrapper">
-		<div class="flights">
-			<h1>Flights</h1>
-			<form action="seatSelection.scala.html">
+		<form action="seatSelection.scala.html">
+			<div class="flights">
+				<h1>Flights</h1>
 				<div id="flightColumns">
 					<div class="flightColumn">
 						<div class="flightRow">
@@ -36,11 +36,9 @@
 						</div>
 					</div>
 				</div>
-			</form>
-		</div>
-		<div id="map"></div>
-		<div class="flights">
-			<form action="seatSelection.scala.html">
+			</div>
+			<div id="map"></div>
+			<div class="flights">
 				<div id="flightRows">
 					<div class="flightRow">
 						<label for="passengers">Passengers</label>
@@ -69,8 +67,8 @@
 					</div>
 				</div>
 				<!--<input type="submit" value="Find Flights" id="findFlights" />-->
-			</form>
-		</div>
+			</div>
+		</form>
 	</div>
 	<div id="informationWrapper">
 		<div id="information">

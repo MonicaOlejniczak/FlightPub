@@ -3,13 +3,12 @@ function initialize() {
 	var map_options = {
 		center: new google.maps.LatLng(30, -85),
 		zoom: 2,
-		minZoom: 2,
-		maxZoom: 5,
 		panControl: false,
 		zoomControl: false,
 		mapTypeControl: false,
 		streetViewControl: false,
 		overviewMapControl: false,
+		scrollwheel: false,
 		mapTypeId: google.maps.MapTypeId.ROADMAP
 	};
 
