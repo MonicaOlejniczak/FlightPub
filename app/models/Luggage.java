@@ -8,7 +8,7 @@ import javax.persistence.*;
 @Entity
 public class Luggage extends Model {
 
-	public enum Option {
+	public enum LuggageType {
 		CARRY_ON,
 		CHECKED
 	}
@@ -16,8 +16,9 @@ public class Luggage extends Model {
 	@Id
 	public Long id;
 
-	@Constraints.Required
-	public Option option;
+    @Enumerated(EnumType.ORDINAL)
+    @Constraints.Required
+	public LuggageType luggageType;
 
 	// measured in kg
 	@Constraints.Required
@@ -26,8 +27,8 @@ public class Luggage extends Model {
 	@Constraints.MaxLength(10)
 	public double weight;
 
-	public Luggage(Option option, double weight) {
-		this.option = option;
+	public Luggage(LuggageType luggageType, double weight) {
+		this.luggageType = luggageType;
 		this.weight = weight;
 	}
 

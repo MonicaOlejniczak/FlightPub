@@ -30,6 +30,7 @@ public class Notification extends Model {
 	@Constraints.Required
 	public String message;
 
+    @Enumerated(EnumType.ORDINAL)
 	@Constraints.Required
 	public Status status;
 
