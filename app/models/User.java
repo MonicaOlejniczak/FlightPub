@@ -12,15 +12,16 @@ import java.util.List;
 
 @Entity
 public class User extends Model {
+	public interface LoginFields {}
 
 	@Id
 	public Long id;
 
-	@Constraints.Required
+	@Constraints.Required(groups = LoginFields.class)
 	@Constraints.MinLength(5)
 	public String email;
 
-	@Constraints.Required
+	@Constraints.Required(groups = LoginFields.class)
 	@Constraints.MinLength(6)
 	public String password;
 
