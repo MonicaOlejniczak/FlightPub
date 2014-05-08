@@ -1,6 +1,7 @@
 .idea/
 project/project/
 project/target/
+conf/evolutions/
 target/
 out/
 dist/

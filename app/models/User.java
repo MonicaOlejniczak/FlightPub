@@ -12,15 +12,16 @@ import java.util.List;
 
 @Entity
 public class User extends Model {
+	public interface LoginFields {}
 
 	@Id
 	public Long id;
 
-	@Constraints.Required
+	@Constraints.Required(groups = LoginFields.class)
 	@Constraints.MinLength(5)
 	public String email;
 
-	@Constraints.Required
+	@Constraints.Required(groups = LoginFields.class)
 	@Constraints.MinLength(6)
 	public String password;
 
@@ -67,6 +68,13 @@ public class User extends Model {
 		this.registrationDate = new Date();
 	}
 
-	public static Model.Finder<Long, User> find = new Model.Finder<>(Long.class, User.class);
+	/**
+	 * Handles validation of Forms involving the User class.
+	 * @return The error message if an error occurred, or null if validation was successful.
+	 */
+	public static String validate() {
+		return null;
+	}
 
+	public static Model.Finder<Long, User> find = new Model.Finder<>(Long.class, User.class);
 }
