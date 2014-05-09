@@ -1,0 +1,40 @@
+.gradient (@origin: left, @start: transparent, @startPercent: 0, @stop: transparent, @stopPercent: 100) {
+	background-image: -webkit-linear-gradient(@origin, @start @startPercent, @stop @stopPercent);
+	background-image: -moz-linear-gradient(@origin, @start @startPercent, @stop @stopPercent);
+	background-image: -o-linear-gradient(@origin, @start @startPercent, @stop @stopPercent);
+	background-image: -ms-linear-gradient(@origin, @start @startPercent, @stop @stopPercent);
+	background-image: linear-gradient(@origin, @start @startPercent, @stop @stopPercent);
+}
+
+.border(@top: 0, @right: 0, @bottom: 0, @left: 0, @colour: #000, @style: solid) {
+	border-top-width: @top;
+	border-right-width: @right;
+	border-bottom-width: @bottom;
+	border-left-width: @left;
+	border-color: @colour;
+	border-style: @style;
+}
+
+.textShadow(@weight: 0.01em, @colour: #000) {
+	text-shadow: 0 0 0 transparent, 0 @weight @weight @colour;
+}
+
+.boxShadow (@x: 0, @y: 0, @blur: 0, @spread: 0, @colour: #000) {
+	-webkit-box-shadow: @x @y @blur @spread @colour;
+	-moz-box-shadow: 	@x @y @blur @spread @colour;
+	box-shadow: 		@x @y @blur @spread @colour;
+}
+
+.transition (@type: background, @time: 1s, @progression: linear) {
+	-webkit-transition: @type @time @progression;
+	-moz-transition: 	@type @time @progression;
+	-ms-transition: 	@type @time @progression;
+	-o-transition: 		@type @time @progression;
+	transition: 		@type @time @progression;
+}
+    /*
+.animate (@name: move, @percent: 0, @operation: translateY(0)) {
+	@keyframes @name {
+		@percent {@operation;}
+	}
+} */

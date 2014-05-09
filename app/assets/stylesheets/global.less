@@ -1,0 +1,95 @@
+@import 'globalMethods';
+@import 'globalVariables';
+
+* {
+	padding: 0;
+	margin: 0;
+}
+
+html, body {
+	height: 100%;
+	min-width: 1000px;
+	min-height: 800px;
+	background-color: #fff;
+	color: @fontColor;
+	font: @bodyFont;
+
+}
+
+.h1Gradient (@path: "", @repeatType: no-repeat, @positionX: 100%, @positionY: 100%, @origin: right, @start: transparent, @stop: transparent) {
+	background-image: -webkit-linear-gradient(@origin, @start, @stop);
+	/*background-image: url(@path) @repeatType @positionX @positionY, -webkit-linear-gradient(@origin, @start, @stop);
+	background-image: url(@path) @repeatType @positionX @positionY, -moz-linear-gradient(@origin, @start, @stop);
+	background-image: url(@path) @repeatType @positionX @positionY, -o-linear-gradient(@origin, @start, @stop);
+	background-image: url(@path) @repeatType @positionX @positionY, -ms-linear-gradient(@origin, @start, @stop);
+	background-image: url(@path) @repeatType @positionX @positionY, linear-gradient(@origin, @start, @stop);*/
+}
+
+h1, h1:hover {
+	.transition(background-color, @time, linear);
+}
+
+h1 {
+	/*width: 100%;
+	height: 100%;*/
+	background: @themeColor url(@h1Path) no-repeat 95% 58%;
+	background-size: 40px;
+	color: @h1Color;
+	font: @h1Font;
+	.textShadow(@themeColor);
+	text-align: right;
+	border-radius: 0.05em;
+	padding: 0.3em 1.4em 0.3em 0.3em;
+	margin: 0 0 0.5em 0;
+	float: right;
+	display: block;
+	/*.h1Gradient(@arrowPath, no-repeat, 90%, 50%, right, @themeColor, transparent);(*/
+	.boxShadow(0, @h1BoxShadow * 2, @h1BoxShadow, -@h1BoxShadow, darken(@themeColor, 10%));
+}
+
+h1:hover {
+	background-color: @themeColorHover;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	.transition(background, 0.5s);
+}
+
+p {
+	margin: 0 0 1em 0;
+}
+
+form {
+	font: @formFont;
+	color: @formColor;
+	.textShadow(@formColor);
+	clear: both;
+}
+
+input, select {
+	height: @inputFontSize * 3;
+	background-color: @inputBackgroundColor;
+	color: @inputColor;
+	font: @inputFont;
+	.textShadow(@inputColor);
+	text-indent: 0.5em;
+	border: 0;
+	border-radius: 0.1em;
+	margin: 0 0 0.1em;
+}
+
+input[type=submit] {
+	cursor: pointer;
+}
+
+::selection {
+	background-color: @selectionColour;
+}
+
+::-moz-selection {
+	background-color: @selectionColour;
+}
