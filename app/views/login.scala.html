@@ -1,5 +1,33 @@
+@(loginForm: Form[User])
+
+@import helper._
+
 @main("FlightPub - Login") {
+	@helper.form(action = routes.AuthenticationController.processLogin()) {
+		<fieldset>
+			<legend>Login</legend>
 
+			@if(loginForm.hasGlobalErrors) {
+				<div class="error">@loginForm.globalError.message</div>
+			}
 
+			@inputText(
+				loginForm("email"),
+				'class -> "form-control",
+				'_label -> "Email Address",
+				'_error -> loginForm.error("email")
+			)
+			@inputPassword(
+				loginForm("password"),
+				'class -> "form-control",
+				'_label -> "Password",
+				'_error -> loginForm.error("password")
+			)
+		</fieldset>
 
+		<fieldset>
+			<input type="submit" class="btn btn-primary" value="Login">
+			<a href="@routes.MainController.home()">Cancel</a>
+		</fieldset>
+	}
 }
