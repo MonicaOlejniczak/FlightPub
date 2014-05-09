@@ -39,7 +39,6 @@ public class User extends Person {
 	@Id
 	public Long id;
 
-	@Constraints.Required
 	@Constraints.Email
 	@Constraints.Required(groups = LoginFields.class)
 	public String email;
