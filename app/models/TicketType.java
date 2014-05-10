@@ -37,7 +37,7 @@ public class TicketType extends Model {
 	 * Specifies whether the type of ticket is transferrable
 	 */
 	@Constraints.Required
-	public boolean transferrable;
+	public boolean transferable;
 
 	/**
 	 * Specifies whether the type of ticket is refundable
@@ -78,10 +78,10 @@ public class TicketType extends Model {
 	/**
 	 * Class constructor setting the required variables of the class
 	 */
-	public TicketType(String code, String name, boolean transferrable, boolean refundable, boolean exchangeable, boolean frequentFlyerPoints) {
+	public TicketType(String code, String name, boolean transferable, boolean refundable, boolean exchangeable, boolean frequentFlyerPoints) {
 		this.code = code;
 		this.name = name;
-		this.transferrable = transferrable;
+		this.transferable = transferable;
 		this.refundable = refundable;
 		this.exchangeable = exchangeable;
 		this.frequentFlyerPoints = frequentFlyerPoints;

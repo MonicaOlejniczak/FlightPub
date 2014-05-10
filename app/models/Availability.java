@@ -1,9 +1,11 @@
 package models;
 
+import play.data.format.Formats;
 import play.db.ebean.Model;
 import play.data.validation.Constraints;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 public class Availability extends Model {
@@ -28,6 +30,13 @@ public class Availability extends Model {
 	@Constraints.Required
 	@ManyToOne(cascade = CascadeType.ALL)
 	public TicketType ticketType;
+
+    /**
+     * I have no idea what this is
+     */
+    @Constraints.Required
+    @Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
+    public Date departureTime;
 
 	@Constraints.Required
 	@Constraints.Min(0)

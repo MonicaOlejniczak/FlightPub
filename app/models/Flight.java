@@ -35,28 +35,25 @@ public class Flight extends Model {
 	public String flightNumber;
 
 	/**
-	 * A standard three letter code to identify the departure
+	 * The source airport
 	 */
 	@Constraints.Required
-	@Constraints.MinLength(3)
-	@Constraints.MaxLength(3)
-	public String departureCode;
+    @ManyToOne(cascade = CascadeType.ALL)
+    public Airport source;
 
 	/**
-	 * A standard three letter code to identify the stop over
+	 * The stopover airport
 	 */
 	@Constraints.Required
-	@Constraints.MinLength(3)
-	@Constraints.MaxLength(3)
-	public String stopOverCode;
+    @ManyToOne(cascade = CascadeType.ALL)
+	public Airport stopOver;
 
 	/**
-	 * A standard three letter code to identify the destination
+	 * The destination airport
 	 */
 	@Constraints.Required
-	@Constraints.MinLength(3)
-	@Constraints.MaxLength(3)
-	public String destinationCode;
+    @ManyToOne(cascade = CascadeType.ALL)
+	public Airport destination;
 
 	/**
 	 * Specifies the departure date and time
@@ -91,7 +88,7 @@ public class Flight extends Model {
 	 */
 	@Constraints.Required
 	@ManyToOne(cascade = CascadeType.ALL)
-	public PlaneType planeType;
+	public Plane plane;
 
 	/**
 	 * Specifies the duration of the flight in minutes
@@ -140,17 +137,17 @@ public class Flight extends Model {
 	/**
 	 * Class constructor setting the required variables of the class
 	 */
-	public Flight(Airline airline, String flightNumber, String departureCode, String stopOverCode, String destinationCode, Date departureTime, Date arrivalTimeStopOver, Date departureTimeStopOver, Date arrivalTime, PlaneType planeType, int duration, int durationSecondLeg) {
+	public Flight(Airline airline, String flightNumber, Airport source, Airport stopOver, Airport destination, Date departureTime, Date arrivalTimeStopOver, Date departureTimeStopOver, Date arrivalTime, Plane plane, int duration, int durationSecondLeg) {
 		this.airline = airline;
 		this.flightNumber = flightNumber;
-		this.departureCode = departureCode;
-		this.stopOverCode = stopOverCode;
-		this.destinationCode = destinationCode;
+		this.source = source;
+		this.stopOver = stopOver;
+		this.destination = destination;
 		this.departureTime = departureTime;
 		this.arrivalTimeStopOver = arrivalTimeStopOver;
 		this.departureTimeStopOver = departureTimeStopOver;
 		this.arrivalTime = arrivalTime;
-		this.planeType = planeType;
+		this.plane = plane;
 		this.duration = duration;
 		this.durationSecondLeg = durationSecondLeg;
 	}
