@@ -129,12 +129,6 @@ public class Flight extends Model {
 	public List<Message> messages = new ArrayList<>();
 
 	/**
-	 * A reverse mapping of the list of prices for a particular flight
-	 */
-	@OneToMany(mappedBy = "flight", fetch = FetchType.LAZY)
-	public List<Price> prices = new ArrayList<>();
-
-	/**
 	 * Class constructor setting the required variables of the class
 	 */
 	public Flight(Airline airline, String flightNumber, Airport source, Airport stopOver, Airport destination, Date departureTime, Date arrivalTimeStopOver, Date departureTimeStopOver, Date arrivalTime, Plane plane, int duration, int durationSecondLeg) {
