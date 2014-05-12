@@ -1,6 +1,25 @@
 @import 'globalMethods';
 @import 'globalVariables';
 
+@logoWidth: 35%;
+@navigationContainerWidth: 100 - @logoWidth;
+@navLinksAmount: 6;
+@navWidth: round(((100% / @navLinksAmount) - (@navBorderWeight * (@navLinksAmount - 1))) + 0.05, 1);
+
+@headerHeight: 40px;
+@logoLineHeight: @headerHeight - @logoFontSize;
+@navLineHeight: @headerHeight - @navFontSize;
+
+@headerBackgroundColor: #fff;
+@headerBackgroundColorDarker: darken(@headerBackgroundColor, 20%);
+@footerBackgroundColor: #111;
+
+@logoColor: darken(@themeBackgroundColor, 10%);
+@navColor: @logoColor;
+@footerColor: #ccc;
+@headerSelectionColour: #bbb;
+@footerSelectionColour: #bbb;
+
 @headerFontSize: 1em;
 @logoFontSize: 2em;
 @navFontSize: 1.2em;
@@ -11,35 +30,15 @@
 @navFont: 		@navFontSize 'Ubuntu', 'Helvetica', @nextFont;
 @footerFont: 	@footerFontSize 'Ubuntu', @nextFont;
 
-@headerBackgroundColor: #fff;
-@headerBackgroundColorDarker: darken(@headerBackgroundColor, 20%);
-@footerBackgroundColor: #111;
-
-@logoColor: darken(@themeColor, 10%);
-@navColor: @logoColor;
-@footerColor: #ccc;
-
-@headerSelectionColour: #bbb;
-@footerSelectionColour: #bbb;
-
 @navBorderWeight: 0.05em;
 @navSpanBorderWeight: 0.15em;
-
-@headerHeight: 40px;
-@logoWidth: 35%;
-@navigationContainerWidth: 100 - @logoWidth;
-@navLinksAmount: 6;
-@navWidth: round(((100% / @navLinksAmount) - (@navBorderWeight * (@navLinksAmount - 1))) + 0.05, 1);
-
-@logoLineHeight: @headerHeight - @logoFontSize;
-@navLineHeight: @headerHeight - @navFontSize;
 
 @headerBorderWidth: 0.3em;
 
 @headerBoxShadow: 0.5em;
 @footerBoxShadow: 5em;
 
-// header
+/* Header */
 header, #logo, nav, nav a, .active, #headerOptions {
 	float: left;
 }
@@ -66,7 +65,7 @@ header {
 	height: @headerHeight;
 	background-color: @headerBackgroundColor;
 	font: @headerFont;
-	.border(@headerBorderWidth, 0, 0, 0, @themeColor, solid);
+	.border(@headerBorderWidth, 0, 0, 0, @themeBackgroundColor, solid);
 	overflow: hidden;
 	.headerGradient(@headerBackgroundColorDarker, transparent, transparent, @headerBackgroundColorDarker);
 	.boxShadow(0, -@headerBoxShadow, @headerBoxShadow, @headerBoxShadow, darken(@headerBackgroundColor, 25%));
@@ -107,18 +106,18 @@ header::-moz-selection {
 }
 
 #logo span {
-	color: @themeColor;
-	.textShadow(@themeColor);
+	color: @themeBackgroundColor;
+	.textShadow(@themeBackgroundColor);
 }
 
 #logo a:hover {
-	color: @themeColor;
+	color: @themeBackgroundColor;
 	/*background-color: lighten(@base, 5%);
 	.transition(background-color, @time, linear);*/
 }
 
 #logo a:hover span {
-	color: @themeColorHover;
+	color: @themeBackgroundColorHover;
 }
 
 #navigationContainer {
@@ -164,38 +163,38 @@ nav a:hover {
 	.transition(border-bottom, @time, linear);
 }
 
-// after hover
+/* After hover */
 nav a span {
 	.navBorder(0, 0, @navSpanBorderWeight, 0, transparent);
 	.navTransition;
 }
 
-// on hover
+/* On hover */
 nav a:hover span {
 	.navBorder(0, 0, @navSpanBorderWeight, 0, lighten(@navColor, 10%));
 	.navTransition;
 }
 
 .active {
-	color: @themeColor;
-	.textShadow(@themeColor);
+	color: @themeBackgroundColor;
+	.textShadow(@themeBackgroundColor);
 }
 
 .active:hover{
-	color: @themeColorHover;
+	color: @themeBackgroundColorHover;
 }
 
 #headerOptions a {
 	color: @mainFontColor;
 }
 
-// content
+/* Content */
 #content {
 	height: 100%;
 	clear: both;
 }
 
-// footer
+/* Footer */
 footer {
 	width: 100%;
 	background-color: @footerBackgroundColor;
@@ -203,7 +202,7 @@ footer {
 	font: @footerFont;
 	text-align: center;
 	padding: 1em 0;
-	.boxShadow(0, -@footerBoxShadow, @footerBoxShadow, 0, @footerBackgroundColor);
+	//.boxShadow(0, -@footerBoxShadow, @footerBoxShadow, 0, @footerBackgroundColor);
 }
 
 footer::selection {

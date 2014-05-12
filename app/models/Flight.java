@@ -98,7 +98,7 @@ public class Flight extends Model {
 	@Constraints.Max(6000)
 	@Constraints.MinLength(2)
 	@Constraints.MaxLength(4)
-	public int duration;
+	public Integer duration;
 
 	/**
 	 * Specifies the duration of the second leg in minutes
@@ -108,7 +108,7 @@ public class Flight extends Model {
 	@Constraints.Max(6000)
 	@Constraints.MinLength(2)
 	@Constraints.MaxLength(4)
-	public int durationSecondLeg;
+	public Integer durationSecondLeg;
 
 	/**
 	 * A reverse mapping of the list of seat availabilities for a particular flight
