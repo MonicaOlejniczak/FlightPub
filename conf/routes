@@ -2,15 +2,14 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-GET         /                                 controllers.MainController.home()
-GET         /login                            controllers.AuthenticationController.login()
-POST        /login/process                    controllers.AuthenticationController.processLogin()
-GET         /logout                           controllers.AuthenticationController.logout()
-GET		    /data/flights                     controllers.DataController.flights()
-GET         /processFlights                   controllers.HomeController.processFlights()
-GET         /message                          controllers.MessageController.getMessage()
-GET         /assets/javascripts/routes        controllers.MessageController.javascriptRoutes()
+GET         /                       controllers.MainController.home()
+GET         /login                  controllers.AuthenticationController.login()
+POST        /login/process          controllers.AuthenticationController.processLogin()
+GET         /logout                 controllers.AuthenticationController.logout()
+GET         /data/flights           controllers.DataController.flights()
+GET         /processFlights         controllers.HomeController.processFlights()
+GET         /data/selectedFlights   controllers.DataController.selectedFlights()
 
 # Map static resources from the /public folder to the /assets URL path
-GET         /assets/*file                     controllers.Assets.at(path="/public", file)
-GET         /webjars/*file                    controllers.WebJarAssets.at(file)
+GET         /assets/*file           controllers.Assets.at(path="/public", file)
+GET         /webjars/*file          controllers.WebJarAssets.at(file)

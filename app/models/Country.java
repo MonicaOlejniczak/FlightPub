@@ -65,7 +65,7 @@ public class Country extends Model {
 	 * For example, the mother country of the United Kingdom is Great Britain
 	 */
 	@ManyToOne(cascade = CascadeType.ALL)
-	public transient Country motherCountry;
+	public Country motherCountry;
 
 	/**
 	 * Provides an additional description for the mother country

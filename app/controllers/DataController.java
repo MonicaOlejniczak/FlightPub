@@ -1,15 +1,10 @@
 package controllers;
 
 import models.Flight;
-import play.api.libs.json.JsArray;
-import play.api.libs.json.JsObject;
-import play.api.libs.json.JsString;
-import play.api.libs.json.JsValue;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 
-import java.util.HashMap;
 import java.util.List;
 
 public class DataController extends Controller {
@@ -26,6 +21,11 @@ public class DataController extends Controller {
 //            flightObj
 //        }
         return ok(Json.toJson(flights));
+	}
+
+	public static Result selectedFlights() {
+		List<Flight> flights = Flight.getFlights();
+		return ok(Json.toJson(flights));
 	}
 
 }

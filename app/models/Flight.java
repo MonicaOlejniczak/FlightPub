@@ -6,9 +6,7 @@ import play.data.validation.Constraints;
 
 import javax.persistence.*;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Entity
 public class Flight extends Model {
@@ -146,6 +144,26 @@ public class Flight extends Model {
 		this.durationSecondLeg = durationSecondLeg;
 	}
 
+	/**
+	 * An accessor method that returns a list of flights
+	 * @return a list of flights for the Flight page
+	 */
+	public static List<Flight> getFlights() {
+		// this is stupid </rage>
+		/*RawSql rawSql = RawSqlBuilder
+						.parse("SELECT * FROM Flight GROUP BY flightNumber")
+						.columnMapping("flightNumber", "flightNumber")
+						.create();
+		List<Flight> flights = Flight.find.setRawSql(rawSql).findList();*/
+		List<Integer> idList = new LinkedList<>();
+		idList.addAll(Arrays.asList(1, 446, 872, 1311, 1752, 2193, 2626, 3065, 3941, 4380, 4806, 5243, 5668, 6110, 6552, 6994, 7417));
+		return Flight.find.select("flightNumber").where().idIn(idList).findList();
+	}
+
+	/**
+	 * An accessor method that returns the price of the flight using the start date and flight number
+	 * @return the price of the flight
+	 */
 	public Price getPrice() {
 		return Price.find.where().le("startDate", departureTime)//.gt("endDate", departureTime)
 				.eq("flightNumber", flightNumber).orderBy("startDate").setMaxRows(1).findUnique();

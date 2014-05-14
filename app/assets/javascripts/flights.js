@@ -1,5 +1,13 @@
 (function() {
 
+	/*
+	 @for(flight <- flights) {
+	 @flight.flightNumber
+	 <br />@flight.getPrice.price
+	 <p></p>
+	 }
+	 */
+
 	/**
 	 * A constructor that adds the click events to the flights page
 	 * @constructor
@@ -9,62 +17,75 @@
 		jQuery(function () {
 			me.addEvents();
 		});
-		$(function(){
-			getFlights ();
+		$(function () {
+			//getFlights ();
 		});
-
-
 	}
 
 	Flights.prototype.addEvents = function () {
-		var me = this;
-		jQuery("#sortPrice").click(function () {
-			me.sortPrice();
+		Ext.get('sortPrice').on({
+			'click' : this.sortPrice,
+			scope: this
 		});
-		jQuery("#sortDuration").click(function () {
-			me.sortDuration();
+		Ext.get('sortDuration').on({
+			'click' : this.sortDuration,
+			scope: this
 		});
-		jQuery("#sortDepartureTime").click(function () {
-			me.sortDepartureTime();
+		Ext.get('sortDepartureTime').on({
+			'click' : this.sortDepartureTime,
+			scope: this
 		});
-		jQuery("#sortArrivalTime").click(function () {
-			me.sortArrivalTime();
+		Ext.get('sortArrivalTime').on({
+			'click' : this.sortArrivalTime,
+			scope: this
 		});
-		jQuery("#sortStopOvers").click(function () {
-			me.sortStopOvers();
+		Ext.get('sortStopOvers').on({
+			'click' : this.sortStopOvers,
+			scope: this
 		});
-		jQuery("#sortAirline").click(function () {
-			me.sortAirline();
+		Ext.get('sortAirline').on({
+			'click' : this.sortAirline,
+			scope: this
 		});
-		jQuery("#sortClass").click(function () {
-			me.sortClass();
+		Ext.get('sortClass').on({
+			'click' : this.sortClass,
+			scope: this
 		});
-		jQuery("#filterNone").click(function () {
-			me.filterNone();
+		Ext.get('filterNone').on({
+			'click' : this.filterNone,
+			scope: this
 		});
-		jQuery("#filterPrice").click(function () {
-			me.filterPrice();
+		Ext.get('filterPrice').on({
+			'click' : this.filterPrice,
+			scope: this
 		});
-		jQuery("#filterDuration").click(function () {
-			me.filterDuration();
+		Ext.get('filterDuration').on({
+			'click' : this.filterDuration,
+			scope: this
 		});
-		jQuery("#filterDepartureTime").click(function () {
-			me.filterDepartureTime();
+		Ext.get('filterDepartureTime').on({
+			'click' : this.filterDepartureTime,
+			scope: this
 		});
-		jQuery("#filterArrivalTime").click(function () {
-			me.filterArrivalTime();
+		Ext.get('filterArrivalTime').on({
+			'click' : this.filterArrivalTime,
+			scope: this
 		});
-		jQuery("#filterStopOvers").click(function () {
-			me.filterStopOvers();
+		Ext.get('filterStopOvers').on({
+			'click' : this.filterStopOvers,
+			scope: this
 		});
-		jQuery("#filterAirline").click(function () {
-			me.filterAirline();
+		Ext.get('filterAirline').on({
+			'click' : this.filterAirline,
+			scope: this
 		});
-		jQuery("#filterClass").click(function () {
-			me.filterClass();
+		Ext.get('filterClass').on({
+			'click' : this.filterClass,
+			scope: this
 		});
-		jQuery("#filterAll").click(function () {
-			me.filterAll();
+		Ext.get('filterAll').on({
+			'click' : this.filterAll,
+			scope: this
 		});
 	}
 
@@ -72,43 +93,43 @@
 	 * Sorting the search results
 	 */
 	Flights.prototype.removeSortSelected = function () {
-		jQuery(".sortSelected").removeClass("sortSelected");
+		Ext.select('.sortSelected').removeCls('sortSelected');
 	}
 
 	Flights.prototype.sortPrice = function () {
 		this.removeSortSelected();
-		jQuery("#sortPrice").addClass("sortSelected");
-		flights.sort(sort_by("price"));
+		Ext.get('sortPrice').addCls('sortSelected');
+		flights.sort(sort_by('price'));
 	}
 
 	Flights.prototype.sortDuration = function () {
 		this.removeSortSelected();
-		jQuery("#sortDuration").addClass("sortSelected");
+		Ext.get('sortDuration').addCls('sortSelected');
 	}
 
 	Flights.prototype.sortDepartureTime = function () {
 		this.removeSortSelected();
-		jQuery("#sortDepartureTime").addClass("sortSelected");
+		Ext.get('sortDepartureTime').addCls('sortSelected');
 	}
 
 	Flights.prototype.sortArrivalTime = function () {
 		this.removeSortSelected();
-		jQuery("#sortArrivalTime").addClass("sortSelected");
+		Ext.get('sortArrivalTime').addCls('sortSelected');
 	}
 
 	Flights.prototype.sortStopOvers = function () {
 		this.removeSortSelected();
-		jQuery("#sortStopOvers").addClass("sortSelected");
+		Ext.get('sortStopOvers').addCls('sortSelected');
 	}
 
 	Flights.prototype.sortAirline = function () {
 		this.removeSortSelected();
-		jQuery("#sortAirline").addClass("sortSelected");
+		Ext.get('sortAirline').addCls('sortSelected');
 	}
 
 	Flights.prototype.sortClass = function () {
 		this.removeSortSelected();
-		jQuery("#sortClass").addClass("sortSelected");
+		Ext.get('sortClass').addCls('sortSelected');
 	}
 
 	/**
@@ -116,44 +137,43 @@
 	 */
 
 	Flights.prototype.filter = function (id) {
-		var element = document.getElementById(id);
-		element.className = element.className == "filterSelected" ? "" : "filterSelected";
+		Ext.get(id).toggleCls('filterSelected');
 	}
 
 	Flights.prototype.filterNone = function () {
-		jQuery(".filterSelected").removeClass("filterSelected");
+		Ext.select('.filterSelected').removeCls('filterSelected');
 	}
 
 	Flights.prototype.filterPrice = function () {
-		this.filter("filterPrice");
+		this.filter('filterPrice');
 	}
 
 	Flights.prototype.filterDuration = function () {
-		this.filter("filterDuration");
+		this.filter('filterDuration');
 	}
 
 	Flights.prototype.filterDepartureTime = function () {
-		this.filter("filterDepartureTime");
+		this.filter('filterDepartureTime');
 	}
 
 	Flights.prototype.filterArrivalTime = function () {
-		this.filter("filterArrivalTime");
+		this.filter('filterArrivalTime');
 	}
 
 	Flights.prototype.filterStopOvers = function () {
-		this.filter("filterStopOvers");
+		this.filter('filterStopOvers');
 	}
 
 	Flights.prototype.filterAirline = function () {
-		this.filter("filterAirline");
+		this.filter('filterAirline');
 	}
 
 	Flights.prototype.filterClass = function () {
-		this.filter("filterClass");
+		this.filter('filterClass');
 	}
 
 	Flights.prototype.filterAll = function () {
-		jQuery("#filter > span").addClass("filterSelected");
+		Ext.select('#filter > span').addCls('filterSelected');
 	}
 
 	window.FB.Flights = new Flights();
