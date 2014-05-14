@@ -14,8 +14,8 @@ public class HomeController extends Controller {
 	}
 
 	public static Result processFlights() {
-		List<Flight> flights = Flight.find.all();
-		return ok(views.html.flights.render(flights.subList(0, 9)));
+		List<Flight> flights = Flight.find.setMaxRows(10).findList();
+		return ok(views.html.flights.render(flights));
 	}
 
 }
