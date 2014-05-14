@@ -1,5 +1,6 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import play.db.ebean.Model;
 import play.data.validation.Constraints;
 
@@ -42,18 +43,21 @@ public class Airline extends Model {
 	/**
 	 * A reverse mapping of the list of available seats for a particular airline
 	 */
+    @JsonIgnore
 	@OneToMany(mappedBy = "airline", fetch = FetchType.LAZY)
 	public List<Availability> availabilities = new ArrayList<>();
 
 	/**
 	 * A reverse mapping of the list of flights for a particular airline
 	 */
+    @JsonIgnore
 	@OneToMany(mappedBy = "airline", fetch = FetchType.LAZY)
 	public List<Flight> flights = new ArrayList<>();
 
 	/**
 	 * A reverse mapping of the list of prices for a particular airline
 	 */
+    @JsonIgnore
 	@OneToMany(mappedBy = "airline", fetch = FetchType.LAZY)
 	public List<Price> prices = new ArrayList<>();
 

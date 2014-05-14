@@ -1,5 +1,7 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import play.db.ebean.Model;
 import play.data.validation.Constraints;
 
@@ -64,8 +66,9 @@ public class Country extends Model {
 	 * Specifies the mother country if it exists
 	 * For example, the mother country of the United Kingdom is Great Britain
 	 */
-	@ManyToOne(cascade = CascadeType.ALL)
-	public transient Country motherCountry;
+    @JsonIgnore
+	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	public Country motherCountry;
 
 	/**
 	 * Provides an additional description for the mother country
@@ -76,12 +79,14 @@ public class Country extends Model {
 	/**
 	 * The reverse mapping specifying the list of airlines that is within the given country
 	 */
+    @JsonIgnore
 	@OneToMany(mappedBy = "country", fetch = FetchType.LAZY)
 	public List<Airline> airlines = new ArrayList<>();
 
 	/**
 	 * The reverse mapping specifying the list of airports that is within the given country
 	 */
+    @JsonIgnore
 	@OneToMany(mappedBy = "country", fetch = FetchType.LAZY)
 	public List<Airport> airports = new ArrayList<>();
 
