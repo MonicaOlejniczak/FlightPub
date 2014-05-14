@@ -1,180 +1,182 @@
 (function() {
 
-	/*
-	 @for(flight <- flights) {
-	 @flight.flightNumber
-	 <br />@flight.getPrice.price
-	 <p></p>
-	 }
-	 */
+	Ext.syncRequire('Ext.Ajax');
+
+	Ext.define('Flights', {
+		extend: 'Ext.data.Model',
+		fields: [
+			'airline',
+			'flightNumber',
+			'departureTime',
+			'arrivalTime',
+			'stopOver',
+			'duration',
+			'price'
+		]
+	});
 
 	/**
-	 * A constructor that adds the click events to the flights page
+	 * A constructor that adds the click events to the flights page and converts the json file to a data store
 	 * @constructor
 	 */
 	function Flights () {
-		var me = this;
-		jQuery(function () {
-			me.addEvents();
-		});
-		$(function () {
-			//getFlights ();
-		});
+		this.url = 'data/selectedFlights';
+		Ext.require('Ext.data.Store');
+		Ext.onReady(function () {
+			this.addEvents();
+			this.dataStore = Ext.create('Ext.data.Store', {
+				model: 'Flights',
+				proxy: {
+					url: this.url,
+					type: 'ajax',
+					reader: {
+						type: 'json'
+					}
+				},
+				autoLoad: true,
+				listeners: {
+					load: function (store, records, successful, eOpts) {
+						this.sort('sortStopOvers', [{
+							property: 'stopOver',
+							direction: 'ASC',
+							transform: function (stopOver) {
+								return stopOver == null ? 0 : 1;
+							}
+						}]);
+						this.dataStore.each(function (record) {
+							Ext.get('flights').createChild(new Ext.XTemplate(
+								"<div>",
+									"Flight id: {id}<br />",
+									"Airline: {airline}<br />",
+									"Flight number: {flightNumber}<br />",
+									"Price: ${price}<br />",
+									"Duration: {duration}<br />",
+									"Departure time: {departure}<br />",
+									"Arrival time: {arrival}<br />",
+									"Stop overs: {stopOvers}<p></p>",
+								"</div>"
+							).apply({
+								id: record.get('id'),
+								airline: record.get('airline').name,
+								flightNumber: record.get('flightNumber'),
+								price: record.get('price').price,
+								duration: record.get('duration'),
+								departure: new Date(record.get('departureTime')),
+								arrival: new Date(record.get('arrivalTime')),
+								stopOvers: record.get('stopOver') == null ? 0 : 1
+							}));
+						});
+					},
+					scope: this
+				}
+			});
+		}, this);
 	}
 
 	Flights.prototype.addEvents = function () {
 		Ext.get('sortPrice').on({
-			'click' : this.sortPrice,
-			scope: this
+			'click': Ext.pass(this.sort, ['sortPrice', [{
+				property: 'price', 
+				direction: 'ASC', 
+				transform: function (price) {
+					return price.price;
+				}
+			}]], this)
 		});
 		Ext.get('sortDuration').on({
-			'click' : this.sortDuration,
-			scope: this
+			'click': Ext.pass(this.sort, 'sortDuration', [[{
+				property: 'duration',
+				direction: 'ASC'
+			}]], this)
 		});
 		Ext.get('sortDepartureTime').on({
-			'click' : this.sortDepartureTime,
-			scope: this
+			'click': Ext.pass(this.sort, 'sortDepartureTime', [[{
+				property: 'departureTime',
+				direction: 'ASC'
+			}]], this)
 		});
 		Ext.get('sortArrivalTime').on({
-			'click' : this.sortArrivalTime,
-			scope: this
+			'click': Ext.pass(this.sort, 'sortArrivalTime', [[{
+				property: 'arrivalTime',
+				direction: 'ASC'
+			}]], this)
 		});
 		Ext.get('sortStopOvers').on({
-			'click' : this.sortStopOvers,
-			scope: this
+			'click': Ext.pass(this.sort, 'sortStopOvers', [[{
+				property: 'stopOver',
+				direction: 'ASC',
+				transform: function (stopOver) {
+					return stopOver == null ? 0 : 1;
+				}
+			}]], this)
 		});
 		Ext.get('sortAirline').on({
-			'click' : this.sortAirline,
-			scope: this
+			'click': Ext.pass(this.sort, 'sortAirline', [[{
+				property: 'airline',
+				direction: 'ASC',
+				transform: function (airline) {
+					return airline.name;
+				}
+			}]], this)
 		});
-		Ext.get('sortClass').on({
-			'click' : this.sortClass,
+		/*Ext.get('sortClass').on({
+			'click': Ext.pass(this.sort, 'sortClass', 'class'),
 			scope: this
-		});
+		});*/
 		Ext.get('filterNone').on({
-			'click' : this.filterNone,
+			'click': this.filterNone,
 			scope: this
 		});
 		Ext.get('filterPrice').on({
-			'click' : this.filterPrice,
-			scope: this
+			'click': Ext.pass(this.filter, ['filterPrice'], this)
 		});
 		Ext.get('filterDuration').on({
-			'click' : this.filterDuration,
-			scope: this
+			'click': Ext.pass(this.filter, ['filterDuration'], this)
 		});
 		Ext.get('filterDepartureTime').on({
-			'click' : this.filterDepartureTime,
-			scope: this
+			'click': Ext.pass(this.filter, ['filterDepartureTime'], this)
 		});
 		Ext.get('filterArrivalTime').on({
-			'click' : this.filterArrivalTime,
-			scope: this
+			'click': Ext.pass(this.filter, ['filterArrivalTime'], this)
 		});
 		Ext.get('filterStopOvers').on({
-			'click' : this.filterStopOvers,
-			scope: this
+			'click': Ext.pass(this.filter, ['filterStopOvers'], this)
 		});
 		Ext.get('filterAirline').on({
-			'click' : this.filterAirline,
-			scope: this
+			'click': Ext.pass(this.filter, ['filterAirline'], this)
 		});
 		Ext.get('filterClass').on({
-			'click' : this.filterClass,
-			scope: this
+			'click': Ext.pass(this.filter, ['filterClass'], this)
 		});
 		Ext.get('filterAll').on({
-			'click' : this.filterAll,
+			'click': this.filterAll,
 			scope: this
 		});
-	}
+	};
 
 	/**
 	 * Sorting the search results
 	 */
-	Flights.prototype.removeSortSelected = function () {
+	Flights.prototype.sort = function (id, sorter) {
 		Ext.select('.sortSelected').removeCls('sortSelected');
-	}
-
-	Flights.prototype.sortPrice = function () {
-		this.removeSortSelected();
-		Ext.get('sortPrice').addCls('sortSelected');
-		flights.sort(sort_by('price'));
-	}
-
-	Flights.prototype.sortDuration = function () {
-		this.removeSortSelected();
-		Ext.get('sortDuration').addCls('sortSelected');
-	}
-
-	Flights.prototype.sortDepartureTime = function () {
-		this.removeSortSelected();
-		Ext.get('sortDepartureTime').addCls('sortSelected');
-	}
-
-	Flights.prototype.sortArrivalTime = function () {
-		this.removeSortSelected();
-		Ext.get('sortArrivalTime').addCls('sortSelected');
-	}
-
-	Flights.prototype.sortStopOvers = function () {
-		this.removeSortSelected();
-		Ext.get('sortStopOvers').addCls('sortSelected');
-	}
-
-	Flights.prototype.sortAirline = function () {
-		this.removeSortSelected();
-		Ext.get('sortAirline').addCls('sortSelected');
-	}
-
-	Flights.prototype.sortClass = function () {
-		this.removeSortSelected();
-		Ext.get('sortClass').addCls('sortSelected');
-	}
+		Ext.get(id).addCls('sortSelected');
+		this.dataStore.sort(sorter);
+	};
 
 	/**
 	 * Filtering the search results
 	 */
-
 	Flights.prototype.filter = function (id) {
 		Ext.get(id).toggleCls('filterSelected');
-	}
+	};
 
 	Flights.prototype.filterNone = function () {
 		Ext.select('.filterSelected').removeCls('filterSelected');
-	}
-
-	Flights.prototype.filterPrice = function () {
-		this.filter('filterPrice');
-	}
-
-	Flights.prototype.filterDuration = function () {
-		this.filter('filterDuration');
-	}
-
-	Flights.prototype.filterDepartureTime = function () {
-		this.filter('filterDepartureTime');
-	}
-
-	Flights.prototype.filterArrivalTime = function () {
-		this.filter('filterArrivalTime');
-	}
-
-	Flights.prototype.filterStopOvers = function () {
-		this.filter('filterStopOvers');
-	}
-
-	Flights.prototype.filterAirline = function () {
-		this.filter('filterAirline');
-	}
-
-	Flights.prototype.filterClass = function () {
-		this.filter('filterClass');
-	}
+	};
 
 	Flights.prototype.filterAll = function () {
 		Ext.select('#filter > span').addCls('filterSelected');
-	}
+	};
 
 	window.FB.Flights = new Flights();
 
