@@ -4,8 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea_modules/CodeRed FlightPub.iml" filepath="$PROJECT_DIR$/.idea_modules/CodeRed FlightPub.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea_modules/CodeRed FlightPub-build.iml" filepath="$PROJECT_DIR$/.idea_modules/CodeRed FlightPub-build.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/code.iml" filepath="$PROJECT_DIR$/.idea/modules/code.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/code-build.iml" filepath="$PROJECT_DIR$/.idea/modules/code-build.iml" />
     </modules>
   </component>
 </project>

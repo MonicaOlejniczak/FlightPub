@@ -27,13 +27,13 @@
 					<div id="sortText">
 						Sort by
 					</div>
-					<span id="sortPrice" class="sortSelected" onclick="sortPrice()">Price</span>
-					<span id="sortDuration" class="" onclick="sortDuration()">Duration</span>
-					<span id="sortDepartureTime" onclick="sortDepartureTime()">Departure Time</span>
-					<span id="sortArrivalTime" onclick="sortArrivalTime()">Arrival Time</span>
-					<span id="sortStopOvers" onclick="sortStopOvers()">Number of stop-overs</span>
-					<span id="sortAirline" onclick="sortAirline()">Airline</span>
-					<span id="sortClass" onclick="sortClass()">Class</span>
+					<span id="sortPrice" class="sortSelected">Price</span>
+					<span id="sortDuration">Duration</span>
+					<span id="sortDepartureTime">Departure Time</span>
+					<span id="sortArrivalTime">Arrival Time</span>
+					<span id="sortStopOvers">Number of stop-overs</span>
+					<span id="sortAirline">Airline</span>
+					<span id="sortClass">Class</span>
 				</div>
 			</div>
 			<div id="filterContainer">
@@ -41,15 +41,15 @@
 					<div id="filterText">
 						Filter by
 					</div>
-					<span id="filterNone" onclick="filterNone()">None</span>
-					<span id="filterPrice" onclick="filterPrice()">Price</span>
-					<span id="filterDuration" class="" onclick="filterDuration()">Duration</span>
-					<span id="filterDepartureTime" onclick="filterDepartureTime()">Departure Time</span>
-					<span id="filterArrivalTime" onclick="filterArrivalTime()">Arrival Time</span>
-					<span id="filterStopOvers" onclick="filterStopOvers()">Number of stop-overs</span>
-					<span id="filterAirline" onclick="filterAirline()">Airline</span>
-					<span id="filterClass" onclick="filterClass()">Class</span>
-					<span id="filterAll" onclick="filterAll()">All</span>
+					<span id="filterNone"">None</span>
+					<span id="filterPrice">Price</span>
+					<span id="filterDuration">Duration</span>
+					<span id="filterDepartureTime">Departure Time</span>
+					<span id="filterArrivalTime">Arrival Time</span>
+					<span id="filterStopOvers">Number of stop-overs</span>
+					<span id="filterAirline">Airline</span>
+					<span id="filterClass">Class</span>
+					<span id="filterAll">All</span>
 				</div>
 			</div>
 			<div class="clear"></div>
@@ -64,8 +64,12 @@
 						hello
 					</div>
 				</div>
+				@for(flight <- flights) {
+					@flight.flightNumber
+					<br />@flight.getPrice.price
+					<p></p>
+				}
 			</div>
 		</div>
 	</div>
-
 }

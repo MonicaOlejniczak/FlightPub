@@ -1,4 +1,5 @@
 @(flights: List[Flight])
+
 @styles = {
 	<link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/home.css")'>
 }
@@ -11,7 +12,7 @@
 @main("FlightPub - Home", styles, scripts) {
 
 	<div id="flightsWrapper">
-		<form action="@routes.HomeController.processFlights()">
+		<form action="processFlights">
 			<div class="flights">
 				<h1>Flights</h1>
 				<div id="flightColumns">
