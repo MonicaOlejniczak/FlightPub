@@ -1,108 +1,161 @@
-function init() {
+(function() {
+
+	/**
+	 * A constructor that adds the click events to the flights page
+	 * @constructor
+	 */
+	function Flights () {
+		var me = this;
+		jQuery(function () {
+			me.addEvents();
+		});
+		$(function(){
+			getFlights ();
+		});
 
 
-}
-
-/**
- * Sorting the search results
- */
-function removeSortSelected() {
-	var selected = document.getElementsByClassName('sortSelected')
-	for (var i = 0; i < selected.length; i++) {
-		selected[i].className = '';
 	}
-}
 
-function sortPrice() {
-	this.removeSortSelected();
-	document.getElementById('sortPrice').className = 'sortSelected';
-}
+	Flights.prototype.addEvents = function () {
+		var me = this;
+		jQuery("#sortPrice").click(function () {
+			me.sortPrice();
+		});
+		jQuery("#sortDuration").click(function () {
+			me.sortDuration();
+		});
+		jQuery("#sortDepartureTime").click(function () {
+			me.sortDepartureTime();
+		});
+		jQuery("#sortArrivalTime").click(function () {
+			me.sortArrivalTime();
+		});
+		jQuery("#sortStopOvers").click(function () {
+			me.sortStopOvers();
+		});
+		jQuery("#sortAirline").click(function () {
+			me.sortAirline();
+		});
+		jQuery("#sortClass").click(function () {
+			me.sortClass();
+		});
+		jQuery("#filterNone").click(function () {
+			me.filterNone();
+		});
+		jQuery("#filterPrice").click(function () {
+			me.filterPrice();
+		});
+		jQuery("#filterDuration").click(function () {
+			me.filterDuration();
+		});
+		jQuery("#filterDepartureTime").click(function () {
+			me.filterDepartureTime();
+		});
+		jQuery("#filterArrivalTime").click(function () {
+			me.filterArrivalTime();
+		});
+		jQuery("#filterStopOvers").click(function () {
+			me.filterStopOvers();
+		});
+		jQuery("#filterAirline").click(function () {
+			me.filterAirline();
+		});
+		jQuery("#filterClass").click(function () {
+			me.filterClass();
+		});
+		jQuery("#filterAll").click(function () {
+			me.filterAll();
+		});
+	}
 
-function sortDuration() {
-	this.removeSortSelected();
-	document.getElementById('sortDuration').className = 'sortSelected';
-}
+	/**
+	 * Sorting the search results
+	 */
+	Flights.prototype.removeSortSelected = function () {
+		jQuery(".sortSelected").removeClass("sortSelected");
+	}
 
-function sortDepartureTime() {
-	this.removeSortSelected();
-	document.getElementById('sortDepartureTime').className = 'sortSelected';
-}
+	Flights.prototype.sortPrice = function () {
+		this.removeSortSelected();
+		jQuery("#sortPrice").addClass("sortSelected");
+		flights.sort(sort_by("price"));
+	}
 
-function sortArrivalTime() {
-	this.removeSortSelected();
-	document.getElementById('sortArrivalTime').className = 'sortSelected';
-}
+	Flights.prototype.sortDuration = function () {
+		this.removeSortSelected();
+		jQuery("#sortDuration").addClass("sortSelected");
+	}
 
-function sortStopOvers() {
-	this.removeSortSelected();
-	document.getElementById('sortStopOvers').className = 'sortSelected';
-}
+	Flights.prototype.sortDepartureTime = function () {
+		this.removeSortSelected();
+		jQuery("#sortDepartureTime").addClass("sortSelected");
+	}
 
-function sortAirline() {
-	this.removeSortSelected();
-	document.getElementById('sortAirline').className = 'sortSelected';
-}
+	Flights.prototype.sortArrivalTime = function () {
+		this.removeSortSelected();
+		jQuery("#sortArrivalTime").addClass("sortSelected");
+	}
 
-function sortClass() {
-	this.removeSortSelected();
-	document.getElementById('sortClass').className = 'sortSelected';
-}
+	Flights.prototype.sortStopOvers = function () {
+		this.removeSortSelected();
+		jQuery("#sortStopOvers").addClass("sortSelected");
+	}
 
-/**
- * Filtering the search results
- */
+	Flights.prototype.sortAirline = function () {
+		this.removeSortSelected();
+		jQuery("#sortAirline").addClass("sortSelected");
+	}
 
-function filter(id) {
-	var element = document.getElementById(id);
-	element.className = element.className == 'filterSelected' ? '' : 'filterSelected';
-}
+	Flights.prototype.sortClass = function () {
+		this.removeSortSelected();
+		jQuery("#sortClass").addClass("sortSelected");
+	}
 
-function filterNone() {
-	document.getElementById('filterPrice').className = '';
-	document.getElementById('filterDuration').className = '';
-	document.getElementById('filterDepartureTime').className = '';
-	document.getElementById('filterArrivalTime').className = '';
-	document.getElementById('filterStopOvers').className = '';
-	document.getElementById('filterAirline').className = '';
-	document.getElementById('filterClass').className = '';
-}
+	/**
+	 * Filtering the search results
+	 */
 
-function filterPrice() {
-	this.filter('filterPrice');
-}
+	Flights.prototype.filter = function (id) {
+		var element = document.getElementById(id);
+		element.className = element.className == "filterSelected" ? "" : "filterSelected";
+	}
 
-function filterDuration() {
-	this.filter('filterDuration');
-}
+	Flights.prototype.filterNone = function () {
+		jQuery(".filterSelected").removeClass("filterSelected");
+	}
 
-function filterDepartureTime() {
-	this.filter('filterDepartureTime');
-}
+	Flights.prototype.filterPrice = function () {
+		this.filter("filterPrice");
+	}
 
-function filterArrivalTime() {
-	this.filter('filterArrivalTime');
-}
+	Flights.prototype.filterDuration = function () {
+		this.filter("filterDuration");
+	}
 
-function filterStopOvers() {
-	this.filter('filterStopOvers');
-}
+	Flights.prototype.filterDepartureTime = function () {
+		this.filter("filterDepartureTime");
+	}
 
-function filterAirline() {
-	this.filter('filterAirline');
-}
+	Flights.prototype.filterArrivalTime = function () {
+		this.filter("filterArrivalTime");
+	}
 
-function filterClass() {
-	this.filter('filterClass');
-}
+	Flights.prototype.filterStopOvers = function () {
+		this.filter("filterStopOvers");
+	}
 
-function filterAll() {
-	document.getElementById('filterPrice').className = 'filterSelected';
-	document.getElementById('filterDuration').className = 'filterSelected';
-	document.getElementById('filterDepartureTime').className = 'filterSelected';
-	document.getElementById('filterArrivalTime').className = 'filterSelected';
-	document.getElementById('filterStopOvers').className = 'filterSelected';
-	document.getElementById('filterAirline').className = 'filterSelected';
-	document.getElementById('filterClass').className = 'filterSelected';
-}
+	Flights.prototype.filterAirline = function () {
+		this.filter("filterAirline");
+	}
 
-window.addEventListener('load', init);
+	Flights.prototype.filterClass = function () {
+		this.filter("filterClass");
+	}
+
+	Flights.prototype.filterAll = function () {
+		jQuery("#filter > span").addClass("filterSelected");
+	}
+
+	window.FB.Flights = new Flights();
+
+}());

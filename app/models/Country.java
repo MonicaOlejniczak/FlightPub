@@ -53,6 +53,14 @@ public class Country extends Model {
 	public String alternateName2;
 
 	/**
+	 * Specifies the the timezone of the country
+	 */
+	//todo brendan add in
+	/*@Constraints.Required
+	@ManyToOne(cascade = CascadeType.ALL)
+	public Timezone timezone;*/
+
+	/**
 	 * Specifies the mother country if it exists
 	 * For example, the mother country of the United Kingdom is Great Britain
 	 */
@@ -80,21 +88,23 @@ public class Country extends Model {
 	/**
 	 * Class constructor setting the required variables of the class
 	 */
-	public Country(String countryCode2, String countryCode3, String name) {
+	public Country(String countryCode2, String countryCode3, String name, Timezone timezone) {
 		this.countryCode2 = countryCode2;
 		this.countryCode3 = countryCode3;
 		this.name = name;
+		//this.timezone = timezone;
 	}
 
 	/**
 	 * Class constructor setting all the variables in the class excluding any reverse mappings
 	 */
-	public Country(String countryCode2, String countryCode3, String name, String alternateName1, String alternateName2, Country motherCountry, String motherCountryComment) {
+	public Country(String countryCode2, String countryCode3, String name, String alternateName1, String alternateName2, Timezone timezone, Country motherCountry, String motherCountryComment) {
 		this.countryCode2 = countryCode2;
 		this.countryCode3 = countryCode3;
 		this.name = name;
 		this.alternateName1 = alternateName1;
 		this.alternateName2 = alternateName2;
+		//this.timezone = timezone;
 		this.motherCountry = motherCountry;
 		this.motherCountryComment = motherCountryComment;
 	}

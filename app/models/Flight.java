@@ -146,6 +146,11 @@ public class Flight extends Model {
 		this.durationSecondLeg = durationSecondLeg;
 	}
 
+	public Price getPrice() {
+		return Price.find.where().le("startDate", departureTime)//.gt("endDate", departureTime)
+				.eq("flightNumber", flightNumber).orderBy("startDate").setMaxRows(1).findUnique();
+	}
+
 	/**
 	 * Creates a finder for the Flight entity
 	 */
