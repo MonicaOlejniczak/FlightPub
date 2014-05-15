@@ -6,73 +6,83 @@
 
 @main("FlightPub - Seat Selection", styles) {
 
-    <div id="seats">
-        <FORM METHOD="POST" ACTION="/seatSelection">
-            <table class="table" style="width:500px">
-                <tr>
-                    <td><font color="white">ROW A</font></td>
-                    <td><input type="checkbox" name= "seat" value="A1"></td>
-                    <td><input type="checkbox" name= "seat" value="A2"></td>
-                    <td><input type="checkbox" name= "seat" value="A3"></td>
-                    <td><font color="white">--ISLE--</font></td>
-                    <td><input type="checkbox" name= "seat" value="A4"></td>
-                    <td><input type="checkbox" name= "seat" value="A5"></td>
-                    <td><input type="checkbox" name= "seat" value="A6"></td>
-                </tr>
-                <tr>
-                    <td><font color="white">ROW B</font></td>
-                    <td><input type="checkbox" name= "seat" value="B1"></td>
-                    <td><input type="checkbox" name= "seat" value="B2"></td>
-                    <td><input type="checkbox" name= "seat" value="B3"></td>
-                    <td><font color="white">--ISLE--</font></td>
-                    <td><input type="checkbox" name= "seat" value="B4"></td>
-                    <td><input type="checkbox" name= "seat" value="B5"></td>
-                    <td><input type="checkbox" name= "seat" value="B6"></td>
-                </tr>
-                <tr>
-                    <td><font color="white">ROW C</font></td>
-                    <td><input type="checkbox" name= "seat" value="C1"></td>
-                    <td><input type="checkbox" name= "seat" value="C2"></td>
-                    <td><input type="checkbox" name= "seat" value="C3"></td>
-                    <td><font color="white">--ISLE--</font></td>
-                    <td><input type="checkbox" name= "seat" value="C4"></td>
-                    <td><input type="checkbox" name= "seat" value="C5"></td>
-                    <td><input type="checkbox" name= "seat" value="C6"></td>
-                </tr>
-                <tr>
-                    <td><font color="white">ROW D</font></td>
-                    <td><input type="checkbox" name= "seat" value="D1"></td>
-                    <td><input type="checkbox" name= "seat" value="D2"></td>
-                    <td><input type="checkbox" name= "seat" value="D3"></td>
-                    <td><font color="white">--ISLE--</font></td>
-                    <td><input type="checkbox" name= "seat" value="D4"></td>
-                    <td><input type="checkbox" name= "seat" value="D5"></td>
-                    <td><input type="checkbox" name= "seat" value="D6"></td>
-                </tr>
-                <tr>
-                    <td><font color="white">ROW E</font></td>
-                    <td><input type="checkbox" name= "seat" value="E1"></td>
-                    <td><input type="checkbox" name= "seat" value="E2"></td>
-                    <td><input type="checkbox" name= "seat" value="E3"></td>
-                    <td><font color="white">--ISLE--</font></td>
-                    <td><input type="checkbox" name= "seat" value="E4"></td>
-                    <td><input type="checkbox" name= "seat" value="E5"></td>
-                    <td><input type="checkbox" name= "seat" value="E6"></td>
-                </tr>
-                <tr>
-                    <td><font color="white">ROW F</font></td>
-                    <td><input type="checkbox" name= "seat" value="F1"></td>
-                    <td><input type="checkbox" name= "seat" value="F2"></td>
-                    <td><input type="checkbox" name= "seat" value="F3"></td>
-                    <td><font color="white">--ISLE--</font></td>
-                    <td><input type="checkbox" name= "seat" value="F4"></td>
-                    <td><input type="checkbox" name= "seat" value="F5"></td>
-                    <td><input type="checkbox" name= "seat" value="F6"></td>
-                </tr>
-            </table>
-            <input type="submit" class="btn btn-primary" value="Confirm">
-            <a href="@routes.MainController.home()">Cancel</a>
-        </FORM>
+    <div class="container">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h1 class="panel-title">FlightPub - Seat Selection</h1>
+            </div>
+            <div class="panel-body" id="seats">
+                    <FORM METHOD="POST" ACTION="/seatSelection">
+                        <center>
+                            <table class="table" style="width:500px">
+                                <tr>
+                                    <td><font color="black">ROW A</font></td>
+                                    <td><input type="checkbox" name= "seat" value="A1"></td>
+                                    <td><input type="checkbox" name= "seat" value="A2"></td>
+                                    <td><input type="checkbox" name= "seat" value="A3"></td>
+                                    <td><font color="black">--ISLE--</font></td>
+                                    <td><input type="checkbox" name= "seat" value="A4"></td>
+                                    <td><input type="checkbox" name= "seat" value="A5"></td>
+                                    <td><input type="checkbox" name= "seat" value="A6"></td>
+                                </tr>
+                                <tr>
+                                    <td><font color="black">ROW B</font></td>
+                                    <td><input type="checkbox" name= "seat" value="B1"></td>
+                                    <td><input type="checkbox" name= "seat" value="B2"></td>
+                                    <td><input type="checkbox" name= "seat" value="B3"></td>
+                                    <td><font color="black">--ISLE--</font></td>
+                                    <td><input type="checkbox" name= "seat" value="B4"></td>
+                                    <td><input type="checkbox" name= "seat" value="B5"></td>
+                                    <td><input type="checkbox" name= "seat" value="B6"></td>
+                                </tr>
+                                <tr>
+                                    <td><font color="black">ROW C</font></td>
+                                    <td><input type="checkbox" name= "seat" value="C1"></td>
+                                    <td><input type="checkbox" name= "seat" value="C2"></td>
+                                    <td><input type="checkbox" name= "seat" value="C3"></td>
+                                    <td><font color="black">--ISLE--</font></td>
+                                    <td><input type="checkbox" name= "seat" value="C4"></td>
+                                    <td><input type="checkbox" name= "seat" value="C5"></td>
+                                    <td><input type="checkbox" name= "seat" value="C6"></td>
+                                </tr>
+                                <tr>
+                                    <td><font color="black">ROW D</font></td>
+                                    <td><input type="checkbox" name= "seat" value="D1"></td>
+                                    <td><input type="checkbox" name= "seat" value="D2"></td>
+                                    <td><input type="checkbox" name= "seat" value="D3"></td>
+                                    <td><font color="black">--ISLE--</font></td>
+                                    <td><input type="checkbox" name= "seat" value="D4"></td>
+                                    <td><input type="checkbox" name= "seat" value="D5"></td>
+                                    <td><input type="checkbox" name= "seat" value="D6"></td>
+                                </tr>
+                                <tr>
+                                    <td><font color="black">ROW E</font></td>
+                                    <td><input type="checkbox" name= "seat" value="E1"></td>
+                                    <td><input type="checkbox" name= "seat" value="E2"></td>
+                                    <td><input type="checkbox" name= "seat" value="E3"></td>
+                                    <td><font color="black">--ISLE--</font></td>
+                                    <td><input type="checkbox" name= "seat" value="E4"></td>
+                                    <td><input type="checkbox" name= "seat" value="E5"></td>
+                                    <td><input type="checkbox" name= "seat" value="E6"></td>
+                                </tr>
+                                <tr>
+                                    <td><font color="black">ROW F</font></td>
+                                    <td><input type="checkbox" name= "seat" value="F1"></td>
+                                    <td><input type="checkbox" name= "seat" value="F2"></td>
+                                    <td><input type="checkbox" name= "seat" value="F3"></td>
+                                    <td><font color="black">--ISLE--</font></td>
+                                    <td><input type="checkbox" name= "seat" value="F4"></td>
+                                    <td><input type="checkbox" name= "seat" value="F5"></td>
+                                    <td><input type="checkbox" name= "seat" value="F6"></td>
+                                </tr>
+                            </table>
+                        </center>
+                    <input type="submit" class="btn btn-primary" value="Confirm">
+                    <a href="@routes.MainController.home()">Cancel</a>
+                </FORM>
+                </centre>
+            </div>
+        </div>
     </div>
 
 }
