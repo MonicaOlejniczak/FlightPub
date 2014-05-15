@@ -18,11 +18,14 @@ public class Price extends Model {
 	public Long id;
 
 	/**
-	 * Specifies the flight associated with a particular price
+	 * Specifies the flight number (not a particular flight) associated with a particular price
+     *
+     * This is actually a range of specific flights
 	 */
 	@Constraints.Required
-	@ManyToOne(cascade = CascadeType.ALL)
-	public Flight flight;
+    @Constraints.MinLength(6)
+    @Constraints.MaxLength(6)
+	public String flightNumber;
 
 	/**
 	 * Specifies the airline associated with a particular price
@@ -80,8 +83,8 @@ public class Price extends Model {
 	/**
 	 * Class constructor setting the required variables of the class
 	 */
-	public Price(Flight flight, Airline airline, TicketClass ticketClass, TicketType ticketType, Date startDate, Date endDate, double price, double priceLeg1, double priceLeg2) {
-		this.flight = flight;
+	public Price(String flightNumber, Airline airline, TicketClass ticketClass, TicketType ticketType, Date startDate, Date endDate, double price, double priceLeg1, double priceLeg2) {
+		this.flightNumber = flightNumber;
 		this.airline = airline;
 		this.ticketClass = ticketClass;
 		this.ticketType = ticketType;

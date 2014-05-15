@@ -1,29 +1,35 @@
 @import 'globalMethods';
 @import 'globalVariables';
 
-@findFlightsFontSize: 2em;
-@titleFontSize: 3em;
-
-@findFlightsFont: @findFlightsFontSize 'Roboto', @nextFont;
-@titleFont: @titleFontSize 'Open sans', @nextFont;
-
 @informationPath: '@{imageFolder}/grid.png';
-
-@flightsWrapperColor: #fff;
-@findFlightsColor: #fff;
-
-@flightsWrapperBackgroundColor: @secondaryColor;
-@flightsWrapperDarkerBackgroundColor: darken(@flightsWrapperBackgroundColor, 7.5%);
-@informationBackgroundColor: #fff;
-@informationDarkerBackgroundColor: darken(@informationBackgroundColor, 15%);
-
-@destinationsBoxShadow: 0.05em;
-@animationBoxShadow: 0.1em;
 
 @labelWidth: 25%;
 @flightRowInputWidth: 96.6 - @labelWidth;
 @selectWidth: 20%;
+
+@flightsWrapperBackgroundColor: @secondaryBackgroundColor;
+@flightsWrapperDarkerBackgroundColor: darken(@flightsWrapperBackgroundColor, 5%);
+@informationBackgroundColor: #fff;
+@informationDarkerBackgroundColor: darken(@informationBackgroundColor, 10%);
+
+@flightsWrapperColor: #fff;
+@findFlightsColor: #fff;
+
+@flightsWrapperFontSize: 1em;
+@findFlightsFontSize: 2em;
+@textFontSize: 1em;
+@titleFontSize: 3em;
+
+@flightsWrapperFont: @flightsWrapperFontSize 'Roboto', @nextFont;
+@findFlightsFont: @findFlightsFontSize 'Roboto', @nextFont;
+@textFont: @textFontSize 'Open sans', @nextFont;
+@titleFont: @titleFontSize 'Open sans', @nextFont;
+
+@destinationsBoxShadow: 0.05em;
+@animationBoxShadow: 0.1em;
+
 @flightRowLabelLineHeight: @formFontSize - @inputFontSize;
+
 @mapBorderWidth: 0.2em;
 @mapBorderColor: #000;
 
@@ -56,15 +62,19 @@
 #flightsWrapper {
 	background-color: @flightsWrapperBackgroundColor;
 	color: @flightsWrapperColor;
-	.gradient(top, @flightsWrapperDarkerBackgroundColor, 0, transparent, 15%);
+	font: @flightsWrapperFont;
+	.gradient(top, @flightsWrapperDarkerBackgroundColor, 0, transparent, 40%);
 }
 
 .flights, #information {
 	width: @width;
 	min-width: @minWidth;
 	max-width: @maxWidth;
-	padding: 1em 0 0 0;
 	margin: 0 auto;
+}
+
+#flightColumns {
+	clear: both;
 }
 
 #flightColumns, #flightRows {
@@ -108,10 +118,6 @@
 #map {
 	width: 100%;
 	height: 500px;
-	background-color: @secondaryColor;
-	color: @mainFontColor;
-	/*border-radius: 0.5em;
-	margin: 1em auto;*/
 	clear: both;
 	.boxShadow(0, 0, 0.05em, 0.05em, darken(@informationBackgroundColor, 10%));
 }
@@ -122,7 +128,7 @@
 
 #findFlights {
 	width: 25%;
-	background-color: @themeColor;
+	background-color: @themeBackgroundColor;
 	color: @findFlightsColor;
 	font: @findFlightsFont;
 	.textShadow(@findFlightsColor);
@@ -130,12 +136,12 @@
 	border: 0;
 	border-radius: 0.1em;
 	padding: 0.1em 0;
-	.gradient(top, transparent, 50%, darken(@themeColor, 10%), 50%);
+	.gradient(top, transparent, 50%, darken(@themeBackgroundColor, 10%), 50%);
 }
 
 #findFlights:hover {
-	background-color: lighten(@themeColor, 10%);
-	.gradient(top, transparent, 50%, darken(@themeColor, 5%), 50%);
+	background-color: lighten(@themeBackgroundColor, 10%);
+	.gradient(top, transparent, 50%, darken(@themeBackgroundColor, 5%), 50%);
 }
 
 .informationGradient (@start: transparent, @second: transparent, @third: transparent, @stop: transparent) {
@@ -158,8 +164,8 @@
 }
 
 .text {
+	font: @textFont;
 	text-align: justify;
-	padding: 0 1em;
 	clear: both;
 }
 

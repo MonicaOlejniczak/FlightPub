@@ -35,28 +35,25 @@ public class Flight extends Model {
 	public String flightNumber;
 
 	/**
-	 * A standard three letter code to identify the departure
+	 * The source airport
 	 */
 	@Constraints.Required
-	@Constraints.MinLength(3)
-	@Constraints.MaxLength(3)
-	public String departureCode;
+    @ManyToOne(cascade = CascadeType.ALL)
+    public Airport source;
 
 	/**
-	 * A standard three letter code to identify the stop over
+	 * The stopover airport
 	 */
 	@Constraints.Required
-	@Constraints.MinLength(3)
-	@Constraints.MaxLength(3)
-	public String stopOverCode;
+    @ManyToOne(cascade = CascadeType.ALL)
+	public Airport stopOver;
 
 	/**
-	 * A standard three letter code to identify the destination
+	 * The destination airport
 	 */
 	@Constraints.Required
-	@Constraints.MinLength(3)
-	@Constraints.MaxLength(3)
-	public String destinationCode;
+    @ManyToOne(cascade = CascadeType.ALL)
+	public Airport destination;
 
 	/**
 	 * Specifies the departure date and time
@@ -91,7 +88,7 @@ public class Flight extends Model {
 	 */
 	@Constraints.Required
 	@ManyToOne(cascade = CascadeType.ALL)
-	public PlaneType planeType;
+	public Plane plane;
 
 	/**
 	 * Specifies the duration of the flight in minutes
@@ -101,7 +98,7 @@ public class Flight extends Model {
 	@Constraints.Max(6000)
 	@Constraints.MinLength(2)
 	@Constraints.MaxLength(4)
-	public int duration;
+	public Integer duration;
 
 	/**
 	 * Specifies the duration of the second leg in minutes
@@ -111,7 +108,7 @@ public class Flight extends Model {
 	@Constraints.Max(6000)
 	@Constraints.MinLength(2)
 	@Constraints.MaxLength(4)
-	public int durationSecondLeg;
+	public Integer durationSecondLeg;
 
 	/**
 	 * A reverse mapping of the list of seat availabilities for a particular flight
@@ -132,25 +129,19 @@ public class Flight extends Model {
 	public List<Message> messages = new ArrayList<>();
 
 	/**
-	 * A reverse mapping of the list of prices for a particular flight
-	 */
-	@OneToMany(mappedBy = "flight", fetch = FetchType.LAZY)
-	public List<Price> prices = new ArrayList<>();
-
-	/**
 	 * Class constructor setting the required variables of the class
 	 */
-	public Flight(Airline airline, String flightNumber, String departureCode, String stopOverCode, String destinationCode, Date departureTime, Date arrivalTimeStopOver, Date departureTimeStopOver, Date arrivalTime, PlaneType planeType, int duration, int durationSecondLeg) {
+	public Flight(Airline airline, String flightNumber, Airport source, Airport stopOver, Airport destination, Date departureTime, Date arrivalTimeStopOver, Date departureTimeStopOver, Date arrivalTime, Plane plane, int duration, int durationSecondLeg) {
 		this.airline = airline;
 		this.flightNumber = flightNumber;
-		this.departureCode = departureCode;
-		this.stopOverCode = stopOverCode;
-		this.destinationCode = destinationCode;
+		this.source = source;
+		this.stopOver = stopOver;
+		this.destination = destination;
 		this.departureTime = departureTime;
 		this.arrivalTimeStopOver = arrivalTimeStopOver;
 		this.departureTimeStopOver = departureTimeStopOver;
 		this.arrivalTime = arrivalTime;
-		this.planeType = planeType;
+		this.plane = plane;
 		this.duration = duration;
 		this.durationSecondLeg = durationSecondLeg;
 	}

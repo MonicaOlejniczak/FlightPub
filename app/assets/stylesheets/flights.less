@@ -1,0 +1,147 @@
+@import 'globalMethods';
+@import 'globalVariables';
+
+@sortContainerHeight: 3em;
+
+@sortBackgroundColor: @themeBackgroundColor;
+@timeBackgroundColor: @secondaryBackgroundColor;
+
+@timeColor: @secondaryColor;
+
+@tabBorderWidth: 0.3em;
+@sortBorderWidth: 0.3em;
+@sortLinkBorderWidth: 0.125em;
+
+@tabFontSize: 1.5em;
+@sortContainerFontSize: 1em;
+@timeContainerFontSize: 1em;
+
+@tabFont: @tabFontSize 'Ubuntu', @nextFont;
+@sortContainerFont: @sortContainerFontSize 'Ubuntu', @nextFont;
+@timeContainerFont: @timeContainerFontSize 'Ubuntu', @nextFont;
+
+@tabPadding: 0.5em;
+@topContainerPadding: @tabPadding;
+@sortPadding: @tabPadding;
+
+@tabMargin: @tabPadding;
+@sortFilterMargin: 1em;
+
+@sortBoxShadow: 0.03em;
+
+@sortLineHeight: @sortContainerHeight;
+
+#topContainer, #sortContainer, #resultsContainer, #timeContainer {
+	clear: both;
+}
+
+#flightsContainer {
+	height: 100%;
+	background-color: @thirdColor;
+}
+
+.selectedTab a, #topContainer, #resultsContainer {
+	background-color: @thirdBackgroundColor;
+}
+
+.selectedTab a, .deselectedTab a, #resultsContainer {
+	color: @themeBackgroundColor;
+}
+
+.selectedTab a, .deselectedTab a {
+	font: @tabFont;
+	border-radius: @tabBorderWidth @tabBorderWidth 0 0;
+	padding: @tabPadding;
+	margin: @tabMargin 0 0 @tabMargin;
+	float: left;
+}
+
+.deselectedTab a, .deselectedTab a:hover {
+	.transition(background-color, @time, linear);
+}
+
+.deselectedTab a {
+	background-color: darken(@thirdBackgroundColor, 5%);
+}
+
+.deselectedTab a:hover {
+	background-color: lighten(@thirdBackgroundColor, 5%);
+	color: lighten(@themeBackgroundColor, 5%);
+}
+
+#topContainer {
+	padding: @topContainerPadding;
+}
+
+/* Sorting and filtering */
+#sortContainer, #filterContainer, #sortText, #sort span {
+	color: @themeColor;
+}
+
+#sortContainer, #filterContainer {
+	height: @sortContainerHeight;
+	float: right;
+}
+
+#sortContainer {
+	margin: 0 0 0 @sortPadding;
+}
+
+#sort, #filter {
+	height: 100%;
+	background-color: @sortBackgroundColor;
+	font: @sortContainerFont;
+	line-height: @sortLineHeight;
+	border-radius: @sortBorderWidth;
+	float: right;
+	.boxShadow(0, @sortBoxShadow * 2, @sortBoxShadow, -@sortBoxShadow, darken(@sortBackgroundColor, 10%));
+}
+
+#sortText, #filterText {
+	font-weight: bold;
+	text-transform: uppercase;
+	margin: 0 @sortFilterMargin;
+	float: left;
+}
+
+#sort span, #sort span:hover, #filter span, #filter span:hover {
+	.transition(border-bottom, @time, linear);
+}
+
+#sort span, #filter span {
+ 	margin: 0 @sortFilterMargin 0 0;
+	border-bottom: @sortLinkBorderWidth transparent solid;
+}
+
+#sort span:hover, #filter span:hover {
+	cursor: pointer;
+}
+
+#sort span.sortSelected:hover {
+	cursor: auto;
+}
+
+#sort span:hover, #sort span.sortSelected, #filter span:hover, #filter span.filterSelected {
+	border-bottom: @sortLinkBorderWidth @themeColor solid;
+}
+
+/* Search Results */
+#resultsContainer {
+	height: 100%;
+}
+
+#results {
+}
+
+#timeContainer {
+	width: 100%;
+	background-color: lighten(@timeBackgroundColor, 10%);
+	color: @timeColor;
+	font: @timeContainerFont;
+}
+
+#departureTime, #arrivalTime {
+	width: 100%;
+	background-color: @timeBackgroundColor;
+	margin: 0 0 @margin 0;
+}

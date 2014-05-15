@@ -1,0 +1,192 @@
+countries:
+
+    Country(ASM):
+        countryCode2:   AS
+        countryCode3:   ASM
+        name:           American Samoa
+
+    Country(BRA):
+        countryCode2:   BR
+        countryCode3:   BRA
+        name:           Brazil
+
+    Country(USA):
+        countryCode2:   US
+        countryCode3:   USA
+        name:           United States
+
+airlines:
+
+    Airline(AA):
+        code:       AA
+        name:       American Airlines
+        country:    [AS]
+
+airports:
+
+    Airport(ATL):
+        code:       ATL
+        name:       Atlanta
+        country:    [USA]
+
+    Airport(MIA):
+        code:       MIA
+        name:       Miami
+        country:    [USA]
+
+    Airport(GIG):
+        code:       GIG
+        name:       Rio DE Janeiro
+        country:    [BRA]
+
+planes:
+
+    Plane(A380):
+        code:                       A380
+        details:                    Boeing 747-100
+        firstClassAmount:           55
+        businessClassAmount:        58
+        premiumEconomyClassAmount:  100
+        economyClassAmount:         210
+
+flights:
+
+    Flight(1):
+        airline: [AA]
+        flightNumber: AA1735
+        source: [ATL]
+        stopOver: [MIA]
+        destination: [GIG]
+        departureTime: 2014-09-23 09:50:00
+        arrivalTimeStopOver: 2014-09-23 11:50:00
+        departureTimeStopOver: 2014-09-23 23:20:00
+        arrivalTime: 2014-09-24 09:00:00
+        plane: [A380]
+        duration: 120
+        durationSecondLeg: 580
+
+    Flight(2):
+        airline: [AA]
+        flightNumber: AA1735
+        source: [ATL]
+        stopOver: [MIA]
+        destination: [GIG]
+        departureTime: 2014-09-24 09:50:00
+        arrivalTimeStopOver: 2014-09-24 11:50:00
+        departureTimeStopOver: 2014-09-24 23:20:00
+        arrivalTime: 2014-09-25 09:00:00
+        plane: [A380]
+        duration: 120
+        durationSecondLeg: 580
+
+    Flight(3):
+        airline: [AA]
+        flightNumber: AA1735
+        source: [ATL]
+        stopOver: [MIA]
+        destination: [GIG]
+        departureTime: 2014-09-25 09:50:00
+        arrivalTimeStopOver: 2014-09-25 11:50:00
+        departureTimeStopOver: 2014-09-25 23:20:00
+        arrivalTime: 2014-09-26 09:00:00
+        plane: [A380]
+        duration: 120
+        durationSecondLeg: 580
+
+    Flight(4):
+        airline: [AA]
+        flightNumber: AA1735
+        source: [ATL]
+        stopOver: [MIA]
+        destination: [GIG]
+        departureTime: 2014-09-26 09:50:00
+        arrivalTimeStopOver: 2014-09-26 11:50:00
+        departureTimeStopOver: 2014-09-26 23:20:00
+        arrivalTime: 2014-09-27 09:00:00
+        plane: [A380]
+        duration: 120
+        durationSecondLeg: 580
+
+    Flight(5):
+        airline: [AA]
+        flightNumber: AA1735
+        source: [ATL]
+        stopOver: [MIA]
+        destination: [GIG]
+        departureTime: 2014-09-27 09:50:00
+        arrivalTimeStopOver: 2014-09-27 11:50:00
+        departureTimeStopOver: 2014-09-27 23:20:00
+        arrivalTime: 2014-09-28 09:00:00
+        plane: [A380]
+        duration: 120
+        durationSecondLeg: 580
+
+    Flight(6):
+        airline: [AA]
+        flightNumber: AA1735
+        source: [ATL]
+        stopOver: [MIA]
+        destination: [GIG]
+        departureTime: 2014-09-28 09:50:00
+        arrivalTimeStopOver: 2014-09-28 11:50:00
+        departureTimeStopOver: 2014-09-28 23:20:00
+        arrivalTime: 2014-09-29 09:00:00
+        plane: [A380]
+        duration: 120
+        durationSecondLeg: 580
+
+    Flight(7):
+        airline: [AA]
+        flightNumber: AA1735
+        source: [ATL]
+        stopOver: [MIA]
+        destination: [GIG]
+        departureTime: 2014-09-29 09:50:00
+        arrivalTimeStopOver: 2014-09-29 11:50:00
+        departureTimeStopOver: 2014-09-29 23:20:00
+        arrivalTime: 2014-09-30 09:00:00
+        plane: [A380]
+        duration: 120
+        durationSecondLeg: 580
+
+    Flight(8):
+        airline: [AA]
+        flightNumber: AA1735
+        source: [ATL]
+        stopOver: [MIA]
+        destination: [GIG]
+        departureTime: 2014-09-30 09:50:00
+        arrivalTimeStopOver: 2014-09-30 11:50:00
+        departureTimeStopOver: 2014-09-30 23:20:00
+        arrivalTime: 2014-10-01 09:00:00
+        plane: [A380]
+        duration: 120
+        durationSecondLeg: 580
+
+    Flight(9):
+        airline: [AA]
+        flightNumber: AA1735
+        source: [ATL]
+        stopOver: [MIA]
+        destination: [GIG]
+        departureTime: 2014-10-01 09:50:00
+        arrivalTimeStopOver: 2014-10-01 11:50:00
+        departureTimeStopOver: 2014-10-01 23:20:00
+        arrivalTime: 2014-10-02 09:00:00
+        plane: [A380]
+        duration: 120
+        durationSecondLeg: 580
+
+    Flight(10):
+        airline: [AA]
+        flightNumber: AA1735
+        source: [ATL]
+        stopOver: [MIA]
+        destination: [GIG]
+        departureTime: 2014-10-02 09:50:00
+        arrivalTimeStopOver: 2014-10-02 11:50:00
+        departureTimeStopOver: 2014-10-02 23:20:00
+        arrivalTime: 2014-10-03 09:00:00
+        plane: [A380]
+        duration: 120
+        durationSecondLeg: 580

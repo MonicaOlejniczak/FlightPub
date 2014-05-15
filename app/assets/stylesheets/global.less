@@ -30,25 +30,23 @@ h1, h1:hover {
 }
 
 h1 {
-	/*width: 100%;
-	height: 100%;*/
-	background: @themeColor url(@h1Path) no-repeat 95% 58%;
+	background: @h1BackgroundColor url(@h1Path) no-repeat 95% 55%;
 	background-size: 40px;
 	color: @h1Color;
 	font: @h1Font;
-	.textShadow(@themeColor);
+	.textShadow(@h1BackgroundColor);
 	text-align: right;
-	border-radius: 0.05em;
-	padding: 0.3em 1.4em 0.3em 0.3em;
-	margin: 0 0 0.5em 0;
+	border-radius: 0.1em;
+	padding: @padding 4% @padding @padding;
+	margin: @margin 0;
 	float: right;
 	display: block;
 	/*.h1Gradient(@arrowPath, no-repeat, 90%, 50%, right, @themeColor, transparent);(*/
-	.boxShadow(0, @h1BoxShadow * 2, @h1BoxShadow, -@h1BoxShadow, darken(@themeColor, 10%));
+	.boxShadow(0, @h1BoxShadow * 2, @h1BoxShadow, -@h1BoxShadow, darken(@h1BackgroundColor, 10%));
 }
 
 h1:hover {
-	background-color: @themeColorHover;
+	background-color: @h1BackgroundColorHover;
 }
 
 a {

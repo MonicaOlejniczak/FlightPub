@@ -1,9 +1,27 @@
-@themeColor: #d10000;
-@themeColorHover: lighten(@themeColor, 5%);
-@secondaryColor: #1d2c3f;
+@width: 80%;
+@minWidth: 1000px;
+@maxWidth: 1920px;
+
+@themeBackgroundColor: #d10000;
+@themeBackgroundColorHover: lighten(@themeBackgroundColor, 5%);
+@secondaryBackgroundColor: #1d2c3f;
+@thirdBackgroundColor: #fff;
+@h1BackgroundColor: @themeBackgroundColor;
+@h1BackgroundColorHover: @themeBackgroundColorHover;
+@inputBackgroundColor: #fff;
+
+@themeColor: #fff;
+@secondaryColor: #fff;
+@thirdColor: #222;
+@mainFontColor: #fff;
+@h1Color: @mainFontColor;
+@formColor: @mainFontColor;
+@inputColor: #ccc;
+@fontColor: #888;
+@selectionColour: lighten(@themeBackgroundColor, 30%);
 
 @bodyFontSize: 16px;
-@h1FontSize: 2.5em;
+@h1FontSize: 48px;
 @formFontSize: 1.5em;
 @inputFontSize: 0.6em;
 
@@ -11,23 +29,13 @@
 @h1Font:    bold @h1FontSize "Ubuntu", @nextFont;
 @formFont:  @formFontSize 'Roboto', @nextFont;
 @inputFont: @inputFontSize 'Open sans', @nextFont;
-@nextFont: 'Century gothic', verdana, sans-serif;
+@nextFont: 'Helvetica', 'Century gothic', verdana, sans-serif;
 
-@inputBackgroundColor: #fff;
+@padding: 0.3em;
 
-@mainFontColor: #fff;
-@h1Color: @mainFontColor;
-@formColor: @mainFontColor;
-@inputColor: #ccc;
-@fontColor: #888;
-
-@selectionColour: lighten(@themeColor, 30%);
+@margin: @padding;
 
 @h1BoxShadow: 0.03em;
-
-@width: 80%;
-@minWidth: 1000px;
-@maxWidth: 1920px;
 
 @time: 0.3s;
 @imageFolder: "../images";

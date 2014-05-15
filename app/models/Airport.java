@@ -40,17 +40,45 @@ public class Airport extends Model {
 	@ManyToOne(cascade = CascadeType.ALL)
 	public Country country;
 
+    /**
+     * The latitude of the airport
+     */
+    public String latitude;
+
+    /**
+     * The longitude of the airport
+     */
+    public String longitude;
+
 	/**
 	 * The reverse mapping for the distance of source airports
 	 */
 	@OneToMany(mappedBy = "source", fetch = FetchType.LAZY)
-	public List<Distance> sources = new ArrayList<>();
+	public List<Distance> distanceSources = new ArrayList<>();
 
 	/**
 	 * The reverse mapping for the distance of arrival airports
 	 */
 	@OneToMany(mappedBy = "destination", fetch = FetchType.LAZY)
-	public List<Distance> destinations = new ArrayList<>();
+	public List<Distance> distanceDestinations = new ArrayList<>();
+
+    /**
+     * The reverse mapping for the flights which source from this airport
+     */
+    @OneToMany(mappedBy = "source", fetch = FetchType.LAZY)
+    public List<Flight> flightSources = new ArrayList<>();
+
+    /**
+     * The reverse mapping for the flights which have a stop-over at this airport
+     */
+    @OneToMany(mappedBy = "stopOver", fetch = FetchType.LAZY)
+    public List<Flight> flightStopOvers = new ArrayList<>();
+
+    /**
+     * The reverse mapping for the flights which have a destination of this airport
+     */
+    @OneToMany(mappedBy = "destination", fetch = FetchType.LAZY)
+    public List<Flight> flightDestinations = new ArrayList<>();
 
 	/**
 	 * Class constructor setting the required variables of the class

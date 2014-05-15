@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-public class PlaneType extends Model {
+public class Plane extends Model {
 
 	/**
 	 * Uniquely identifies the plane
@@ -71,13 +71,13 @@ public class PlaneType extends Model {
 	/**
 	 * A reverse mapping of the list of flights for a particular plane type
 	 */
-	@OneToMany(mappedBy = "planeType", fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "plane", fetch = FetchType.LAZY)
 	public List<Flight> flights = new ArrayList<>();
 
 	/**
 	 * Class constructor setting the required variables of the class
 	 */
-	public PlaneType(String code, String details, int firstClassAmount, int businessClassAmount, int premiumEconomyClassAmount, int economyClassAmount) {
+	public Plane(String code, String details, int firstClassAmount, int businessClassAmount, int premiumEconomyClassAmount, int economyClassAmount) {
 		this.code = code;
 		this.details = details;
 		this.firstClassAmount = firstClassAmount;
@@ -89,6 +89,6 @@ public class PlaneType extends Model {
 	/**
 	 * Creates a finder for the PlaneType entity
 	 */
-	public static Model.Finder<Long, PlaneType> find = new Model.Finder<>(Long.class, PlaneType.class);
+	public static Model.Finder<Long, Plane> find = new Model.Finder<>(Long.class, Plane.class);
 
 }
