@@ -4,9 +4,11 @@ import play.data.validation.Constraints;
 import play.db.ebean.Model;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
+@Entity
 public class Seat extends Model {
 
     /**
