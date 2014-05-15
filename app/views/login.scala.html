@@ -2,32 +2,46 @@
 
 @import helper._
 
-@main("FlightPub - Login") {
-	@helper.form(action = routes.AuthenticationController.processLogin()) {
-		<fieldset>
-			<legend>Login</legend>
+@styles = {
+	<link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/login.css")'>
+}
 
-			@if(loginForm.hasGlobalErrors) {
-				<div class="error">@loginForm.globalError.message</div>
-			}
+@main("FlightPub - Login", styles) {
+	<div class="container">
+		<div class="panel panel-primary">
+			<div class="panel-heading">
+				<h1 class="panel-title">Login</h1>
+			</div>
+			<div class="panel-body">
+				<form action="@routes.AuthenticationController.processLogin()" role="form" class="form-horizontal">
+					@if(loginForm.hasGlobalErrors) {
+						<div class="form-group bg-danger error">
+						@loginForm.globalError.message
+						</div>
+					}
 
-			@inputText(
-				loginForm("email"),
-				'class -> "form-control",
-				'_label -> "Email Address",
-				'_error -> loginForm.error("email")
-			)
-			@inputPassword(
-				loginForm("password"),
-				'class -> "form-control",
-				'_label -> "Password",
-				'_error -> loginForm.error("password")
-			)
-		</fieldset>
+					<div class="form-group">
+						<label for="@loginForm("email")" class="control-label col-sm-2">Email address</label>
+						<div class="col-sm-8">
+							<input type="email" class="form-control" id="@loginForm("email")" placeholder="Enter email" autofocus="true">
+						</div>
+					</div>
 
-		<fieldset>
-			<input type="submit" class="btn btn-primary" value="Login">
-			<a href="@routes.MainController.home()">Cancel</a>
-		</fieldset>
-	}
+					<div class="form-group">
+						<label for="@loginForm("password")" class="control-label col-sm-2">Password</label>
+						<div class="col-sm-8">
+							<input type="password" class="form-control" id="@loginForm("password")" placeholder="Password">
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-sm-offset-2 col-sm-8">
+							<input type="submit" class="btn btn-primary" value="Login">
+							<a href="@routes.MainController.home()" class="btn btn-default">Cancel</a>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
 }
