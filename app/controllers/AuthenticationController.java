@@ -1,9 +1,16 @@
 package controllers;
 
+import akka.util.Crypt;
+import com.avaje.ebean.Ebean;
 import models.User;
 import play.data.Form;
+import play.data.validation.Constraints;
+import play.libs.Yaml;
 import play.mvc.Controller;
 import play.mvc.Result;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Controller responsible for all authentication in the FlightPub system.
@@ -11,11 +18,33 @@ import play.mvc.Result;
  */
 public class AuthenticationController extends Controller {
 	/**
+	 * Inner static class to specify and validate the fields used in the login Form.
+	 */
+	public static class LoginCredentials {
+		@Constraints.Required
+		public String email;
+		@Constraints.Required
+		public String password;
+
+		/**
+		 * Handles validation of the User login Form.
+		 * @return The error message if an error occurred, or null if validation was successful.
+		 */
+		public String validate() {
+			if (User.authenticate(this.email, Crypt.sha1(this.password))) {
+				return null;
+			} else {
+				return "Error: Invalid credentials. Please try again.";
+			}
+		}
+	}
+
+	/**
 	 * Login action - displays the FlightPub login form.
 	 * @return The Login form.
 	 */
 	public static Result login() {
-		return ok(views.html.login.render(Form.form(User.class, User.LoginFields.class)));
+		return ok(views.html.login.render(Form.form(LoginCredentials.class)));
 	}
 
 	/**
@@ -25,7 +54,7 @@ public class AuthenticationController extends Controller {
 	 * failure.
 	 */
 	public static Result processLogin() {
-		Form<User> loginForm = Form.form(User.class, User.LoginFields.class).bindFromRequest();
+		Form<LoginCredentials> loginForm = Form.form(LoginCredentials.class).bindFromRequest();
 		if (loginForm.hasErrors()) {
 			return badRequest(views.html.login.render(loginForm));
 		} else {
@@ -42,5 +71,18 @@ public class AuthenticationController extends Controller {
 	public static Result logout() {
 		session().clear();
 		return redirect(controllers.routes.MainController.home());
+	}
+
+	/**
+	 * TODO: Remove this abomination.
+	 * @return Shhhh...
+	 */
+	public static Result hax() {
+		if (Ebean.find(User.class).findRowCount() == 0) {
+			@SuppressWarnings("unchecked")
+			Map<String,List<Object>> all = (Map<String,List<Object>>)Yaml.load("initial-data.yml");
+			Ebean.save(all.get("users"));
+		}
+		return redirect("/");
 	}
 }

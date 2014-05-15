@@ -190,3 +190,12 @@ flights:
         plane: [A380]
         duration: 120
         durationSecondLeg: 580
+
+users:
+
+    - !!models.User
+        firstName: Test
+        lastName: User
+        email: test@test.com
+        password: 5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8
+        registrationDate: 2014-05-16 09:00:00
