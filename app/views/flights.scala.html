@@ -3,7 +3,9 @@
 }
 
 @scripts = {
-	<script type='text/javascript' src='@routes.Assets.at("javascripts/flights.js")'></script>
+	<script type='text/javascript'>
+		Ext.create('FB.controllers.Flights');
+	</script>
 }
 
 @main("FlightPub - Flight Results", styles, scripts) {
@@ -39,7 +41,7 @@
 					<div id="filterText">
 						Filter by
 					</div>
-					<span id="filterNone"">None</span>
+					<span id="filterNone">None</span>
 					<span id="filterPrice">Price</span>
 					<span id="filterDuration">Duration</span>
 					<span id="filterDepartureTime">Departure Time</span>
