@@ -1,5 +1,7 @@
 package models;
 
+import com.avaje.ebean.Expr;
+
 import play.db.ebean.Model;
 import play.data.format.Formats;
 import play.data.validation.Constraints;
@@ -12,11 +14,6 @@ import java.util.List;
 
 @Entity
 public class User extends Person {
-	/**
-	 * Marker interface to specify which fields of this Model will be used as fields on the login page.
-	 */
-	public interface LoginFields {}
-
 	/**
 	 * An enumeration defining the user's theme
 	 */
@@ -40,10 +37,10 @@ public class User extends Person {
 	public Long id;
 
 	@Constraints.Email
-	@Constraints.Required(groups = LoginFields.class)
+	@Constraints.Required
 	public String email;
 
-	@Constraints.Required(groups = LoginFields.class)
+	@Constraints.Required
 	@Constraints.MinLength(8)
 	public String password;
 
@@ -94,11 +91,15 @@ public class User extends Person {
 	}
 
 	/**
-	 * Handles validation of Forms involving the User class.
-	 * @return The error message if an error occurred, or null if validation was successful.
+	 * Attempt to authenticate with the supplied email and passwordHash, returning a Boolean indicating success or
+	 * failure.
+	 * @param email The email address of the User to check.
+	 * @param passwordHash The SHA1 hash of the User's password to check.
+	 * @return A Boolean indicating whether or not the User was authenticated.
 	 */
-	public static String validate() {
-		return null;
+	public static Boolean authenticate(String email, String passwordHash) {
+		// Find a user with the specified credentials
+		return (User.find.where().and(Expr.eq("email", email), Expr.eq("password", passwordHash)).findUnique() != null);
 	}
 	
 	/**
