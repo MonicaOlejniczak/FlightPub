@@ -7,6 +7,7 @@ import play.data.validation.Constraints;
 import javax.persistence.*;
 
 import java.util.Date;
+import java.util.List;
 
 @Entity
 public class Ticket extends Model {
@@ -73,10 +74,17 @@ public class Ticket extends Model {
 	@ManyToOne(cascade = CascadeType.ALL)
 	public Luggage luggage;
 
+    /**
+     * Specifies the seat(s) associated with the ticket.
+     */
+    @Constraints.Required
+    @ManyToOne(cascade = CascadeType.ALL)
+    public List<Seat> seats;
+
 	/**
 	 * Class constructor setting the required variables of the class
 	 */
-	public Ticket(Person person, PassengerType passengerType, Date date, Flight flight, Booking booking, TicketType ticketType, TicketClass ticketClass, Luggage luggage) {
+	public Ticket(Person person, PassengerType passengerType, Date date, Flight flight, Booking booking, TicketType ticketType, TicketClass ticketClass, Luggage luggage, List<Seat> seats) {
 		this.person = person;
 		this.passengerType = passengerType;
 		this.date = date;
@@ -85,6 +93,7 @@ public class Ticket extends Model {
 		this.ticketType = ticketType;
 		this.ticketClass = ticketClass;
 		this.luggage = luggage;
+        this.seats = seats;
 	}
 
 	/**
