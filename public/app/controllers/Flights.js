@@ -1,7 +1,10 @@
 Ext.define('FB.controllers.Flights', {
 
 	requires: [
-		'FB.models.Flight'
+		'FB.models.Flight',
+		'Ext.container.Container',
+		'Ext.layout.container.Border',
+		'Ext.form.field.Number'
 	],
 
 	/**
@@ -59,6 +62,11 @@ Ext.define('FB.controllers.Flights', {
 	],
 
 	/**
+	 * The pop-up for each filter
+	 */
+	priceContainer: null,
+
+	/**
 	 * A constructor that adds the click events to the flights page and converts the json file to a data store
 	 * @constructor
 	 */
@@ -66,7 +74,6 @@ Ext.define('FB.controllers.Flights', {
 		this.url = 'data/selectedFlights';
 		this.lastSortedBy = null;
 		Ext.onReady(function () {
-			this.addEvents();
 			this.dataStore = Ext.create('Ext.data.Store', {
 				model: 'FB.models.Flight',
 				proxy: {
@@ -104,6 +111,8 @@ Ext.define('FB.controllers.Flights', {
 							}));
 						});
 						this.sort.apply(this, this.priceSorter);
+						this.createPriceContainer();
+						this.addEvents();
 					},
 					scope: this
 				}
@@ -141,7 +150,8 @@ Ext.define('FB.controllers.Flights', {
 			scope: this
 		});
 		Ext.get('filterPrice').on({
-			'click': Ext.pass(this.filter, ['filterPrice'], this)
+			'click': this.filterPrice,
+			scope: this
 		});
 		Ext.get('filterDuration').on({
 			'click': Ext.pass(this.filter, ['filterDuration'], this)
@@ -165,6 +175,71 @@ Ext.define('FB.controllers.Flights', {
 			'click': this.filterAll,
 			scope: this
 		});
+	},
+	/**
+	 * Adds the containers for each filter
+	 */
+	createPriceContainer: function () {
+		var minPrice = this.minPrice();
+		var maxPrice = this.maxPrice();
+		var maxLength = (Math.ceil(this.maxPrice()) + "").length;
+		this.priceContainer = Ext.create('Ext.container.Container', {
+			layout: 'hbox',
+			renderTo: Ext.get('filter'),
+			cls: 'filterStyle',
+			items: [{
+				xtype: 'numberfield',
+				name: 'startPrice',
+				id: 'startPrice',
+				fieldLabel: 'Start price',
+				cls: 'filterStyleInput',
+				minValue: minPrice,
+				maxValue: maxPrice,
+				maxLength: maxLength,
+				enforceMaxLength: true
+			}, {
+				xtype: 'numberfield',
+				name: 'endPrice',
+				id: 'endPrice',
+				fieldLabel: 'End price',
+				cls: 'filterStyleInput',
+				minValue: minPrice,
+				maxValue: maxPrice,
+				maxLength: maxLength,
+				enforceMaxLength: true,
+				vtype: 'endPrice'
+			}],
+			hidden: true
+		});
+		Ext.select('#filter > input'). ({
+			tag: 'div',
+			cls: 'myCls',
+			html: 'Hi I have replaced elId'
+		});
+		Ext.apply(Ext.form.field.VTypes, {
+			endPrice: function(value, field) {
+				return Ext.getCmp('startPrice').value < value;
+			},
+			endPriceText: 'Not a valid end price. This must be greater than the start price.'
+		});
+	},
+	/**
+	 * Methods to calculate the minimum and maximum price
+	 */
+	minPrice: function() {
+		var min = this.maxPrice();
+		this.dataStore.each(function (record) {
+			min = Math.min(min, record.get('price').price);
+		});
+		return min;
+	},
+
+	maxPrice: function() {
+		var max = 0;
+		this.dataStore.each(function (record) {
+			max = Math.max(max, record.get('price').price);
+		});
+		return max;
 	},
 
 	/**
@@ -194,8 +269,26 @@ Ext.define('FB.controllers.Flights', {
 		Ext.get(id).toggleCls('filterSelected');
 	},
 
+	toggleContainer: function (container) {
+		if (container.isHidden()) {
+			container.show();
+		 } else {
+			container.hide();
+		 }
+	},
+
 	filterNone: function () {
 		Ext.select('.filterSelected').removeCls('filterSelected');
+		Ext.select('.filter').removeCls('filter');
+	},
+
+	filterPrice: function () {
+		//this.filter('filterPrice');
+		this.toggleContainer(this.priceContainer);
+		/*this.dataStore.each(function (record) {
+			var el = Ext.get('flight_' + record.get('id'));
+			parent.appendChild(el);
+		});*/
 	},
 
 	filterAll: function () {

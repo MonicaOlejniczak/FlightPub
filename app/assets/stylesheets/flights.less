@@ -5,29 +5,37 @@
 
 @sortBackgroundColor: @themeBackgroundColor;
 @timeBackgroundColor: @secondaryBackgroundColor;
+@filterStyleBackgroundColor: @themeBackgroundColor;
 
 @timeColor: @secondaryColor;
-
-@tabBorderWidth: 0.3em;
-@sortBorderWidth: 0.3em;
-@sortLinkBorderWidth: 0.125em;
+@filterStyleColor: @secondaryColor;
 
 @tabFontSize: 1.5em;
 @sortContainerFontSize: 1em;
 @timeContainerFontSize: 1em;
+@filterStyleFontSize: 1em;
 
 @tabFont: @tabFontSize 'Ubuntu', @nextFont;
 @sortContainerFont: @sortContainerFontSize 'Ubuntu', @nextFont;
 @timeContainerFont: @timeContainerFontSize 'Ubuntu', @nextFont;
+@filterStyleFont: @filterStyleFontSize 'Ubuntu', @nextFont;
+
+@tabBorderWidth: 0.3em;
+@sortBorderWidth: 0.3em;
+@sortLinkBorderWidth: 0.125em;
+@filterStyleBorderWidth: 0.3em;
 
 @tabPadding: 0.5em;
 @topContainerPadding: @tabPadding;
 @sortPadding: @tabPadding;
+@filterStylePadding: 0.5em;
 
 @tabMargin: @tabPadding;
 @sortFilterMargin: 1em;
+@filterStyleMargin: @filterStylePadding;
 
 @sortBoxShadow: 0.03em;
+@filterStyleBoxShadow: 0.05em;
 
 @sortLineHeight: @sortContainerHeight;
 
@@ -79,6 +87,7 @@
 
 #sortContainer, #filterContainer {
 	height: @sortContainerHeight;
+	font: @sortContainerFont;
 	float: right;
 }
 
@@ -89,11 +98,10 @@
 #sort, #filter {
 	height: 100%;
 	background-color: @sortBackgroundColor;
-	font: @sortContainerFont;
 	line-height: @sortLineHeight;
 	border-radius: @sortBorderWidth;
 	float: right;
-	.boxShadow(0, @sortBoxShadow * 2, @sortBoxShadow, -@sortBoxShadow, darken(@sortBackgroundColor, 10%));
+	.boxShadow(0, 0, @sortBoxShadow, 0, darken(@sortBackgroundColor, 10%));
 }
 
 #sortText, #filterText {
@@ -108,8 +116,12 @@
 }
 
 #sort span, #filter span {
- 	margin: 0 @sortFilterMargin 0 0;
 	border-bottom: @sortLinkBorderWidth transparent solid;
+ 	margin: 0 @sortFilterMargin 0 0;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-khtml-user-select: none;
+	-ms-user-select: none;
 }
 
 #sort span:hover, #filter span:hover {
@@ -143,4 +155,26 @@
 
 .filter {
 	display: none;
+}
+
+.filterStyle {
+	background-color: @filterStyleBackgroundColor;
+	border-radius: @filterStyleBorderWidth;
+	padding: @filterStylePadding;
+	margin: @filterStyleMargin 0;
+	.boxShadow(0, 0, @filterStyleBoxShadow, 0, darken(@filterStyleBackgroundColor, 10%));
+	.transition(border-bottom, @time, linear);
+}
+
+.filterStyle * {
+	font: @filterStyleFont;
+}
+
+.filterStyleInput label {
+	color: @filterStyleColor;
+
+}
+
+.filterStyleInput td {
+	color: @thirdColor;
 }
