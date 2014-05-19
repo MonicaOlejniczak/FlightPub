@@ -25,10 +25,15 @@ function generateTable(){
             alphachar = 'F';
             tbody += '<td class="bg-primary">ROW F</td>\n';
         }
+        var modifier = 1;
         for(var j = 0; j < 7; j++){
-            if(j === 3){tbody += '<td class="bg-primary">--ISLE--</td>\n';}
+            if(j === 3){
+                tbody += '<td class="bg-primary">--ISLE--</td>\n';
+                modifier = -1;
+            }
             else{
-                tbody += '<td class="active"><input type="checkbox" name= "seat" value="' + alphachar + '' + (j + 1) + '"></td>\n';
+                if(j === 4){modifier = 0;}
+                tbody += '<td class="active"><input type="checkbox" name= "seat" value="' + alphachar + '' + (j + modifier) + '"></td>\n';
             }
         }
         tbody += '</tr>\n';
@@ -36,7 +41,7 @@ function generateTable(){
     var tfooter = '</table>\n';
     var fprev = '<a href="/" class="btn btn-primary">Previous</a>';
     var fnext = '<input type="submit" class="btn btn-primary" value="Next">';
-    var fcancel = '<a href="/" class="btn btn-danger">Cancel</a>';
+    var fcancel = '<a href="/" class="btn btn-danger">Cancel</a>\n';
     var ffoot = '</FORM>';
     var page = formhead + theader + tbody + tfooter + fprev + fnext + fcancel + ffoot;
     document.getElementById('seats').innerHTML = page;
