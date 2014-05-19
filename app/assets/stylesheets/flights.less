@@ -1,14 +1,15 @@
 @import 'globalMethods';
 @import 'globalVariables';
 
-@sortContainerHeight: 3em;
+@filterStyleInputWidth: 50% - @filterStyleMargin;
+@sortHeight: 3em;
 
 @sortBackgroundColor: @themeBackgroundColor;
 @timeBackgroundColor: @secondaryBackgroundColor;
 @filterStyleBackgroundColor: @themeBackgroundColor;
 
 @timeColor: @secondaryColor;
-@filterStyleColor: @secondaryColor;
+@filterStyleColor: @filterStyleBackgroundColor;
 
 @tabFontSize: 1.5em;
 @sortContainerFontSize: 1em;
@@ -16,7 +17,7 @@
 @filterStyleFontSize: 1em;
 
 @tabFont: @tabFontSize 'Ubuntu', @nextFont;
-@sortContainerFont: @sortContainerFontSize 'Ubuntu', @nextFont;
+@sortFont: @sortContainerFontSize 'Ubuntu', @nextFont;
 @timeContainerFont: @timeContainerFontSize 'Ubuntu', @nextFont;
 @filterStyleFont: @filterStyleFontSize 'Ubuntu', @nextFont;
 
@@ -37,9 +38,9 @@
 @sortBoxShadow: 0.03em;
 @filterStyleBoxShadow: 0.05em;
 
-@sortLineHeight: @sortContainerHeight;
+@sortLineHeight: @sortHeight;
 
-#flightsContainer, #topContainer, #sortContainer, #resultsContainer, #timeContainer {
+#flightsContainer, #topContainer, #sort, #resultsContainer, #timeContainer {
 	clear: both;
 }
 
@@ -81,41 +82,53 @@
 }
 
 /* Sorting and filtering */
-#sortContainer, #filterContainer, #sortText, #sort span {
+#sort, #filterContainer, #sortText, #sort span {
 	color: @themeColor;
 }
 
-#sortContainer, #filterContainer {
-	height: @sortContainerHeight;
-	font: @sortContainerFont;
+#sort, #filterContainer {
 	float: right;
 }
 
-#sortContainer {
-	margin: 0 0 0 @sortPadding;
+#filterContainer {
+	height: @sortHeight;
 }
 
 #sort, #filter {
-	height: 100%;
 	background-color: @sortBackgroundColor;
+	font: @sortFont;
 	line-height: @sortLineHeight;
 	border-radius: @sortBorderWidth;
-	float: right;
 	.boxShadow(0, 0, @sortBoxShadow, 0, darken(@sortBackgroundColor, 10%));
+}
+
+#sort {
+	height: @sortHeight;
+}
+
+#filter {
+	height: 100%;
+}
+
+#sort {
+	margin: 0 0 0 @sortPadding;
+}
+
+#sortText, #filterText, #filterContent {
+	float: left;
 }
 
 #sortText, #filterText {
 	font-weight: bold;
 	text-transform: uppercase;
 	margin: 0 @sortFilterMargin;
-	float: left;
 }
 
-#sort span, #sort span:hover, #filter span, #filter span:hover {
+#sort span, #sort span:hover, #filterContent span, #filterContent span:hover {
 	.transition(border-bottom, @time, linear);
 }
 
-#sort span, #filter span {
+#sort span, #filterContent span {
 	border-bottom: @sortLinkBorderWidth transparent solid;
  	margin: 0 @sortFilterMargin 0 0;
 	-webkit-user-select: none;
@@ -124,11 +137,11 @@
 	-ms-user-select: none;
 }
 
-#sort span:hover, #filter span:hover {
+#sort span:hover, #filterContent span:hover {
 	cursor: pointer;
 }
 
-#sort span:hover, #sort span.sortSelected, #filter span:hover, #filter span.filterSelected {
+#sort span:hover, #sort span.sortSelected, #filterContent span:hover, #filterContent span.filterSelected {
 	border-bottom: @sortLinkBorderWidth @themeColor solid;
 }
 
@@ -159,22 +172,21 @@
 
 .filterStyle {
 	background-color: @filterStyleBackgroundColor;
-	border-radius: @filterStyleBorderWidth;
 	padding: @filterStylePadding;
 	margin: @filterStyleMargin 0;
 	.boxShadow(0, 0, @filterStyleBoxShadow, 0, darken(@filterStyleBackgroundColor, 10%));
 	.transition(border-bottom, @time, linear);
 }
 
-.filterStyle * {
+.filterStyle table, .filterStyle td, .filterStyle tr {
+	border: 0;
+}
+
+.filterStyle input, .filterStyleButton input {
+	color: @filterStyleColor;
 	font: @filterStyleFont;
 }
 
-.filterStyleInput label {
-	color: @filterStyleColor;
-
-}
-
-.filterStyleInput td {
-	color: @thirdColor;
+.filterStyleButton, .filterStyle span:hover {
+	border: 0;
 }

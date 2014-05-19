@@ -88,7 +88,7 @@ Ext.define('FB.controllers.Flights', {
 				listeners: {
 					load: function (store, records, successful, eOpts) {
 						this.dataStore.each(function (record) {
-							Ext.get('flights').createChild(new Ext.XTemplate(
+							Ext.get('flights').createChild(Ext.create('Ext.XTemplate',
 								'<div id="flight_{id}">',
 									'Flight id: {id}<br />',
 									'Airline: {airline}<br />',
@@ -98,8 +98,10 @@ Ext.define('FB.controllers.Flights', {
 									'Departure time: {departure}<br />',
 									'Arrival time: {arrival}<br />',
 									'Stop overs: {stopOvers}<p></p>',
-								'</div>'
-							).apply({
+								'</div>', {
+									compiled: true
+								}
+							).apply ({
 								id: record.get('id'),
 								airline: record.get('airline').name,
 								flightNumber: record.get('flightNumber'),
@@ -108,7 +110,7 @@ Ext.define('FB.controllers.Flights', {
 								departure: new Date(record.get('departureTime')),
 								arrival: new Date(record.get('arrivalTime')),
 								stopOvers: record.get('stopOver') == null ? 0 : 1
-							}));
+							}))
 						});
 						this.sort.apply(this, this.priceSorter);
 						this.createPriceContainer();
@@ -149,8 +151,8 @@ Ext.define('FB.controllers.Flights', {
 			'click': this.filterNone,
 			scope: this
 		});
-		Ext.get('filterPrice').on({
-			'click': this.filterPrice,
+		Ext.get('filterPriceContainer').on({
+			'click': this.filterPriceContainer,
 			scope: this
 		});
 		Ext.get('filterDuration').on({
@@ -180,41 +182,63 @@ Ext.define('FB.controllers.Flights', {
 	 * Adds the containers for each filter
 	 */
 	createPriceContainer: function () {
-		var minPrice = this.minPrice();
+		var minPrice = 0;//this.minPrice();
 		var maxPrice = this.maxPrice();
 		var maxLength = (Math.ceil(this.maxPrice()) + "").length;
+		var me = this;
 		this.priceContainer = Ext.create('Ext.container.Container', {
 			layout: 'hbox',
-			renderTo: Ext.get('filter'),
+			renderTo: Ext.get('filterContainer'),
 			cls: 'filterStyle',
-			items: [{
+			flex: 2,
+			hidden: true,
+			defaults: {
 				xtype: 'numberfield',
-				name: 'startPrice',
-				id: 'startPrice',
-				fieldLabel: 'Start price',
-				cls: 'filterStyleInput',
-				minValue: minPrice,
-				maxValue: maxPrice,
-				maxLength: maxLength,
-				enforceMaxLength: true
-			}, {
-				xtype: 'numberfield',
-				name: 'endPrice',
-				id: 'endPrice',
-				fieldLabel: 'End price',
-				cls: 'filterStyleInput',
+				flex: 1,
 				minValue: minPrice,
 				maxValue: maxPrice,
 				maxLength: maxLength,
 				enforceMaxLength: true,
-				vtype: 'endPrice'
-			}],
-			hidden: true
-		});
-		Ext.select('#filter > input'). ({
-			tag: 'div',
-			cls: 'myCls',
-			html: 'Hi I have replaced elId'
+				hideTrigger: true
+			},
+			items: [{
+				name: 'startPrice',
+				id: 'startPrice',
+				margin: '0 10px 0 0',
+				emptyText: 'start price',
+				listeners: {
+					blur: function () {
+						me.filterStartPrice();
+					}
+				}
+			},  {
+				name: 'endPrice',
+				id: 'endPrice',
+				margin: '0 10px 0 0',
+				emptyText: 'end price',
+				vtype: 'endPrice',
+				listeners: {
+					blur: function () {
+						me.filterEndPrice();
+					}
+				}
+			}, {
+				xtype: 'button',
+				flex: 0.5,
+				name: 'clearPrice',
+				id: 'clearPrice',
+				text: 'Clear',
+				scale: 'small',
+				cls: 'filterStyleButton',
+				listeners: {
+					click: function () {
+						Ext.getCmp('startPrice').setValue(null);
+						Ext.getCmp('endPrice').setValue(null);
+						me.filterStartPrice();
+						me.filterEndPrice();
+					}
+				}
+			}]
 		});
 		Ext.apply(Ext.form.field.VTypes, {
 			endPrice: function(value, field) {
@@ -231,7 +255,7 @@ Ext.define('FB.controllers.Flights', {
 		this.dataStore.each(function (record) {
 			min = Math.min(min, record.get('price').price);
 		});
-		return min;
+		return Math.floor(min);
 	},
 
 	maxPrice: function() {
@@ -239,7 +263,11 @@ Ext.define('FB.controllers.Flights', {
 		this.dataStore.each(function (record) {
 			max = Math.max(max, record.get('price').price);
 		});
-		return max;
+		return Math.ceil(max);
+	},
+
+	validatePrice: function (price, startPrice, endPrice) {
+		return startPrice != null && endPrice != null && (price < startPrice || price > endPrice);
 	},
 
 	/**
@@ -265,10 +293,6 @@ Ext.define('FB.controllers.Flights', {
 	/**
 	 * Filtering the search results
 	 */
-	filter: function (id) {
-		Ext.get(id).toggleCls('filterSelected');
-	},
-
 	toggleContainer: function (container) {
 		if (container.isHidden()) {
 			container.show();
@@ -282,13 +306,56 @@ Ext.define('FB.controllers.Flights', {
 		Ext.select('.filter').removeCls('filter');
 	},
 
-	filterPrice: function () {
-		//this.filter('filterPrice');
+	filterPriceContainer: function () {
 		this.toggleContainer(this.priceContainer);
-		/*this.dataStore.each(function (record) {
-			var el = Ext.get('flight_' + record.get('id'));
-			parent.appendChild(el);
-		});*/
+	},
+
+	filterStartPrice: function () {
+		if (Ext.getCmp('startPrice').isValid()) {
+			var me = this;
+			this.dataStore.each(function (record) {
+				var price = record.get('price').price;
+				var startPrice = Ext.getCmp('startPrice').getValue();
+				var endPrice = Ext.getCmp('endPrice').getValue();
+				var remove = false;
+				if (startPrice == null && endPrice == null) {
+					remove = true;
+				} else if (startPrice == null && endPrice != null) {
+					remove = price <= endPrice;
+				} else {
+					remove = (endPrice == null && price < startPrice) || me.validatePrice(price, startPrice, endPrice) ? false : true;
+				}
+				me.filterRecord(remove, record);
+			});
+		}
+	},
+
+	filterEndPrice: function () {
+		if (Ext.getCmp('endPrice').isValid()) {
+			var me = this;
+			this.dataStore.each(function (record) {
+				var price = record.get('price').price;
+				var startPrice = Ext.getCmp('startPrice').getValue();
+				var endPrice = Ext.getCmp('endPrice').getValue();
+				var remove = false;
+				if (startPrice == null && endPrice == null) {
+					remove = true;
+				} else if (endPrice == null && startPrice != null) {
+					remove = price >= startPrice;
+				} else {
+					remove = (startPrice == null && price > endPrice) || me.validatePrice(price, startPrice, endPrice) ? false : true;
+				}
+				me.filterRecord(remove, record);
+			});
+		}
+	},
+
+	filterRecord: function(remove, record) {
+		if (remove) {
+			Ext.get('flight_' + record.get('id')).removeCls('filter');
+		} else {
+			Ext.get('flight_' + record.get('id')).addCls('filter');
+		}
 	},
 
 	filterAll: function () {
