@@ -1,5 +1,5 @@
-function generateTable(){
-    var formhead = '<FORM class="center-block" METHOD="POST" ACTION="/luggage">\n';
+window.onload=function generateTable(){
+    var formhead = '<FORM class="center-block" role="form" METHOD="POST" ACTION="/luggage">\n';
     var tbody = '';
     var alphachar = '';
     var theader = '<table class="table" style="width:500px">\n';
@@ -41,8 +41,15 @@ function generateTable(){
     var tfooter = '</table>\n';
     var fprev = '<a href="/" class="btn btn-primary">Previous</a>';
     var fnext = '<input type="submit" class="btn btn-primary" value="Next">';
-    var fcancel = '<a href="/" class="btn btn-danger">Cancel</a>\n';
+    var fcancel = '<button class="btn btn-danger" onclick="confirmCancel();">Cancel</button>\n';
     var ffoot = '</FORM>';
     var page = formhead + theader + tbody + tfooter + fprev + fnext + fcancel + ffoot;
     document.getElementById('seats').innerHTML = page;
+};
+
+function confirmCancel(){
+    var answer = confirm("Are you sure you wish to cancel your current booking?\nClick OK to confirm or CANCEL to continue with your booking.");
+    if(answer){
+        window.location = "/";
+    }
 }
