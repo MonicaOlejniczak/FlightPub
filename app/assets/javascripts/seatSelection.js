@@ -1,5 +1,5 @@
 window.onload=function generateTable(){
-    var formhead = '<FORM class="center-block" role="form" METHOD="POST" ACTION="/luggage">\n';
+    var formhead = '<FORM class="form-group" role="form" METHOD="POST" ACTION="/luggage">\n';
     var tbody = '';
     var alphachar = '';
     var theader = '<table class="table" style="width:500px">\n';
