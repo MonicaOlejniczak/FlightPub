@@ -3,39 +3,41 @@
 }
 
 @scripts = {
-	<script type='text/javascript' src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
-	<script type='text/javascript' src='@routes.Assets.at("javascripts/home.js")'></script>
+    <script type='text/javascript' src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
+    <script type='text/javascript'>
+    Ext.create('FB.controllers.Home');
+    </script>
 }
 
 @main("FlightPub - Home", styles, scripts) {
 
 	<div id="flightsWrapper">
 		<form action="processFlights">
-			<div class="flights">
-				<h1>Flights</h1>
-				<div id="flightColumns">
-					<div class="flightColumn">
-						<div class="flightRow">
-							<label for="flightFrom">Flight from</label>
-							<input type="text" id="flightFrom" value="where are you travelling from?" />
-						</div>
-						<div class="flightRow">
-							<label for="departing">Departing</label>
-							<input type="text" id="departing" value="what date are you leaving?" />
-						</div>
-					</div>
-					<div class="flightColumn">
-						<div class="flightRow">
-							<label for="flightTo">Flight to</label>
-							<input type="text" id="flightTo" value="where are you going?" />
-						</div>
-						<div class="flightRow">
-							<label for="returning">Returning</label>
-							<input type="text" id="returning" value="what date are you coming back?" />
-						</div>
-					</div>
-				</div>
-			</div>
+            <div class="flights">
+                <h1>Flights</h1>
+                <div id="flightColumns">
+                    <div class="flightColumn">
+                        <div class="flightRow" id="flightFrom">
+                            <label for="flightFrom">Flight from</label>
+                            @*<input type="text" id="flightFrom" value="where are you travelling from?" />*@
+                        </div>
+                        <div class="flightRow">
+                            <label for="departing">Departing</label>
+                            @*<input type="text" id="departing" value="what date are you leaving?" />*@
+                        </div>
+                    </div>
+                    <div class="flightColumn">
+                        <div class="flightRow" id="flightTo">
+                            <label for="flightTo">Flight to</label>
+                            @*<input type="text" id="flightTo" value="where are you going?" />*@
+                        </div>
+                        <div class="flightRow">
+                            <label for="returning">Returning</label>
+                            @*<input type="text" id="returning" value="what date are you coming back?" />*@
+                        </div>
+                    </div>
+                </div>
+            </div>
 			<div id="map"></div>
 			<div class="flights">
 				<div id="flightRows">

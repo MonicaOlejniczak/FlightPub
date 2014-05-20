@@ -101,7 +101,7 @@ Ext.define('FB.controllers.Flights', {
 								'</div>', {
 									compiled: true
 								}
-							).apply ({
+							).apply({
 								id: record.get('id'),
 								airline: record.get('airline').name,
 								flightNumber: record.get('flightNumber'),
