@@ -1,121 +1,51 @@
 Ext.define('FB.controllers.Flights', {
-
+	/**
+	 * Dependencies
+	 */
 	requires: [
 		'FB.models.Flight',
 		'FB.models.Airline',
+		'FB.stores.Flight',
 		'FB.stores.Airline',
+		'FB.sorters.Price',
+		'FB.sorters.Duration',
+		'FB.sorters.DepartureTime',
+		'FB.sorters.ArrivalTime',
+		'FB.sorters.StopOver',
+		'FB.sorters.Airline',
 		'Ext.container.Container',
 		'Ext.layout.container.Border',
 		'Ext.form.field.Number',
 		'Ext.form.field.ComboBox'
 	],
 	/**
-	 * The price sorter
-	 */
-	priceSorter: [
-		'sortPrice', {
-			property: 'price',
-			direction: 'ASC',
-			transform: function (price) {
-				return price.price;
-			}
-		}
-	],
-	/**
-	 * The duration sorter
-	 */
-	durationSorter: [
-		'sortDuration', {
-			property: 'duration',
-			direction: 'ASC'
-		}
-	],
-	/**
-	 * The depasrture time sorter
-	 */
-	departureTimeSorter: [
-		'sortDepartureTime', {
-			property: 'departureTime',
-			direction: 'ASC'
-		}
-	],
-	/**
-	 * The arrival time sorter
-	 */
-	arrivalTimeSorter: [
-		'sortArrivalTime', {
-			property: 'arrivalTime',
-			direction: 'ASC'
-		}
-	],
-	/**
-	 * The stop overs sorter
-	 */
-	stopOverSorter: [
-		'sortStopOvers', {
-			property: 'stopOver',
-			direction: 'ASC',
-			transform: function (stopOver) {
-				return stopOver == null ? 0 : 1;
-			}
-		}
-	],
-	/**
-	 * The airline sorter
-	 */
-	airlineSorter: [
-		'sortAirline', {
-			property: 'airline',
-			direction: 'ASC',
-			transform: function (airline) {
-				return airline.name;
-			}
-		}
-	],
-	/**
-	 * The containers for each type of filter
-	 */
-	activeContainer: null,
-	priceContainer: null,
-	durationContainer: null,
-	departureTimeContainer: null,
-	arrivalTimeContainer: null,
-	stopOverContainer: null,
-	airlineContainer: null,
-	/**
 	 * A constructor that adds the click events to the flights page and converts the json file to a data store
 	 * @constructor
 	 */
 	constructor: function () {
-		this.url = 'data/selectedFlights';
-		this.lastSortedBy = null;
 		Ext.onReady(function () {
-			this.dataStore = Ext.create('Ext.data.Store', {
-				model: 'FB.models.Flight',
-				proxy: {
-					url: this.url,
-					type: 'ajax',
-					reader: {
-						type: 'json'
-					}
-				},
-				autoLoad: true,
-				sortOnLoad: false,
-				listeners: {
-					load: function (store, records, successful, eOpts) {
-						this.renderFlights();
-						this.sort.apply(this, this.priceSorter);
-						this.createPriceContainer();
-						this.createDurationContainer();
-						this.createDepartureTimeContainer();
-						// todo this.createArrivalTimeContainer();
-						this.createStopOverContainer();
-						this.createAirlineContainer();
-						this.addEvents();
-					},
-					scope: this
-				}
-			});
+			this.lastSortedBy = null;
+			this.activeContainer = null;
+			this.priceSorter = Ext.create('FB.sorters.Price');
+			this.durationSorter = Ext.create('FB.sorters.Duration');
+			this.departureTimeSorter = Ext.create('FB.sorters.DepartureTime');
+			this.arrivalTimeSorter = Ext.create('FB.sorters.ArrivalTime');
+			this.stopOverSorter = Ext.create('FB.sorters.StopOver');
+			this.airlineSorter = Ext.create('FB.sorters.Airline');
+			this.priceContainer = null;
+			this.durationContainer = null;
+			this.stopOverContainer = null;
+			this.airlineContainer = null;
+			this.dataStore = Ext.create('FB.stores.Flight');
+			this.dataStore.addListener('load', function(store, records, successful, eOpts) {
+				this.renderFlights();
+				this.sort.apply(this, ['sortPrice', this.priceSorter]);
+			}, this);
+			this.createPriceContainer();
+			this.createDurationContainer();
+			this.createStopOverContainer();
+			this.createAirlineContainer();
+			this.addEvents();
 		}, this);
 	},
 	/**
@@ -176,11 +106,7 @@ Ext.define('FB.controllers.Flights', {
 				margin: '0 10px 0 0',
 				listeners: {
 					blur: function () {
-						var id = 'startPrice';
-						var startPrice = Ext.getCmp(id).getValue();
-						me.filterFlights(id, function (value, item) {
-							return startPrice == null ? true : startPrice <= item.data.price.price;
-						})
+						me.filterStartPrice();
 					}
 				}
 			},  {
@@ -191,11 +117,7 @@ Ext.define('FB.controllers.Flights', {
 				vtype: 'endPrice',
 				listeners: {
 					blur: function () {
-						var id = 'endPrice';
-						var endPrice = Ext.getCmp(id).getValue();
-						me.filterFlights(id, function (value, item) {
-							return endPrice == null ? true : endPrice >= item.data.price.price;
-						})
+						me.filterEndPrice();
 					}
 				}
 			}, {
@@ -209,18 +131,38 @@ Ext.define('FB.controllers.Flights', {
 					click: function () {
 						Ext.getCmp('startPrice').setValue(null);
 						Ext.getCmp('endPrice').setValue(null);
-						//me.filterStartPrice();
-						//me.filterEndPrice();
+						me.filterStartPrice();
+						me.filterEndPrice();
 					}
 				}
 			}]
 		});
 		Ext.apply(Ext.form.field.VTypes, {
-			endPrice: function(value, field) {
+			endPrice: function(value) {
 				return Ext.getCmp('startPrice').getValue() < value;
 			},
 			endPriceText: 'Not a valid end price. This must be greater than the start price.'
 		});
+	},
+	/**
+	 * A method that calls the generic filter function to filter the start price
+	 */
+	filterStartPrice: function () {
+		var id = 'startPrice';
+		var startPrice = Ext.getCmp(id).getValue();
+		this.filterFlights(id, function (value, item) {
+			return startPrice == null ? true : startPrice <= item.data.price.price;
+		}, 'filterPrice', startPrice == null && Ext.getCmp('endPrice').getValue() == null)
+	},
+	/**
+	 * A method that calls the generic filter function to filter the end price
+	 */
+	filterEndPrice: function () {
+		var id = 'endPrice';
+		var endPrice = Ext.getCmp(id).getValue();
+		this.filterFlights(id, function (value, item) {
+			return endPrice == null ? true : endPrice >= item.data.price.price;
+		}, 'filterPrice', Ext.getCmp('startPrice').getValue() == null && endPrice == null)
 	},
 	/**
 	 * Adds the container for the duration filter
@@ -250,11 +192,7 @@ Ext.define('FB.controllers.Flights', {
 				margin: '0 10px 0 0',
 				listeners: {
 					blur: function () {
-						var id = 'startDuration';
-						var startDuration = Ext.getCmp(id).getValue();
-						me.filterFlights(id, function (value, item) {
-							return startDuration == null ? true : startDuration <= item.data.duration;
-						})
+						me.filterStartDuration();
 					}
 				}
 			},  {
@@ -265,11 +203,7 @@ Ext.define('FB.controllers.Flights', {
 				vtype: 'endDuration',
 				listeners: {
 					blur: function () {
-						var id = 'endDuration';
-						var endDuration = Ext.getCmp(id).getValue();
-						me.filterFlights(id, function (value, item) {
-							return endDuration == null ? true : endDuration >= item.data.duration;
-						})
+						me.filterEndDuration();
 					}
 				}
 			},  {
@@ -283,8 +217,8 @@ Ext.define('FB.controllers.Flights', {
 					click: function () {
 						Ext.getCmp('startDuration').setValue(null);
 						Ext.getCmp('endDuration').setValue(null);
-						//me.filterStartDuration();
-						//me.filterEndDuration();
+						me.filterStartDuration();
+						me.filterEndDuration();
 					}
 				}
 			}]
@@ -297,72 +231,24 @@ Ext.define('FB.controllers.Flights', {
 		});
 	},
 	/**
-	 * Adds the container for the departure time filter
+	 * A method that calls the generic filter function to filter the start duration
 	 */
-	createDepartureTimeContainer: function () {
-		var me = this;
-		this.departureTimeContainer = Ext.create('Ext.container.Container', {
-			layout: 'hbox',
-			renderTo: Ext.get('filterContainer'),
-			cls: 'filterContainer',
-			flex: 2,
-			hidden: true,
-			defaults: {
-				xtype: 'datefield',
-				flex: 1
-			},
-			items: [{
-				name: 'startDepartureTime',
-				id: 'startDepartureTime',
-				emptyText: 'minimum departure time',
-				margin: '0 10px 0 0',
-				listeners: {
-					blur: function () {
-						var id = 'startDepartureTime';
-						var departureTime = Ext.getCmp(id).getValue();
-						me.filterFlights(id, function (value, item) {
-							return departureTime == null ? true : departureTime <= item.data.departureTime;
-						})
-					}
-				}
-			},  {
-				name: 'endDepartureTime',
-				id: 'endDepartureTime',
-				emptyText: 'maximum departure time',
-				margin: '0 10px 0 0',
-				vtype: 'endDepartureTime',
-				listeners: {
-					blur: function () {
-						var id = 'endDepartureTime';
-						var departureTime = Ext.getCmp(id).getValue();
-						me.filterFlights(id, function (value, item) {
-							return departureTime == null ? true : departureTime >= item.data.departureTime;
-						})
-					}
-				}
-			}, {
-				xtype: 'button',
-				name: 'clearDepartureTime',
-				id: 'clearDepartureTime',
-				text: 'Clear',
-				scale: 'small',
-				cls: 'filterStyleButton',
-				listeners: {
-					click: function () {
-						Ext.getCmp('startDepartureTime').setValue(null);
-						Ext.getCmp('endDepartureTime').setValue(null);
-						//me.filterStartDepartureTime();
-						//me.filterEndDepartureTime();
-					}
-				}
-			}]
-		});
-		Ext.apply(Ext.form.field.VTypes, {
-			endDuration: function(value, field) {
-				return Ext.getCmp('endDepartureTime').value < value;
-			},
-			endPriceText: 'Not a valid end departure time. This must be greater than the start departure time.'
-		});
+	filterStartDuration: function () {
+		var id = 'startDuration';
+		var startDuration = Ext.getCmp(id).getValue();
+		this.filterFlights(id, function (value, item) {
+			return startDuration == null ? true : startDuration <= item.data.duration;
+		}, 'filterDuration', startDuration == null && Ext.getCmp('endDuration').getValue() == null)
+	},
+	/**
+	 * A method that calls the generic filter function to filter the end duration
+	 */
+	filterEndDuration: function () {
+		var id = 'endDuration';
+		var endDuration = Ext.getCmp(id).getValue();
+		this.filterFlights(id, function (value, item) {
+			return endDuration == null ? true : endDuration >= item.data.duration;
+		}, 'filterDuration', Ext.getCmp('startDuration').getValue() == null && endDuration == null)
 	},
 	/**
 	 * Adds the container for the airline filter
@@ -398,11 +284,7 @@ Ext.define('FB.controllers.Flights', {
 				margin: '0 10px 0 0',
 				listeners: {
 					select: function () {
-						var id = 'stopOver';
-						var stopOver = Ext.getCmp(id).getValue();
-						me.filterFlights(id, function (value, item) {
-							return stopOver == null ? true : stopOver == (item.data.stopOver == null ? 0 : 1);
-						})
+						me.filterStopOvers();
 					}
 				}
 			},  {
@@ -416,11 +298,21 @@ Ext.define('FB.controllers.Flights', {
 				listeners: {
 					click: function () {
 						Ext.getCmp('stopOver').setValue(null);
-						//me.filterStopOvers();
+						me.filterStopOvers();
 					}
 				}
 			}]
 		});
+	},
+	/**
+	 * A method that calls the generic filter function to filter the stop overs
+	 */
+	filterStopOvers: function () {
+		var id = 'stopOver';
+		var stopOver = Ext.getCmp(id).getValue();
+		this.filterFlights(id, function (value, item) {
+			return stopOver == null ? true : stopOver == (item.data.stopOver == null ? 0 : 1);
+		}, 'filterStopOvers', stopOver == null)
 	},
 	/**
 	 * Adds the container for the airline filter
@@ -459,11 +351,7 @@ Ext.define('FB.controllers.Flights', {
 				margin: '0 10px 0 0',
 				listeners: {
 					select: function () {
-						var id = 'airline';
-						var airline = Ext.getCmp(id).getValue();
-						me.filterFlights(id, function (value, item) {
-							return airline == null ? true : airline.toLowerCase() == item.data.airline.name.toLowerCase();
-						})
+						me.filterAirline();
 					}
 				}
 			},  {
@@ -477,11 +365,21 @@ Ext.define('FB.controllers.Flights', {
 				listeners: {
 					click: function () {
 						Ext.getCmp('airline').setValue(null);
-						//me.filterAirline();
+						me.filterAirline();
 					}
 				}
 			}]
 		});
+	},
+	/**
+	 * A method that calls the generic filter function to filter the stop overs
+	 */
+	filterAirline: function () {
+		var id = 'airline';
+		var airline = Ext.getCmp(id).getValue();
+		this.filterFlights(id, function (value, item) {
+			return airline == null ? true : airline.toLowerCase() == item.data.airline.name.toLowerCase();
+		}, 'filterAirline', airline == null)
 	},
 	/**
 	 * A method to calculate the maximum price based on the flights
@@ -528,22 +426,22 @@ Ext.define('FB.controllers.Flights', {
 	 */
 	addEvents: function () {
 		Ext.get('sortPrice').on({
-			'click': Ext.pass(this.sort, this.priceSorter, this)
+			'click': Ext.pass(this.sort, ['sortPrice', this.priceSorter], this)
 		});
 		Ext.get('sortDuration').on({
-			'click': Ext.pass(this.sort, this.durationSorter, this)
+			'click': Ext.pass(this.sort, ['sortDuration', this.durationSorter], this)
 		});
 		Ext.get('sortDepartureTime').on({
-			'click': Ext.pass(this.sort, this.departureTimeSorter, this)
+			'click': Ext.pass(this.sort, ['sortDepartureTime', this.departureTimeSorter], this)
 		});
 		Ext.get('sortArrivalTime').on({
-			'click': Ext.pass(this.sort, this.arrivalTimeSorter, this)
+			'click': Ext.pass(this.sort, ['sortArrivalTime', this.arrivalTimeSorter], this)
 		});
 		Ext.get('sortStopOvers').on({
-			'click': Ext.pass(this.sort, this.stopOverSorter, this)
+			'click': Ext.pass(this.sort, ['sortStopOvers', this.stopOverSorter], this)
 		});
 		Ext.get('sortAirline').on({
-			'click': Ext.pass(this.sort, this.airlineSorter, this)
+			'click': Ext.pass(this.sort, ['sortAirline', this.airlineSorter], this)
 		});
 		Ext.get('filterNone').on({
 			'click': this.filterNone,
@@ -554,12 +452,6 @@ Ext.define('FB.controllers.Flights', {
 		});
 		Ext.get('filterDuration').on({
 			'click': Ext.pass(this.toggleContainer, [this.durationContainer, Ext.get('filterDuration')], this)
-		});
-		Ext.get('filterDepartureTime').on({
-			'click': Ext.pass(this.toggleContainer, [this.departureTimeContainer, Ext.get('filterDepartureTime')], this)
-		});
-		Ext.get('filterArrivalTime').on({
-			'click': Ext.pass(this.filter, ['filterArrivalTime'], this)
 		});
 		Ext.get('filterStopOvers').on({
 			'click': Ext.pass(this.toggleContainer, [this.stopOverContainer, Ext.get('filterStopOvers')], this)
@@ -577,7 +469,9 @@ Ext.define('FB.controllers.Flights', {
 		Ext.select('.sortSelected').removeCls('sortSelected');
 		Ext.get(id).addCls('sortSelected');
 		if (id == this.lastSortedBy) {
-			this.dataStore.sorters.toggle();
+			this.dataStore.sorters.each(function (sorter) {
+				sorter.toggle();
+			});
 		}
 		this.dataStore.sort(sorter);
 		var parent = Ext.get('flights');
@@ -617,8 +511,10 @@ Ext.define('FB.controllers.Flights', {
 	 *
 	 * @param id the id of the component to filter
 	 * @param compare the comparator function
+	 * @param filterId the id of the html class to underline as active
+	 * @param inactive whether the text for the filter id is active
 	 */
-	filterFlights: function (id, compare) {
+	filterFlights: function (id, compare, filterId, inactive) {
 		var component = Ext.getCmp(id);
 		var filterName = id + 'Filter';
 		if (component.isValid()) {
@@ -627,45 +523,17 @@ Ext.define('FB.controllers.Flights', {
 				Ext.create('Ext.util.Filter', {
 					id: filterName,
 					filterFn: function(item) {
+						if (inactive) {
+							Ext.get(filterId).removeCls('filterActive');
+						} else {
+							Ext.get(filterId).addCls('filterActive');
+						}
 						return compare(component.getValue(), item);
 					}
 				})
 			]);
 			this.filter();
 		}
-	},
-	/**
-	 * Checks if the prices are null to see if the text should be active or not
-	 */
-	filterPrice: function () {
-		if (Ext.getCmp('startPrice').getValue() == null && Ext.getCmp('endPrice').getValue() == null) {
-			Ext.get('filterPrice').removeCls('filterActive');
-		} else {
-			Ext.get('filterPrice').addCls('filterActive');
-		}
-	},
-	/**
-	 * Checks if the departure times are null to see if the text should be selected or not
-	 */
-	filterDepartureTime: function () {
-		if (Ext.getCmp('startDepartureTime').getValue() == null && Ext.getCmp('endDepartureTime').getValue() == null) {
-			Ext.get('filterPrice').removeCls('filterActive');
-		} else {
-			Ext.get('filterPrice').addCls('filterActive');
-		}
-	},
-	/**
-	 * Checks if the durations are null to see if the text should be selected or not
-	 */
-	filterDuration: function () {
-		if (Ext.getCmp('startDuration').getValue() == null && Ext.getCmp('endDuration').getValue() == null) {
-			Ext.get('filterDuration').removeCls('filterActive');
-		} else {
-			Ext.get('filterDuration').addCls('filterActive');
-		}
 	}
 
 });
-
-//Ext.namespace('_FB');
-//_FB.Flights = Ext.create('FB.controllers.Flights');
