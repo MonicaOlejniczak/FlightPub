@@ -169,9 +169,18 @@ public class Flight extends Model {
 	 * @return the price of the flight
 	 */
 	public Price getPrice() {
-		return Price.find.where().le("startDate", departureTime)//.gt("endDate", departureTime)
+		return Price.find.where().le("startDate", departureTime)
 				.eq("flightNumber", flightNumber).orderBy("startDate").setMaxRows(1).findUnique();
 	}
+
+	/*
+	/**
+	 * An accessor method that returns the total duration of the flight
+	 * @return the total duration of the flight
+	 */
+	/*public Integer getDuration() {
+		return duration; //+ (durationSecondLeg == null ? 0 : durationSecondLeg);
+	}*/
 
 	/**
 	 * Creates a finder for the Flight entity

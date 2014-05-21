@@ -1,5 +1,6 @@
 package controllers;
 
+import models.Airline;
 import models.Airport;
 import models.Flight;
 import play.libs.Json;
@@ -29,6 +30,10 @@ public class DataController extends Controller {
 		return ok(Json.toJson(flights));
 	}
 
+	public static Result airlines() {
+		List<Airline> airlines = Airline.find.findList();
+		return ok(Json.toJson(airlines));
+	}
 
     public static Result airports() {
         List<Airport> airports = Airport.find.findList();

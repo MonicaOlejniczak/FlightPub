@@ -145,6 +145,10 @@
 	border-bottom: @sortLinkBorderWidth @themeColor solid;
 }
 
+#filterContent span.filterActive {
+	border-bottom: @sortLinkBorderWidth lighten(@themeBackgroundColor, 50%) solid;
+}
+
 /* Search Results */
 #resultsContainer {
 	height: 100%;
@@ -170,23 +174,23 @@
 	display: none;
 }
 
-.filterStyle {
+.filterContainer {
 	background-color: @filterStyleBackgroundColor;
 	padding: @filterStylePadding;
 	margin: @filterStyleMargin 0;
 	.boxShadow(0, 0, @filterStyleBoxShadow, 0, darken(@filterStyleBackgroundColor, 10%));
-	.transition(border-bottom, @time, linear);
+	.transition(background, @time, linear);
 }
 
-.filterStyle table, .filterStyle td, .filterStyle tr {
+.filterContainer table, .filterContainer td, .filterContainer tr {
 	border: 0;
 }
 
-.filterStyle input, .filterStyleButton input {
+.filterContainer input, .filterStyleButton input {
 	color: @filterStyleColor;
 	font: @filterStyleFont;
 }
 
-.filterStyleButton, .filterStyle span:hover {
+.filterStyleButton, .filterContainer span:hover {
 	border: 0;
 }

@@ -1,5 +1,10 @@
 Ext.define('FB.controllers.Home', {
-    map: null,
+	requires: [
+		'FB.models.Airport',
+		'FB.stores.Airport',
+		'Ext.form.field.ComboBox'
+	],
+	map: null,
     polyline: null,
     constructor: function () {
 
@@ -10,23 +15,9 @@ Ext.define('FB.controllers.Home', {
 
     },
     setupForm: function () {
-        var airports = Ext.create('Ext.data.Store', {
-            model: 'FB.models.Airport',
-            fields: [
-                'name', 'code', 'longitude', 'latitude'
-            ],
-            proxy: {
-                url: 'data/airports',
-                type: 'ajax',
-                reader: {
-                    type: 'json'
-                }
-            },
-            autoLoad: true
-        });
 
         var sourceCombo = Ext.create('Ext.form.field.ComboBox', {
-            store: airports,
+            store: 'FB.stores.Airport',
             model: 'FB.models.Airport',
             border: false,
             queryMode: 'remote',
@@ -36,7 +27,7 @@ Ext.define('FB.controllers.Home', {
         });
 
         var targetCombo = Ext.create('Ext.form.field.ComboBox', {
-            store: airports,
+            store: 'FB.stores.Airport',
             model: 'FB.models.Airport',
             border: false,
             queryMode: 'remote',
