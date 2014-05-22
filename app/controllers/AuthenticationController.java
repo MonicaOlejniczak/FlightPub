@@ -25,31 +25,29 @@ public class AuthenticationController extends Controller {
 		/**
 		 * First-name field from the request.
 		 */
-		@Constraints.Required
-		@Constraints.MinLength(1)
-		@Constraints.MaxLength(30)
+		@Constraints.Required(message = "Required Field!")
+		@Constraints.MaxLength(value = 30, message = "Name Too Long!")
 		public String firstName;
 
 		/**
 		 * Last-name field from the request.
 		 */
-		@Constraints.Required
-		@Constraints.MinLength(1)
-		@Constraints.MaxLength(30)
+		@Constraints.Required(message = "Required Field!")
+		@Constraints.MaxLength(value = 30, message = "Name Too Long!")
 		public String lastName;
 
 		/**
 		 * Email field from the request.
 		 */
-		@Constraints.Required
-		@Constraints.Email
+		@Constraints.Required(message = "Required Field!")
+		@Constraints.Email(message = "Invalid Email Address!")
 		public String email;
 
 		/**
 		 * Password field from the request.
 		 */
-		@Constraints.Required
-		@Constraints.MinLength(8)
+		@Constraints.Required(message = "Required Field!")
+		@Constraints.MinLength(value = 8, message = "Password Too Short!")
 		public String password;
 	}
 
@@ -60,15 +58,15 @@ public class AuthenticationController extends Controller {
 		/**
 		 * Email field from the request.
 		 */
-		@Constraints.Required
-		@Constraints.Email
+		@Constraints.Required(message = "Required Field!")
+		@Constraints.Email(message = "Invalid Email Address!")
 		public String email;
 
 		/**
 		 * Password field from the request.
 		 */
-		@Constraints.Required
-		@Constraints.MinLength(8)
+		@Constraints.Required(message = "Required Field!")
+		@Constraints.MinLength(value = 8, message = "Password Too Short!")
 		public String password;
 
 		/**
@@ -79,7 +77,7 @@ public class AuthenticationController extends Controller {
 			if (User.authenticate(this.email, this.password)) {
 				return null;
 			} else {
-				return "Error: Invalid credentials. Please try again.";
+				return "Invalid credentials. Please try again.";
 			}
 		}
 	}
