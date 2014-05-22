@@ -1,6 +1,5 @@
 package controllers;
 
-import akka.util.Crypt;
 import com.avaje.ebean.Ebean;
 import models.User;
 import play.data.Form;
@@ -9,7 +8,6 @@ import play.libs.Yaml;
 import play.mvc.Controller;
 import play.mvc.Result;
 
-import javax.validation.Constraint;
 import java.util.List;
 import java.util.Map;
 
@@ -129,22 +127,24 @@ public class AuthenticationController extends Controller {
 	/**
 	 * Process-Login action - processes the login credentials supplied by the user, authenticating them if the details
 	 * are valid.
+	 * @param destination The destination page to redirect to upon a successful login.
 	 * @return A redirect to the specified destination page if successful, or a redirect back to the Login action on
 	 * failure.
 	 */
-	public static Result processLogin() {
+	public static Result processLogin(String destination) {
 		// Get request parameters
 		Form<LoginCredentials> loginForm = Form.form(LoginCredentials.class).bindFromRequest();
 
 		// Do we have errors?
 		if (loginForm.hasErrors()) {
-			// If we do, issue a bad-request error
+			// If we do, re-save the destination URL (unlike every other side, ever) and issue a bad-request error
+			if (destination != null) { flash().put("destination", destination); }
 			return badRequest(views.html.login.render(loginForm));
 		} else {
-			// Otherwise, log the user in and redirect to the homepage
+			// Otherwise, log the user in and redirect to the previous page (if one exists) or the homepage
 			session().clear();
 			session("email", loginForm.get().email);
-			return redirect(controllers.routes.MainController.home());
+			return redirect(destination != null ? destination : controllers.routes.MainController.home().url());
 		}
 	}
 

@@ -12,7 +12,7 @@
 			</div>
 
 			<div class="panel-body">
-				<form action="@routes.AuthenticationController.processLogin()" method="POST" role="form" class="form-horizontal">
+				<form action="@routes.AuthenticationController.processLogin(flash.get("destination"))" method="POST" role="form" class="form-horizontal">
 					@if(loginForm.hasGlobalErrors) {
 						<div class="alert alert-danger">
 							<strong>Error! </strong>
