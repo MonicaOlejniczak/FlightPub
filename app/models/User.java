@@ -1,5 +1,6 @@
 package models;
 
+import akka.util.Crypt;
 import com.avaje.ebean.Expr;
 
 import play.db.ebean.Model;
@@ -60,10 +61,6 @@ public class User extends Person {
 	@Constraints.Required
 	public Units unit;
 
-	@Constraints.Required
-	@ManyToOne(cascade = CascadeType.ALL)
-	public Timezone timezone;
-
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
 	public List<Booking> bookings = new ArrayList<>();
 
@@ -79,27 +76,67 @@ public class User extends Person {
 	/**
 	 * Class constructor setting the required variables of the class
 	 */
-	public User(String firstName, String lastName, String email, String password, List<Role> roles, Timezone timezone) {
+	public User(String firstName, String lastName, String email, String password) {
 		super(firstName, lastName);
 		this.email = email;
-		this.password = password;
-		this.roles = roles;
+		this.password = User.hashPassword(password);
 		this.registrationDate = new Date();
 		this.theme = Theme.LIGHT;
 		this.unit= Units.METRIC;
-		this.timezone = timezone;
+	}
+
+	/**
+	 * Sets this User's password to the specified new password.
+	 * @param password The new password to assign to this user, in plaintext.
+	 */
+	public void setPassword(String password) {
+		this.password = User.hashPassword(password);
+	}
+
+	/**
+	 * Registers a User account with the given registration details, returning a Boolean indicating success
+	 * or failure.
+	 * @param firstName The first name of the registering User.
+	 * @param lastName The last name of the registering User.
+	 * @param email The email address of the registering User.
+	 * @param password The plaintext password of the registering User.
+	 * @return A Boolean indicating whether or not the User is able to register with the suppl
+	 */
+	public static Boolean register(String firstName, String lastName, String email, String password) {
+		try {
+			// Create a new user
+			User newbie = new User(firstName, lastName, email, password);
+
+			// TODO: Any additional configuration here
+
+			// Save the user to the database
+			newbie.save();
+
+			return true;
+		} catch (Exception ignored) {
+			return false;
+		}
 	}
 
 	/**
 	 * Attempt to authenticate with the supplied email and passwordHash, returning a Boolean indicating success or
 	 * failure.
 	 * @param email The email address of the User to check.
-	 * @param passwordHash The SHA1 hash of the User's password to check.
+	 * @param password The plaintext password of the User to check.
 	 * @return A Boolean indicating whether or not the User was authenticated.
 	 */
-	public static Boolean authenticate(String email, String passwordHash) {
+	public static Boolean authenticate(String email, String password) {
 		// Find a user with the specified credentials
-		return (User.find.where().and(Expr.eq("email", email), Expr.eq("password", passwordHash)).findUnique() != null);
+		return (User.find.where().and(Expr.eq("email", email), Expr.eq("password", User.hashPassword(password))).findUnique() != null);
+	}
+
+	/**
+	 * Returns a hash of the specified plaintext password.
+	 * @param plaintextPassword The plaintext password to hash.
+	 * @return A hash of the specified plaintext password.
+	 */
+	private static String hashPassword(String plaintextPassword) {
+		return Crypt.sha1(plaintextPassword);
 	}
 	
 	/**

@@ -29,11 +29,11 @@
 					<a href="flights.html"><span>Flights</span></a>
 					<a href="about.html"><span>About</span></a>
 					<a href="contact.html"><span>Contact</span></a>
-					<a href="register.scala.html"><span>Register</span></a>
 					@if(Http.Context.current().session().get("email") != null) {
 						<a href="@routes.AuthenticationController.logout()"><span>Logout</span></a>
 					}
 					@if(Http.Context.current().session().get("email") == null) {
+						<a href="@routes.AuthenticationController.register()"><span>Register</span></a>
 						<a href="@routes.AuthenticationController.login()"><span>Login</span></a>
 					}
 					<a href="@routes.TestAuthController.index()"><span>Restricted Area</span></a>
