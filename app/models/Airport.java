@@ -1,6 +1,7 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import edu.asu.emit.qyan.alg.model.abstracts.BaseVertex;
 import play.db.ebean.Model;
 import play.data.validation.Constraints;
 
@@ -10,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-public class Airport extends Model {
+public class Airport extends Model implements BaseVertex, Comparable<BaseVertex> {
 
 	/**
 	 * Uniquely identifies the airport
@@ -100,4 +101,34 @@ public class Airport extends Model {
 	 */
 	public static Model.Finder<Long, Airport> find = new Model.Finder<>(Long.class, Airport.class);
 
+    @Override
+    public int get_id() {
+        return this.id.intValue();
+    }
+
+    @Override
+    public double get_weight() {
+        return 0; // wat
+    }
+
+    @Override
+    public void set_weight(double weight) {
+        // no
+    }
+
+    @Override
+    public int compareTo(BaseVertex o) {
+        double diff = this.get_weight() - o.get_weight();
+        if(diff > 0)
+            return 1;
+        else if(diff < 0)
+            return -1;
+        else
+            return 0;
+    }
+
+    @Override
+    public String toString() {
+        return this.name;
+    }
 }

@@ -1,6 +1,9 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import edu.asu.emit.qyan.alg.model.abstracts.BaseEdge;
+import edu.asu.emit.qyan.alg.model.abstracts.BaseVertex;
+import org.joda.time.DateTime;
 import play.db.ebean.Model;
 import play.data.format.Formats;
 import play.data.validation.Constraints;
@@ -10,7 +13,7 @@ import javax.persistence.*;
 import java.util.*;
 
 @Entity
-public class Flight extends Model {
+public class Flight extends Model implements BaseEdge {
 
 	/**
 	 * Uniquely identifies the flight
@@ -59,28 +62,28 @@ public class Flight extends Model {
 	 */
 	@Constraints.Required
 	@Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
-	public Date departureTime;
+	public DateTime departureTime;
 
 	/**
 	 * Specifies the stop over arrival date and time
 	 */
 	@Constraints.Required
 	@Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
-	public Date arrivalTimeStopOver;
+	public DateTime arrivalTimeStopOver;
 
 	/**
 	 * Specifies the stop over departure date and time
 	 */
 	@Constraints.Required
 	@Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
-	public Date departureTimeStopOver;
+	public DateTime departureTimeStopOver;
 
 	/**
 	 * Specifies the arrival date and time to the destination
 	 */
 	@Constraints.Required
 	@Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
-	public Date arrivalTime;
+	public DateTime arrivalTime;
 
 	/**
 	 * The type of plane that will be boarded
@@ -133,7 +136,7 @@ public class Flight extends Model {
 	/**
 	 * Class constructor setting the required variables of the class
 	 */
-	public Flight(Airline airline, String flightNumber, Airport source, Airport stopOver, Airport destination, Date departureTime, Date arrivalTimeStopOver, Date departureTimeStopOver, Date arrivalTime, Plane plane, int duration, int durationSecondLeg) {
+	public Flight(Airline airline, String flightNumber, Airport source, Airport stopOver, Airport destination, DateTime departureTime, DateTime arrivalTimeStopOver, DateTime departureTimeStopOver, DateTime arrivalTime, Plane plane, int duration, int durationSecondLeg) {
 		this.airline = airline;
 		this.flightNumber = flightNumber;
 		this.source = source;
@@ -187,4 +190,18 @@ public class Flight extends Model {
 	 */
 	public static Finder<Long, Flight> find = new Finder<>(Long.class, Flight.class);
 
+    @Override
+    public int get_weight() {
+        return durationSecondLeg != null ? duration + durationSecondLeg : duration;
+    }
+
+    @Override
+    public BaseVertex get_start_vertex() {
+        return source;
+    }
+
+    @Override
+    public BaseVertex get_end_vertex() {
+        return destination;
+    }
 }
