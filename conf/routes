@@ -3,10 +3,13 @@
 # ~~~~
 
 GET         /                                 controllers.MainController.home()
+GET         /register                         controllers.AuthenticationController.register()
+POST        /register/process                 controllers.AuthenticationController.processRegistration()
 GET         /login                            controllers.AuthenticationController.login()
-POST        /login/process                    controllers.AuthenticationController.processLogin()
+POST        /login/process                    controllers.AuthenticationController.processLogin(destination = null)
+POST        /login/process/*destination       controllers.AuthenticationController.processLogin(destination)
 GET         /logout                           controllers.AuthenticationController.logout()
-GET			/hax							  controllers.AuthenticationController.hax()
+GET         /hax                              controllers.AuthenticationController.hax()
 GET         /restricted                       controllers.TestAuthController.index()
 GET         /home/process                     controllers.HomeController.processFlights()
 GET         /message                          controllers.MessageController.getMessage()
