@@ -2,13 +2,15 @@ package models;
 
 import akka.util.Crypt;
 import com.avaje.ebean.Expr;
-
-import play.db.ebean.Model;
+import play.Play;
+import play.api.libs.Codecs;
 import play.data.format.Formats;
 import play.data.validation.Constraints;
+import play.db.ebean.Model;
 
 import javax.persistence.*;
-
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -79,7 +81,7 @@ public class User extends Person {
 	public User(String firstName, String lastName, String email, String password) {
 		super(firstName, lastName);
 		this.email = email;
-		this.password = User.hashPassword(password);
+		this.password = User.hashPassword(password, email);
 		this.registrationDate = new Date();
 		this.theme = Theme.LIGHT;
 		this.unit= Units.METRIC;
@@ -90,7 +92,7 @@ public class User extends Person {
 	 * @param password The new password to assign to this user, in plaintext.
 	 */
 	public void setPassword(String password) {
-		this.password = User.hashPassword(password);
+		this.password = User.hashPassword(password, this.email);
 	}
 
 	/**
@@ -127,16 +129,29 @@ public class User extends Person {
 	 */
 	public static Boolean authenticate(String email, String password) {
 		// Find a user with the specified credentials
-		return (User.find.where().and(Expr.eq("email", email), Expr.eq("password", User.hashPassword(password))).findUnique() != null);
+		return (User.find.where().and(Expr.eq("email", email), Expr.eq("password", User.hashPassword(password, email))).findUnique() != null);
 	}
 
 	/**
 	 * Returns a hash of the specified plaintext password.
 	 * @param plaintextPassword The plaintext password to hash.
+	 * @param salt The salt used to secure the password hash.
 	 * @return A hash of the specified plaintext password.
 	 */
-	private static String hashPassword(String plaintextPassword) {
-		return Crypt.sha1(plaintextPassword);
+	private static String hashPassword(String plaintextPassword, String salt) {
+		// Merge salt and password
+		String passwordAndSalt = Play.application().configuration().getString("application.secret") +
+				salt.substring(0, salt.length() / 2) + plaintextPassword + salt.substring(salt.length() / 2);
+
+		try {
+			// Create a SHA-512 message digest
+			MessageDigest md = MessageDigest.getInstance("SHA-512");
+
+			// Return the Base64-encoded hash
+			return Codecs.toHexString(md.digest(passwordAndSalt.getBytes()));
+		} catch (NoSuchAlgorithmException e) {
+			return Crypt.sha1(passwordAndSalt);
+		}
 	}
 	
 	/**
