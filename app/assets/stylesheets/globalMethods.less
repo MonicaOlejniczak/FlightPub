@@ -6,6 +6,19 @@
 	background-image: linear-gradient(@origin, @start @startPercent, @stop @stopPercent);
 }
 
+.contentGradient (@start: transparent, @second: transparent, @third: transparent, @stop: transparent) {
+	@origin: right;
+	@startPercent: 0%;
+	@secondPercent: 25%;
+	@thirdPercent: 75%;
+	@stopPercent: 100%;
+	background-image: -webkit-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+	background-image: -moz-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+	background-image: -o-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+	background-image: -ms-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+	background-image: linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+}
+
 .border(@top: 0, @right: 0, @bottom: 0, @left: 0, @colour: #000, @style: solid) {
 	border-top-width: @top;
 	border-right-width: @right;
