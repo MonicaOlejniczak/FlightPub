@@ -18,6 +18,8 @@ POST 		/luggage						  controllers.BookingController.luggage()
 GET         /home/process                     controllers.HomeController.processFlights()
 GET         /message                          controllers.MessageController.getMessage()
 GET         /assets/javascripts/routes        controllers.MessageController.javascriptRoutes()
+GET         /about                            controllers.MainController.about()
+GET         /contact                          controllers.MainController.contact()
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file                     controllers.Assets.at(path="/public", file)
