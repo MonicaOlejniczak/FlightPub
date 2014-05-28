@@ -2,14 +2,15 @@
 @import 'globalVariables';
 
 @filterStyleInputWidth: 50% - @filterStyleMargin;
-@flightsWidth: calc(~'100% - @{sourceWidth}');
-@nodeWidth: 2em;
-@sourceWidth: 200px;
+@flightsWidth: calc(~'100% - @{sourceWidth} * 3');
+@nodeWidth: @nodeHeight;
+@sourceWidth: 75px;
 @buttonsWidth: @buttonWidth * 2 + @resultsPadding * 3;
 @buttonWidth: 20em;
 
 @sortHeight: 3em;
-@flightHeight: @nodeWidth;
+@flightHeight: 2em;
+@nodeHeight: 1.3em;
 @flightBarHeight: 1.6em;
 
 @sortBackgroundColor: @themeBackgroundColor;
@@ -45,7 +46,7 @@
 @flightBorderWidth: @nodeWidth;
 @airportBorderWidth: 0.3em;
 @arrowBorderWidth:  @arrowBorderWidthTransparent * 2;
-@arrowBorderWidthTransparent: 0.5em;
+@arrowBorderWidthTransparent: 0.81em;
 
 @tabPadding: 0.5em;
 @topContainerPadding: @tabPadding;
@@ -278,11 +279,20 @@
 }
 
 .node {
-	position: relative;
+	top: 0.35em;
 	width: @nodeWidth;
-	height: @flightHeight;
+	height: @nodeHeight;
 	background-color: @flightBackgroundColor;
 	margin: 0 auto;
+	position: relative;
+}
+
+.departure .node {
+	left: 0.3em;
+}
+
+.arrival .node {
+	right: 0.3em;
 }
 
 .departure, .flightBar, .arrival {
@@ -298,26 +308,45 @@
 }
 
 .source, .destination {
+	top: -0.1em;
 	width: @sourceWidth;
 	background-color: @flightHoverBackgroundColor;
 	font: @airportFont;
 	text-align: center;
-	border-radius: @airportBorderWidth;
-	padding: 0.3em 0;
-	margin: -3em auto 0 -5.1em;
+	padding: 0.2em 0;
 	position: relative;
+}
+
+.source, .source:before, .destination, .destination:before {
+	border-radius: @airportBorderWidth;
+}
+
+.source {
+	margin: 0 auto 0 -7em;
+}
+
+.destination {
+	margin: 0 auto 0 3.5em;
 }
 
 .source:before, .destination:before {
 	content: "";
-	left: 45%;
-	top: 100%;
+	top: 0;
 	width: 0;
 	height: 0;
-	border-top: @arrowBorderWidth @flightHoverBackgroundColor solid;
-	border-right: @arrowBorderWidthTransparent transparent solid;
-	border-left: @arrowBorderWidthTransparent transparent solid;
+	border-top: @arrowBorderWidthTransparent transparent solid;
+	border-bottom: @arrowBorderWidthTransparent transparent solid;
 	position: absolute;
+}
+
+.source:before {
+	left: 97%;
+	border-left: @arrowBorderWidth @flightHoverBackgroundColor solid;
+}
+
+.destination:before {
+	right: 96.5%;
+	border-right: @arrowBorderWidth @flightHoverBackgroundColor solid;
 }
 
 .flightBar {
