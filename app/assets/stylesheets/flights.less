@@ -2,13 +2,15 @@
 @import 'globalVariables';
 
 @filterStyleInputWidth: 50% - @filterStyleMargin;
-@sortHeight: 3em;
-@flightWidth: 20px;
-@flightBarWidth: 50%;//100% - (@flightWidth * 2);
-@buttonsWidth: @buttonWidth * 2 + @resultsPadding;
+@flightsWidth: calc(~'100% - @{sourceWidth}');
+@nodeWidth: 2em;
+@sourceWidth: 200px;
+@buttonsWidth: @buttonWidth * 2 + @resultsPadding * 3;
 @buttonWidth: 20em;
 
-@flightHeight: @flightWidth;
+@sortHeight: 3em;
+@flightHeight: @nodeWidth;
+@flightBarHeight: 1.6em;
 
 @sortBackgroundColor: @themeBackgroundColor;
 @filterStyleBackgroundColor: @themeBackgroundColor;
@@ -17,50 +19,62 @@
 @flightsContainerBackgroundColor: @timeContainerBackgroundColor;
 @flightsContainerGradientBackgroundColor: @timeBackgroundColor;
 @flightBackgroundColor: @themeBackgroundColor;
+@flightHoverBackgroundColor: lighten(@flightBackgroundColor, 20%);
 @flightBarBackgroundColor: #fff;
 
 @filterStyleColor: @filterStyleBackgroundColor;
 @timeColor: @secondaryColor;
+@flightBarBoxShadowColor: #555;
 
 @tabFontSize: 1.5em;
 @sortContainerFontSize: 1em;
-@filterStyleFontSize: 1em;
 @timeContainerFontSize: 1em;
+@airportFontSize: 1em;
 
 @tabFont: @tabFontSize 'Ubuntu', @nextFont;
 @sortFont: @sortContainerFontSize 'Ubuntu', @nextFont;
-@filterStyleFont: @filterStyleFontSize 'Ubuntu', @nextFont;
+@filterStyleFont: @sortFont;
 @timeContainerFont: @timeContainerFontSize 'Ubuntu', @nextFont;
+@airportFont: @airportFontSize 'Ubuntu', @nextFont;
+@flightBarTextFont: @airportFont;
 
 @tabBorderWidth: 0.3em;
 @sortBorderWidth: 0.3em;
-@sortLinkBorderWidth: 0.125em;
+@sortLinkBorderWidth: 0.15em;
 @filterStyleBorderWidth: 0.3em;
-@flightBorderWidth: @flightWidth;
+@flightBorderWidth: @nodeWidth;
+@airportBorderWidth: 0.3em;
+@arrowBorderWidth:  @arrowBorderWidthTransparent * 2;
+@arrowBorderWidthTransparent: 0.5em;
 
 @tabPadding: 0.5em;
 @topContainerPadding: @tabPadding;
 @sortPadding: @tabPadding;
 @filterStylePadding: 0.5em;
-@resultsPadding: 2%;
+@resultsPadding: 0%;
 @timePadding: 0.5em;
 @flightsPadding: 1em;
 
 @tabMargin: @tabPadding;
 @sortFilterMargin: 1em;
 @filterStyleMargin: @filterStylePadding;
-@flightMargin: @flightWidth / 2;
+@flightMargin: @nodeWidth / 2;
+@flightBarTextMarginTop: 0.2em;
+@flightBarTextMarginLeft: 2em;
 
 @sortBoxShadow: 0.03em;
 @filterStyleBoxShadow: 0.05em;
+@flightBoxShadow: 0.05em;
+@flightBarBoxShadow: 0.05em;
 
 @sortLineHeight: @sortHeight;
 
-#flightsContainer, #topContainer, #sort, #results, #timeContainer, #buttons {
+#flightsContainer, #topContainer, #sort, #results, #timeContainer, #flights, .flight, #buttons {
 	clear: both;
 }
 
 #flightsContainer {
+	min-width: @minWidth;
 	background-color: @secondaryBackgroundColor;
 	color: @secondaryColor;
 }
@@ -99,7 +113,7 @@
 }
 
 /* Sorting and filtering */
-#sort, #filterContainer, #sortText, #sort span {
+#sort, #filterContainer, #sortText, #sort span, .source, .destination {
 	color: @themeColor;
 }
 
@@ -147,14 +161,14 @@
 
 #sort span, #filterContent span {
 	border-bottom: @sortLinkBorderWidth transparent solid;
- 	margin: 0 @sortFilterMargin 0 0;
+	margin: 0 @sortFilterMargin 0 0;
 	-webkit-user-select: none;
 	-moz-user-select: none;
 	-khtml-user-select: none;
 	-ms-user-select: none;
 }
 
-#sort span:hover, #filterContent span:hover {
+#sort span:hover, #filterContent span:hover, .flightBar, .node, .source, .destination {
 	cursor: pointer;
 }
 
@@ -164,10 +178,6 @@
 
 #filterContent span.filterActive {
 	border-bottom: @sortLinkBorderWidth @secondaryColor solid;
-}
-
-.filter {
-	display: none;
 }
 
 .filterContainer {
@@ -193,10 +203,11 @@
 
 /* Search Results */
 #results {
-	width: 100%;
-	height: 100%;
-	background-color: @flightsContainerBackgroundColor;
+	min-width: @minWidth;
+	min-height: 100%;
+	background: @flightsContainerBackgroundColor;
 	padding: 0 0 @resultsPadding 0;
+	display: block;
 	.contentGradient(@flightsContainerGradientBackgroundColor, transparent, transparent, @flightsContainerGradientBackgroundColor);
 }
 
@@ -217,53 +228,132 @@
 	margin: 0 0 @margin 0;
 }
 
+.flight, .flightBar {
+	max-width: @maxWidth;
+}
+
 #flights {
-	width: 95%;
-	padding: @flightsPadding 0;
+	max-width: @flightsWidth;
 	margin: 0 auto;
 }
 
 .flight {
 	height: @flightHeight;
 	margin: @flightMargin 0;
+	position: relative;
 }
 
-.departure, .arrival, .flightBar {
-	height: @flightHeight;
+.filter, .source, .flightBarTextHidden, .destination, .flight:hover .source, .flight:hover .flightBarTextHidden, .flight:hover .destination {
+	.transition(opacity, @time, linear);
 }
 
-.departure, .arrival {
-	width: @flightWidth;
-	background-color: @flightBackgroundColor;
+.filter, .source, .flightBarTextHidden, .destination {
+	opacity: 0;
+	filter:alpha(opacity=0);
+	visibility: hidden;
+}
+
+.flight:hover .source, .flight:hover .flightBarTextHidden, .flight:hover .destination {
+	opacity: 1;
+	filter:alpha(opacity=100);
+	visibility: visible;
+	cursor: pointer;
+}
+
+.flight:hover .departure .node, .flight:hover .arrival .node {
+	background-color: @flightHoverBackgroundColor;
+}
+
+.node, .flightBar {
 	border-radius: @flightBorderWidth;
 }
 
-.departure, .flightBar, .arrival {
+.node, .source, .destination {
+	.boxShadow(0, 0, @flightBoxShadow, @flightBoxShadow, darken(@flightBackgroundColor, 10%));
+	.transition(background-color, @time, linear);
+}
+
+.flightBarTextVisible, .flightBarTextHidden, .source, .destination {
 	float: left;
 }
 
-.departure {
+.node {
 	position: relative;
-	margin: 0 -@flightMargin 0 0;
-}
-
-.flightBar {
-	width: @flightBarWidth;
-	background: @flightBarBackgroundColor;
+	width: @nodeWidth;
+	height: @flightHeight;
+	background-color: @flightBackgroundColor;
 	margin: 0 auto;
 }
 
+.departure, .flightBar, .arrival {
+	position: absolute;
+}
+
+.departure, .arrival {
+	top: -0.2em;
+}
+
+.departure {
+	left: 0;
+}
+
+.source, .destination {
+	width: @sourceWidth;
+	background-color: @flightHoverBackgroundColor;
+	font: @airportFont;
+	text-align: center;
+	border-radius: @airportBorderWidth;
+	padding: 0.3em 0;
+	margin: -3em auto 0 -5.1em;
+	position: relative;
+}
+
+.source:before, .destination:before {
+	content: "";
+	left: 45%;
+	top: 100%;
+	width: 0;
+	height: 0;
+	border-top: @arrowBorderWidth @flightHoverBackgroundColor solid;
+	border-right: @arrowBorderWidthTransparent transparent solid;
+	border-left: @arrowBorderWidthTransparent transparent solid;
+	position: absolute;
+}
+
+.flightBar {
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: @flightBarHeight;
+	min-width: 325px;
+	background: @flightBarBackgroundColor;
+	.boxShadow(0, 0, @flightBarBoxShadow, @flightBarBoxShadow, @flightBarBoxShadowColor);
+}
+
 .flightBarText {
-	margin: 0 0 0 @flightMargin;
+	font: @flightBarTextFont;
+	color: @secondaryBackgroundColor;
+	margin: @flightBarTextMarginTop 0 0 @flightBarTextMarginLeft;
+}
+
+.flightBarTextVisible {
+	color: @themeBackgroundColor;
+	font-weight: bold;
+	margin: 0 0.5em;
 }
 
 .arrival {
-	margin: 0 0 0 -@flightMargin;
+	right: 0;
+}
+
+.selectFlight {
+	background: @secondaryColor;
 }
 
 #buttons {
 	width: @buttonsWidth;
 	height: 100%;
+	margin: 0 1em 1em 0;
 	float: right;
 }
 

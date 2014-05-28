@@ -58,17 +58,25 @@ Ext.define('FB.controllers.Flights', {
 	 * Renders the flight results
 	 */
 	renderFlights: function () {
+		var maxDuration = this.maxDuration();
 		this.dataStore.each(function (record) {
 			Ext.get('flights').createChild(Ext.create('Ext.XTemplate',
 				'<div id="flight_{id}" class="flight">',
-					'<div class="departure">',
-					'</div>',
 					'<div class="flightBar">',
-						'<div class="flightBarText">',
-							'${price} {airline} {duration} {stopOvers}',
+						'<div class="departure">',
+							'<div class="node"></div>',
 						'</div>',
-					'</div>',
-					'<div class="arrival">',
+						'<div class="flightBarText">',
+							'<div class="flightBarTextVisible">',
+								'${price}',
+							'</div>',
+							'<div class="flightBarTextHidden">',
+								'<strong>Duration:</strong> {duration} minutes',
+							'</div>',
+						'</div>',
+						'<div class="arrival">',
+							'<div class="node"></div>',
+						'</div>',
 					'</div>',
 				'</div>', {
 					compiled: true
@@ -79,11 +87,49 @@ Ext.define('FB.controllers.Flights', {
 				flightNumber: record.get('flightNumber'),
 				price: record.get('price').price,
 				duration: record.get('duration'),
-				departure: new Date(record.get('departureTime')),
-				arrival: new Date(record.get('arrivalTime')),
+				source: record.get('source').name,
+				departureTime: new Date(record.get('departureTime')),
+				destination: record.get('destination').name,
+				arrivalTime: new Date(record.get('arrivalTime')),
 				stopOvers: record.get('stopOver') == null ? 0 : 1
-			}))
-		});
+			}));
+			var id = 'flight_' + record.get('id');
+			Ext.get(id).setStyle({
+				width: (record.get('duration') / maxDuration * 100) + '%'
+			});
+			var departure = Ext.create('Ext.container.Container', {
+				plain: true,
+				renderTo: Ext.get(id).select('.departure .node').first(),
+				html: record.get('source').name,
+				cls: 'source',
+				hidden: true
+			});
+			var arrival = Ext.create('Ext.container.Container', {
+				plain: true,
+				renderTo: Ext.get(id).select('.arrival .node').first(),
+				html: record.get('destination').name,
+				cls: 'destination',
+				hidden: true
+			});
+			Ext.get(id).on({
+				'click': Ext.pass(this.selectFlight, id, this),
+				'mouseenter': function () {
+					departure.show();
+					arrival.show();
+				},
+				'mouseleave': function () {
+					departure.hide();
+					arrival.hide();
+				}
+			});
+		}, this);
+	},
+	/**
+	 * Selects a particular flight
+	 */
+	selectFlight: function (id) {
+		Ext.select('.selectFlight').removeCls('selectFlight');
+		Ext.get(id).select('.flightBar').addCls('selectFlight');
 	},
 	/**
 	 * Adds the container for the price filter
