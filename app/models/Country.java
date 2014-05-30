@@ -1,5 +1,7 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import play.db.ebean.Model;
 import play.data.validation.Constraints;
 
@@ -53,10 +55,19 @@ public class Country extends Model {
 	public String alternateName2;
 
 	/**
+	 * Specifies the the timezone of the country
+	 */
+	//todo brendan add in
+	/*@Constraints.Required
+	@ManyToOne(cascade = CascadeType.ALL)
+	public Timezone timezone;*/
+
+	/**
 	 * Specifies the mother country if it exists
 	 * For example, the mother country of the United Kingdom is Great Britain
 	 */
-	@ManyToOne(cascade = CascadeType.ALL)
+    @JsonIgnore
+	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	public Country motherCountry;
 
 	/**
@@ -68,33 +79,37 @@ public class Country extends Model {
 	/**
 	 * The reverse mapping specifying the list of airlines that is within the given country
 	 */
+    @JsonIgnore
 	@OneToMany(mappedBy = "country", fetch = FetchType.LAZY)
 	public List<Airline> airlines = new ArrayList<>();
 
 	/**
 	 * The reverse mapping specifying the list of airports that is within the given country
 	 */
+    @JsonIgnore
 	@OneToMany(mappedBy = "country", fetch = FetchType.LAZY)
 	public List<Airport> airports = new ArrayList<>();
 
 	/**
 	 * Class constructor setting the required variables of the class
 	 */
-	public Country(String countryCode2, String countryCode3, String name) {
+	public Country(String countryCode2, String countryCode3, String name, Timezone timezone) {
 		this.countryCode2 = countryCode2;
 		this.countryCode3 = countryCode3;
 		this.name = name;
+		//this.timezone = timezone;
 	}
 
 	/**
 	 * Class constructor setting all the variables in the class excluding any reverse mappings
 	 */
-	public Country(String countryCode2, String countryCode3, String name, String alternateName1, String alternateName2, Country motherCountry, String motherCountryComment) {
+	public Country(String countryCode2, String countryCode3, String name, String alternateName1, String alternateName2, Timezone timezone, Country motherCountry, String motherCountryComment) {
 		this.countryCode2 = countryCode2;
 		this.countryCode3 = countryCode3;
 		this.name = name;
 		this.alternateName1 = alternateName1;
 		this.alternateName2 = alternateName2;
+		//this.timezone = timezone;
 		this.motherCountry = motherCountry;
 		this.motherCountryComment = motherCountryComment;
 	}

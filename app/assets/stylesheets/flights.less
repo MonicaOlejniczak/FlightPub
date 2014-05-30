@@ -1,43 +1,83 @@
 @import 'globalMethods';
 @import 'globalVariables';
 
-@sortContainerHeight: 3em;
+@filterStyleInputWidth: 50% - @filterStyleMargin;
+@flightsWidth: calc(~'100% - @{sourceWidth} * 3');
+@nodeWidth: @nodeHeight;
+@sourceWidth: 75px;
+@buttonsWidth: @buttonWidth * 2 + @resultsPadding * 3;
+@buttonWidth: 20em;
+
+@sortHeight: 3em;
+@flightHeight: 2em;
+@nodeHeight: 1.3em;
+@flightBarHeight: 1.6em;
 
 @sortBackgroundColor: @themeBackgroundColor;
+@filterStyleBackgroundColor: @themeBackgroundColor;
+@timeContainerBackgroundColor: lighten(@timeBackgroundColor, 10%);
 @timeBackgroundColor: @secondaryBackgroundColor;
+@flightsContainerBackgroundColor: @timeContainerBackgroundColor;
+@flightsContainerGradientBackgroundColor: @timeBackgroundColor;
+@flightBackgroundColor: @themeBackgroundColor;
+@flightHoverBackgroundColor: lighten(@flightBackgroundColor, 20%);
+@flightBarBackgroundColor: #fff;
 
+@filterStyleColor: @filterStyleBackgroundColor;
 @timeColor: @secondaryColor;
-
-@tabBorderWidth: 0.3em;
-@sortBorderWidth: 0.3em;
-@sortLinkBorderWidth: 0.125em;
+@flightBarBoxShadowColor: #555;
 
 @tabFontSize: 1.5em;
 @sortContainerFontSize: 1em;
 @timeContainerFontSize: 1em;
+@airportFontSize: 1em;
 
 @tabFont: @tabFontSize 'Ubuntu', @nextFont;
-@sortContainerFont: @sortContainerFontSize 'Ubuntu', @nextFont;
+@sortFont: @sortContainerFontSize 'Ubuntu', @nextFont;
+@filterStyleFont: @sortFont;
 @timeContainerFont: @timeContainerFontSize 'Ubuntu', @nextFont;
+@airportFont: @airportFontSize 'Ubuntu', @nextFont;
+@flightBarTextFont: @airportFont;
+
+@tabBorderWidth: 0.3em;
+@sortBorderWidth: 0.3em;
+@sortLinkBorderWidth: 0.15em;
+@filterStyleBorderWidth: 0.3em;
+@flightBorderWidth: @nodeWidth;
+@airportBorderWidth: 0.3em;
+@arrowBorderWidth:  @arrowBorderWidthTransparent * 2;
+@arrowBorderWidthTransparent: 0.81em;
 
 @tabPadding: 0.5em;
 @topContainerPadding: @tabPadding;
 @sortPadding: @tabPadding;
+@filterStylePadding: 0.5em;
+@resultsPadding: 0%;
+@timePadding: 0.5em;
+@flightsPadding: 1em;
 
 @tabMargin: @tabPadding;
 @sortFilterMargin: 1em;
+@filterStyleMargin: @filterStylePadding;
+@flightMargin: @nodeWidth / 2;
+@flightBarTextMarginTop: 0.2em;
+@flightBarTextMarginLeft: 2em;
 
 @sortBoxShadow: 0.03em;
+@filterStyleBoxShadow: 0.05em;
+@flightBoxShadow: 0.05em;
+@flightBarBoxShadow: 0.05em;
 
-@sortLineHeight: @sortContainerHeight;
+@sortLineHeight: @sortHeight;
 
-#topContainer, #sortContainer, #resultsContainer, #timeContainer {
+#flightsContainer, #topContainer, #sort, #results, #timeContainer, #flights, .flight, #buttons {
 	clear: both;
 }
 
 #flightsContainer {
-	height: 100%;
-	background-color: @thirdColor;
+	min-width: @minWidth;
+	background-color: @secondaryBackgroundColor;
+	color: @secondaryColor;
 }
 
 .selectedTab a, #topContainer, #resultsContainer {
@@ -74,68 +114,107 @@
 }
 
 /* Sorting and filtering */
-#sortContainer, #filterContainer, #sortText, #sort span {
+#sort, #filterContainer, #sortText, #sort span, .source, .destination {
 	color: @themeColor;
 }
 
-#sortContainer, #filterContainer {
-	height: @sortContainerHeight;
+#sort, #filterContainer {
 	float: right;
 }
 
-#sortContainer {
-	margin: 0 0 0 @sortPadding;
+#filterContainer {
+	height: @sortHeight;
 }
 
 #sort, #filter {
-	height: 100%;
 	background-color: @sortBackgroundColor;
-	font: @sortContainerFont;
+	font: @sortFont;
 	line-height: @sortLineHeight;
 	border-radius: @sortBorderWidth;
-	float: right;
-	.boxShadow(0, @sortBoxShadow * 2, @sortBoxShadow, -@sortBoxShadow, darken(@sortBackgroundColor, 10%));
+	.boxShadow(0, 0, @sortBoxShadow, 0, darken(@sortBackgroundColor, 10%));
+}
+
+#sort {
+	height: @sortHeight;
+}
+
+#filter {
+	height: 100%;
+}
+
+#sort {
+	margin: 0 0 0 @sortPadding;
+}
+
+#sortText, #filterText, #filterContent {
+	float: left;
 }
 
 #sortText, #filterText {
 	font-weight: bold;
 	text-transform: uppercase;
 	margin: 0 @sortFilterMargin;
-	float: left;
 }
 
-#sort span, #sort span:hover, #filter span, #filter span:hover {
+#sort span, #sort span:hover, #filterContent span, #filterContent span:hover {
 	.transition(border-bottom, @time, linear);
 }
 
-#sort span, #filter span {
- 	margin: 0 @sortFilterMargin 0 0;
+#sort span, #filterContent span {
 	border-bottom: @sortLinkBorderWidth transparent solid;
+	margin: 0 @sortFilterMargin 0 0;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-khtml-user-select: none;
+	-ms-user-select: none;
 }
 
-#sort span:hover, #filter span:hover {
+#sort span:hover, #filterContent span:hover, .flightBar, .node, .source, .destination {
 	cursor: pointer;
 }
 
-#sort span.sortSelected:hover {
-	cursor: auto;
-}
-
-#sort span:hover, #sort span.sortSelected, #filter span:hover, #filter span.filterSelected {
+#sort span:hover, #sort span.sortSelected, #filterContent span:hover, #filterContent span.filterSelected {
 	border-bottom: @sortLinkBorderWidth @themeColor solid;
 }
 
-/* Search Results */
-#resultsContainer {
-	height: 100%;
+#filterContent span.filterActive {
+	border-bottom: @sortLinkBorderWidth @secondaryColor solid;
 }
 
+.filterContainer {
+	background-color: @filterStyleBackgroundColor;
+	padding: @filterStylePadding;
+	margin: @filterStyleMargin 0;
+	.boxShadow(0, 0, @filterStyleBoxShadow, 0, darken(@filterStyleBackgroundColor, 10%));
+	.transition(background, @time, linear);
+}
+
+.filterContainer table, .filterContainer td, .filterContainer tr {
+	border: 0;
+}
+
+.filterContainer input, .filterStyleButton input {
+	color: @filterStyleColor;
+	font: @filterStyleFont;
+}
+
+.filterStyleButton, .filterContainer span:hover {
+	border: 0;
+}
+
+/* Search Results */
 #results {
+	min-width: @minWidth;
+	min-height: 100%;
+	background: @flightsContainerBackgroundColor;
+	padding: 0 0 @resultsPadding 0;
+	display: block;
+	.contentGradient(@flightsContainerGradientBackgroundColor, transparent, transparent, @flightsContainerGradientBackgroundColor);
 }
 
 #timeContainer {
 	width: 100%;
-	background-color: lighten(@timeBackgroundColor, 10%);
+	background-color: @timeContainerBackgroundColor;
 	color: @timeColor;
 	font: @timeContainerFont;
 }
@@ -143,5 +222,170 @@
 #departureTime, #arrivalTime {
 	width: 100%;
 	background-color: @timeBackgroundColor;
+	padding: @timePadding 0;
+}
+
+#departureTime {
 	margin: 0 0 @margin 0;
+}
+
+.flight, .flightBar {
+	max-width: @maxWidth;
+}
+
+#flights {
+	max-width: @flightsWidth;
+	margin: 0 auto;
+}
+
+.flight {
+	height: @flightHeight;
+	margin: @flightMargin 0;
+	position: relative;
+}
+
+.filter, .source, .flightBarTextHidden, .destination, .flight:hover .source, .flight:hover .flightBarTextHidden, .flight:hover .destination {
+	.transition(opacity, @time, linear);
+}
+
+.filter, .source, .flightBarTextHidden, .destination {
+	opacity: 0;
+	filter:alpha(opacity=0);
+	visibility: hidden;
+}
+
+.flight:hover .source, .flight:hover .flightBarTextHidden, .flight:hover .destination {
+	opacity: 1;
+	filter:alpha(opacity=100);
+	visibility: visible;
+	cursor: pointer;
+}
+
+.flight:hover .departure .node, .flight:hover .arrival .node {
+	background-color: @flightHoverBackgroundColor;
+}
+
+.node, .flightBar {
+	border-radius: @flightBorderWidth;
+}
+
+.node, .source, .destination {
+	.boxShadow(0, 0, @flightBoxShadow, @flightBoxShadow, darken(@flightBackgroundColor, 10%));
+	.transition(background-color, @time, linear);
+}
+
+.flightBarTextVisible, .flightBarTextHidden, .source, .destination {
+	float: left;
+}
+
+.node {
+	top: 0.35em;
+	width: @nodeWidth;
+	height: @nodeHeight;
+	background-color: @flightBackgroundColor;
+	margin: 0 auto;
+	position: relative;
+}
+
+.departure .node {
+	left: 0.3em;
+}
+
+.arrival .node {
+	right: 0.3em;
+}
+
+.departure, .flightBar, .arrival {
+	position: absolute;
+}
+
+.departure, .arrival {
+	top: -0.2em;
+}
+
+.departure {
+	left: 0;
+}
+
+.source, .destination {
+	top: -0.1em;
+	width: @sourceWidth;
+	background-color: @flightHoverBackgroundColor;
+	font: @airportFont;
+	text-align: center;
+	padding: 0.2em 0;
+	position: relative;
+}
+
+.source, .source:before, .destination, .destination:before {
+	border-radius: @airportBorderWidth;
+}
+
+.source {
+	margin: 0 auto 0 -7em;
+}
+
+.destination {
+	margin: 0 auto 0 3.5em;
+}
+
+.source:before, .destination:before {
+	content: "";
+	top: 0;
+	width: 0;
+	height: 0;
+	border-top: @arrowBorderWidthTransparent transparent solid;
+	border-bottom: @arrowBorderWidthTransparent transparent solid;
+	position: absolute;
+}
+
+.source:before {
+	left: 97%;
+	border-left: @arrowBorderWidth @flightHoverBackgroundColor solid;
+}
+
+.destination:before {
+	right: 96.5%;
+	border-right: @arrowBorderWidth @flightHoverBackgroundColor solid;
+}
+
+.flightBar {
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: @flightBarHeight;
+	min-width: 325px;
+	background: @flightBarBackgroundColor;
+	.boxShadow(0, 0, @flightBarBoxShadow, @flightBarBoxShadow, @flightBarBoxShadowColor);
+}
+
+.flightBarText {
+	font: @flightBarTextFont;
+	color: @secondaryBackgroundColor;
+	margin: @flightBarTextMarginTop 0 0 @flightBarTextMarginLeft;
+}
+
+.flightBarTextVisible {
+	color: @themeBackgroundColor;
+	font-weight: bold;
+	margin: 0 0.5em;
+}
+
+.arrival {
+	right: 0;
+}
+
+.selectFlight {
+	background: @secondaryColor;
+}
+
+#buttons {
+	width: @buttonsWidth;
+	height: 100%;
+	margin: 0 1em 1em 0;
+	float: right;
+}
+
+.button {
+	width: @buttonWidth;
 }

@@ -5,7 +5,7 @@
     <head>
         <title>@title</title>
         <link rel='shortcut icon' type='image/png' href='@routes.Assets.at("images/favicon.png")'>
-        <link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/reset.css")'>
+	<link rel='stylesheet' type='text/css' href='@routes.Assets.at("extjs/resources/css/ext-all-neptune-debug.css")'>
         <link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/global.css")'>
         <link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/main.css")'>
         <link rel='stylesheet' type='text/css' href='@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap.min.css"))'>
@@ -15,6 +15,9 @@
         <link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Ubuntu'>
         <script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("jquery.min.js"))'></script>
         <script type="text/javascript" src="@routes.MessageController.javascriptRoutes"></script>
+		<script type='text/javascript' src='@routes.Assets.at("extjs/ext-dev.js")'></script>
+    	<script type='text/javascript' src='@routes.Assets.at("extjs/ext-theme-neptune.js")'></script>
+		<script type='text/javascript' src='@routes.Assets.at("javascripts/global.js")'></script>
         @scripts
     </head>
     <body>
@@ -83,9 +86,10 @@
         </header>
         <div id="content">
             @content
+	</div>
+	<div class="clear"></div>
             <footer>
                 FlightPub &copy; 2014-present. All rights reserved.
             </footer>
-        </div>
     </body>
 </html>

@@ -66,19 +66,19 @@ public class Price extends Model {
 	 * Specifies the price of the flight
 	 */
 	@Constraints.Required
-	public double price;
+	public Double price;
 
 	/**
 	 * Specifies the price of the first leg
 	 */
 	@Constraints.Required
-	public double priceLeg1;
+	public Double priceLeg1;
 
 	/**
 	 * Specifies the price of the second leg
 	 */
 	@Constraints.Required
-	public double priceLeg2;
+	public Double priceLeg2;
 
 	/**
 	 * Class constructor setting the required variables of the class

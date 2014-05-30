@@ -1,14 +1,13 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import play.db.ebean.Model;
 import play.data.format.Formats;
 import play.data.validation.Constraints;
 
 import javax.persistence.*;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Entity
 public class Flight extends Model {
@@ -113,18 +112,21 @@ public class Flight extends Model {
 	/**
 	 * A reverse mapping of the list of seat availabilities for a particular flight
 	 */
+    @JsonIgnore
 	@OneToMany(mappedBy = "flight", fetch = FetchType.LAZY)
 	public List<Availability> availabilities = new ArrayList<>();
 
 	/**
 	 * A reverse mapping of the list of tickets made for a particular flight
 	 */
+    @JsonIgnore
 	@OneToMany(mappedBy = "flight", fetch = FetchType.LAZY)
 	public List<Ticket> tickets = new ArrayList<>();
 
 	/**
 	 * A reverse mapping of the list of messages between a user and travel agent for a particular flight
 	 */
+    @JsonIgnore
 	@OneToMany(mappedBy = "flight", fetch = FetchType.LAZY)
 	public List<Message> messages = new ArrayList<>();
 
@@ -145,6 +147,40 @@ public class Flight extends Model {
 		this.duration = duration;
 		this.durationSecondLeg = durationSecondLeg;
 	}
+
+	/**
+	 * An accessor method that returns a list of flights
+	 * @return a list of flights for the Flight page
+	 */
+	public static List<Flight> getFlights() {
+		// this is stupid </rage>
+		/*RawSql rawSql = RawSqlBuilder
+						.parse("SELECT * FROM Flight GROUP BY flightNumber")
+						.columnMapping("flightNumber", "flightNumber")
+						.create();
+		List<Flight> flights = Flight.find.setRawSql(rawSql).findList();*/
+		List<Integer> idList = new LinkedList<>();
+		idList.addAll(Arrays.asList(1, 446, 872, 1311, 1752, 2193, 2626, 3065, 3941, 4380, 4806, 5243, 5668, 6110, 6552, 6994, 7417));
+		return Flight.find.select("flightNumber").where().idIn(idList).findList();
+	}
+
+	/**
+	 * An accessor method that returns the price of the flight using the start date and flight number
+	 * @return the price of the flight
+	 */
+	public Price getPrice() {
+		return Price.find.where().le("startDate", departureTime)
+				.eq("flightNumber", flightNumber).orderBy("startDate").setMaxRows(1).findUnique();
+	}
+
+	/*
+	/**
+	 * An accessor method that returns the total duration of the flight
+	 * @return the total duration of the flight
+	 */
+	/*public Integer getDuration() {
+		return duration; //+ (durationSecondLeg == null ? 0 : durationSecondLeg);
+	}*/
 
 	/**
 	 * Creates a finder for the Flight entity
