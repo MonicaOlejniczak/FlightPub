@@ -1,4 +1,20 @@
-@main("FlightPub - Luggage Options") {
+@(luggage: List[Luggage])
 
+@styles = {
+    <link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/luggage.css")'>
+}
 
+@scripts = {
+    <script type='text/javascript' src='@routes.Assets.at("javascripts/luggage.js")'></script>
+}
+
+@main("FlightPub - Luggage Options", styles, scripts) {
+    <div class="container">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h1 class="panel-title">FlightPub - Ticket and Luggage Type</h1>
+            </div>
+            <div class="panel-body" id="luggage"></div>
+        </div>
+    </div>
 }

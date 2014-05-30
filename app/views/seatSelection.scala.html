@@ -1,4 +1,20 @@
-@main("FlightPub - Seat Selection") {
+@(seatSelection: List[Seat])
 
+@styles = {
+    <link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/seatSelection.css")'>
+}
 
+@scripts = {
+    <script type='text/javascript' src='@routes.Assets.at("javascripts/seatSelection.js")'></script>
+}
+
+@main("FlightPub - Seat Selection", styles, scripts) {
+    <div class="container">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h1 class="panel-title">FlightPub - Seat Selection</h1>
+            </div>
+            <div class="panel-body" id="seats"></div>
+        </div>
+    </div>
 }
