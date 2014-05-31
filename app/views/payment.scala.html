@@ -1,4 +1,17 @@
+@(registrationForm: Form[controllers.BookingController.PaymentForm])
+
 @main("FlightPub - Payment Options") {
+    <div class="container">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h1 class="panel-title">FlightPub - Login</h1>
+            </div>
 
-
+            <div class="panel-body">
+                <form action="@routes.BookingController.submitPayment(flash.get("destination"))" method="POST" role="form" class="form-horizontal">
+                
+                </form>
+            </div>
+        </div>
+    </div>
 }

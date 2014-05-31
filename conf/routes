@@ -20,6 +20,9 @@ GET         /home/process                     controllers.HomeController.process
 #GET         /assets/javascripts/routes        controllers.MessageController.javascriptRoutes()
 GET         /about                            controllers.MainController.about()
 GET         /contact                          controllers.MainController.contact()
+GET         /payment                          controllers.BookingController.payment()
+POST        /login/process                    controllers.BookingController.submitPayment(destination = null)
+POST        /login/process/*destination       controllers.BookingController.submitPayment(destination)
 
 GET         /data/flights                     controllers.DataController.flights()
 GET         /processFlights                   controllers.HomeController.processFlights()
