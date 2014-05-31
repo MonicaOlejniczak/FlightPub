@@ -1,5 +1,6 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import play.db.ebean.Model;
 import play.data.format.Formats;
 import play.data.validation.Constraints;
@@ -12,14 +13,14 @@ import java.util.List;
 
 @Entity
 public class Booking extends Model {
-
 	/**
 	 * Defines an enumeration for the current status of the booking
 	 */
 	public enum Status {
 		PENDING,
-		APPROVED,
-		DECLINED
+		AWAITING_RECOMMENDATION_RESPONSE,
+		AWAITING_CONFIRMATION,
+		COMPLETED
 	}
 
 	/**
@@ -51,6 +52,13 @@ public class Booking extends Model {
 	public Flight flight;
 
 	/**
+	 * A reverse mapping of the list of messages between a user and travel agent for a particular flight
+	 */
+	@JsonIgnore
+	@OneToMany(mappedBy = "booking", fetch = FetchType.LAZY)
+	public List<Message> messages = new ArrayList<>();
+
+	/**
 	 * The date that the booking was made
 	 */
 	@Constraints.Required
@@ -79,5 +87,4 @@ public class Booking extends Model {
 	 * Creates a finder for the Booking entity
 	 */
 	public static Model.Finder<Long, Booking> find = new Model.Finder<>(Long.class, Booking.class);
-
 }
