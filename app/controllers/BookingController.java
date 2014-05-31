@@ -2,7 +2,6 @@ package controllers;
 
 import models.Luggage;
 import models.Seat;
-import models.User;
 import play.data.Form;
 import play.data.validation.Constraints;
 import play.mvc.Controller;
