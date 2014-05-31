@@ -10,16 +10,9 @@ $(document).ready(function(){
         }
         if ($(this).val() == "2" ) {
             $("div.hide2").toggleClass("hide2", false);
-            $("#vcard").slideDown("fast"); //Slide Down Effect
-        } else {
-            $("div.hide2").toggleClass("hide2", true);
-            $("#vcard").slideUp("fast");    //Slide Up Effect
-        }
-        if ($(this).val() == "3" ) {
-            $("div.hide3").toggleClass("hide3", false);
             $("#ppal").slideDown("fast"); //Slide Down Effect
         } else {
-            $("div.hide3").toggleClass("hide3", true);
+            $("div.hide2").toggleClass("hide2", true);
             $("#ppal").slideUp("fast");    //Slide Up Effect
         }
     });
