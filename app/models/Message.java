@@ -47,7 +47,7 @@ public class Message extends Model {
 	 * Boolean indicating whether or not this message has been read by its recipient.
 	 */
 	@Constraints.Required
-	public Boolean read;
+	public Boolean unread;
 
 	/**
 	 * Class constructor setting the required variables of the class
@@ -57,7 +57,7 @@ public class Message extends Model {
 		this.travelAgent = travelAgent;
 		this.booking = booking;
 		this.date = new Date();
-		this.read = false;
+		this.unread = true;
 	}
 
 	/**
