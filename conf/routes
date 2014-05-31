@@ -16,8 +16,8 @@ POST        /seatSelection                    controllers.BookingController.seat
 GET         /luggage                          controllers.BookingController.luggage()
 POST 		/luggage						  controllers.BookingController.luggage()
 GET         /home/process                     controllers.HomeController.processFlights()
-GET         /message                          controllers.MessageController.getMessage()
-GET         /assets/javascripts/routes        controllers.MessageController.javascriptRoutes()
+#GET         /message                          controllers.MessageController.getMessage()
+#GET         /assets/javascripts/routes        controllers.MessageController.javascriptRoutes()
 GET         /about                            controllers.MainController.about()
 GET         /contact                          controllers.MainController.contact()
 
