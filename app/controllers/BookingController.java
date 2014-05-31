@@ -17,9 +17,15 @@ public class BookingController extends Controller {
         return ok(views.html.seatSelection.render(seats));
     }
 
+    public static Result submitSeats() { return payment(); }
+
     public static Result luggage() {
         List<Luggage> luggageTypes = Luggage.find.all();
         return ok(views.html.luggage.render(luggageTypes));
+    }
+
+    public static Result submitLuggage() {
+        return seatSelection();
     }
 
     /**

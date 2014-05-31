@@ -1,5 +1,5 @@
 window.onload=function generateTable(){
-    var formhead = '<FORM class="form-group" role="form" METHOD="POST" ACTION="/luggage">\n';
+    var formhead = '<FORM class="form-group" role="form" METHOD="POST" ACTION="/payment">\n';
     var tbody = '';
     var alphachar = '';
     var theader = '<table class="table" style="width:500px">\n';
@@ -39,7 +39,7 @@ window.onload=function generateTable(){
         tbody += '</tr>\n';
     }
     var tfooter = '</table>\n';
-    var fprev = '<a href="/" class="btn btn-primary">Previous</a>';
+    var fprev = '<a href="@routes.BookingController.luggage()" class="btn btn-primary">Previous</a>';
     var fnext = '<input type="submit" class="btn btn-primary" value="Next">';
     var fcancel = '<button class="btn btn-danger" onclick="confirmCancel();">Cancel</button>\n';
     var ffoot = '</FORM>';
