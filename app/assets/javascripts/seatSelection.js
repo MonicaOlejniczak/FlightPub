@@ -2,7 +2,7 @@ window.onload=function generateTable(){
     var formhead = '<form class="form-group" action="/seatSelection/process" role="form" method="post">\n';
     var tbody = '';
     var alphachar = '';
-    var theader = '<table class="table" style="width:500px">\n';
+    var theader = '<table class="table" style="width:310px">\n';
 
     for(var i = 0; i < 6; i++){
         tbody += '<tr>';
