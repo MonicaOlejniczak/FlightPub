@@ -17,7 +17,7 @@ window.onload=function generateTable(){
     }
     var formf = '</div>\n<a href="/" class="btn btn-primary">Previous</a>';
     formf += '<input type="submit" class="btn btn-primary" value="Next">';
-    formf += '<button class="btn btn-danger" onclick="confirmCan();">Cancel</button>\n</div>\n';
+    formf += '<a href="/" class="btn btn-danger" onclick="return confirmCan();">Cancel</a>\n</div>\n';
     formf += '</form>\n';
     var page = messageh + formh + formb + formf;
     document.getElementById('luggage').innerHTML = page;
@@ -26,6 +26,8 @@ window.onload=function generateTable(){
 function confirmCan(){
     var answer = confirm("Are you sure you wish to cancel your current booking?\nClick OK to confirm or CANCEL to continue with your booking.");
     if(answer){
-        window.location = "/";
+        return true;
+    } else {
+        return false;
     }
 }
