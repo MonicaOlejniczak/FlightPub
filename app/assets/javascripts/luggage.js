@@ -1,7 +1,7 @@
 window.onload=function generateTable(){
     var messageh = '<p class="centre-block">\nFor each passenger, please select what class of ticket and '
                    + 'whether you wish to include only carry-on luggage with your booking, or if you wish to also include checked luggage.\n</p>\n';
-    var formh = '<FORM class="form-group" role="form" method="POST" action="/luggage">\n';
+    var formh = '<FORM class="form-group" role="form" method="POST" action="/payment">\n';
     var formb = '';
     for(var j = 0; j < 4; j++){
         formb += '<div>\n';

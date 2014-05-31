@@ -1,5 +1,12 @@
 @import 'globalVariables';
 
+@seatsFormWidth: 80%;
+@buttonWidth: 10em;
+
+@buttonMargin: 1em;
+
+@aisleBorderWidth: 1em;
+
 #content {
   background-color: @secondaryBackgroundColor;
 }
@@ -16,4 +23,45 @@
 
 .form-group:last-child {
   margin-bottom: 0;
+}
+
+#seatsForm {
+	width: @seatsFormWidth;
+	margin: 0 auto;
+}
+
+.row {
+	width: 100%;
+	margin: 0 auto;
+}
+
+.rowLabel {
+	text-align: right;
+	padding: 0.5em 0 0 0;
+}
+
+.aisle {
+	height: 100%;
+	background-color: darken(#fff, 10%);
+}
+
+.aisle:first-child {
+	border-radius: @aisleBorderWidth @aisleBorderWidth 0 0;
+}
+
+.aisle:last-child {
+	border-radius: 0 0 @aisleBorderWidth @aisleBorderWidth;
+}
+
+#buttons, .button {
+	float: right;
+}
+
+#buttons {
+	width: calc(~'@{buttonWidth} * 3 + @{buttonMargin} * 2');
+}
+
+.button {
+	width: @buttonWidth;
+	margin: 0 @buttonMargin 0 0;
 }

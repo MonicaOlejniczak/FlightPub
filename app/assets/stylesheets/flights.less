@@ -80,36 +80,8 @@
 	color: @secondaryColor;
 }
 
-.selectedTab a, #topContainer, #resultsContainer {
-	background-color: @thirdBackgroundColor;
-}
-
-.selectedTab a, .deselectedTab a, #resultsContainer {
-	color: @themeBackgroundColor;
-}
-
-.selectedTab a, .deselectedTab a {
-	font: @tabFont;
-	border-radius: @tabBorderWidth @tabBorderWidth 0 0;
-	padding: @tabPadding;
-	margin: @tabMargin 0 0 @tabMargin;
-	float: left;
-}
-
-.deselectedTab a, .deselectedTab a:hover {
-	.transition(background-color, @time, linear);
-}
-
-.deselectedTab a {
-	background-color: darken(@thirdBackgroundColor, 5%);
-}
-
-.deselectedTab a:hover {
-	background-color: lighten(@thirdBackgroundColor, 5%);
-	color: lighten(@themeBackgroundColor, 5%);
-}
-
 #topContainer {
+	background-color: @thirdBackgroundColor;
 	padding: @topContainerPadding;
 }
 

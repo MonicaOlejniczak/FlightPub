@@ -5,7 +5,10 @@
 }
 
 @scripts = {
-    <script type='text/javascript' src='@routes.Assets.at("javascripts/seatSelection.js")'></script>
+	<script type='text/javascript' src='@routes.Assets.at("javascripts/seatSelection.js")'></script>
+	<script type='text/javascript'>
+		Ext.create('FB.controllers.SeatSelection');
+	</script>
 }
 
 @main("FlightPub - Seat Selection", styles, scripts) {
