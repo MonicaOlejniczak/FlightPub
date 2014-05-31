@@ -105,39 +105,79 @@
                             </select>
                         </div>
                     </div>
-                    <div class="hide1 form-group @if(paymentForm("mcardName").hasErrors || paymentForm.hasGlobalErrors) {has-error}" id="mcard">
-                        <label for="@paymentForm("mcardName").name" class="control-label col-sm-2">Name On Card</label>
-                        <div class="col-sm-8">
-                            <input type="text" required="true" class="form-control" id="@paymentForm("mcardName").id" name="@paymentForm("mcardName").name" value="@paymentForm("mcardName").value" placeholder="Enter Name Of Card Holder..." autofocus="true">
-                            @if(paymentForm("mcardName").hasErrors) {
-                                @paymentForm("mcardName").errors.map { error =>
-                                    <span class="label label-danger">@error.message</span>
+                    <div class="hide1" id="mcard">
+                        <div class="form-group @if(paymentForm("mcardName").hasErrors || paymentForm.hasGlobalErrors) {has-error}">
+                            <label for="@paymentForm("mcardName").name" class="control-label col-sm-2">Name On Card</label>
+                            <div class="col-sm-8">
+                                <input type="text" required="true" class="form-control" id="@paymentForm("mcardName").id" name="@paymentForm("mcardName").name" value="@paymentForm("mcardName").value" placeholder="Enter Name Of Card Holder..." autofocus="true">
+                                @if(paymentForm("mcardName").hasErrors) {
+                                    @paymentForm("mcardName").errors.map { error =>
+                                        <span class="label label-danger">@error.message</span>
+                                    }
                                 }
-                            }
+                            </div>
+                        </div>
+                        <div class="form-group @if(paymentForm("mcardNum").hasErrors || paymentForm.hasGlobalErrors) {has-error}">
+                            <label for="@paymentForm("mcardNum").name" class="control-label col-sm-2">Name On Card</label>
+                            <div class="col-sm-8">
+                                <input type="text" required="true" class="form-control" id="@paymentForm("mcardNum").id" name="@paymentForm("mcardNum").name" value="@paymentForm("mcardNum").value" placeholder="Enter Card Number..." autofocus="true">
+                                @if(paymentForm("mcardNum").hasErrors) {
+                                    @paymentForm("mcardNum").errors.map { error =>
+                                        <span class="label label-danger">@error.message</span>
+                                    }
+                                }
+                            </div>
                         </div>
                     </div>
-                    <div class="hide2 form-group @if(paymentForm("vcardName").hasErrors || paymentForm.hasGlobalErrors) {has-error}" id="vcard">
-                        <label for="@paymentForm("vcardName").name" class="control-label col-sm-2">Name On Card</label>
-                        <div class="col-sm-8">
-                            <input type="text" required="true" class="form-control" id="@paymentForm("vcardName").id" name="@paymentForm("vcardName").name" value="@paymentForm("vcardName").value" placeholder="Enter Name Of Card Holder..." autofocus="true">
-                            @if(paymentForm("vcardName").hasErrors) {
-                                @paymentForm("vcardName").errors.map { error =>
-                                    <span class="label label-danger">@error.message</span>
+                    <div class="hide2" id="vcard">
+                        <div class="form-group @if(paymentForm("vcardName").hasErrors || paymentForm.hasGlobalErrors) {has-error}">
+                            <label for="@paymentForm("vcardName").name" class="control-label col-sm-2">Name On Card</label>
+                            <div class="col-sm-8">
+                                <input type="text" required="true" class="form-control" id="@paymentForm("vcardName").id" name="@paymentForm("vcardName").name" value="@paymentForm("vcardName").value" placeholder="Enter Name Of Card Holder..." autofocus="true">
+                                @if(paymentForm("vcardName").hasErrors) {
+                                    @paymentForm("vcardName").errors.map { error =>
+                                        <span class="label label-danger">@error.message</span>
+                                    }
                                 }
-                            }
+                            </div>
+                        </div>
+                        <div class="form-group @if(paymentForm("vcardNum").hasErrors || paymentForm.hasGlobalErrors) {has-error}">
+                            <label for="@paymentForm("vcardNum").name" class="control-label col-sm-2">Name On Card</label>
+                            <div class="col-sm-8">
+                                <input type="text" required="true" class="form-control" id="@paymentForm("vcardNum").id" name="@paymentForm("vcardNum").name" value="@paymentForm("vcardNum").value" placeholder="Enter Card Number..." autofocus="true">
+                                @if(paymentForm("vcardNum").hasErrors) {
+                                    @paymentForm("vcardNum").errors.map { error =>
+                                        <span class="label label-danger">@error.message</span>
+                                    }
+                                }
+                            </div>
                         </div>
                     </div>
-                    <div class="hide3 form-group @if(paymentForm("pPalUser").hasErrors || paymentForm.hasGlobalErrors) {has-error}" id="ppal">
-                        <label for="@paymentForm("pPalUser").name" class="control-label col-sm-2">PayPal Username</label>
-                        <div class="col-sm-8">
-                            <input type="text" required="true" class="form-control" id="@paymentForm("pPalUser").id" name="@paymentForm("pPalUser").name" value="@paymentForm("pPalUser").value" placeholder="Enter PayPal Username..." autofocus="true">
-                            @if(paymentForm("pPalUser").hasErrors) {
-                                @paymentForm("pPalUser").errors.map { error =>
-                                    <span class="label label-danger">@error.message</span>
+                    <div class="hide3" id="ppal">
+                        <div class="form-group @if(paymentForm("pPalUser").hasErrors || paymentForm.hasGlobalErrors) {has-error}">
+                            <label for="@paymentForm("pPalUser").name" class="control-label col-sm-2">PayPal Username</label>
+                            <div class="col-sm-8">
+                                <input type="text" required="true" class="form-control" id="@paymentForm("pPalUser").id" name="@paymentForm("pPalUser").name" value="@paymentForm("pPalUser").value" placeholder="Enter PayPal Username..." autofocus="true">
+                                @if(paymentForm("pPalUser").hasErrors) {
+                                    @paymentForm("pPalUser").errors.map { error =>
+                                        <span class="label label-danger">@error.message</span>
+                                    }
                                 }
-                            }
+                            </div>
+                        </div>
+                        <div class="form-group @if(paymentForm("pPalPass").hasErrors || paymentForm.hasGlobalErrors) {has-error}">
+                            <label for="@paymentForm("pPalPass").name" class="control-label col-sm-2">PalPal Password</label>
+                            <div class="col-sm-8">
+                                <input type="password" required="true" pattern=".{8,}" class="form-control" id="@paymentForm("pPalPass").id" name="@paymentForm("pPalPass").name" placeholder="Enter PayPal Password...">
+                                @if(paymentForm("pPalPass").hasErrors) {
+                                    @paymentForm("pPalPass").errors.map { error =>
+                                        <span class="label label-danger">@error.message</span>
+                                    }
+                                }
+                            </div>
                         </div>
                     </div>
+                    <br />
                     <div class="form-group">
                         <div class="col-sm-offset-2 col-sm-8">
                             <a href="@routes.BookingController.seatSelection()" class="btn btn-primary">Previous</a>
