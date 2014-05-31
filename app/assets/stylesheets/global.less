@@ -6,14 +6,12 @@
 	margin: 0;
 }
 
-html, body {
+html, body, .x-body {
 	height: 100%;
 	min-width: 1000px;
 	min-height: 800px;
-	background-color: #fff;
 	color: @fontColor;
 	font: @bodyFont;
-
 }
 
 .h1Gradient (@path: "", @repeatType: no-repeat, @positionX: 100%, @positionY: 100%, @origin: right, @start: transparent, @stop: transparent) {
@@ -25,69 +23,69 @@ html, body {
 	background-image: url(@path) @repeatType @positionX @positionY, linear-gradient(@origin, @start, @stop);*/
 }
 
-//h1, h1:hover {
-//	.transition(background-color, @time, linear);
-//}
-//
-//h1 {
-//	background: @h1BackgroundColor url(@h1Path) no-repeat 95% 55%;
-//	background-size: 40px;
-//	color: @h1Color;
-//	font: @h1Font;
-//	.textShadow(@h1BackgroundColor);
-//	text-align: right;
-//	border-radius: 0.1em;
-//	padding: @padding 4% @padding @padding;
-//	margin: @margin 0;
-//	float: right;
-//	display: block;
-//	/*.h1Gradient(@arrowPath, no-repeat, 90%, 50%, right, @themeColor, transparent);(*/
-//	.boxShadow(0, @h1BoxShadow * 2, @h1BoxShadow, -@h1BoxShadow, darken(@h1BackgroundColor, 10%));
-//}
-//
-//h1:hover {
-//	background-color: @h1BackgroundColorHover;
-//}
-//
-//a {
-//	text-decoration: none;
-//}
-//
-//a:hover {
-//	.transition(background, 0.5s);
-//}
-//
-//p {
-//	margin: 0 0 1em 0;
-//}
-//
-//form {
-//	font: @formFont;
-//	color: @formColor;
-//	.textShadow(@formColor);
-//	clear: both;
-//}
-//
-//input, select {
-//	height: @inputFontSize * 3;
-//	background-color: @inputBackgroundColor;
-//	color: @inputColor;
-//	font: @inputFont;
-//	.textShadow(@inputColor);
-//	text-indent: 0.5em;
-//	border: 0;
-//	border-radius: 0.1em;
-//	margin: 0 0 0.1em;
-//}
-//
-//input[type=submit] {
-//	cursor: pointer;
-//}
-//
-//::selection {
-//	background-color: @selectionColour;
-//}
-//
-//::-moz-selection {
-//	background-color: @selectionColour;
-//}
+h1, h1:hover {
+	.transition(background-color, @time, linear);
+}
+
+h1 {
+	background: @h1BackgroundColor url(@h1Path) no-repeat 95% 55%;
+	background-size: 40px;
+	color: @h1Color;
+	font: @h1Font;
+	.textShadow(@h1BackgroundColor);
+	text-align: right;
+	border-radius: 0.1em;
+	padding: @padding 4% @padding @padding;
+	margin: @margin 0;
+	float: right;
+	display: block;
+	/*.h1Gradient(@arrowPath, no-repeat, 90%, 50%, right, @themeColor, transparent);(*/
+	.boxShadow(0, @h1BoxShadow * 2, @h1BoxShadow, -@h1BoxShadow, darken(@h1BackgroundColor, 10%));
+}
+
+h1:hover {
+	background-color: @h1BackgroundColorHover;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	.transition(background, 0.5s);
+}
+
+/*p {
+	margin: 0 0 1em 0;
+}
+
+form {
+	font: @formFont;
+	color: @formColor;
+	.textShadow(@formColor);
+	clear: both;
+}
+
+input, select {
+	height: @inputFontSize * 3;
+	background-color: @inputBackgroundColor;
+	color: @inputColor;
+	font: @inputFont;
+	.textShadow(@inputColor);
+	text-indent: 0.5em;
+	border: 0;
+	border-radius: 0.1em;
+	margin: 0 0 0.1em;
+}
+
+input[type=submit] {
+	cursor: pointer;
+}*/
+
+::selection {
+	background-color: @selectionColour;
+}
+
+::-moz-selection {
+	background-color: @selectionColour;
+}

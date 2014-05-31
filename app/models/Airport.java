@@ -1,5 +1,6 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import play.db.ebean.Model;
 import play.data.validation.Constraints;
 
@@ -53,30 +54,35 @@ public class Airport extends Model {
 	/**
 	 * The reverse mapping for the distance of source airports
 	 */
+    @JsonIgnore
 	@OneToMany(mappedBy = "source", fetch = FetchType.LAZY)
 	public List<Distance> distanceSources = new ArrayList<>();
 
 	/**
 	 * The reverse mapping for the distance of arrival airports
 	 */
+    @JsonIgnore
 	@OneToMany(mappedBy = "destination", fetch = FetchType.LAZY)
 	public List<Distance> distanceDestinations = new ArrayList<>();
 
     /**
      * The reverse mapping for the flights which source from this airport
      */
+    @JsonIgnore
     @OneToMany(mappedBy = "source", fetch = FetchType.LAZY)
     public List<Flight> flightSources = new ArrayList<>();
 
     /**
      * The reverse mapping for the flights which have a stop-over at this airport
      */
+    @JsonIgnore
     @OneToMany(mappedBy = "stopOver", fetch = FetchType.LAZY)
     public List<Flight> flightStopOvers = new ArrayList<>();
 
     /**
      * The reverse mapping for the flights which have a destination of this airport
      */
+    @JsonIgnore
     @OneToMany(mappedBy = "destination", fetch = FetchType.LAZY)
     public List<Flight> flightDestinations = new ArrayList<>();
 

@@ -1,11 +1,11 @@
-@(flights: List[Flight])
-
 @styles = {
 	<link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/flights.css")'>
 }
 
 @scripts = {
-	<script type='text/javascript' src='@routes.Assets.at("javascripts/flights.js")'></script>
+	<script type='text/javascript'>
+		Ext.create('FB.controllers.Flights');
+	</script>
 }
 
 @main("FlightPub - Flight Results", styles, scripts) {
@@ -21,51 +21,48 @@
 		</div>
 		<div id="topContainer">
 			<!--<h1>Departing from Sydney</h1>-->
-			<div id="sortContainer">
-				<div id="sort">
-					<!-- add reverse sort click -->
-					<div id="sortText">
-						Sort by
-					</div>
-					<span id="sortPrice" class="sortSelected" onclick="sortPrice()">Price</span>
-					<span id="sortDuration" class="" onclick="sortDuration()">Duration</span>
-					<span id="sortDepartureTime" onclick="sortDepartureTime()">Departure Time</span>
-					<span id="sortArrivalTime" onclick="sortArrivalTime()">Arrival Time</span>
-					<span id="sortStopOvers" onclick="sortStopOvers()">Number of stop-overs</span>
-					<span id="sortAirline" onclick="sortAirline()">Airline</span>
-					<span id="sortClass" onclick="sortClass()">Class</span>
+			<div id="sort">
+				<!-- add reverse sort click -->
+				<div id="sortText">
+					Sort by
 				</div>
+				<span id="sortPrice">Price</span>
+				<span id="sortDuration">Duration</span>
+				<span id="sortDepartureTime">Departure Time</span>
+				<span id="sortArrivalTime">Arrival Time</span>
+				<span id="sortStopOvers">Number of stop-overs</span>
+				<span id="sortAirline">Airline</span>
 			</div>
 			<div id="filterContainer">
 				<div id="filter">
 					<div id="filterText">
 						Filter by
 					</div>
-					<span id="filterNone" onclick="filterNone()">None</span>
-					<span id="filterPrice" onclick="filterPrice()">Price</span>
-					<span id="filterDuration" class="" onclick="filterDuration()">Duration</span>
-					<span id="filterDepartureTime" onclick="filterDepartureTime()">Departure Time</span>
-					<span id="filterArrivalTime" onclick="filterArrivalTime()">Arrival Time</span>
-					<span id="filterStopOvers" onclick="filterStopOvers()">Number of stop-overs</span>
-					<span id="filterAirline" onclick="filterAirline()">Airline</span>
-					<span id="filterClass" onclick="filterClass()">Class</span>
-					<span id="filterAll" onclick="filterAll()">All</span>
+					<div id="filterContent">
+						<span id="filterNone">None</span>
+						<span id="filterPrice">Price</span>
+						<span id="filterDuration">Duration</span>
+						<span id="filterStopOvers">Number of stop-overs</span>
+						<span id="filterAirline">Airline</span>
+					</div>
 				</div>
 			</div>
 			<div class="clear"></div>
 		</div>
-		<div id="resultsContainer">
-			<div id="results">
-				<div id="timeContainer">
-					<div id="departureTime">
-						Timezone
-					</div>
-					<div id="arrivalTime">
-						hello
-					</div>
+		<div id="results">
+			<div id="timeContainer">
+				<div id="departureTime">
+					Timezone
+				</div>
+				<div id="arrivalTime">
+					hello
 				</div>
 			</div>
+			<div id="flights">
+			</div>
+			<div id="buttons">
+			</div>
+			<div class="clear"></div>
 		</div>
 	</div>
-
 }
