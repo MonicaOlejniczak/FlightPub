@@ -35,6 +35,50 @@
                             }
                         </div>
                     </div>
+                    <div class="form-group @if(paymentForm("streetAddress").hasErrors || paymentForm.hasGlobalErrors) {has-error}">
+                        <label for="@paymentForm("streetAddress").name" class="control-label col-sm-2">Address</label>
+                        <div class="col-sm-8">
+                            <input type="text" required="true" class="form-control" id="@paymentForm("streetAddress").id" name="@paymentForm("streetAddress").name" value="@paymentForm("streetAddress").value" placeholder="Enter Street Address..." autofocus="true">
+                            @if(paymentForm("surname").hasErrors) {
+                                @paymentForm("surname").errors.map { error =>
+                                    <span class="label label-danger">@error.message</span>
+                                }
+                            }
+                        </div>
+                    </div>
+                    <div class="form-group @if(paymentForm("suburbCity").hasErrors || paymentForm.hasGlobalErrors) {has-error}">
+                        <label for="@paymentForm("suburbCity").name" class="control-label col-sm-2">Suburb</label>
+                        <div class="col-sm-8">
+                            <input type="text" required="true" class="form-control" id="@paymentForm("suburbCity").id" name="@paymentForm("suburbCity").name" value="@paymentForm("suburbCity").value" placeholder="Enter Your Suburb..." autofocus="true">
+                            @if(paymentForm("suburbCity").hasErrors) {
+                                @paymentForm("suburbCity").errors.map { error =>
+                                    <span class="label label-danger">@error.message</span>
+                                }
+                            }
+                        </div>
+                    </div>
+                    <div class="form-group @if(paymentForm("stateIn").hasErrors || paymentForm.hasGlobalErrors) {has-error}">
+                        <label for="@paymentForm("stateIn").name" class="control-label col-sm-2">State</label>
+                        <div class="col-sm-8">
+                            <input type="text" required="true" class="form-control" id="@paymentForm("stateIn").id" name="@paymentForm("stateIn").name" value="@paymentForm("stateIn").value" placeholder="Enter Your State..." autofocus="true">
+                            @if(paymentForm("stateIn").hasErrors) {
+                                @paymentForm("stateIn").errors.map { error =>
+                                    <span class="label label-danger">@error.message</span>
+                                }
+                            }
+                        </div>
+                    </div>
+                    <div class="form-group @if(paymentForm("postCode").hasErrors || paymentForm.hasGlobalErrors) {has-error}">
+                        <label for="@paymentForm("postCode").name" class="control-label col-sm-2">Post Code</label>
+                        <div class="col-sm-8">
+                            <input type="text" required="true" class="form-control" id="@paymentForm("postCode").id" name="@paymentForm("postCode").name" value="@paymentForm("postCode").value" placeholder="Enter Your Post Code..." autofocus="true">
+                            @if(paymentForm("postCode").hasErrors) {
+                                @paymentForm("postCode").errors.map { error =>
+                                    <span class="label label-danger">@error.message</span>
+                                }
+                            }
+                        </div>
+                    </div>
                     <div class="form-group @if(paymentForm("phoneNumber").hasErrors || paymentForm.hasGlobalErrors) {has-error}">
                         <label for="@paymentForm("phoneNumber").name" class="control-label col-sm-2">Phone Number</label>
                         <div class="col-sm-8">
