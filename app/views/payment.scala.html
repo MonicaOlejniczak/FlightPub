@@ -1,4 +1,215 @@
-@main("FlightPub - Payment Options") {
+@(paymentForm: Form[controllers.BookingController.PaymentForm])
 
+@styles = {
+    <link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/payment.css")'>
+}
 
+@scripts = {
+    <script type='text/javascript' src='@routes.Assets.at("javascripts/payment.js")'></script>
+}
+
+@main("FlightPub - Payment Options", styles, scripts) {
+    <div class="container">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h1 class="panel-title">FlightPub - Payment Details</h1>
+            </div>
+
+            <div class="panel-body">
+                <form action="@routes.BookingController.submitPayment(flash.get("destination"))" method="POST" role="form" class="form-horizontal">
+                    <div class="panel-heading">
+                        <h2 class="bg-primary">Personal Details</h2>
+                    </div>
+                    <div class="form-group @if(paymentForm("nameFirst").hasErrors || paymentForm.hasGlobalErrors) {has-error}">
+                        <label for="@paymentForm("nameFirst").name" class="control-label col-sm-2">First Name</label>
+                        <div class="col-sm-8">
+                            <input type="text" required="true" class="form-control" id="@paymentForm("nameFirst").id" name="@paymentForm("nameFirst").name" value="@paymentForm("nameFirst").value" placeholder="Enter First Name..." autofocus="true">
+                            @if(paymentForm("nameFirst").hasErrors) {
+                                @paymentForm("nameFirst").errors.map { error =>
+                                    <span class="label label-danger">@error.message</span>
+                                }
+                            }
+                        </div>
+                    </div>
+                    <div class="form-group @if(paymentForm("surname").hasErrors || paymentForm.hasGlobalErrors) {has-error}">
+                        <label for="@paymentForm("surname").name" class="control-label col-sm-2">Last Name</label>
+                        <div class="col-sm-8">
+                            <input type="text" required="true" class="form-control" id="@paymentForm("surname").id" name="@paymentForm("surname").name" value="@paymentForm("surname").value" placeholder="Enter Last Name..." autofocus="true">
+                            @if(paymentForm("surname").hasErrors) {
+                                @paymentForm("surname").errors.map { error =>
+                                    <span class="label label-danger">@error.message</span>
+                                }
+                            }
+                        </div>
+                    </div>
+                    <div class="form-group @if(paymentForm("phoneNumber").hasErrors || paymentForm.hasGlobalErrors) {has-error}">
+                        <label for="@paymentForm("phoneNumber").name" class="control-label col-sm-2">Phone Number</label>
+                        <div class="col-sm-8">
+                            <input type="tel" required="true" class="form-control" id="@paymentForm("phoneNumber").id" name="@paymentForm("phoneNumber").name" value="@paymentForm("phoneNumber").value" placeholder="Enter Phone Number..." autofocus="true">
+                            @if(paymentForm("phoneNumber").hasErrors) {
+                                @paymentForm("phoneNumber").errors.map { error =>
+                                    <span class="label label-danger">@error.message</span>
+                                }
+                            }
+                        </div>
+                    </div>
+                    <div class="panel-heading">
+                        <h2 class="bg-primary">Billing Information</h2>
+                    </div>
+                    <div class="form-group @if(paymentForm("streetAddress").hasErrors || paymentForm.hasGlobalErrors) {has-error}">
+                        <label for="@paymentForm("streetAddress").name" class="control-label col-sm-2">Address</label>
+                        <div class="col-sm-8">
+                            <input type="text" required="true" class="form-control" id="@paymentForm("streetAddress").id" name="@paymentForm("streetAddress").name" value="@paymentForm("streetAddress").value" placeholder="Enter Street Address..." autofocus="true">
+                            @if(paymentForm("surname").hasErrors) {
+                                @paymentForm("surname").errors.map { error =>
+                                    <span class="label label-danger">@error.message</span>
+                                }
+                            }
+                        </div>
+                    </div>
+                    <div class="form-group @if(paymentForm("suburbCity").hasErrors || paymentForm.hasGlobalErrors) {has-error}">
+                        <label for="@paymentForm("suburbCity").name" class="control-label col-sm-2">Suburb</label>
+                        <div class="col-sm-8">
+                            <input type="text" required="true" class="form-control" id="@paymentForm("suburbCity").id" name="@paymentForm("suburbCity").name" value="@paymentForm("suburbCity").value" placeholder="Enter Your Suburb..." autofocus="true">
+                            @if(paymentForm("suburbCity").hasErrors) {
+                                @paymentForm("suburbCity").errors.map { error =>
+                                    <span class="label label-danger">@error.message</span>
+                                }
+                            }
+                        </div>
+                    </div>
+                    <div class="form-group @if(paymentForm("stateIn").hasErrors || paymentForm.hasGlobalErrors) {has-error}">
+                        <label for="@paymentForm("stateIn").name" class="control-label col-sm-2">State</label>
+                        <div class="col-sm-8">
+                            <input type="text" required="true" class="form-control" id="@paymentForm("stateIn").id" name="@paymentForm("stateIn").name" value="@paymentForm("stateIn").value" placeholder="Enter Your State..." autofocus="true">
+                            @if(paymentForm("stateIn").hasErrors) {
+                                @paymentForm("stateIn").errors.map { error =>
+                                    <span class="label label-danger">@error.message</span>
+                                }
+                            }
+                        </div>
+                    </div>
+                    <div class="form-group @if(paymentForm("postCode").hasErrors || paymentForm.hasGlobalErrors) {has-error}">
+                        <label for="@paymentForm("postCode").name" class="control-label col-sm-2">Post Code</label>
+                        <div class="col-sm-8">
+                            <input type="text" required="true" class="form-control" id="@paymentForm("postCode").id" name="@paymentForm("postCode").name" value="@paymentForm("postCode").value" placeholder="Enter Your Post Code..." autofocus="true">
+                            @if(paymentForm("postCode").hasErrors) {
+                                @paymentForm("postCode").errors.map { error =>
+                                    <span class="label label-danger">@error.message</span>
+                                }
+                            }
+                        </div>
+                    </div>
+                    <div class="panel-heading">
+                        <h2 class="bg-primary">Payment Method</h2>
+                    </div>
+                    <div class="form-group">
+                        <label for="@paymentForm("payOption").name" class="control-label col-sm-2">Payment Method</label>
+                        <div class="col-sm-8">
+                            <select name="pay-methods" id="pay-methods">
+                                <option value="0">Choose A Payment Method</option>
+                                <option value="1">Visa/Mastercard</option>
+                                <option value="2">PayPal</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="hide1" id="mcard">
+                        <div class="form-group @if(paymentForm("mcardName").hasErrors || paymentForm.hasGlobalErrors) {has-error}">
+                            <label for="@paymentForm("mcardName").name" class="control-label col-sm-2">Name On Card</label>
+                            <div class="col-sm-8">
+                                <input type="text" required="true" class="form-control" id="@paymentForm("mcardName").id" name="@paymentForm("mcardName").name" value="@paymentForm("mcardName").value" placeholder="Enter Name Of Card Holder..." autofocus="true">
+                                @if(paymentForm("mcardName").hasErrors) {
+                                    @paymentForm("mcardName").errors.map { error =>
+                                        <span class="label label-danger">@error.message</span>
+                                    }
+                                }
+                            </div>
+                        </div>
+                        <div class="form-group @if(paymentForm("mcardNum").hasErrors || paymentForm.hasGlobalErrors) {has-error}">
+                            <label for="@paymentForm("mcardNum").name" class="control-label col-sm-2">Card Number</label>
+                            <div class="col-sm-8">
+                                <input type="text" required="true" class="form-control" id="@paymentForm("mcardNum").id" name="@paymentForm("mcardNum").name" value="@paymentForm("mcardNum").value" placeholder="Enter Card Number..." autofocus="true">
+                                @if(paymentForm("mcardNum").hasErrors) {
+                                    @paymentForm("mcardNum").errors.map { error =>
+                                        <span class="label label-danger">@error.message</span>
+                                    }
+                                }
+                            </div>
+                        </div>
+                        <div class="form-group @if(paymentForm("mcardCVV").hasErrors || paymentForm.hasGlobalErrors) {has-error}">
+                            <label for="@paymentForm("mcardCVV").name" class="control-label col-sm-2">Card CVV</label>
+                            <div class="col-sm-8">
+                                <input type="text" required="true" class="form-control" id="@paymentForm("mcardCVV").id" name="@paymentForm("mcardCVV").name" value="@paymentForm("mcardCVV").value" placeholder="Enter Card CVV..." autofocus="true">
+                                @if(paymentForm("mcardCVV").hasErrors) {
+                                    @paymentForm("mcardCVV").errors.map { error =>
+                                        <span class="label label-danger">@error.message</span>
+                                    }
+                                }
+                            </div>
+                        </div>
+                        <div class="form-group @if(paymentForm("mcardExpiry").hasErrors || paymentForm.hasGlobalErrors) {has-error}">
+                            <label for="@paymentForm("mcardExpiry").name" class="control-label col-sm-2">Expiry Date</label>
+                            <div class="col-sm-8">
+                                <select name="mcardExpMonth">
+                                    <option value="0">Select Month Of Expiry</option>
+                                    <option value="1">January (01)</option>
+                                    <option value="2">February (02)</option>
+                                    <option value="3">March (03)</option>
+                                    <option value="1">April (04)</option>
+                                    <option value="2">May (05)</option>
+                                    <option value="3">June (06)</option>
+                                    <option value="1">July (07)</option>
+                                    <option value="2">August (08)</option>
+                                    <option value="3">September (09)</option>
+                                    <option value="1">October (10)</option>
+                                    <option value="2">November (11)</option>
+                                    <option value="3">December (12)</option>
+                                </select>
+                                <select name="mcardExpYear">
+                                    <option value="0">Select Year Of Expiry</option>
+                                    <option value="1">2014</option>
+                                    <option value="2">2015</option>
+                                    <option value="3">2016</option>
+                                    <option value="1">2017</option>
+                                    <option value="2">2018</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hide2" id="ppal">
+                        <div class="form-group @if(paymentForm("pPalUser").hasErrors || paymentForm.hasGlobalErrors) {has-error}">
+                            <label for="@paymentForm("pPalUser").name" class="control-label col-sm-2">PayPal Username</label>
+                            <div class="col-sm-8">
+                                <input type="text" required="true" class="form-control" id="@paymentForm("pPalUser").id" name="@paymentForm("pPalUser").name" value="@paymentForm("pPalUser").value" placeholder="Enter PayPal Username..." autofocus="true">
+                                @if(paymentForm("pPalUser").hasErrors) {
+                                    @paymentForm("pPalUser").errors.map { error =>
+                                        <span class="label label-danger">@error.message</span>
+                                    }
+                                }
+                            </div>
+                        </div>
+                        <div class="form-group @if(paymentForm("pPalPass").hasErrors || paymentForm.hasGlobalErrors) {has-error}">
+                            <label for="@paymentForm("pPalPass").name" class="control-label col-sm-2">PalPal Password</label>
+                            <div class="col-sm-8">
+                                <input type="password" required="true" pattern=".{8,}" class="form-control" id="@paymentForm("pPalPass").id" name="@paymentForm("pPalPass").name" placeholder="Enter PayPal Password...">
+                                @if(paymentForm("pPalPass").hasErrors) {
+                                    @paymentForm("pPalPass").errors.map { error =>
+                                        <span class="label label-danger">@error.message</span>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-8">
+                            <a href="@routes.BookingController.seatSelection()" class="btn btn-primary">Previous</a>
+                            <input type="submit" class="btn btn-primary" value="Submit Payment">
+                            <a href="/" class="btn btn-danger" onclick="return confirmCancel();">Cancel</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 }

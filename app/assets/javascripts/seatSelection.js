@@ -1,8 +1,8 @@
 window.onload=function generateTable(){
-    var formhead = '<FORM class="form-group" role="form" METHOD="POST" ACTION="/luggage">\n';
+    var formhead = '<form class="form-group" action="/seatSelection/process" role="form" method="post">\n';
     var tbody = '';
     var alphachar = '';
-    var theader = '<table class="table" style="width:500px">\n';
+    var theader = '<table class="table" style="width:310px">\n';
 
     for(var i = 0; i < 6; i++){
         tbody += '<tr>';
@@ -39,10 +39,10 @@ window.onload=function generateTable(){
         tbody += '</tr>\n';
     }
     var tfooter = '</table>\n';
-    var fprev = '<a href="/" class="btn btn-primary">Previous</a>';
+    var fprev = '<a href="/luggage" class="btn btn-primary">Previous</a>';
     var fnext = '<input type="submit" class="btn btn-primary" value="Next">';
-    var fcancel = '<button class="btn btn-danger" onclick="confirmCancel();">Cancel</button>\n';
-    var ffoot = '</FORM>';
+    var fcancel = '<a href="/" class="btn btn-danger" onclick="return confirmCancel();">Cancel</a>\n';
+    var ffoot = '</form>';
     var page = formhead + theader + tbody + tfooter + fprev + fnext + fcancel + ffoot;
     document.getElementById('seats').innerHTML = page;
 };
@@ -50,6 +50,8 @@ window.onload=function generateTable(){
 function confirmCancel(){
     var answer = confirm("Are you sure you wish to cancel your current booking?\nClick OK to confirm or CANCEL to continue with your booking.");
     if(answer){
-        window.location = "/";
+        return true;
+    } else {
+        return false;
     }
 }
