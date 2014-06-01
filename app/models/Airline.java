@@ -41,13 +41,6 @@ public class Airline extends Model {
 	public Country country;
 
 	/**
-	 * A reverse mapping of the list of available seats for a particular airline
-	 */
-    @JsonIgnore
-	@OneToMany(mappedBy = "airline", fetch = FetchType.LAZY)
-	public List<Availability> availabilities = new ArrayList<>();
-
-	/**
 	 * A reverse mapping of the list of flights for a particular airline
 	 */
     @JsonIgnore

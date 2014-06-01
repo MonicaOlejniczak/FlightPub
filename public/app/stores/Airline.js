@@ -1,5 +1,7 @@
 Ext.define('FB.stores.Airline', {
+	extend: 'Ext.data.Store',
 	model: 'FB.models.Airline',
+	autoLoad: true,
 	fields: [
 		'name',
 		'code'
@@ -10,6 +12,5 @@ Ext.define('FB.stores.Airline', {
 		reader: {
 			type: 'json'
 		}
-	},
-	autoLoad: true
+	}
 });

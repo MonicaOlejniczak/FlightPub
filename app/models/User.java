@@ -70,10 +70,10 @@ public class User extends Person {
 	public List<FlightSearch> flightSearches = new ArrayList<>();
 
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-	public List<Message> messages = new ArrayList<>();
-
-	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
 	public List<Notification> notifications = new ArrayList<>();
+
+    @OneToMany(mappedBy = "pUser", fetch = FetchType.LAZY)
+    public List<Payment> paymentDetails = new ArrayList<>();
 
 	/**
 	 * Class constructor setting the required variables of the class
@@ -86,6 +86,42 @@ public class User extends Person {
 		this.theme = Theme.LIGHT;
 		this.unit= Units.METRIC;
 	}
+
+    /**
+     * Function for updating user's first name
+     * @param firstName user's new first name
+     */
+    public void updateFName(String firstName) {
+        this.firstName = firstName;
+        this.save();
+    }
+
+    /**
+     * Function for updating user's last name
+     * @param lastName user's new last name
+     */
+    public void updateLName(String lastName) {
+        this.lastName = lastName;
+        this.save();
+    }
+
+    /**
+     * Function for updating user's email address
+     * @param email user's new email
+     */
+    public void updateEmail(String email) {
+        this.email = email;
+        this.save();
+    }
+
+    /**
+     * Function for updating user's password
+     * @param password user's new password
+     */
+    public void updatePassword(String password, String email) {
+        this.password = User.hashPassword(password, email);
+        this.save();
+    }
 
 	/**
 	 * Sets this User's password to the specified new password.
@@ -153,6 +189,14 @@ public class User extends Person {
 			return Crypt.sha1(passwordAndSalt);
 		}
 	}
+
+    /**
+     * Function for adding payment details to the user.
+     * @param payDeets  The set of payment details being added to the payment details list.
+     */
+    public void addPayDetails(Payment payDeets) {
+        paymentDetails.add(payDeets);
+    }
 	
 	/**
 	 * Creates a finder for the User entity
