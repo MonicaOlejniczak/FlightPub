@@ -64,32 +64,45 @@ Ext.define('FB.controllers.Flights', {
 	 */
 	renderFlights: function () {
 		var maxDuration = this.maxDuration();
+        var count = 0;
 		this.dataStore.each(function (record) {
-            var itinerary = record.get("flights");
-            var flight = itinerary[0]; // TODO
-			Ext.get('flights').createChild(Ext.create('Ext.XTemplate',
-				'<div id="flight_{id}" class="flight">',
-					'<div class="flightBar">',
-						'<div class="departure">',
-							'<div class="node"></div>',
-						'</div>',
-						'<div class="flightBarText">',
-							'<div class="flightBarTextVisible">',
-								'${price}',
-							'</div>',
-							'<div class="flightBarTextHidden">',
-								'<strong>Duration:</strong> {duration} minutes',
-							'</div>',
-						'</div>',
-						'<div class="arrival">',
-							'<div class="node"></div>',
-						'</div>',
-					'</div>',
-				'</div>', {
-					compiled: true
-				}
-			).apply({
-				id: flight.id,
+            if (++count >= 10) {
+                return false;
+            }
+            var itineraryId = record.get('id');
+            var itinerary = record.get('flights');
+            var i = 0;
+            var flight = itinerary[i]; // TODO
+            var contents = [];
+            contents.push('<div id="flight_{itineraryId}" class="itinerary">'),
+            itinerary.forEach(function (flight) {
+                contents.push(
+                    '<div id="flight_{itineraryId}_{flightId}" class="flight">',
+                        '<div class="flightBar">',
+                            '<div class="departure">',
+                                '<div class="node"></div>',
+                            '</div>',
+                            '<div class="flightBarText">',
+                                '<div class="flightBarTextVisible">',
+                                    '${price}',
+                                '</div>',
+                                '<div class="flightBarTextHidden">',
+                                    '<strong>Duration:</strong> {duration} minutes',
+                                '</div>',
+                            '</div>',
+                            '<div class="arrival">',
+                                '<div class="node"></div>',
+                            '</div>',
+                        '</div>',
+                    '</div>'
+                );
+            });
+            contents.push('</div>');
+			Ext.get('flights').createChild(Ext.create('Ext.XTemplate', contents.join(''), {
+                compiled: true
+            }).apply({
+                itineraryId: itineraryId,
+				flightId: flight.id,
 				airline: flight.airline.name,
 				flightNumber: flight.flightNumber,
 				price: flight.price.price,
@@ -100,9 +113,10 @@ Ext.define('FB.controllers.Flights', {
 				arrivalTime: new Date(flight.arrivalTime),
 				stopOvers: itinerary.length - 1
 			}));
-			var id = 'flight_' + flight.id;
-			Ext.get(id).setStyle({
-				width: (flight.duration / maxDuration * 100) + '%'
+			var itId = 'flight_' + itineraryId;
+            var id = 'flight_' + itineraryId + "_" + flight.id;
+			Ext.get(itId).setStyle({
+				width: (flight.duration) + '%' /// maxDuration * 100) + '%'
 			});
 			var date = new Date(flight.departureTime);
 			var departureTime = Ext.create('Ext.container.Container', {

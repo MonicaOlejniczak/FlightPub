@@ -186,12 +186,20 @@
 #flights {
 	max-width: @flightsWidth;
 	margin: 0 auto;
+    overflow-x: scroll;
+}
+
+.itinerary {
+    position: relative;
+    white-space: nowrap;
 }
 
 .flight {
 	height: @flightHeight;
-	margin: 0 0 @flightMargin 0;
+	margin: 0 1em @flightMargin 0;
 	position: relative;
+    display: inline-block;
+    width: 400px;
 }
 
 .filter, .source, .flightBarTextHidden, .destination, .flight:hover .source, .flight:hover .flightBarTextHidden, .flight:hover .destination {
@@ -332,6 +340,6 @@
 #buttons {
 	width: calc(~'@{buttonWidth} * 3 + @{buttonMargin} * 2');
 	height: 100%;
-	margin: 0 1em 1em 0;
+	margin: 2em 1em 1em 0;
 	float: right;
 }

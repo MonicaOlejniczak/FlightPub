@@ -41,11 +41,19 @@ public class DataController extends Controller {
 
         // generate limited version
         // NOTE: THIS IS GREAT HAHA /WRISTS
-        List<Map<String, List<Map<String, Object>>>> jItineraries = new ArrayList<>();
+        int id = 0;
+        List<Map<String, Object>> jItineraries = new ArrayList<>();
         for (List<Flight> itinerary : flights) {
-            Map<String, List<Map<String, Object>>> jItinerary = new HashMap<>();
+            Map<String, Object> jItinerary = new HashMap<>();
 
             List<Map<String, Object>> jFlights = new ArrayList<>();
+
+            long jDepartureTime = itinerary.get(0).departureTime.getMillis();
+            long jArrivalTime = itinerary.get(itinerary.size() - 1).arrivalTime.getMillis();
+            double jDuration = jArrivalTime - jDepartureTime;
+            double jStopOvers = itinerary.size() - 1;
+            double jItineraryPrice = 0;
+
             for (Flight flight : itinerary) {
                 Map<String, Object> jFlight = new HashMap<>();
                 jFlight.put("id", flight.id);
@@ -69,10 +77,17 @@ public class DataController extends Controller {
                 Map<String, Object> jPrice = new HashMap<>();
                 jPrice.put("price", 7);
                 jFlight.put("price", jPrice);
+                jItineraryPrice += 7;
 
                 jFlights.add(jFlight);
             }
+            jItinerary.put("id", id++);
             jItinerary.put("flights", jFlights);
+            jItinerary.put("price", jItineraryPrice);
+            jItinerary.put("duration", jDuration);
+            jItinerary.put("stopOvers", jStopOvers);
+            jItinerary.put("departureTime", jDepartureTime);
+            jItinerary.put("arrivalTime", jArrivalTime);
 
             jItineraries.add(jItinerary);
         }
