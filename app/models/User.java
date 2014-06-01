@@ -75,6 +75,9 @@ public class User extends Person {
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
 	public List<Notification> notifications = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    public List<Payment> paymentDetails = new ArrayList<>();
+
 	/**
 	 * Class constructor setting the required variables of the class
 	 */
@@ -153,6 +156,14 @@ public class User extends Person {
 			return Crypt.sha1(passwordAndSalt);
 		}
 	}
+
+    /**
+     * Function for adding payment details to the user.
+     * @param payDeets  The set of payment details being added to the payment details list.
+     */
+    public void addPayDetails(Payment payDeets) {
+        paymentDetails.add(payDeets);
+    }
 	
 	/**
 	 * Creates a finder for the User entity
