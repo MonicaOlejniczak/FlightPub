@@ -1,4 +1,4 @@
-@(recommendFlightsForm: Form[controllers.BookingController.RecommendFlights], possibleFlights: List[models.Flight])
+@(recommendFlightsForm: Form[controllers.BookingController.RecommendFlights], possibleFlights: List[models.Itinerary])
 
 @styles = {
 	<link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/recommendations.css")'>
@@ -29,20 +29,20 @@
 						<h4>Select Flights</h4>
 					</div>
 					<hr/>
-					<div class="form-group @if(recommendFlightsForm("recommendedFlightIds").hasErrors || recommendFlightsForm.hasGlobalErrors) {has-error}">
+					<div class="form-group @if(recommendFlightsForm("recommendedItineraryIds").hasErrors || recommendFlightsForm.hasGlobalErrors) {has-error}">
 						<div class="col-sm-offset-2 col-sm-8">
 							<div class="well">
 								@possibleFlights.map { flight =>
 									<div class="input-group">
 										<span class="input-group-addon">
-											<input class="flight-checkbox" type="checkbox" value="@flight.id" name="@recommendFlightsForm("recommendedFlightIds").name()[]"/>
+											<input class="flight-checkbox" type="checkbox" value="@flight.id" name="@recommendFlightsForm("recommendedItineraryIds").name()[]"/>
 										</span>
-										<div class="btn-primary form-control">Flight @flight.flightNumber<span class="glyphicon glyphicon-plane pull-right"></span></div>
+										<div class="btn-primary form-control">Flight 101<span class="glyphicon glyphicon-plane pull-right"></span></div>
 									</div>
 								}
 							</div>
-							@if(recommendFlightsForm("recommendedFlightIds").hasErrors) {
-								@recommendFlightsForm("recommendedFlightIds").errors.map { error =>
+							@if(recommendFlightsForm("recommendedItineraryIds").hasErrors) {
+								@recommendFlightsForm("recommendedItineraryIds").errors.map { error =>
 									<span class="label label-danger">@error.message</span>
 								}
 							}

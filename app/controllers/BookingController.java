@@ -30,10 +30,10 @@ public class BookingController extends Controller {
 		public Long bookingId;
 
 		/**
-		 * The List of Flight IDs to recommend.
+		 * The List of Itinerary IDs to recommend.
 		 */
 		@Constraints.Required(message = "No Flights Selected!")
-		public List<Long> recommendedFlightIds;
+		public List<Long> recommendedItineraryIds;
 	}
 
 	/**
@@ -47,10 +47,10 @@ public class BookingController extends Controller {
 		public Long bookingId;
 
 		/**
-		 * The accepted recommended Flight.
+		 * The accepted recommended Itinerary.
 		 */
 		@Constraints.Required(message = "No Flight Selected!")
-		public Long acceptedFlight;
+		public Long acceptedItinerary;
 	}
 
 	/**
@@ -71,7 +71,7 @@ public class BookingController extends Controller {
 				bookings.get(i).id = (long)i;
 			}
 
-			// Send the form + flights back to the user
+			// Send the form back to the user
 			return ok(views.html.bookings.render(bookings));
 		} else {
 			return forbidden();
@@ -95,7 +95,7 @@ public class BookingController extends Controller {
 				bookings.get(i).id = (long)i;
 			}
 
-			// Send the form + flights back to the user
+			// Send the form back to the user
 			return ok(views.html.bookingRequests.render(bookings));
 		} else {
 			return forbidden();
@@ -114,13 +114,29 @@ public class BookingController extends Controller {
 			recommendFlights.bookingId = bookingId;
 
 			// TODO: Get some flights to send back
+			List<Itinerary> its = new ArrayList<>();
 			List<Flight> flights = new ArrayList<>();
-			flights.add(new Flight(null, "107", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2));
-			flights.add(new Flight(null, "108", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2));
-			flights.add(new Flight(null, "109", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2));
+			Flight f1 = new Flight(null, "107", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2);
+			f1.id = (long)1;
+			Flight f2 = new Flight(null, "108", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2);
+			f2.id = (long)2;
+			Flight f3 = new Flight(null, "109", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2);
+			f3.id = (long)3;
+			flights.add(f1);
+			flights.add(f2);
+			flights.add(f3);
+			Itinerary i1 = new Itinerary(flights);
+			i1.id = (long)1;
+			Itinerary i2 = new Itinerary(flights);
+			i2.id = (long)2;
+			Itinerary i3 = new Itinerary(flights);
+			i3.id = (long)3;
+			its.add(i1);
+			its.add(i2);
+			its.add(i3);
 
 			// Send the form + flights back to the user
-			return ok(views.html.recommendFlights.render(Form.form(RecommendFlights.class).fill(recommendFlights), flights));
+			return ok(views.html.recommendFlights.render(Form.form(RecommendFlights.class).fill(recommendFlights), its));
 		} else {
 			return forbidden();
 		}
@@ -140,13 +156,29 @@ public class BookingController extends Controller {
 				// If we do, issue a bad-request error
 
 				// TODO: Get some flights to send back
+				List<Itinerary> its = new ArrayList<>();
 				List<Flight> flights = new ArrayList<>();
-				flights.add(new Flight(null, "107", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2));
-				flights.add(new Flight(null, "108", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2));
-				flights.add(new Flight(null, "109", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2));
+				Flight f1 = new Flight(null, "107", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2);
+				f1.id = (long)1;
+				Flight f2 = new Flight(null, "108", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2);
+				f2.id = (long)2;
+				Flight f3 = new Flight(null, "109", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2);
+				f3.id = (long)3;
+				flights.add(f1);
+				flights.add(f2);
+				flights.add(f3);
+				Itinerary i1 = new Itinerary(flights);
+				i1.id = (long)1;
+				Itinerary i2 = new Itinerary(flights);
+				i2.id = (long)2;
+				Itinerary i3 = new Itinerary(flights);
+				i3.id = (long)3;
+				its.add(i1);
+				its.add(i2);
+				its.add(i3);
 
 				// Send the form + flights back to the user
-				return badRequest(views.html.recommendFlights.render(recommendFlightsForm, flights));
+				return badRequest(views.html.recommendFlights.render(recommendFlightsForm, its));
 			} else {
 				// Otherwise, get the form parameters' values
 				RecommendFlights details = recommendFlightsForm.get();
@@ -174,13 +206,29 @@ public class BookingController extends Controller {
 			reviewRecommendations.bookingId = bookingId;
 
 			// TODO: Get some flights to send back
+			List<Itinerary> its = new ArrayList<>();
 			List<Flight> flights = new ArrayList<>();
-			flights.add(new Flight(null, "107", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2));
-			flights.add(new Flight(null, "108", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2));
-			flights.add(new Flight(null, "109", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2));
+			Flight f1 = new Flight(null, "107", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2);
+			f1.id = (long)1;
+			Flight f2 = new Flight(null, "108", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2);
+			f2.id = (long)2;
+			Flight f3 = new Flight(null, "109", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2);
+			f3.id = (long)3;
+			flights.add(f1);
+			flights.add(f2);
+			flights.add(f3);
+			Itinerary i1 = new Itinerary(flights);
+			i1.id = (long)1;
+			Itinerary i2 = new Itinerary(flights);
+			i2.id = (long)2;
+			Itinerary i3 = new Itinerary(flights);
+			i3.id = (long)3;
+			its.add(i1);
+			its.add(i2);
+			its.add(i3);
 
 			// Send the form + flights back to the user
-			return ok(views.html.reviewRecommendations.render(Form.form(ReviewRecommendations.class).fill(reviewRecommendations), flights));
+			return ok(views.html.reviewRecommendations.render(Form.form(ReviewRecommendations.class).fill(reviewRecommendations), its));
 		} else {
 			return forbidden();
 		}
@@ -200,13 +248,29 @@ public class BookingController extends Controller {
 				// If we do, issue a bad-request error
 
 				// TODO: Get some flights to send back
+				List<Itinerary> its = new ArrayList<>();
 				List<Flight> flights = new ArrayList<>();
-				flights.add(new Flight(null, "107", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2));
-				flights.add(new Flight(null, "108", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2));
-				flights.add(new Flight(null, "109", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2));
+				Flight f1 = new Flight(null, "107", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2);
+				f1.id = (long)1;
+				Flight f2 = new Flight(null, "108", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2);
+				f2.id = (long)2;
+				Flight f3 = new Flight(null, "109", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2);
+				f3.id = (long)3;
+				flights.add(f1);
+				flights.add(f2);
+				flights.add(f3);
+				Itinerary i1 = new Itinerary(flights);
+				i1.id = (long)1;
+				Itinerary i2 = new Itinerary(flights);
+				i2.id = (long)2;
+				Itinerary i3 = new Itinerary(flights);
+				i3.id = (long)3;
+				its.add(i1);
+				its.add(i2);
+				its.add(i3);
 
 				// Send the form + flights back to the user
-				return badRequest(views.html.reviewRecommendations.render(reviewRecommendationsForm, flights));
+				return badRequest(views.html.reviewRecommendations.render(reviewRecommendationsForm, its));
 			} else {
 				// Otherwise, get the form parameters' values
 				ReviewRecommendations details = reviewRecommendationsForm.get();

@@ -1,4 +1,4 @@
-@(reviewRecommendationsForm: Form[controllers.BookingController.ReviewRecommendations], recommendedFlights: List[models.Flight])
+@(reviewRecommendationsForm: Form[controllers.BookingController.ReviewRecommendations], recommendedFlights: List[models.Itinerary])
 
 @styles = {
 	<link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/recommendations.css")'>
@@ -29,20 +29,20 @@
 						<h4>Confirm Flight Selection</h4>
 					</div>
 					<hr/>
-					<div class="form-group @if(reviewRecommendationsForm("recommendedFlightIds").hasErrors || reviewRecommendationsForm.hasGlobalErrors) {has-error}">
+					<div class="form-group @if(reviewRecommendationsForm("acceptedItinerary").hasErrors || reviewRecommendationsForm.hasGlobalErrors) {has-error}">
 						<div class="col-sm-offset-2 col-sm-8">
 							<div class="well">
 								@recommendedFlights.zipWithIndex.map { flight =>
 									<div class="input-group">
 										<span class="input-group-addon">
-											<input class="flight-checkbox" type="radio" @if(flight._2 == 0){checked="true"} value="@flight._1.id" name="@reviewRecommendationsForm("acceptedFlight").name"/>
+											<input class="flight-checkbox" type="radio" @if(flight._2 == 0){checked="true"} value="@flight._1.id" name="@reviewRecommendationsForm("acceptedItinerary").name"/>
 										</span>
-										<div class="btn-primary form-control">Flight @flight._1.flightNumber<span class="glyphicon glyphicon-plane pull-right"></span></div>
+										<div class="btn-primary form-control">Flight 101<span class="glyphicon glyphicon-plane pull-right"></span></div>
 									</div>
 								}
 							</div>
-							@if(reviewRecommendationsForm("recommendedFlightIds").hasErrors) {
-								@reviewRecommendationsForm("recommendedFlightIds").errors.map { error =>
+							@if(reviewRecommendationsForm("acceptedItinerary").hasErrors) {
+								@reviewRecommendationsForm("acceptedItinerary").errors.map { error =>
 									<span class="label label-danger">@error.message</span>
 								}
 							}
