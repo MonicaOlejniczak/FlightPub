@@ -116,6 +116,10 @@ input[type=submit] {
 	filter:alpha(opacity=7);
 }
 
+.panel-body {
+	background-color: lighten(@secondaryBackgroundColor, 10%);
+}
+
 .button, .selectedButton, .cancelButton {
 	width: @buttonWidth;
 	border: 0;
@@ -162,7 +166,7 @@ input[type=submit] {
 	.transition(background, @time, linear);
 }
 
-.x-boundlist-item, .x-boundlist-selected, .x-boundlist-item-over {
+.x-boundlist-item, .x-boundlist-selected, .x-boundlist-item-over, .x-form-field {
 	font: 0.9em 'Ubuntu' @nextFont;
 	text-indent: 1em;
 	border: 0;

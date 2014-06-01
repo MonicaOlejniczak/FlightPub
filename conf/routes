@@ -36,8 +36,9 @@ GET        /data/airlines                      controllers.DataController.airlin
 GET        /data/airports                      controllers.DataController.airports()
 
 # Monica Stuff
-GET        /flights                            controllers.BookingController.flights()
-GET         /data/selectedFlights              controllers.DataController.selectedFlights()
+GET       /flights                             controllers.BookingController.flights()
+POST       /flights                            controllers.BookingController.flights()
+GET        /data/selectedFlights               controllers.DataController.selectedFlights()
 
 # Map static resources from the /public folder to the /assets URL path
 GET        /assets/*file                       controllers.Assets.at(path="/public", file)

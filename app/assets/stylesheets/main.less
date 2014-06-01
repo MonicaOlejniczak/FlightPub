@@ -156,7 +156,15 @@ nav a:hover {
 }
 
 #logo a, #logo a:hover {
+	.transition(color, @time, linear);
+}
+
+#logo a {
 	color: @buttonBackgroundColor;
+}
+
+#logo a:hover {
+	color: @buttonBackgroundColorHover;
 	text-decoration: none;
 }
 
