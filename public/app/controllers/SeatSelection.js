@@ -35,8 +35,20 @@ Ext.define('FB.controllers.SeatSelection', {
 			items: [],
 			buttons: []
 		}, this);
+		this.renderSeatCount(formId);
 		this.renderSeats(formId);
 		this.renderButtons(form);
+	},
+	renderSeatCount: function (formId) {
+		var container = Ext.create('Ext.container.Container', {
+			layout: {
+				type: 'hbox',
+				align: 'stretch'
+			},
+			renderTo: Ext.get(formId),
+			cls: 'seatCount',
+			html: 'Seats Left:'
+		});
 	},
 	/**
 	 *  Renders the seats for selection

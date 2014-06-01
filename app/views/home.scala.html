@@ -11,65 +11,9 @@
 
 @main("FlightPub - Home", styles, scripts) {
 
-	<div id="flightsWrapper">
-		<form action="flights">
-            <div class="flights">
-                <h1>Flights</h1>
-                <div id="flightColumns">
-                    <div class="flightColumn">
-                        <div class="flightRow" id="flightFrom">
-                            <label for="flightFrom">Flight from</label>
-                            @*<input type="text" id="flightFrom" value="where are you travelling from?" />*@
-                        </div>
-                        <div class="flightRow">
-                            <label for="departing">Departing</label>
-                            @*<input type="text" id="departing" value="what date are you leaving?" />*@
-                        </div>
-                    </div>
-                    <div class="flightColumn">
-                        <div class="flightRow" id="flightTo">
-                            <label for="flightTo">Flight to</label>
-                            @*<input type="text" id="flightTo" value="where are you going?" />*@
-                        </div>
-                        <div class="flightRow">
-                            <label for="returning">Returning</label>
-                            @*<input type="text" id="returning" value="what date are you coming back?" />*@
-                        </div>
-                    </div>
-                </div>
-            </div>
-			<div id="map"></div>
-			<div class="flights">
-				<div id="flightRows">
-					<div class="flightRow">
-						<label for="passengers">Passengers</label>
-						<select name="adults" id="passengers">
-							<option value="1" selected>1 adult</option>
-							<option value="2">2 adults</option>
-							<option value="3">3 adults</option>
-							<option value="4">3 adults</option>
-						</select>
-						<select name="children">
-							<option value="0" selected>0 children</option>
-							<option value="1">1 child</option>
-							<option value="2">2 children</option>
-							<option value="3">3 children</option>
-						</select>
-						<select name="infants">
-							<option value="0" selected>0 infants</option>
-							<option value="1">1 infant</option>
-							<option value="2">2 infants</option>
-							<option value="3">3 infants</option>
-						</select>
-					</div>
-					<div class="flightRow">
-						<label for="returningBoolean">Returning</label>
-						<input type="checkbox" id="returningBoolean" value="returning" checked="true" />
-					</div>
-				</div>
-				<input type="submit" value="Find Flights" id="findFlights" />
-			</div>
-		</form>
+	<h1>Home</h1>
+	<div class="content">
+		<div id="home"></div>
 	</div>
 	<div id="informationWrapper">
 		<div id="information">

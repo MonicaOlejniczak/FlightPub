@@ -1,7 +1,12 @@
 Ext.define('FB.stores.Airport', {
+	extend: 'Ext.data.Store',
 	model: 'FB.models.Airport',
+	autoLoad: true,
 	fields: [
-		'name', 'code', 'longitude', 'latitude'
+		'name',
+		'code',
+		'longitude',
+		'latitude'
 	],
 	proxy: {
 		url: 'data/airports',
@@ -10,5 +15,4 @@ Ext.define('FB.stores.Airport', {
 			type: 'json'
 		}
 	},
-	autoLoad: true
 });
