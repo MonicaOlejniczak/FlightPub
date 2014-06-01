@@ -121,8 +121,8 @@ public class User extends Person {
      * Function for updating user's password
      * @param password user's new password
      */
-    public void updatePassword(String password) {
-        this.password = password;
+    public void updatePassword(String password, String email) {
+        this.password = User.hashPassword(password, email);
         this.save();
     }
 

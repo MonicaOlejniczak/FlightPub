@@ -73,7 +73,7 @@ public class TestAuthController extends Controller {
                 User.find.where(Expr.eq("email", username)).findUnique().updateLName(details.accLName);
             }
             if(!(details.accPassword.isEmpty())) {
-                User.find.where(Expr.eq("email", username)).findUnique().updatePassword(details.accPassword);
+                User.find.where(Expr.eq("email", username)).findUnique().updatePassword(details.accPassword, username);
             }
             if(!(details.accEmail.isEmpty())) {
                 User.find.where(Expr.eq("email", username)).findUnique().updateEmail(details.accEmail);
