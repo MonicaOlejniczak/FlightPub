@@ -96,6 +96,7 @@ public class User extends Person {
      */
     public void updateFName(String firstName) {
         this.firstName = firstName;
+        this.save();
     }
 
     /**
@@ -104,6 +105,7 @@ public class User extends Person {
      */
     public void updateLName(String lastName) {
         this.lastName = lastName;
+        this.save();
     }
 
     /**
@@ -112,6 +114,7 @@ public class User extends Person {
      */
     public void updateEmail(String email) {
         this.email = email;
+        this.save();
     }
 
     /**
@@ -120,6 +123,7 @@ public class User extends Person {
      */
     public void updatePassword(String password) {
         this.password = password;
+        this.save();
     }
 
 	/**
