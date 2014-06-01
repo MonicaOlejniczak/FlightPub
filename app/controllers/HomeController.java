@@ -9,8 +9,4 @@ public class HomeController extends Controller {
 		return ok(views.html.home.render());
 	}
 
-	public static Result processFlights() {
-		return ok(views.html.flights.render());
-	}
-
 }

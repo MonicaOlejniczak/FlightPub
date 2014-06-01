@@ -18,12 +18,18 @@ import java.util.List;
 @Security.Authenticated(AuthenticatedUser.class)
 public class BookingController extends Controller {
 
+	public static Result flights() {
+		return ok(views.html.flights.render());
+	}
+
     public static Result seatSelection() {
-        List<Seat> seats = Seat.find.all();
+	    List<Seat> seats = Seat.find.all();
         return ok(views.html.seatSelection.render(seats));
     }
 
-    public static Result submitSeats() { return payment(); }
+    public static Result submitSeats() {
+	    return payment();
+    }
 
     public static Result luggage() {
         List<Luggage> luggageTypes = Luggage.find.all();
@@ -131,7 +137,9 @@ public class BookingController extends Controller {
 
     }
 
-    public static Result payment() { return ok(views.html.payment.render(Form.form(PaymentForm.class))); }
+    public static Result payment() { 
+        return ok(views.html.payment.render(Form.form(PaymentForm.class)));
+    }
 
     public static Result submitPayment() {
         Form<PaymentForm> paymentForm = Form.form(PaymentForm.class).bindFromRequest();
@@ -153,5 +161,4 @@ public class BookingController extends Controller {
         }
         return ok(views.html.home.render());
     }
-
 }

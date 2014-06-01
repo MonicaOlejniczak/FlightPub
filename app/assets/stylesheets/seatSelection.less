@@ -1,19 +1,69 @@
 @import 'globalVariables';
+@import 'globalMethods';
 
-#content {
-  background-color: @secondaryBackgroundColor;
+@seatsFormWidth: 80%;
+
+@aisleBorderWidth: 1em;
+
+#seatsForm {
+	width: @seatsFormWidth;
+	margin: 0 auto;
 }
 
-.panel {
-  margin-top: 20px;
+.row {
+	width: 100%;
+	margin: 0 auto;
 }
 
-.form-group {
-  margin-left: 25%;
-  margin-right: 25%;
-  width: 100%;
+.rowLabel {
+	text-align: left;
+	padding: 0.5em 0 0 0;
 }
 
-.form-group:last-child {
-  margin-bottom: 0;
+.aisle {
+	height: 100%;
+	background-color: darken(#fff, 10%);
+	opacity:0.1;
+	filter:alpha(opacity=10);
+}
+
+.aisle:first-child {
+	border-radius: @aisleBorderWidth @aisleBorderWidth 0 0;
+}
+
+.aisle:last-child {
+	border-radius: 0 0 @aisleBorderWidth @aisleBorderWidth;
+}
+
+#buttons, .button {
+	float: right;
+}
+
+#buttons {
+	width: calc(~'@{buttonWidth} * 3 + @{buttonMargin} * 2');
+}
+
+.desaturate, .desaturate:hover {
+	.transition(background, @time, linear);
+}
+
+.desaturate a, .desaturate:hover, .desaturate:active, .desaturate:visited {
+	text-decoration: none;
+}
+
+.desaturate {
+	margin: 0 @buttonMargin 0 0;
+	border: 0;
+}
+
+.button, .cancelButton {
+	margin: 0 @buttonMargin 0 0;
+}
+
+.desaturate {
+	background: #bbb;
+}
+
+.desaturate:hover {
+	background: #999;
 }

@@ -3,13 +3,13 @@
 # ~~~~
 
 # Trey
-GET         /register                           controllers.AuthenticationController.register()
+GET         /register                          controllers.AuthenticationController.register()
 POST        /register/process                  controllers.AuthenticationController.processRegistration()
-GET         /login                              controllers.AuthenticationController.login()
+GET         /login                             controllers.AuthenticationController.login()
 POST        /login/process                     controllers.AuthenticationController.processLogin(destination = null)
 POST        /login/process/*destination        controllers.AuthenticationController.processLogin(destination)
 GET         /logout                            controllers.AuthenticationController.logout()
-GET        /register                           controllers.AuthenticationController.register()
+GET         /register                          controllers.AuthenticationController.register()
 POST        /register/process                  controllers.AuthenticationController.processRegistration()
 #GET         /message                          controllers.MessageController.getMessage()
 #GET         /assets/javascripts/routes        controllers.MessageController.javascriptRoutes()
@@ -18,15 +18,15 @@ POST        /register/process                  controllers.AuthenticationControl
 GET        /about                              controllers.MainController.about()
 GET        /contact                            controllers.MainController.contact()
 GET        /payment                            controllers.BookingController.payment()
-POST        /payment/process                   controllers.BookingController.submitPayment()
-POST 		/luggage/process    			   controllers.BookingController.submitLuggage()
+POST       /payment/process                    controllers.BookingController.submitPayment()
+POST 	   /luggage/process    			       controllers.BookingController.submitLuggage()
 GET        /seat-selection                     controllers.BookingController.seatSelection()
 GET        /luggage                            controllers.BookingController.luggage()
-POST        /seat-selection/process            controllers.BookingController.submitSeats()
+POST       /seat-selection/process             controllers.BookingController.submitSeats()
 GET        /restricted                         controllers.TestAuthController.index()
-POST        /account/process                   controllers.TestAuthController.processSettings()
+POST       /account/process                    controllers.TestAuthController.processSettings()
 GET        /data/selected-flights              controllers.DataController.selectedFlights()
-GET         /account                          controllers.TestAuthController.index()
+GET        /account                            controllers.TestAuthController.index()
 
 # Brendan Stuff
 GET        /                                   controllers.MainController.home()
@@ -34,6 +34,10 @@ GET        /data/test                          controllers.DataController.test()
 GET        /data/genEdges                      controllers.DataController.genEdges()
 GET        /data/airlines                      controllers.DataController.airlines()
 GET        /data/airports                      controllers.DataController.airports()
+
+# Monica Stuff
+GET        /flights                            controllers.BookingController.flights()
+GET         /data/selectedFlights              controllers.DataController.selectedFlights()
 
 # Map static resources from the /public folder to the /assets URL path
 GET        /assets/*file                       controllers.Assets.at(path="/public", file)
