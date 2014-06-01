@@ -17,8 +17,8 @@ Ext.define('FB.controllers.Home', {
     setupForm: function () {
 
         var sourceCombo = Ext.create('Ext.form.field.ComboBox', {
-            store: 'FB.stores.Airport',
-            model: 'FB.models.Airport',
+            store: 'Airport',
+//            model: 'FB.models.Airport',
             border: false,
             queryMode: 'remote',
             displayField: 'name',
@@ -27,8 +27,8 @@ Ext.define('FB.controllers.Home', {
         });
 
         var targetCombo = Ext.create('Ext.form.field.ComboBox', {
-            store: 'FB.stores.Airport',
-            model: 'FB.models.Airport',
+            store: 'Airport',
+//            model: 'FB.models.Airport',
             border: false,
             queryMode: 'remote',
             displayField: 'name',

@@ -1,6 +1,10 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import edu.asu.emit.qyan.alg.model.abstracts.BaseEdge;
+import edu.asu.emit.qyan.alg.model.abstracts.BaseVertex;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 import play.db.ebean.Model;
 import play.data.format.Formats;
 import play.data.validation.Constraints;
@@ -10,7 +14,7 @@ import javax.persistence.*;
 import java.util.*;
 
 @Entity
-public class Flight extends Model {
+public class Flight extends Model implements BaseEdge {
 
 	/**
 	 * Uniquely identifies the flight
@@ -41,13 +45,6 @@ public class Flight extends Model {
     public Airport source;
 
 	/**
-	 * The stopover airport
-	 */
-	@Constraints.Required
-    @ManyToOne(cascade = CascadeType.ALL)
-	public Airport stopOver;
-
-	/**
 	 * The destination airport
 	 */
 	@Constraints.Required
@@ -59,28 +56,14 @@ public class Flight extends Model {
 	 */
 	@Constraints.Required
 	@Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
-	public Date departureTime;
-
-	/**
-	 * Specifies the stop over arrival date and time
-	 */
-	@Constraints.Required
-	@Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
-	public Date arrivalTimeStopOver;
-
-	/**
-	 * Specifies the stop over departure date and time
-	 */
-	@Constraints.Required
-	@Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
-	public Date departureTimeStopOver;
+	public DateTime departureTime;
 
 	/**
 	 * Specifies the arrival date and time to the destination
 	 */
 	@Constraints.Required
 	@Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
-	public Date arrivalTime;
+	public DateTime arrivalTime;
 
 	/**
 	 * The type of plane that will be boarded
@@ -98,16 +81,6 @@ public class Flight extends Model {
 	@Constraints.MinLength(2)
 	@Constraints.MaxLength(4)
 	public Integer duration;
-
-	/**
-	 * Specifies the duration of the second leg in minutes
-	 */
-	@Constraints.Required
-	@Constraints.Min(0)
-	@Constraints.Max(6000)
-	@Constraints.MinLength(2)
-	@Constraints.MaxLength(4)
-	public Integer durationSecondLeg;
 
 	/**
 	 * A reverse mapping of the list of seat availabilities for a particular flight
@@ -133,20 +106,21 @@ public class Flight extends Model {
 	/**
 	 * Class constructor setting the required variables of the class
 	 */
-	public Flight(Airline airline, String flightNumber, Airport source, Airport stopOver, Airport destination, Date departureTime, Date arrivalTimeStopOver, Date departureTimeStopOver, Date arrivalTime, Plane plane, int duration, int durationSecondLeg) {
+	public Flight(Airline airline, String flightNumber, Airport source, Airport destination, DateTime departureTime, DateTime arrivalTime, Plane plane, int duration) {
 		this.airline = airline;
 		this.flightNumber = flightNumber;
 		this.source = source;
-		this.stopOver = stopOver;
 		this.destination = destination;
 		this.departureTime = departureTime;
-		this.arrivalTimeStopOver = arrivalTimeStopOver;
-		this.departureTimeStopOver = departureTimeStopOver;
 		this.arrivalTime = arrivalTime;
 		this.plane = plane;
 		this.duration = duration;
-		this.durationSecondLeg = durationSecondLeg;
 	}
+
+    @Override
+    public String toString() {
+        return String.format("%s -(%s) (%s)> %s", source, departureTime.toString(DateTimeFormat.forPattern("MM-dd-yyyy HH:mm:ss")), arrivalTime.toString(DateTimeFormat.forPattern("MM-dd-yyyy HH:mm:ss")), destination);
+    }
 
 	/**
 	 * An accessor method that returns a list of flights
@@ -187,4 +161,18 @@ public class Flight extends Model {
 	 */
 	public static Finder<Long, Flight> find = new Finder<>(Long.class, Flight.class);
 
+    @Override
+    public int get_weight() {
+        return duration;
+    }
+
+    @Override
+    public BaseVertex get_start_vertex() {
+        return source;
+    }
+
+    @Override
+    public BaseVertex get_end_vertex() {
+        return destination;
+    }
 }
