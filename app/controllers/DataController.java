@@ -27,7 +27,15 @@ public class DataController extends Controller {
 	}
 
 	public static Result selectedFlights() {
-		List<Flight> flights = Flight.getFlights();
+		Airport source = Airport.find.where().eq("name", "Sydney").findUnique();
+		Airport destination = Airport.find.where().eq("name", "Canberra").findUnique();
+
+		DateTime start = new DateTime().withDate(2014, 9, 23).withTime(0, 0, 0, 0);
+		DateTime end = new DateTime().withDate(2014, 9, 27).withTime(23, 59, 59, 999);
+
+		int depth = 4;
+
+		List<List<Flight>> flights = FlightFinder.findFlights(source, destination, start, end, depth);
 		return ok(Json.toJson(flights));
 	}
 

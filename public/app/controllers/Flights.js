@@ -5,7 +5,7 @@ Ext.define('FB.controllers.Flights', {
 	requires: [
 		'FB.models.Flight',
 		'FB.models.Airline',
-		'FB.stores.Flight',
+		'FB.stores.Itinerary',
 		'FB.stores.Airline',
 		'FB.stores.Airport',
 		'FB.sorters.Price',
@@ -39,17 +39,21 @@ Ext.define('FB.controllers.Flights', {
 			//this.durationContainer = Ext.create('FB.containers.Duration');
 			this.stopOverContainer = null;
 			this.airlineContainer = null;
-			this.dataStore = Ext.create('FB.stores.Flight');
-			this.dataStore.addListener('load', function(store, records, successful, eOpts) {
-				this.renderFlights();
-				this.sort.apply(this, ['sortPrice', this.priceSorter]);
-				this.createPriceContainer();
-				this.createDurationContainer();
-				this.createStopOverContainer();
-				this.createAirlineContainer();
-				this.createButtonContainer();
-				this.addEvents();
-			}, this);
+			this.dataStore = Ext.create('FB.stores.Itinerary', {
+				listeners: {
+					'load': function (store, records, successful, eOpts) {
+						this.renderFlights();
+						this.sort.apply(this, ['sortPrice', this.priceSorter]);
+						this.createPriceContainer();
+						this.createDurationContainer();
+						this.createStopOverContainer();
+						this.createAirlineContainer();
+						this.createButtonContainer();
+						this.addEvents();
+					},
+					scope: this
+				}
+			});
 		}, this);
 	},
 	getDataStore: function () {
