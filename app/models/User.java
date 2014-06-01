@@ -1,22 +1,22 @@
 package models;
 
-import play.db.ebean.Model;
+import akka.util.Crypt;
+import com.avaje.ebean.Expr;
+import play.Play;
+import play.api.libs.Codecs;
 import play.data.format.Formats;
 import play.data.validation.Constraints;
+import play.db.ebean.Model;
 
 import javax.persistence.*;
-
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Entity
 public class User extends Person {
-	/**
-	 * Marker interface to specify which fields of this Model will be used as fields on the login page.
-	 */
-	public interface LoginFields {}
-
 	/**
 	 * An enumeration defining the user's theme
 	 */
@@ -40,10 +40,10 @@ public class User extends Person {
 	public Long id;
 
 	@Constraints.Email
-	@Constraints.Required(groups = LoginFields.class)
+	@Constraints.Required
 	public String email;
 
-	@Constraints.Required(groups = LoginFields.class)
+	@Constraints.Required
 	@Constraints.MinLength(8)
 	public String password;
 
@@ -63,10 +63,6 @@ public class User extends Person {
 	@Constraints.Required
 	public Units unit;
 
-	@Constraints.Required
-	@ManyToOne(cascade = CascadeType.ALL)
-	public Timezone timezone;
-
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
 	public List<Booking> bookings = new ArrayList<>();
 
@@ -82,23 +78,80 @@ public class User extends Person {
 	/**
 	 * Class constructor setting the required variables of the class
 	 */
-	public User(String firstName, String lastName, String email, String password, List<Role> roles, Timezone timezone) {
+	public User(String firstName, String lastName, String email, String password) {
 		super(firstName, lastName);
 		this.email = email;
-		this.password = password;
-		this.roles = roles;
+		this.password = User.hashPassword(password, email);
 		this.registrationDate = new Date();
 		this.theme = Theme.LIGHT;
 		this.unit= Units.METRIC;
-		this.timezone = timezone;
 	}
 
 	/**
-	 * Handles validation of Forms involving the User class.
-	 * @return The error message if an error occurred, or null if validation was successful.
+	 * Sets this User's password to the specified new password.
+	 * @param password The new password to assign to this user, in plaintext.
 	 */
-	public static String validate() {
-		return null;
+	public void setPassword(String password) {
+		this.password = User.hashPassword(password, this.email);
+	}
+
+	/**
+	 * Registers a User account with the given registration details, returning a Boolean indicating success
+	 * or failure.
+	 * @param firstName The first name of the registering User.
+	 * @param lastName The last name of the registering User.
+	 * @param email The email address of the registering User.
+	 * @param password The plaintext password of the registering User.
+	 * @return A Boolean indicating whether or not the User is able to register with the suppl
+	 */
+	public static Boolean register(String firstName, String lastName, String email, String password) {
+		try {
+			// Create a new user
+			User newbie = new User(firstName, lastName, email, password);
+
+			// TODO: Any additional configuration here
+
+			// Save the user to the database
+			newbie.save();
+
+			return true;
+		} catch (Exception ignored) {
+			return false;
+		}
+	}
+
+	/**
+	 * Attempt to authenticate with the supplied email and passwordHash, returning a Boolean indicating success or
+	 * failure.
+	 * @param email The email address of the User to check.
+	 * @param password The plaintext password of the User to check.
+	 * @return A Boolean indicating whether or not the User was authenticated.
+	 */
+	public static Boolean authenticate(String email, String password) {
+		// Find a user with the specified credentials
+		return (User.find.where().and(Expr.eq("email", email), Expr.eq("password", User.hashPassword(password, email))).findUnique() != null);
+	}
+
+	/**
+	 * Returns a hash of the specified plaintext password.
+	 * @param plaintextPassword The plaintext password to hash.
+	 * @param salt The salt used to secure the password hash.
+	 * @return A hash of the specified plaintext password.
+	 */
+	private static String hashPassword(String plaintextPassword, String salt) {
+		// Merge salt and password
+		String passwordAndSalt = Play.application().configuration().getString("application.secret") +
+				salt.substring(0, salt.length() / 2) + plaintextPassword + salt.substring(salt.length() / 2);
+
+		try {
+			// Create a SHA-512 message digest
+			MessageDigest md = MessageDigest.getInstance("SHA-512");
+
+			// Return the Base64-encoded hash
+			return Codecs.toHexString(md.digest(passwordAndSalt.getBytes()));
+		} catch (NoSuchAlgorithmException e) {
+			return Crypt.sha1(passwordAndSalt);
+		}
 	}
 	
 	/**

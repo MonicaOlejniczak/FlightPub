@@ -44,13 +44,6 @@ public class Flight extends Model implements BaseEdge {
     public Airport source;
 
 	/**
-	 * The stopover airport
-	 */
-	@Constraints.Required
-    @ManyToOne(cascade = CascadeType.ALL)
-	public Airport stopOver;
-
-	/**
 	 * The destination airport
 	 */
 	@Constraints.Required
@@ -63,20 +56,6 @@ public class Flight extends Model implements BaseEdge {
 	@Constraints.Required
 	@Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
 	public DateTime departureTime;
-
-	/**
-	 * Specifies the stop over arrival date and time
-	 */
-	@Constraints.Required
-	@Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
-	public DateTime arrivalTimeStopOver;
-
-	/**
-	 * Specifies the stop over departure date and time
-	 */
-	@Constraints.Required
-	@Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
-	public DateTime departureTimeStopOver;
 
 	/**
 	 * Specifies the arrival date and time to the destination
@@ -103,16 +82,6 @@ public class Flight extends Model implements BaseEdge {
 	public Integer duration;
 
 	/**
-	 * Specifies the duration of the second leg in minutes
-	 */
-	@Constraints.Required
-	@Constraints.Min(0)
-	@Constraints.Max(6000)
-	@Constraints.MinLength(2)
-	@Constraints.MaxLength(4)
-	public Integer durationSecondLeg;
-
-	/**
 	 * A reverse mapping of the list of seat availabilities for a particular flight
 	 */
     @JsonIgnore
@@ -136,19 +105,15 @@ public class Flight extends Model implements BaseEdge {
 	/**
 	 * Class constructor setting the required variables of the class
 	 */
-	public Flight(Airline airline, String flightNumber, Airport source, Airport stopOver, Airport destination, DateTime departureTime, DateTime arrivalTimeStopOver, DateTime departureTimeStopOver, DateTime arrivalTime, Plane plane, int duration, int durationSecondLeg) {
+	public Flight(Airline airline, String flightNumber, Airport source, Airport destination, DateTime departureTime, DateTime arrivalTime, Plane plane, int duration) {
 		this.airline = airline;
 		this.flightNumber = flightNumber;
 		this.source = source;
-		this.stopOver = stopOver;
 		this.destination = destination;
 		this.departureTime = departureTime;
-		this.arrivalTimeStopOver = arrivalTimeStopOver;
-		this.departureTimeStopOver = departureTimeStopOver;
 		this.arrivalTime = arrivalTime;
 		this.plane = plane;
 		this.duration = duration;
-		this.durationSecondLeg = durationSecondLeg;
 	}
 
 	/**
@@ -192,7 +157,7 @@ public class Flight extends Model implements BaseEdge {
 
     @Override
     public int get_weight() {
-        return durationSecondLeg != null ? duration + durationSecondLeg : duration;
+        return duration;
     }
 
     @Override

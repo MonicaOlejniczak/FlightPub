@@ -190,19 +190,18 @@ nav a:hover span {
 
 /* Content */
 #content {
-	height: 100%;
+	min-height: 100%;
+	display: block;
 	clear: both;
 }
 
 /* Footer */
 footer {
-	width: 100%;
 	background-color: @footerBackgroundColor;
 	color: @footerColor;
 	font: @footerFont;
 	text-align: center;
 	padding: 1em 0;
-	//.boxShadow(0, -@footerBoxShadow, @footerBoxShadow, 0, @footerBackgroundColor);
 }
 
 footer::selection {

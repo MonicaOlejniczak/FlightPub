@@ -2,50 +2,93 @@
 
 <!DOCTYPE html>
 <html>
-<head>
-	<title>@title</title>
-	<link rel='shortcut icon' type='image/png' href='@routes.Assets.at("images/favicon.png")'>
+    <head>
+        <title>@title</title>
+        <link rel='shortcut icon' type='image/png' href='@routes.Assets.at("images/favicon.png")'>
 	<link rel='stylesheet' type='text/css' href='@routes.Assets.at("extjs/resources/css/ext-all-neptune-debug.css")'>
-	<link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/global.css")'>
-	<link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/main.css")'>
-	@styles
-	<link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Roboto'>
-	<link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Open+Sans'>
-	<link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Ubuntu'>
-	<script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("jquery.min.js"))'></script>
-	<script type='text/javascript' src='@routes.Assets.at("extjs/ext-dev.js")'></script>
-    <script type='text/javascript' src='@routes.Assets.at("extjs/ext-theme-neptune.js")'></script>
-	<script type='text/javascript' src='@routes.Assets.at("javascripts/global.js")'></script>
-	@scripts
-</head>
-<body>
-	<header>
-		<div id="header">
-			<!--<div id="logo">
+        <link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/global.css")'>
+        <link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/main.css")'>
+        <link rel='stylesheet' type='text/css' href='@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap.min.css"))'>
+        @styles
+        <link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Roboto'>
+        <link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Open+Sans'>
+        <link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Ubuntu'>
+        <script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("jquery.min.js"))'></script>
+		<script type='text/javascript' src='@routes.Assets.at("extjs/ext-dev.js")'></script>
+    	<script type='text/javascript' src='@routes.Assets.at("extjs/ext-theme-neptune.js")'></script>
+		<script type='text/javascript' src='@routes.Assets.at("javascripts/global.js")'></script>
+        @scripts
+    </head>
+    <body>
+        <header>
+            <div id="header">
+                    <!--<div id="logo">
 				<a href="home.scala.html">Flight<span>Pub</span></a>
 			</div>-->
-			<div id="navigationContainer">
-				<nav role="navigation">
-					<span class="active">Home</span>
-					<a href="flights.scala.html"><span>Flights</span></a>
-					<a href="about.html"><span>About</span></a>
-					<a href="contact.html"><span>Contact</span></a>
-					<a href="register.scala.html"><span>Register</span></a>
-					<a href="login.scala.html"><span>Login</span></a>
-				</nav>
-				<!-- insert if statement - icons or register/signup
+                <div id="navigationContainer">
+                    <nav role="navigation">
+                        @if(request.uri == "/"){
+                            <span class="active">Home</span>
+                        }
+                        @if(request.uri != "/"){
+                            <a href="/"><span>Home</span></a>
+                        }
+                        @if(request.uri == "/home/process"){
+                            <span class="active">Flights</span>
+                        }
+                        @if(request.uri != "home/process"){
+                            <a href="flights.html"><span>Flights</span></a>
+                        }
+                        @if(request.uri == "/about"){
+                            <span class="active">About</span>
+                        }
+                        @if(request.uri != "/about"){
+                            <a href="/about"><span>About</span></a>
+                        }
+                        @if(request.uri == "/contact"){
+                            <span class="active">Contact</span>
+                        }
+                        @if(request.uri != "/contact"){
+                            <a href="/contact"><span>Contact</span></a>
+                        }
+                        @if(Http.Context.current().session().get("email") != null) {
+                            <a href="@routes.AuthenticationController.logout()"><span>Logout</span></a>
+                        }
+                        @if(Http.Context.current().session().get("email") == null) {
+                            @if(request.uri =="/register"){
+                                <span class="active">Register</span>
+                            }
+                            @if(request.uri != "/register"){
+                                <a href="@routes.AuthenticationController.register()"><span>Register</span></a>
+                            }
+                            @if(request.uri =="/login"){
+                                <span class="active">Login</span>
+                            }
+                            @if(request.uri != "/login"){
+                                <a href="@routes.AuthenticationController.login()"><span>Login</span></a>
+                            }
+                        }
+                        @if(request.uri =="/restricted"){
+                            <span class="active">Restricted Area</span>
+                        }
+                        @if(request.uri != "/restricted"){
+                            <a href="@routes.TestAuthController.index()"><span>Restricted Area</span></a>
+                        }
+                    </nav>
+                        <!-- insert if statement - icons or register/signup
 				<div id="headerOptions">
 					<a href="register.scala.html">Register</a>
 					<a href="login.scala.html">Login</a>
 				</div>-->
-			</div>
-		</div>
-	</header>
-	<div id="content">
-		@content
-		<footer>
-			FlightPub &copy; 2014-present. All rights reserved.
-		</footer>
+                </div>
+            </div>
+        </header>
+        <div id="content">
+            @content
 	</div>
-</body>
+	<div class="clear"></div>
+            <footer>
+                FlightPub &copy; 2014-present. All rights reserved.
+            </footer>
+    </body>
 </html>

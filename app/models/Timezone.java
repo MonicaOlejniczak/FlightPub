@@ -31,18 +31,12 @@ public class Timezone extends Model {
 	@Constraints.Max(13)
 	@Constraints.MinLength(2)
 	@Constraints.MaxLength(2)
-	public int offset;
-
-	/**
-	 * A reverse mapping of the list of users with a particular timezone
-	 */
-	@OneToMany(mappedBy = "timezone", fetch = FetchType.LAZY)
-	public List<User> users = new ArrayList<>();
+	public Float offset;
 
 	/**
 	 * Class constructor setting the required variables of the class
 	 */
-	public Timezone(String name, int offset) {
+	public Timezone(String name, Float offset) {
 		this.name = name;
 		this.offset = offset;
 	}

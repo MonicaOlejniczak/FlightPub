@@ -74,13 +74,6 @@ public class Airport extends Model implements BaseVertex, Comparable<BaseVertex>
     public List<Flight> flightSources = new ArrayList<>();
 
     /**
-     * The reverse mapping for the flights which have a stop-over at this airport
-     */
-    @JsonIgnore
-    @OneToMany(mappedBy = "stopOver", fetch = FetchType.LAZY)
-    public List<Flight> flightStopOvers = new ArrayList<>();
-
-    /**
      * The reverse mapping for the flights which have a destination of this airport
      */
     @JsonIgnore

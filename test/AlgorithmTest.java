@@ -23,13 +23,13 @@ public class AlgorithmTest {
         Airport source = Airport.find.where().eq("name", "Los Angeles").findUnique();
         Airport target = Airport.find.where().eq("name", "New York - JFK").findUnique();
 
-        Calendar calendar = Calendar.getInstance();
+        /*Calendar calendar = Calendar.getInstance();
         calendar.set(2014, 5, 27);
         Date date = calendar.getTime();
         System.out.println(date);
 
         List<Flight> flights = KShortestPath.kShortestFlights(source, target, 10, date);
-        System.out.println(String.format("# flights: %d", flights.size()));
+        System.out.println(String.format("# flights: %d", flights.size()));*/
     }
 
 }

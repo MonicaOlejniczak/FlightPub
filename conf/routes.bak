@@ -2,13 +2,25 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
+<<<<<<< HEAD
 GET         /                            controllers.MainController.home()
+GET         /login                       controllers.AuthenticationController.login()
+POST        /login/process               controllers.AuthenticationController.processLogin()
+GET         /logout                      controllers.AuthenticationController.logout()
+GET         /data/flights                controllers.DataController.flights()
+GET         /processFlights              controllers.HomeController.processFlights()
+GET         /data/selectedFlights        controllers.DataController.selectedFlights()
+GET         /data/airlines               controllers.DataController.airlines()
+GET         /data/airports               controllers.DataController.airports()
+GET         /data/test                   controllers.DataController.test()
+=======
+GET         /                                 controllers.MainController.home()
 GET         /register                         controllers.AuthenticationController.register()
 POST        /register/process                 controllers.AuthenticationController.processRegistration()
-GET         /login                       controllers.AuthenticationController.login()
+GET         /login                            controllers.AuthenticationController.login()
 POST        /login/process                    controllers.AuthenticationController.processLogin(destination = null)
 POST        /login/process/*destination       controllers.AuthenticationController.processLogin(destination)
-GET         /logout                      controllers.AuthenticationController.logout()
+GET         /logout                           controllers.AuthenticationController.logout()
 GET         /hax                              controllers.AuthenticationController.hax()
 GET         /restricted                       controllers.TestAuthController.index()
 GET         /seatSelection                    controllers.BookingController.seatSelection()
@@ -24,12 +36,12 @@ GET         /payment                          controllers.BookingController.paym
 POST        /payment/process                  controllers.BookingController.submitPayment(destination = null)
 POST        /payment/process/*destination     controllers.BookingController.submitPayment(destination)
 
-GET         /data/flights                controllers.DataController.flights()
-GET         /processFlights              controllers.HomeController.processFlights()
-GET         /data/selectedFlights        controllers.DataController.selectedFlights()
-GET         /data/airlines               controllers.DataController.airlines()
-GET         /data/airports               controllers.DataController.airports()
-GET         /data/test                   controllers.DataController.test()
+GET         /data/flights                     controllers.DataController.flights()
+GET         /processFlights                   controllers.HomeController.processFlights()
+GET         /data/selectedFlights             controllers.DataController.selectedFlights()
+GET         /data/airlines                    controllers.DataController.airlines()
+GET         /data/airports                    controllers.DataController.airports()
+>>>>>>> develop
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file                     controllers.Assets.at(path="/public", file)

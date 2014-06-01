@@ -3,7 +3,9 @@ Ext.define('FB.models.Flight', {
     fields: [
         'airline',
         'flightNumber',
+	    'source',
         'departureTime',
+	    'destination',
         'arrivalTime',
         'stopOver',
         'duration',

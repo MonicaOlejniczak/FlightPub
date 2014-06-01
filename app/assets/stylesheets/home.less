@@ -46,19 +46,6 @@
 }
 
 /* Flights */
-.flightsGradient (@start: transparent, @second: transparent, @third: transparent, @stop: transparent) {
-	@origin: right;
-	@startPercent: 0%;
-	@secondPercent: 25%;
-	@thirdPercent: 75%;
-	@stopPercent: 100%;
-	background-image: -webkit-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
-	background-image: -moz-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
-	background-image: -o-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
-	background-image: -ms-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
-	background-image: linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
-}
-
 #flightsWrapper {
 	background-color: @flightsWrapperBackgroundColor;
 	color: @flightsWrapperColor;

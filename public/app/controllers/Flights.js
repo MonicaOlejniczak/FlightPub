@@ -14,6 +14,7 @@ Ext.define('FB.controllers.Flights', {
 		'FB.sorters.StopOver',
 		'FB.sorters.Airline',
 		'Ext.container.Container',
+		'FB.containers.Duration',
 		'Ext.layout.container.Border',
 		'Ext.form.field.Number',
 		'Ext.form.field.ComboBox'
@@ -34,35 +35,49 @@ Ext.define('FB.controllers.Flights', {
 			this.airlineSorter = Ext.create('FB.sorters.Airline');
 			this.priceContainer = null;
 			this.durationContainer = null;
+			//this.durationContainer = Ext.create('FB.containers.Duration');
 			this.stopOverContainer = null;
 			this.airlineContainer = null;
 			this.dataStore = Ext.create('FB.stores.Flight');
 			this.dataStore.addListener('load', function(store, records, successful, eOpts) {
 				this.renderFlights();
 				this.sort.apply(this, ['sortPrice', this.priceSorter]);
+				this.createPriceContainer();
+				this.createDurationContainer();
+				this.createStopOverContainer();
+				this.createAirlineContainer();
+				this.createButtonContainer();
+				this.addEvents();
 			}, this);
-			this.createPriceContainer();
-			this.createDurationContainer();
-			this.createStopOverContainer();
-			this.createAirlineContainer();
-			this.addEvents();
 		}, this);
+	},
+	getDataStore: function () {
+		return this.dataStore;
 	},
 	/**
 	 * Renders the flight results
 	 */
 	renderFlights: function () {
+		var maxDuration = this.maxDuration();
 		this.dataStore.each(function (record) {
 			Ext.get('flights').createChild(Ext.create('Ext.XTemplate',
-				'<div id="flight_{id}">',
-					'Flight id: {id}<br />',
-					'Airline: {airline}<br />',
-					'Flight number: {flightNumber}<br />',
-					'Price: ${price}<br />',
-					'Duration: {duration}<br />',
-					'Departure time: {departure}<br />',
-					'Arrival time: {arrival}<br />',
-					'Stop overs: {stopOvers}<br /><br />',
+				'<div id="flight_{id}" class="flight">',
+					'<div class="flightBar">',
+						'<div class="departure">',
+							'<div class="node"></div>',
+						'</div>',
+						'<div class="flightBarText">',
+							'<div class="flightBarTextVisible">',
+								'${price}',
+							'</div>',
+							'<div class="flightBarTextHidden">',
+								'<strong>Duration:</strong> {duration} minutes',
+							'</div>',
+						'</div>',
+						'<div class="arrival">',
+							'<div class="node"></div>',
+						'</div>',
+					'</div>',
 				'</div>', {
 					compiled: true
 				}
@@ -72,11 +87,51 @@ Ext.define('FB.controllers.Flights', {
 				flightNumber: record.get('flightNumber'),
 				price: record.get('price').price,
 				duration: record.get('duration'),
-				departure: new Date(record.get('departureTime')),
-				arrival: new Date(record.get('arrivalTime')),
+				source: record.get('source').name,
+				departureTime: new Date(record.get('departureTime')),
+				destination: record.get('destination').name,
+				arrivalTime: new Date(record.get('arrivalTime')),
 				stopOvers: record.get('stopOver') == null ? 0 : 1
-			}))
-		});
+			}));
+			var id = 'flight_' + record.get('id');
+			Ext.get(id).setStyle({
+				width: (record.get('duration') / maxDuration * 100) + '%'
+			});
+			var date = new Date(record.get('departureTime'));
+			var departureTime = Ext.create('Ext.container.Container', {
+				plain: true,
+				renderTo: Ext.get(id).select('.departure .node').first(),
+				html: date.getHours() + ':' + date.getMinutes(),
+				cls: 'source',
+				hidden: true
+			});
+			date = new Date(record.get('arrivalTime'));
+			var arrivalTime = Ext.create('Ext.container.Container', {
+				plain: true,
+				renderTo: Ext.get(id).select('.arrival .node').first(),
+				html: date.getHours() + ':' + date.getMinutes(),
+				cls: 'destination',
+				hidden: true
+			});
+			Ext.get(id).on({
+				'click': Ext.pass(this.selectFlight, id, this),
+				'mouseenter': function () {
+					departureTime.show();
+					arrivalTime.show();
+				},
+				'mouseleave': function () {
+					departureTime.hide();
+					arrivalTime.hide();
+				}
+			});
+		}, this);
+	},
+	/**
+	 * Selects a particular flight
+	 */
+	selectFlight: function (id) {
+		Ext.select('.selectFlight').removeCls('selectFlight');
+		Ext.get(id).select('.flightBar').addCls('selectFlight');
 	},
 	/**
 	 * Adds the container for the price filter
@@ -380,6 +435,40 @@ Ext.define('FB.controllers.Flights', {
 		this.filterFlights(id, function (value, item) {
 			return airline == null ? true : airline.toLowerCase() == item.data.airline.name.toLowerCase();
 		}, 'filterAirline', airline == null)
+	},
+	/**
+	 * Adds the button container
+	 */
+	createButtonContainer: function () {
+		Ext.create('Ext.container.Container', {
+			layout: 'hbox',
+			renderTo: Ext.get('buttons'),
+			defaults: {
+				xtype: 'button',
+				scale: 'large',
+				cls: 'button'
+			},
+			items: [{
+				name: 'back',
+				id: 'back',
+				text: 'Back',
+				margin: '0 10px 0 0',
+				listeners: {
+					click: function () {
+						// todo
+					}
+				}
+			},  {
+				name: 'next',
+				id: 'next',
+				text: 'Next',
+				listeners: {
+					click: function () {
+						// todo
+					}
+				}
+			}]
+		});
 	},
 	/**
 	 * A method to calculate the maximum price based on the flights
