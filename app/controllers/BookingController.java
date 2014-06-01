@@ -53,6 +53,11 @@ public class BookingController extends Controller {
 		public Long acceptedFlight;
 	}
 
+	/**
+	 * Bookings action - displays a List of a User's past and present Bookings, along with information about their
+	 * status in the Booking process.
+	 * @return A List of a User's past and present Bookings, or forbidden if no User is logged in.
+	 */
 	public static Result bookings() {
 		if (AuthenticatedUser.isLoggedIn()) {
 			// TODO: Get our list of bookings for the user
@@ -68,6 +73,30 @@ public class BookingController extends Controller {
 
 			// Send the form + flights back to the user
 			return ok(views.html.bookings.render(bookings));
+		} else {
+			return forbidden();
+		}
+	}
+
+	/**
+	 * Booking Requests action - displays a List of currently pending Booking Requests, sent in by Users.
+	 * @return A List of currently pending Booking Requests.
+	 */
+	public static Result bookingRequests() {
+		if (AuthenticatedUser.isLoggedIn()) {
+			// TODO: Get our list of booking requests
+			User testUser = User.find.where(Expr.eq("email", "test@test.com")).findUnique();
+			List<Booking> bookings = new ArrayList<>();
+			bookings.add(new Booking(Booking.Status.PENDING, testUser, null, new Date()));
+			bookings.add(new Booking(Booking.Status.AWAITING_CONFIRMATION, testUser, null, new Date()));
+			bookings.add(new Booking(Booking.Status.AWAITING_CONFIRMATION, testUser, null, new Date()));
+			bookings.add(new Booking(Booking.Status.PENDING, testUser, null, new Date()));
+			for (int i = 0; i < bookings.size(); i++) {
+				bookings.get(i).id = (long)i;
+			}
+
+			// Send the form + flights back to the user
+			return ok(views.html.bookingRequests.render(bookings));
 		} else {
 			return forbidden();
 		}

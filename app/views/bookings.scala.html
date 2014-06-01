@@ -20,7 +20,7 @@
 					<h4>Booking List</h4>
 				</div>
 				<hr/>
-				<table id="booking-list" class="table table-striped table-bordered table-hover table-responsive">
+				<table id="booking-list" class="table table-striped table-hover table-responsive">
 					<tbody>
 						@bookings.map { booking =>
 							@booking.status match {
@@ -28,7 +28,7 @@
 									<tr>
 										<td>Booking @booking.id</td>
 										<td class="text-center">
-											<div class="text-muted">Pending</div>
+											<div>Pending</div>
 										</td>
 										<td>
 											<a class="btn btn-danger btn-xs btn-block" href="@* TODO: Configure route for this. *@">Cancel Booking</a>
@@ -36,10 +36,10 @@
 									</tr>
 								}
 								case models.Booking.Status.AWAITING_RECOMMENDATION_RESPONSE => {
-									<tr class="warning">
+									<tr class="info">
 										<td>Booking @booking.id</td>
 										<td class="text-center">
-											<strong class="text-warning">Alternative flights available; Please confirm booking choice</strong>
+											<div class="text-info">Alternative flights available; Please confirm booking choice</div>
 										</td>
 										<td>
 											<a class="btn btn-primary btn-xs btn-block" href="@routes.BookingController.reviewRecommendations(booking.id)">Explore Alternative Flights</a>
@@ -52,7 +52,7 @@
 									<tr>
 										<td>Booking @booking.id</td>
 										<td class="text-center">
-											<div class="text-muted">Awaiting travel agent confirmation</div>
+											<div>Awaiting travel agent confirmation</div>
 										</td>
 										<td>
 											<a class="btn btn-danger btn-xs btn-block" href="@* TODO: Configure route for this. *@">Cancel Booking</a>

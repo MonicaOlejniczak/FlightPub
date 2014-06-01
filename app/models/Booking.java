@@ -32,7 +32,11 @@ public class Booking extends Model {
 		/**
 		 * Travel agent has confirmed the Booking and the process is complete.
 		 */
-		COMPLETED
+		COMPLETED,
+		/**
+		 * User has cancelled this Booking before it was completed.
+		 */
+		CANCELLED
 	}
 
 	/**
