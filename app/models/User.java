@@ -75,7 +75,7 @@ public class User extends Person {
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
 	public List<Notification> notifications = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "pUser", fetch = FetchType.LAZY)
     public List<Payment> paymentDetails = new ArrayList<>();
 
 	/**

@@ -33,6 +33,7 @@ function checkPay() {
         alert("Fill in you payment details!");
         return false;
     } else {
+        document.getElementById("payForm").submit();
         return true;
     }
 }

@@ -81,16 +81,12 @@ public class BookingController extends Controller {
          * Post code.
          */
         @Constraints.Required(message = "Required Field!")
-        @Constraints.MinLength(value = 4, message = "Post code too short!")
-        @Constraints.MaxLength(value = 4, message = "Post code too long!")
         public int postCode;
 
         /**
          * Phone Number.
          */
         @Constraints.Required(message = "Required Field!")
-        @Constraints.MinLength(value = 10, message = "Phone number too short!")
-        @Constraints.MaxLength(value = 10, message = "Phone number too long!")
         public int phoneNumber;
 
         /**
@@ -103,15 +99,11 @@ public class BookingController extends Controller {
         /**
          * Card number
          */
-        @Constraints.MinLength(value = 16, message = "Card number too short!")
-        @Constraints.MaxLength(value = 16, message = "Card number too long!")
         public int mcardNum;
 
         /**
          * Card CVV number
          */
-        @Constraints.MinLength(value = 3, message = "CVV too short!")
-        @Constraints.MaxLength(value = 3, message = "CVV number too long!")
         public int mcardCCV;
 
         /**
@@ -139,7 +131,9 @@ public class BookingController extends Controller {
 
     }
 
-    public static Result payment() {
+    public static Result payment() { return ok(views.html.payment.render(Form.form(PaymentForm.class))); }
+
+    public static Result submitPayment() {
         Form<PaymentForm> paymentForm = Form.form(PaymentForm.class).bindFromRequest();
         if (paymentForm.hasErrors()) {
             return badRequest(views.html.payment.render(paymentForm));
@@ -157,9 +151,7 @@ public class BookingController extends Controller {
             temp.addPayDetails(payTemp);
 
         }
-        return ok (views.html.home.render());
+        return ok(views.html.home.render());
     }
-
-    public static Result submitPayment(String destination) { return ok (views.html.home.render()); }
 
 }

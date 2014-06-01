@@ -21,8 +21,7 @@ GET         /home/process                     controllers.HomeController.process
 GET         /about                            controllers.MainController.about()
 GET         /contact                          controllers.MainController.contact()
 GET         /payment                          controllers.BookingController.payment()
-POST        /payment/process                  controllers.BookingController.submitPayment(destination = null)
-POST        /payment/process/*destination     controllers.BookingController.submitPayment(destination)
+POST        /payment/process                  controllers.BookingController.submitPayment()
 
 GET         /data/flights                     controllers.DataController.flights()
 GET         /processFlights                   controllers.HomeController.processFlights()
