@@ -137,7 +137,6 @@ Ext.define('FB.controllers.Flights', {
 	 * Adds the container for the price filter
 	 */
 	createPriceContainer: function () {
-		var me = this;
 		var maxValue = this.maxPrice();
 		this.priceContainer = Ext.create('Ext.container.Container', {
 			layout: 'hbox',
@@ -161,8 +160,9 @@ Ext.define('FB.controllers.Flights', {
 				margin: '0 10px 0 0',
 				listeners: {
 					blur: function () {
-						me.filterStartPrice();
-					}
+						this.filterStartPrice();
+					},
+					scope: this
 				}
 			},  {
 				name: 'endPrice',
@@ -172,8 +172,9 @@ Ext.define('FB.controllers.Flights', {
 				vtype: 'endPrice',
 				listeners: {
 					blur: function () {
-						me.filterEndPrice();
-					}
+						this.filterEndPrice();
+					},
+					scope: this
 				}
 			}, {
 				xtype: 'button',
@@ -181,14 +182,15 @@ Ext.define('FB.controllers.Flights', {
 				id: 'clearPrice',
 				text: 'Clear',
 				scale: 'small',
-				cls: 'filterStyleButton',
+				cls: 'clearButton',
 				listeners: {
 					click: function () {
 						Ext.getCmp('startPrice').setValue(null);
 						Ext.getCmp('endPrice').setValue(null);
-						me.filterStartPrice();
-						me.filterEndPrice();
-					}
+						this.filterStartPrice();
+						this.filterEndPrice();
+					},
+					scope: this
 				}
 			}]
 		});
@@ -223,7 +225,6 @@ Ext.define('FB.controllers.Flights', {
 	 * Adds the container for the duration filter
 	 */
 	createDurationContainer: function () {
-		var me = this;
 		var maxValue = this.maxDuration();
 		this.durationContainer = Ext.create('Ext.container.Container', {
 			layout: 'hbox',
@@ -247,8 +248,9 @@ Ext.define('FB.controllers.Flights', {
 				margin: '0 10px 0 0',
 				listeners: {
 					blur: function () {
-						me.filterStartDuration();
-					}
+						this.filterStartDuration();
+					},
+					scope: this
 				}
 			},  {
 				name: 'endDuration',
@@ -258,8 +260,9 @@ Ext.define('FB.controllers.Flights', {
 				vtype: 'endDuration',
 				listeners: {
 					blur: function () {
-						me.filterEndDuration();
-					}
+						this.filterEndDuration();
+					},
+					scope: this
 				}
 			},  {
 				xtype: 'button',
@@ -267,14 +270,15 @@ Ext.define('FB.controllers.Flights', {
 				id: 'clearDuration',
 				text: 'Clear',
 				scale: 'small',
-				cls: 'filterStyleButton',
+				cls: 'clearButton',
 				listeners: {
 					click: function () {
 						Ext.getCmp('startDuration').setValue(null);
 						Ext.getCmp('endDuration').setValue(null);
-						me.filterStartDuration();
-						me.filterEndDuration();
-					}
+						this.filterStartDuration();
+						this.filterEndDuration();
+					},
+					scope: this
 				}
 			}]
 		});
@@ -309,7 +313,6 @@ Ext.define('FB.controllers.Flights', {
 	 * Adds the container for the airline filter
 	 */
 	createStopOverContainer: function () {
-		var me = this;
 		//todo fix data store
 		var stopOvers = Ext.create('Ext.data.Store', {
 			fields: [
@@ -339,8 +342,9 @@ Ext.define('FB.controllers.Flights', {
 				margin: '0 10px 0 0',
 				listeners: {
 					select: function () {
-						me.filterStopOvers();
-					}
+						this.filterStopOvers();
+					},
+					scope: this
 				}
 			},  {
 				xtype: 'button',
@@ -349,12 +353,13 @@ Ext.define('FB.controllers.Flights', {
 				id: 'clearStopOvers',
 				text: 'Clear',
 				scale: 'small',
-				cls: 'filterStyleButton',
+				cls: 'clearButton',
 				listeners: {
 					click: function () {
 						Ext.getCmp('stopOver').setValue(null);
-						me.filterStopOvers();
-					}
+						this.filterStopOvers();
+					},
+					scope: this
 				}
 			}]
 		});
@@ -373,7 +378,6 @@ Ext.define('FB.controllers.Flights', {
 	 * Adds the container for the airline filter
 	 */
 	createAirlineContainer: function () {
-		var me = this;
 		//todo fix data store
 		var airlines = Ext.create('Ext.data.Store', {
 			fields: [
@@ -406,8 +410,9 @@ Ext.define('FB.controllers.Flights', {
 				margin: '0 10px 0 0',
 				listeners: {
 					select: function () {
-						me.filterAirline();
-					}
+						this.filterAirline();
+					},
+					scope: this
 				}
 			},  {
 				xtype: 'button',
@@ -416,12 +421,13 @@ Ext.define('FB.controllers.Flights', {
 				id: 'clearAirlines',
 				text: 'Clear',
 				scale: 'small',
-				cls: 'filterStyleButton',
+				cls: 'clearButton',
 				listeners: {
 					click: function () {
 						Ext.getCmp('airline').setValue(null);
-						me.filterAirline();
-					}
+						this.filterAirline();
+					},
+					scope: this
 				}
 			}]
 		});
@@ -448,14 +454,38 @@ Ext.define('FB.controllers.Flights', {
 				scale: 'large',
 				cls: 'button'
 			},
-			items: [{
+			items: [
+				{
+				name: 'cancel',
+				id: 'cancel',
+				cls: 'cancelButton',
+				text: 'Cancel',
+				margin: '0 10px 0 0',
+				listeners: {
+					click: function () {
+						Ext.create('Ext.window.MessageBox').show ({
+							title: 'Cancel Booking',
+							msg: 'Do you wish to cancel your booking?',
+							buttonText: {
+								yes: 'Cancel Booking',
+								no: 'Resume Booking'
+							},
+							fn: function (buttonId, text, opt) {
+								if (buttonId == "yes") {
+									window.location.href = '/';
+								}
+							}
+						});
+					}
+				}
+			},  {
 				name: 'back',
 				id: 'back',
 				text: 'Back',
 				margin: '0 10px 0 0',
 				listeners: {
 					click: function () {
-						// todo
+						window.location.href = '/';
 					}
 				}
 			},  {
@@ -464,7 +494,14 @@ Ext.define('FB.controllers.Flights', {
 				text: 'Next',
 				listeners: {
 					click: function () {
-						// todo
+						var selected = Ext.select('.selectFlight').elements.length;
+						// todo add and returning to boolean
+						var returning = true;
+						if (selected == 0 || (selected == 1 && !returning)) {
+							Ext.create('Ext.window.MessageBox').alert('Error', 'You have not selected a flight.');
+						} else {
+							window.location.href = '/seatSelection';
+						}
 					}
 				}
 			}]

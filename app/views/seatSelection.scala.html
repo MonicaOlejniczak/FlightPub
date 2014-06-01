@@ -5,19 +5,16 @@
 }
 
 @scripts = {
-	<script type='text/javascript' src='@routes.Assets.at("javascripts/seatSelection.js")'></script>
 	<script type='text/javascript'>
 		Ext.create('FB.controllers.SeatSelection');
 	</script>
 }
 
 @main("FlightPub - Seat Selection", styles, scripts) {
-    <div class="container">
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                <h1 class="panel-title">FlightPub - Seat Selection</h1>
-            </div>
-            <div class="panel-body" id="seats"></div>
-        </div>
+
+	<h1>Seat Selection</h1>
+	<div class="content">
+        <div id="seats"></div>
     </div>
+
 }

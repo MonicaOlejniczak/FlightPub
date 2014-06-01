@@ -1,29 +1,9 @@
 @import 'globalVariables';
+@import 'globalMethods';
 
 @seatsFormWidth: 80%;
-@buttonWidth: 10em;
-
-@buttonMargin: 1em;
 
 @aisleBorderWidth: 1em;
-
-#content {
-  background-color: @secondaryBackgroundColor;
-}
-
-.panel {
-  margin-top: 20px;
-}
-
-.form-group {
-  margin-left: 25%;
-  margin-right: 25%;
-  width: 100%;
-}
-
-.form-group:last-child {
-  margin-bottom: 0;
-}
 
 #seatsForm {
 	width: @seatsFormWidth;
@@ -36,13 +16,15 @@
 }
 
 .rowLabel {
-	text-align: right;
+	text-align: left;
 	padding: 0.5em 0 0 0;
 }
 
 .aisle {
 	height: 100%;
 	background-color: darken(#fff, 10%);
+	opacity:0.1;
+	filter:alpha(opacity=10);
 }
 
 .aisle:first-child {
@@ -61,7 +43,27 @@
 	width: calc(~'@{buttonWidth} * 3 + @{buttonMargin} * 2');
 }
 
-.button {
-	width: @buttonWidth;
+.desaturate, .desaturate:hover {
+	.transition(background, @time, linear);
+}
+
+.desaturate a, .desaturate:hover, .desaturate:active, .desaturate:visited {
+	text-decoration: none;
+}
+
+.desaturate {
 	margin: 0 @buttonMargin 0 0;
+	border: 0;
+}
+
+.button, .cancelButton {
+	margin: 0 @buttonMargin 0 0;
+}
+
+.desaturate {
+	background: #bbb;
+}
+
+.desaturate:hover {
+	background: #999;
 }
