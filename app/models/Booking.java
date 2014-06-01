@@ -1,25 +1,40 @@
 package models;
 
-import play.db.ebean.Model;
 import play.data.format.Formats;
 import play.data.validation.Constraints;
+import play.db.ebean.Model;
 
 import javax.persistence.*;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Entity
 public class Booking extends Model {
-
 	/**
 	 * Defines an enumeration for the current status of the booking
 	 */
 	public enum Status {
+		/**
+		 * User has issued a Booking request, and it has yet to be seen by a travel agent.
+		 */
 		PENDING,
-		APPROVED,
-		DECLINED
+		/**
+		 * Travel agent has sent recommendations back to the User.
+		 */
+		AWAITING_RECOMMENDATION_RESPONSE,
+		/**
+		 * User has finalized their Booking, and is waiting for confirmation from the travel agent.
+		 */
+		AWAITING_CONFIRMATION,
+		/**
+		 * Travel agent has confirmed the Booking and the process is complete.
+		 */
+		COMPLETED,
+		/**
+		 * User has cancelled this Booking before it was completed.
+		 */
+		CANCELLED
 	}
 
 	/**
@@ -44,11 +59,17 @@ public class Booking extends Model {
 	public User user;
 
 	/**
-	 * The flight that was booked by the user
+	 * The Itinerary that is linked to this Booking.
 	 */
 	@Constraints.Required
 	@ManyToOne(cascade = CascadeType.ALL)
-	public Flight flight;
+	public Itinerary itinerary;
+
+	/**
+	 * The List of alternate possible Itineraries recommended by a travel agent during the booking process.
+	 */
+	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	public List<Itinerary> recommendations;
 
 	/**
 	 * The date that the booking was made
@@ -68,10 +89,11 @@ public class Booking extends Model {
 	/**
 	 * Class constructor setting the required variables of the class
 	 */
-	public Booking(Status status, User user, Flight flight, Date date) {
+	public Booking(Status status, User user, Itinerary itinerary, Date date) {
 		this.status = status;
 		this.user = user;
-		this.flight = flight;
+		this.itinerary = itinerary;
+		this.recommendations = new ArrayList<>();
 		this.date = date;
 	}
 
@@ -79,5 +101,4 @@ public class Booking extends Model {
 	 * Creates a finder for the Booking entity
 	 */
 	public static Model.Finder<Long, Booking> find = new Model.Finder<>(Long.class, Booking.class);
-
 }

@@ -156,17 +156,4 @@ public class AuthenticationController extends Controller {
 		session().clear();
 		return redirect(controllers.routes.MainController.home());
 	}
-
-	/**
-	 * TODO: Remove this abomination.
-	 * @return Shhhh...
-	 */
-	public static Result hax() {
-		if (Ebean.find(User.class).findRowCount() == 0) {
-			@SuppressWarnings("unchecked")
-			Map<String,List<Object>> all = (Map<String,List<Object>>)Yaml.load("initial-data.yml");
-			Ebean.save(all.get("users"));
-		}
-		return redirect("/");
-	}
 }
