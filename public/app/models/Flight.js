@@ -7,7 +7,6 @@ Ext.define('FB.models.Flight', {
         'departureTime',
 	    'destination',
         'arrivalTime',
-        'stopOver',
         'duration',
         'price'
     ]

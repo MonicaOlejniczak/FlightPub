@@ -98,19 +98,19 @@ Ext.define('FB.controllers.Flights', {
 			Ext.get(id).setStyle({
 				width: (record.get('duration') / maxDuration * 100) + '%'
 			});
-			var date = new Date(record.get('departureTime'));
+			var date = record.get('departureTime');
 			var departureTime = Ext.create('Ext.container.Container', {
 				plain: true,
 				renderTo: Ext.get(id).select('.departure .node').first(),
-				html: date.getHours() + ':' + date.getMinutes(),
+				html: date.hourOfDay + ':' + date.minuteOfHour,
 				cls: 'source',
 				hidden: true
 			});
-			date = new Date(record.get('arrivalTime'));
+			date = record.get('arrivalTime');
 			var arrivalTime = Ext.create('Ext.container.Container', {
 				plain: true,
 				renderTo: Ext.get(id).select('.arrival .node').first(),
-				html: date.getHours() + ':' + date.getMinutes(),
+				html: date.hourOfDay + ':' + date.minuteOfHour,
 				cls: 'destination',
 				hidden: true
 			});
