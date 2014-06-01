@@ -1,10 +1,7 @@
 package controllers;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
 import org.joda.time.DateTime;
-import play.api.libs.json.JsArray;
-import play.api.libs.json.JsObject;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -43,6 +40,7 @@ public class DataController extends Controller {
 		List<List<Flight>> flights = FlightFinder.findFlights(source, destination, start, end, depth);
 
         // generate limited version
+        // NOTE: THIS IS GREAT HAHA /WRISTS
         List<Map<String, List<Map<String, Object>>>> jItineraries = new ArrayList<>();
         for (List<Flight> itinerary : flights) {
             Map<String, List<Map<String, Object>>> jItinerary = new HashMap<>();
@@ -50,7 +48,28 @@ public class DataController extends Controller {
             List<Map<String, Object>> jFlights = new ArrayList<>();
             for (Flight flight : itinerary) {
                 Map<String, Object> jFlight = new HashMap<>();
+                jFlight.put("id", flight.id);
                 jFlight.put("flightNumber", flight.flightNumber);
+                jFlight.put("duration", flight.duration);
+                jFlight.put("departureTime", flight.departureTime.getMillis());
+                jFlight.put("arrivalTime", flight.arrivalTime.getMillis());
+
+                Map<String, Object> jSource = new HashMap<>();
+                jSource.put("name", flight.source.name);
+                jFlight.put("source", jSource);
+
+                Map<String, Object> jDestination = new HashMap<>();
+                jDestination.put("name", flight.destination.name);
+                jFlight.put("destination", jDestination);
+
+                Map<String, Object> jAirline = new HashMap<>();
+                jAirline.put("name", flight.airline.name);
+                jFlight.put("airline", jAirline);
+
+                Map<String, Object> jPrice = new HashMap<>();
+                jPrice.put("price", 7);
+                jFlight.put("price", jPrice);
+
                 jFlights.add(jFlight);
             }
             jItinerary.put("flights", jFlights);
