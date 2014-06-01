@@ -2,24 +2,36 @@ package controllers;
 
 import authentication.AuthenticatedUser;
 import com.avaje.ebean.Expr;
+<<<<<<< HEAD
+import models.Luggage;
+import models.Payment;
+import models.Seat;
+import models.User;
+=======
 import models.*;
-import org.joda.time.DateTime;
+>>>>>>> feature/messaging
 import play.data.Form;
 import play.data.validation.Constraints;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Security;
+<<<<<<< HEAD
+=======
 import views.html.bookingRequests;
+>>>>>>> feature/messaging
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+<<<<<<< HEAD
+=======
 /**
  * Controller responsible for handling all aspects of the FlightPub booking process.
  * @author Chris Emery, Trey Brisbane
  */
+>>>>>>> feature/messaging
 @Security.Authenticated(AuthenticatedUser.class)
 public class BookingController extends Controller {
 	/**
@@ -93,11 +105,11 @@ public class BookingController extends Controller {
 
 			// Testing code
 			List<Flight> flights = new ArrayList<>();
-			Flight f1 = new Flight(null, "107", null, null, new DateTime(), new DateTime(), null, 1);
+			Flight f1 = new Flight(null, "107", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2);
 			f1.id = (long)1;
-			Flight f2 = new Flight(null, "108", null, null, new DateTime(), new DateTime(), null, 1);
+			Flight f2 = new Flight(null, "108", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2);
 			f2.id = (long)2;
-			Flight f3 = new Flight(null, "109", null, null, new DateTime(), new DateTime(), null, 1);
+			Flight f3 = new Flight(null, "109", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2);
 			f3.id = (long)3;
 			flights.add(f1);
 			flights.add(f2);
@@ -253,11 +265,11 @@ public class BookingController extends Controller {
 			// TODO: Get some flights to send back
 			List<Itinerary> its = new ArrayList<>();
 			List<Flight> flights = new ArrayList<>();
-			Flight f1 = new Flight(null, "107", null, null, new DateTime(), new DateTime(), null, 1);
+			Flight f1 = new Flight(null, "107", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2);
 			f1.id = (long)1;
-			Flight f2 = new Flight(null, "108", null, null, new DateTime(), new DateTime(), null, 1);
+			Flight f2 = new Flight(null, "108", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2);
 			f2.id = (long)2;
-			Flight f3 = new Flight(null, "109", null, null, new DateTime(), new DateTime(), null, 1);
+			Flight f3 = new Flight(null, "109", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2);
 			f3.id = (long)3;
 			flights.add(f1);
 			flights.add(f2);
@@ -295,11 +307,11 @@ public class BookingController extends Controller {
 				// TODO: Get some flights to send back
 				List<Itinerary> its = new ArrayList<>();
 				List<Flight> flights = new ArrayList<>();
-				Flight f1 = new Flight(null, "107", null, null, new DateTime(), new DateTime(), null, 1);
+				Flight f1 = new Flight(null, "107", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2);
 				f1.id = (long)1;
-				Flight f2 = new Flight(null, "108", null, null, new DateTime(), new DateTime(), null, 1);
+				Flight f2 = new Flight(null, "108", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2);
 				f2.id = (long)2;
-				Flight f3 = new Flight(null, "109", null, null, new DateTime(), new DateTime(), null, 1);
+				Flight f3 = new Flight(null, "109", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2);
 				f3.id = (long)3;
 				flights.add(f1);
 				flights.add(f2);
@@ -353,11 +365,11 @@ public class BookingController extends Controller {
 			// TODO: Get some flights to send back
 			List<Itinerary> its = new ArrayList<>();
 			List<Flight> flights = new ArrayList<>();
-			Flight f1 = new Flight(null, "107", null, null, new DateTime(), new DateTime(), null, 1);
+			Flight f1 = new Flight(null, "107", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2);
 			f1.id = (long)1;
-			Flight f2 = new Flight(null, "108", null, null, new DateTime(), new DateTime(), null, 1);
+			Flight f2 = new Flight(null, "108", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2);
 			f2.id = (long)2;
-			Flight f3 = new Flight(null, "109", null, null, new DateTime(), new DateTime(), null, 1);
+			Flight f3 = new Flight(null, "109", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2);
 			f3.id = (long)3;
 			flights.add(f1);
 			flights.add(f2);
@@ -395,11 +407,11 @@ public class BookingController extends Controller {
 				// TODO: Get some flights to send back
 				List<Itinerary> its = new ArrayList<>();
 				List<Flight> flights = new ArrayList<>();
-				Flight f1 = new Flight(null, "107", null, null, new DateTime(), new DateTime(), null, 1);
+				Flight f1 = new Flight(null, "107", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2);
 				f1.id = (long)1;
-				Flight f2 = new Flight(null, "108", null, null, new DateTime(), new DateTime(), null, 1);
+				Flight f2 = new Flight(null, "108", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2);
 				f2.id = (long)2;
-				Flight f3 = new Flight(null, "109", null, null, new DateTime(), new DateTime(), null, 1);
+				Flight f3 = new Flight(null, "109", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2);
 				f3.id = (long)3;
 				flights.add(f1);
 				flights.add(f2);
