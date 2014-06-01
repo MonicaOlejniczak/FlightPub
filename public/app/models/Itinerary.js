@@ -1,10 +1,10 @@
 Ext.define('FB.models.Itinerary', {
 	extend: 'Ext.data.Model',
-	fields: [],
-	associations: [{
-		type: 'hasMany',
+	fields: ['flights']/*, didn't work, no time to fix
+	hasMany: {
 		model: 'Flight',
-		name: 'flights'
-	}]
+		name: 'flights',
+        associationKey: 'flights'
+	}*/
 });
 

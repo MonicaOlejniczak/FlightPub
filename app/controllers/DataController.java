@@ -1,14 +1,19 @@
 package controllers;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
 import org.joda.time.DateTime;
+import play.api.libs.json.JsArray;
+import play.api.libs.json.JsObject;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 import util.algorithm.FlightFinder;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DataController extends Controller {
 
@@ -36,7 +41,24 @@ public class DataController extends Controller {
 		int depth = 4;
 
 		List<List<Flight>> flights = FlightFinder.findFlights(source, destination, start, end, depth);
-		return ok(Json.toJson(flights));
+
+        // generate limited version
+        List<Map<String, List<Map<String, Object>>>> jItineraries = new ArrayList<>();
+        for (List<Flight> itinerary : flights) {
+            Map<String, List<Map<String, Object>>> jItinerary = new HashMap<>();
+
+            List<Map<String, Object>> jFlights = new ArrayList<>();
+            for (Flight flight : itinerary) {
+                Map<String, Object> jFlight = new HashMap<>();
+                jFlight.put("flightNumber", flight.flightNumber);
+                jFlights.add(jFlight);
+            }
+            jItinerary.put("flights", jFlights);
+
+            jItineraries.add(jItinerary);
+        }
+        System.out.println(jItineraries);
+        return ok(Json.toJson(jItineraries));
 	}
 
 	public static Result airlines() {

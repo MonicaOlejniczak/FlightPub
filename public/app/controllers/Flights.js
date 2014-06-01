@@ -65,6 +65,7 @@ Ext.define('FB.controllers.Flights', {
 	renderFlights: function () {
 		var maxDuration = this.maxDuration();
 		this.dataStore.each(function (record) {
+            var flight = record.get("flights")[0]; // TODO
 			Ext.get('flights').createChild(Ext.create('Ext.XTemplate',
 				'<div id="flight_{id}" class="flight">',
 					'<div class="flightBar">',
@@ -87,22 +88,22 @@ Ext.define('FB.controllers.Flights', {
 					compiled: true
 				}
 			).apply({
-				id: record.get('id'),
-				airline: record.get('airline').name,
-				flightNumber: record.get('flightNumber'),
-				price: record.get('price').price,
-				duration: record.get('duration'),
-				source: record.get('source').name,
-				departureTime: new Date(record.get('departureTime')),
-				destination: record.get('destination').name,
-				arrivalTime: new Date(record.get('arrivalTime')),
-				stopOvers: record.get('stopOver') == null ? 0 : 1
+				id: flight.get('id'),
+				airline: flight.get('airline').name,
+				flightNumber: flight.get('flightNumber'),
+				price: flight.get('price').price,
+				duration: flight.get('duration'),
+				source: flight.get('source').name,
+				departureTime: new Date(flight.get('departureTime')),
+				destination: flight.get('destination').name,
+				arrivalTime: new Date(flight.get('arrivalTime')),
+				stopOvers: flight.get('stopOver') == null ? 0 : 1
 			}));
-			var id = 'flight_' + record.get('id');
+			var id = 'flight_' + flight.get('id');
 			Ext.get(id).setStyle({
-				width: (record.get('duration') / maxDuration * 100) + '%'
+				width: (flight.get('duration') / maxDuration * 100) + '%'
 			});
-			var date = record.get('departureTime');
+			var date = flight.get('departureTime');
 			var departureTime = Ext.create('Ext.container.Container', {
 				plain: true,
 				renderTo: Ext.get(id).select('.departure .node').first(),
@@ -110,7 +111,7 @@ Ext.define('FB.controllers.Flights', {
 				cls: 'source',
 				hidden: true
 			});
-			date = record.get('arrivalTime');
+			date = flight.get('arrivalTime');
 			var arrivalTime = Ext.create('Ext.container.Container', {
 				plain: true,
 				renderTo: Ext.get(id).select('.arrival .node').first(),
