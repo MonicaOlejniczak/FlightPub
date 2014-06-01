@@ -1,12 +1,10 @@
 package models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import play.db.ebean.Model;
 import play.data.format.Formats;
 import play.data.validation.Constraints;
+import play.db.ebean.Model;
 
 import javax.persistence.*;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -61,18 +59,17 @@ public class Booking extends Model {
 	public User user;
 
 	/**
-	 * The flight that was booked by the user
+	 * The Itinerary that is linked to this Booking.
 	 */
 	@Constraints.Required
 	@ManyToOne(cascade = CascadeType.ALL)
-	public Flight flight;
+	public Itinerary itinerary;
 
 	/**
-	 * A reverse mapping of the list of messages between a user and travel agent for a particular flight
+	 * The List of alternate possible Itineraries recommended by a travel agent during the booking process.
 	 */
-	@JsonIgnore
-	@OneToMany(mappedBy = "booking", fetch = FetchType.LAZY)
-	public List<Message> messages = new ArrayList<>();
+	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	public List<Itinerary> recommendations;
 
 	/**
 	 * The date that the booking was made
@@ -92,10 +89,11 @@ public class Booking extends Model {
 	/**
 	 * Class constructor setting the required variables of the class
 	 */
-	public Booking(Status status, User user, Flight flight, Date date) {
+	public Booking(Status status, User user, Itinerary itinerary, Date date) {
 		this.status = status;
 		this.user = user;
-		this.flight = flight;
+		this.itinerary = itinerary;
+		this.recommendations = new ArrayList<>();
 		this.date = date;
 	}
 

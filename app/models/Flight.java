@@ -34,6 +34,12 @@ public class Flight extends Model {
 	public String flightNumber;
 
 	/**
+	 * The List of Itineraries that this Flight is apart of.
+	 */
+	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "flights")
+	public List<Itinerary> itineraries;
+
+	/**
 	 * The source airport
 	 */
 	@Constraints.Required
@@ -129,6 +135,7 @@ public class Flight extends Model {
 	public Flight(Airline airline, String flightNumber, Airport source, Airport stopOver, Airport destination, Date departureTime, Date arrivalTimeStopOver, Date departureTimeStopOver, Date arrivalTime, Plane plane, int duration, int durationSecondLeg) {
 		this.airline = airline;
 		this.flightNumber = flightNumber;
+		this.itineraries = new ArrayList<>();
 		this.source = source;
 		this.stopOver = stopOver;
 		this.destination = destination;
