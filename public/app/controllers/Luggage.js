@@ -26,8 +26,9 @@ Ext.define('FB.controllers.Luggage', {
 		var form = Ext.create('Ext.form.Panel', {
 			id: formId,
 			renderTo: 'luggage',
-			url: '/payment',
+			url: '/luggage/process',
 			method: 'post',
+			standardSubmit: true,
 			height: '100%',
 			items: [],
 			buttons: []
@@ -111,18 +112,17 @@ Ext.define('FB.controllers.Luggage', {
 			},
 			renderTo: Ext.get(form.getId())
 		});
-		var buttonClass = 'button';
-		this.renderCancelButton(container, buttonClass);
-		this.renderBackButton(container, buttonClass);
-		this.renderNextButton(container, form, buttonClass);
+		this.renderCancelButton(container, form);
+		this.renderBackButton(container);
+		this.renderNextButton(container, form);
 	},
 	/**
 	 *  Renders the cancel button for the form
 	 *
 	 *  @param container the button container
-	 *  @param buttonClass the class being used for all buttons on the page
+	 *  @param form the main form used on the page
 	 */
-	renderCancelButton: function (container, buttonClass) {
+	renderCancelButton: function (container, form) {
 		container.add(Ext.create('Ext.button.Button', {
 			text: 'Cancel',
 			cls: 'cancelButton',
@@ -137,6 +137,7 @@ Ext.define('FB.controllers.Luggage', {
 					},
 					fn: function (buttonId, text, opt) {
 						if (buttonId == "yes") {
+							form.getForm().reset();
 							window.location.href = '/';
 						}
 					}
@@ -150,13 +151,13 @@ Ext.define('FB.controllers.Luggage', {
 	 *  @param container the button container
 	 *  @param buttonClass the class being used for all buttons on the page
 	 */
-	renderBackButton: function (container, buttonClass) {
+	renderBackButton: function (container) {
 		container.add(Ext.create('Ext.button.Button', {
 			text: 'Back',
 			cls: 'button',
 			scale: 'large',
 			handler: function () {
-				window.location.href = '/seatSelection';
+				window.location.href = '/flights';
 			}
 		}));
 	},
@@ -164,17 +165,32 @@ Ext.define('FB.controllers.Luggage', {
 	 * Renders the next button for the form
 	 *
 	 *  @param container the button container
-	 *  @param form the main form used on the page
-	 *  @param buttonClass the class being used for all buttons on the page
+	 *  @form the main form used on the page
 	 */
-	renderNextButton: function (container, form, buttonClass) {
+	renderNextButton: function (container, form) {
 		container.add(Ext.create('Ext.button.Button', {
 			text: 'Next',
 			cls: 'button',
 			scale: 'large',
 			formBind: true,
 			handler: function () {
-				window.location = '/payment';
+				form.getForm().submit({
+					success: function(form, action) {
+						Ext.Msg.alert('Success', action.result.msg);
+					},
+					failure: function(form, action) {
+						switch (action.failureType) {
+							case Ext.form.action.Action.CLIENT_INVALID:
+								Ext.Msg.alert('Failure', 'Form fields may not be submitted with invalid values');
+								break;
+							case Ext.form.action.Action.CONNECT_FAILURE:
+								Ext.Msg.alert('Failure', 'Ajax communication failed');
+								break;
+							case Ext.form.action.Action.SERVER_INVALID:
+								Ext.Msg.alert('Failure', action.result.msg);
+						}
+					}
+				});
 			}, scope: this
 		}));
 	}

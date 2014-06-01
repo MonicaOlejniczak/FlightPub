@@ -7,6 +7,7 @@ Ext.define('FB.controllers.Flights', {
 		'FB.models.Airline',
 		'FB.stores.Flight',
 		'FB.stores.Airline',
+		'FB.stores.Airport',
 		'FB.sorters.Price',
 		'FB.sorters.Duration',
 		'FB.sorters.DepartureTime',
@@ -500,7 +501,7 @@ Ext.define('FB.controllers.Flights', {
 						if (selected == 0 || (selected == 1 && !returning)) {
 							Ext.create('Ext.window.MessageBox').alert('Error', 'You have not selected a flight.');
 						} else {
-							window.location.href = '/seatSelection';
+							window.location.href = '/luggage';
 						}
 					}
 				}
