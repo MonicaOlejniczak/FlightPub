@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import edu.asu.emit.qyan.alg.model.abstracts.BaseEdge;
 import edu.asu.emit.qyan.alg.model.abstracts.BaseVertex;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 import play.db.ebean.Model;
 import play.data.format.Formats;
 import play.data.validation.Constraints;
@@ -118,7 +119,7 @@ public class Flight extends Model implements BaseEdge {
 
     @Override
     public String toString() {
-        return String.format("%s -> %s", source, destination);
+        return String.format("%s -(%s) (%s)> %s", source, departureTime.toString(DateTimeFormat.forPattern("MM-dd-yyyy HH:mm:ss")), arrivalTime.toString(DateTimeFormat.forPattern("MM-dd-yyyy HH:mm:ss")), destination);
     }
 
 	/**

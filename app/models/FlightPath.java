@@ -5,6 +5,7 @@ import play.db.ebean.Model;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,13 @@ public class FlightPath extends Model {
         this.source = source;
         this.destination = destination;
     }
+
+    /**
+     * Uniquely identifies the flightpath
+     */
+    @Id
+    public Long id;
+
     /**
      * The source airport
      */
