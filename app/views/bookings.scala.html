@@ -1,4 +1,4 @@
-@(bookings: List[models.Booking], cancelBookingForm: Form[controllers.BookingController.CancelBooking])
+@(bookings: List[models.Booking], cancelBookingForm: Form[controllers.BookingController.CancelBooking], reviewRecommendationsForm: Form[controllers.BookingController.ReviewRecommendations])
 
 @styles = {
 	<link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/recommendations.css")'>
@@ -54,7 +54,11 @@
 										</td>
 										<td>
 											<a class="btn btn-primary btn-xs btn-block" href="@routes.BookingController.reviewRecommendations(booking.id)">Explore Alternative Flights</a>
-											<a class="btn btn-success btn-xs btn-block" href="@* TODO: Configure route for this. *@">Confirm Original Booking</a>
+											<form action="@routes.BookingController.sendRecommendationResponse()" method="POST" role="form" class="form-horizontal">
+												<input name="@reviewRecommendationsForm("bookingId").name" type="hidden" value="@booking.id"/>
+												<input name="@reviewRecommendationsForm("acceptedItinerary").name" type="hidden" value="@booking.itinerary.id"/>
+												<input type="submit" class="btn btn-success btn-xs btn-block" value="Confirm Original Booking">
+											</form>
 											<form action="@routes.BookingController.cancel()" method="POST" role="form">
 												<input name="@cancelBookingForm("bookingId").name" type="hidden" value="@booking.id"/>
 												<input type="submit" class="btn btn-danger btn-xs btn-block" value="Cancel Booking">

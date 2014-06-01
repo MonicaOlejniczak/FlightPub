@@ -91,10 +91,22 @@ public class BookingController extends Controller {
 			User user = User.find.where(Expr.eq("email", authedUser.getUsername(Http.Context.current()))).fetch("bookings").fetch("bookings.itinerary").findUnique();
 
 			// Testing code
+			List<Flight> flights = new ArrayList<>();
+			Flight f1 = new Flight(null, "107", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2);
+			f1.id = (long)1;
+			Flight f2 = new Flight(null, "108", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2);
+			f2.id = (long)2;
+			Flight f3 = new Flight(null, "109", null, null, null, new Date(), new Date(), new Date(), new Date(), null, 1, 2);
+			f3.id = (long)3;
+			flights.add(f1);
+			flights.add(f2);
+			flights.add(f3);
+			Itinerary i1 = new Itinerary(flights);
+			i1.id = (long)1;
 			User testUser = User.find.where(Expr.eq("email", "test@test.com")).findUnique();
 			List<Booking> bookings = new ArrayList<>();
 			bookings.add(new Booking(Booking.Status.PENDING, testUser, null, new Date()));
-			bookings.add(new Booking(Booking.Status.AWAITING_RECOMMENDATION_RESPONSE, testUser, null, new Date()));
+			bookings.add(new Booking(Booking.Status.AWAITING_RECOMMENDATION_RESPONSE, testUser, i1, new Date()));
 			bookings.add(new Booking(Booking.Status.AWAITING_CONFIRMATION, testUser, null, new Date()));
 			bookings.add(new Booking(Booking.Status.COMPLETED, testUser, null, new Date()));
 			for (int i = 0; i < bookings.size(); i++) {
@@ -110,7 +122,7 @@ public class BookingController extends Controller {
 			}
 
 			// Send the form back to the user
-			return ok(views.html.bookings.render(result, Form.form(CancelBooking.class)));
+			return ok(views.html.bookings.render(result, Form.form(CancelBooking.class), Form.form(ReviewRecommendations.class)));
 		} else {
 			return forbidden();
 		}
@@ -170,7 +182,7 @@ public class BookingController extends Controller {
 				// Pull in the user from the database, joining with them their bookings and their bookings' itinerary
 				User user = User.find.where(Expr.eq("email", authedUser.getUsername(Http.Context.current()))).fetch("bookings").fetch("bookings.itinerary").findUnique();
 
-				return badRequest(views.html.bookings.render(user.bookings, Form.form(CancelBooking.class)));
+				return badRequest(views.html.bookings.render(user.bookings, Form.form(CancelBooking.class), Form.form(ReviewRecommendations.class)));
 			} else {
 				// Otherwise, get the form parameters' values
 				CancelBooking details = cancelBookingForm.get();
