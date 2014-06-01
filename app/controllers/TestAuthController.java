@@ -20,9 +20,11 @@ import play.mvc.Security;
 public class TestAuthController extends Controller {
 	public static Result index() {
 		if (AuthenticatedUser.isLoggedIn()) {
-			return ok(views.html.testAuth.render());
+			return ok(views.html.accountSettings.render());
 		} else {
 			return forbidden();
 		}
 	}
+
+    public static Result processSettings() { return ok(views.html.accountSettings.render()); }
 }

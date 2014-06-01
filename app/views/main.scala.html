@@ -68,11 +68,11 @@
                                 <a href="@routes.AuthenticationController.login()"><span>Login</span></a>
                             }
                         }
-                        @if(request.uri =="/restricted"){
-                            <span class="active">Restricted Area</span>
+                        @if(request.uri =="/account"){
+                            <span class="active">Account</span>
                         }
-                        @if(request.uri != "/restricted"){
-                            <a href="@routes.TestAuthController.index()"><span>Restricted Area</span></a>
+                        @if(request.uri != "/account"){
+                            <a href="@routes.TestAuthController.index()"><span>Account</span></a>
                         }
                     </nav>
                         <!-- insert if statement - icons or register/signup
