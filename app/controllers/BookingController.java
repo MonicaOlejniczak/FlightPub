@@ -2,7 +2,6 @@ package controllers;
 
 import authentication.AuthenticatedUser;
 import com.avaje.ebean.Expr;
-import com.avaje.ebean.FetchConfig;
 import models.*;
 import play.data.Form;
 import play.data.validation.Constraints;
@@ -91,8 +90,27 @@ public class BookingController extends Controller {
 			// Pull in the user from the database, joining with them their bookings and their bookings' itinerary
 			User user = User.find.where(Expr.eq("email", authedUser.getUsername(Http.Context.current()))).fetch("bookings").fetch("bookings.itinerary").findUnique();
 
+			// Testing code
+			User testUser = User.find.where(Expr.eq("email", "test@test.com")).findUnique();
+			List<Booking> bookings = new ArrayList<>();
+			bookings.add(new Booking(Booking.Status.PENDING, testUser, null, new Date()));
+			bookings.add(new Booking(Booking.Status.AWAITING_RECOMMENDATION_RESPONSE, testUser, null, new Date()));
+			bookings.add(new Booking(Booking.Status.AWAITING_CONFIRMATION, testUser, null, new Date()));
+			bookings.add(new Booking(Booking.Status.COMPLETED, testUser, null, new Date()));
+			for (int i = 0; i < bookings.size(); i++) {
+				bookings.get(i).id = (long)i;
+			}
+
+			// Choose result
+			List<Booking> result;
+			if (user == null || user.bookings == null || user.bookings.size() == 0) {
+				result = bookings;
+			} else {
+				result = user.bookings;
+			}
+
 			// Send the form back to the user
-			return ok(views.html.bookings.render(user != null ? user.bookings : new ArrayList<>(), Form.form(CancelBooking.class)));
+			return ok(views.html.bookings.render(result, Form.form(CancelBooking.class)));
 		} else {
 			return forbidden();
 		}
@@ -107,8 +125,27 @@ public class BookingController extends Controller {
 			// Pull down all bookings from the database that have a status of either PENDING or AWAITING_CONFIRMATION, along with their itineraries and by extension, full flight listings
 			List<Booking> bookings = Booking.find.where(Expr.or(Expr.eq("status", Booking.Status.PENDING.ordinal()), Expr.eq("status", Booking.Status.AWAITING_CONFIRMATION.ordinal()))).fetch("itinerary").fetch("itinerary.flights").findList();
 
+			// Testing code
+			User testUser = User.find.where(Expr.eq("email", "test@test.com")).findUnique();
+			List<Booking> bookings2 = new ArrayList<>();
+			bookings2.add(new Booking(Booking.Status.PENDING, testUser, null, new Date()));
+			bookings2.add(new Booking(Booking.Status.AWAITING_CONFIRMATION, testUser, null, new Date()));
+			bookings2.add(new Booking(Booking.Status.AWAITING_CONFIRMATION, testUser, null, new Date()));
+			bookings2.add(new Booking(Booking.Status.PENDING, testUser, null, new Date()));
+			for (int i = 0; i < bookings2.size(); i++) {
+				bookings2.get(i).id = (long)i;
+			}
+
+			// Choose result
+			List<Booking> result;
+			if (bookings == null || bookings.size() == 0) {
+				result = bookings2;
+			} else {
+				result = bookings;
+			}
+
 			// Send the form back to the user
-			return ok(views.html.bookingRequests.render(bookings != null ? bookings : new ArrayList<>(), Form.form(CompleteBooking.class)));
+			return ok(views.html.bookingRequests.render(result, Form.form(CompleteBooking.class)));
 		} else {
 			return forbidden();
 		}
