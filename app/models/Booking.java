@@ -17,9 +17,21 @@ public class Booking extends Model {
 	 * Defines an enumeration for the current status of the booking
 	 */
 	public enum Status {
+		/**
+		 * User has issued a Booking request, and it has yet to be seen by a travel agent.
+		 */
 		PENDING,
+		/**
+		 * Travel agent has sent recommendations back to the User.
+		 */
 		AWAITING_RECOMMENDATION_RESPONSE,
+		/**
+		 * User has finalized their Booking, and is waiting for confirmation from the travel agent.
+		 */
 		AWAITING_CONFIRMATION,
+		/**
+		 * Travel agent has confirmed the Booking and the process is complete.
+		 */
 		COMPLETED
 	}
 

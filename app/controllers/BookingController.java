@@ -1,9 +1,8 @@
 package controllers;
 
 import authentication.AuthenticatedUser;
-import models.Flight;
-import models.Luggage;
-import models.Seat;
+import com.avaje.ebean.Expr;
+import models.*;
 import play.data.Form;
 import play.data.validation.Constraints;
 import play.mvc.Controller;
@@ -28,7 +27,6 @@ public class BookingController extends Controller {
 		 * The ID of the Booking involved involved in the recommendations.
 		 */
 		@Constraints.Required(message = "No Booking Specified!")
-		@Constraints.Pattern(value = "\\d*", message = "Invalid Booking!")
 		public Long bookingId;
 
 		/**
@@ -46,15 +44,33 @@ public class BookingController extends Controller {
 		 * The ID of the Booking involved involved in the recommendations.
 		 */
 		@Constraints.Required(message = "No Booking Specified!")
-		@Constraints.Pattern(value = "\\d*", message = "Invalid Booking!")
 		public Long bookingId;
 
 		/**
 		 * The accepted recommended Flight.
 		 */
 		@Constraints.Required(message = "No Flight Selected!")
-		@Constraints.Pattern(value = "\\d*", message = "Invalid Flight!")
 		public Long acceptedFlight;
+	}
+
+	public static Result bookings() {
+		if (AuthenticatedUser.isLoggedIn()) {
+			// TODO: Get our list of bookings for the user
+			User testUser = User.find.where(Expr.eq("email", "test@test.com")).findUnique();
+			List<Booking> bookings = new ArrayList<>();
+			bookings.add(new Booking(Booking.Status.PENDING, testUser, null, new Date()));
+			bookings.add(new Booking(Booking.Status.AWAITING_RECOMMENDATION_RESPONSE, testUser, null, new Date()));
+			bookings.add(new Booking(Booking.Status.AWAITING_CONFIRMATION, testUser, null, new Date()));
+			bookings.add(new Booking(Booking.Status.COMPLETED, testUser, null, new Date()));
+			for (int i = 0; i < bookings.size(); i++) {
+				bookings.get(i).id = (long)i;
+			}
+
+			// Send the form + flights back to the user
+			return ok(views.html.bookings.render(bookings));
+		} else {
+			return forbidden();
+		}
 	}
 
 	/**

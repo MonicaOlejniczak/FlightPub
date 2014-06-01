@@ -1,5 +1,9 @@
 @import 'globalVariables';
 
+.center-block {
+	float: none !important;
+}
+
 #content {
 	background-color: @secondaryBackgroundColor;
 }
@@ -43,3 +47,21 @@
 .input-group:not(:last-child) {
 	margin-bottom: 10px;
 }
+
+#booking-list tr > *:nth-child(1) {
+	width: 57.5%;
+}
+
+#booking-list tr > *:nth-child(2) {
+	width: 25%;
+}
+
+#booking-list tr > *:nth-child(3) {
+	width: 17.5%;
+}
+
+#booking-list td {
+	height: 100px;
+	vertical-align: middle;
+}
+
