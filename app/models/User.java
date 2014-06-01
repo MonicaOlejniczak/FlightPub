@@ -90,6 +90,38 @@ public class User extends Person {
 		this.unit= Units.METRIC;
 	}
 
+    /**
+     * Function for updating user's first name
+     * @param firstName user's new first name
+     */
+    public void updateFName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    /**
+     * Function for updating user's last name
+     * @param lastName user's new last name
+     */
+    public void updateLName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    /**
+     * Function for updating user's email address
+     * @param email user's new email
+     */
+    public void updateEmail(String email) {
+        this.email = email;
+    }
+
+    /**
+     * Function for updating user's password
+     * @param password user's new password
+     */
+    public void updatePassword(String password) {
+        this.password = password;
+    }
+
 	/**
 	 * Sets this User's password to the specified new password.
 	 * @param password The new password to assign to this user, in plaintext.
