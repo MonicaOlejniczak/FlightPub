@@ -154,9 +154,8 @@ public class BookingController extends Controller {
 				// Send the message
 				// TODO
 
-				// Finally, redirect to...
-				// TODO
-				return redirect(routes.MainController.home());
+				// Finally, redirect to the booking requests page
+				return redirect(routes.BookingController.bookingRequests());
 			}
 		} else {
 			return forbidden();
@@ -189,7 +188,7 @@ public class BookingController extends Controller {
 
 	/**
 	 * Send Recommendation Response action - validates and sends flight recommendation responses.
-	 * @return
+	 * @return A redirect back to the Bookings action.
 	 */
 	public static Result sendRecommendationResponse() {
 		if (AuthenticatedUser.isLoggedIn()) {
@@ -215,9 +214,8 @@ public class BookingController extends Controller {
 				// Send the message
 				// TODO
 
-				// Finally, redirect to...
-				// TODO
-				return redirect(routes.MainController.home());
+				// Finally, redirect to bookings page
+				return redirect(routes.BookingController.bookings());
 			}
 		} else {
 			return forbidden();
