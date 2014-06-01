@@ -1,10 +1,14 @@
 @(registrationForm: Form[controllers.AuthenticationController.RegistrationDetails])
 
-	@styles = {
-		<link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/register.css")'>
-	}
+@styles = {
+    <link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/register.css")'>
+}
 
-@main("FlightPub - Register", styles) {
+@scripts = {
+    <script type='text/javascript' src='@routes.Assets.at("javascripts/register.js")'></script>
+}
+
+@main("FlightPub - Register", styles, scripts) {
 	<div class="container">
 		<div class="panel panel-primary">
 			<div class="panel-heading">
@@ -12,7 +16,7 @@
 			</div>
 
 			<div class="panel-body">
-				<form action="@routes.AuthenticationController.processRegistration()" method="POST" role="form" class="form-horizontal">
+				<form action="@routes.AuthenticationController.processRegistration()" id="regForm" method="POST" role="form" class="form-horizontal">
 					@if(registrationForm.hasGlobalErrors) {
 						<div class="alert alert-danger">
 							<strong>Error! </strong>
@@ -68,10 +72,22 @@
 						</div>
 					</div>
 
+                    <div class="form-group @if(registrationForm("confirmPassword").hasErrors || registrationForm.hasGlobalErrors) {has-error}">
+                        <label for="@registrationForm("confirmPassword").name" class="control-label col-sm-2">Confirm Password</label>
+                        <div class="col-sm-8">
+                            <input type="password" required="true" pattern=".{8,}" class="form-control" id="@registrationForm("confirmPassword").id" name="@registrationForm("confirmPassword").name" placeholder="Enter Password For Confirmation...">
+                            @if(registrationForm("confirmPassword").hasErrors) {
+                                @registrationForm("confirmPassword").errors.map { error =>
+                                    <span class="label label-danger">@error.message</span>
+                                }
+                            }
+                        </div>
+                    </div>
+
 					<div class="form-group">
 						<div class="col-sm-offset-2 col-sm-8">
-							<input type="submit" class="btn btn-primary" value="Register">
-							<a href="@routes.MainController.home()" class="btn btn-default">Cancel</a>
+							<input type="submit" class="btn btn-primary" value="Register" onclick="return confirmRegPassword();">
+							<a href="@routes.MainController.home()" class="btn btn-danger" onclick="return confirmCancel();">Cancel</a>
 						</div>
 					</div>
 				</form>
