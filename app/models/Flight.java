@@ -116,6 +116,11 @@ public class Flight extends Model implements BaseEdge {
 		this.duration = duration;
 	}
 
+    @Override
+    public String toString() {
+        return String.format("%s -> %s", source, destination);
+    }
+
 	/**
 	 * An accessor method that returns a list of flights
 	 * @return a list of flights for the Flight page
