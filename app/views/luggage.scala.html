@@ -5,16 +5,18 @@
 }
 
 @scripts = {
-    <script type='text/javascript' src='@routes.Assets.at("javascripts/luggage.js")'></script>
+	<script type='text/javascript'>
+		Ext.create('FB.controllers.Luggage');
+	</script>
 }
 
 @main("FlightPub - Luggage Options", styles, scripts) {
-    <div class="container">
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                <h1 class="panel-title">FlightPub - Ticket and Luggage Type</h1>
-            </div>
-            <div class="panel-body" id="luggage"></div>
+
+	<h1>Ticket and Luggage Type</h1>
+	<div class="content">
+        <div id="luggage">
+	        For each passenger, please select what class of ticket and whether you wish to include only carry-on luggage with your booking, or if you wish to also include checked luggage.
         </div>
     </div>
+
 }
