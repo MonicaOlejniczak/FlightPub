@@ -32,7 +32,6 @@ GET         /account                          controllers.TestAuthController.ind
 GET        /                                   controllers.MainController.home()
 GET        /data/test                          controllers.DataController.test()
 GET        /data/genEdges                      controllers.DataController.genEdges()
-GET        /data/genPaths                      controllers.DataController.genPaths()
 GET        /data/airlines                      controllers.DataController.airlines()
 GET        /data/airports                      controllers.DataController.airports()
 
