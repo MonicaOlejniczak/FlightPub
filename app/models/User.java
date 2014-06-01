@@ -70,9 +70,6 @@ public class User extends Person {
 	public List<FlightSearch> flightSearches = new ArrayList<>();
 
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-	public List<Message> messages = new ArrayList<>();
-
-	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
 	public List<Notification> notifications = new ArrayList<>();
 
     @OneToMany(mappedBy = "pUser", fetch = FetchType.LAZY)

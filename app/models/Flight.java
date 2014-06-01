@@ -38,6 +38,12 @@ public class Flight extends Model implements BaseEdge {
 	public String flightNumber;
 
 	/**
+	 * The List of Itineraries that this Flight is apart of.
+	 */
+	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "flights")
+	public List<Itinerary> itineraries;
+
+	/**
 	 * The source airport
 	 */
 	@Constraints.Required
@@ -97,18 +103,12 @@ public class Flight extends Model implements BaseEdge {
 	public List<Ticket> tickets = new ArrayList<>();
 
 	/**
-	 * A reverse mapping of the list of messages between a user and travel agent for a particular flight
-	 */
-    @JsonIgnore
-	@OneToMany(mappedBy = "flight", fetch = FetchType.LAZY)
-	public List<Message> messages = new ArrayList<>();
-
-	/**
 	 * Class constructor setting the required variables of the class
 	 */
 	public Flight(Airline airline, String flightNumber, Airport source, Airport destination, DateTime departureTime, DateTime arrivalTime, Plane plane, int duration) {
 		this.airline = airline;
 		this.flightNumber = flightNumber;
+		this.itineraries = new ArrayList<>();
 		this.source = source;
 		this.destination = destination;
 		this.departureTime = departureTime;

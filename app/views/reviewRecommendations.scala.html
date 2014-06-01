@@ -1,0 +1,63 @@
+@(reviewRecommendationsForm: Form[controllers.BookingController.ReviewRecommendations], recommendedFlights: List[models.Itinerary])
+
+@styles = {
+	<link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/recommendations.css")'>
+}
+
+@scripts = {
+	<script type='text/javascript' src='@routes.Assets.at("javascripts/recommendations.js")'></script>
+}
+
+@main("FlightPub - Review Recommendations", styles, scripts) {
+	<div class="container">
+		<div class="panel panel-primary">
+			<div class="panel-heading">
+				<h1 class="panel-title">FlightPub - Review Recommendations</h1>
+			</div>
+
+			<div class="panel-body">
+				<form action="@routes.BookingController.sendRecommendationResponse()" method="POST" role="form" class="form-horizontal">
+					@if(reviewRecommendationsForm.hasGlobalErrors) {
+						<div class="alert alert-danger">
+							<strong>Error! </strong>
+							@reviewRecommendationsForm.globalError.message
+						</div>
+					}
+					<input name="@reviewRecommendationsForm("bookingId").name" type="hidden" value="@reviewRecommendationsForm("bookingId").value"/>
+
+					<div class="section-heading">
+						<h4>Confirm Flight Selection</h4>
+					</div>
+					<hr/>
+					<div class="form-group @if(reviewRecommendationsForm("acceptedItinerary").hasErrors || reviewRecommendationsForm.hasGlobalErrors) {has-error}">
+						<div class="col-sm-offset-2 col-sm-8">
+							<div class="well">
+								@recommendedFlights.zipWithIndex.map { flight =>
+									<div class="input-group">
+										<span class="input-group-addon">
+											<input class="flight-checkbox" type="radio" @if(flight._2 == 0){checked="true"} value="@flight._1.id" name="@reviewRecommendationsForm("acceptedItinerary").name"/>
+										</span>
+										<div class="btn-primary form-control">Flight 101<span class="glyphicon glyphicon-plane pull-right"></span></div>
+									</div>
+								}
+							</div>
+							@if(reviewRecommendationsForm("acceptedItinerary").hasErrors) {
+								@reviewRecommendationsForm("acceptedItinerary").errors.map { error =>
+									<span class="label label-danger">@error.message</span>
+								}
+							}
+						</div>
+					</div>
+
+					<hr/>
+					<div class="form-group">
+						<div class="col-sm-offset-2 col-sm-8">
+							<input type="submit" class="btn btn-primary" value="Confirm Booking">
+							<a href="@routes.BookingController.bookings()" class="btn btn-default">Cancel</a>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+}
