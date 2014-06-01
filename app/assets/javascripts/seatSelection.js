@@ -1,5 +1,5 @@
 window.onload=function generateTable(){
-    var formhead = '<form class="form-group" action="/seatSelection/process" role="form" method="post">\n';
+    var formhead = '<form class="form-group" action="/seatSelection/process" id="seatForm" role="form" method="post">\n';
     var tbody = '';
     var alphachar = '';
     var theader = '<table class="table" style="width:310px">\n';
@@ -50,6 +50,7 @@ window.onload=function generateTable(){
 function confirmCancel(){
     var answer = confirm("Are you sure you wish to cancel your current booking?\nClick OK to confirm or CANCEL to continue with your booking.");
     if(answer){
+        document.getElementById("seatForm").reset();
         return true;
     } else {
         return false;

@@ -1,7 +1,7 @@
 window.onload=function generateTable(){
     var messageh = '<p class="centre-block">\nFor each passenger, please select what class of ticket and '
                    + 'whether you wish to include only carry-on luggage with your booking, or if you wish to also include checked luggage.\n</p>\n';
-    var formh = '<form class="form-group" action="/luggage/process" role="form" method="post">\n';
+    var formh = '<form class="form-group" action="/luggage/process" id="lugForm" role="form" method="post">\n';
     var formb = '<br />';
     for(var j = 0; j < 4; j++){
         formb += '<div>\n';
@@ -26,6 +26,7 @@ window.onload=function generateTable(){
 function confirmCan(){
     var answer = confirm("Are you sure you wish to cancel your current booking?\nClick OK to confirm or CANCEL to continue with your booking.");
     if(answer){
+        document.getElementById("lugForm").reset();
         return true;
     } else {
         return false;

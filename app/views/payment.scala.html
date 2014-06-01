@@ -16,7 +16,7 @@
             </div>
 
             <div class="panel-body">
-                <form action="@routes.BookingController.submitPayment(flash.get("destination"))" method="POST" role="form" class="form-horizontal">
+                <form action="@routes.BookingController.submitPayment(flash.get("destination"))" id="payForm" method="POST" role="form" class="form-horizontal">
                     <div class="panel-heading">
                         <h2 class="bg-primary">Personal Details</h2>
                     </div>
@@ -150,7 +150,7 @@
                         <div class="form-group @if(paymentForm("mcardExpiry").hasErrors || paymentForm.hasGlobalErrors) {has-error}">
                             <label for="@paymentForm("mcardExpiry").name" class="control-label col-sm-2">Expiry Date</label>
                             <div class="col-sm-8">
-                                <select name="mcardExpMonth">
+                                <select name="mcardExpMonth" id="mcardExpMonth">
                                     <option value="0">Select Month Of Expiry</option>
                                     <option value="1">January (01)</option>
                                     <option value="2">February (02)</option>
@@ -165,7 +165,7 @@
                                     <option value="2">November (11)</option>
                                     <option value="3">December (12)</option>
                                 </select>
-                                <select name="mcardExpYear">
+                                <select name="mcardExpYear" id="mcardExpYear">
                                     <option value="0">Select Year Of Expiry</option>
                                     <option value="1">2014</option>
                                     <option value="2">2015</option>
