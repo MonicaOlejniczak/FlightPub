@@ -1,4 +1,4 @@
-@(bookings: List[models.Booking])
+@(bookings: List[models.Booking], cancelBookingForm: Form[controllers.BookingController.CancelBooking])
 
 @styles = {
 	<link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/recommendations.css")'>
@@ -20,6 +20,14 @@
 					<h4>Booking List</h4>
 				</div>
 				<hr/>
+				@if(cancelBookingForm("bookingId").hasErrors) {
+					@cancelBookingForm("bookingId").errors.map { error =>
+						<div class="alert alert-danger">
+							<strong>Error! </strong>
+							@error.message
+						</div>
+					}
+				}
 				<table id="booking-list" class="table table-striped table-hover table-responsive">
 					<tbody>
 						@bookings.map { booking =>
@@ -31,7 +39,10 @@
 											<div>Pending</div>
 										</td>
 										<td>
-											<a class="btn btn-danger btn-xs btn-block" href="@* TODO: Configure route for this. *@">Cancel Booking</a>
+											<form action="@routes.BookingController.cancel()" method="POST" role="form">
+												<input name="@cancelBookingForm("bookingId").name" type="hidden" value="@booking.id"/>
+												<input type="submit" class="btn btn-danger btn-xs btn-block" value="Cancel Booking">
+											</form>
 										</td>
 									</tr>
 								}
@@ -44,7 +55,10 @@
 										<td>
 											<a class="btn btn-primary btn-xs btn-block" href="@routes.BookingController.reviewRecommendations(booking.id)">Explore Alternative Flights</a>
 											<a class="btn btn-success btn-xs btn-block" href="@* TODO: Configure route for this. *@">Confirm Original Booking</a>
-											<a class="btn btn-danger btn-xs btn-block" href="@* TODO: Configure route for this. *@">Cancel Booking</a>
+											<form action="@routes.BookingController.cancel()" method="POST" role="form">
+												<input name="@cancelBookingForm("bookingId").name" type="hidden" value="@booking.id"/>
+												<input type="submit" class="btn btn-danger btn-xs btn-block" value="Cancel Booking">
+											</form>
 										</td>
 									</tr>
 								}
@@ -55,7 +69,10 @@
 											<div>Awaiting travel agent confirmation</div>
 										</td>
 										<td>
-											<a class="btn btn-danger btn-xs btn-block" href="@* TODO: Configure route for this. *@">Cancel Booking</a>
+											<form action="@routes.BookingController.cancel()" method="POST" role="form">
+												<input name="@cancelBookingForm("bookingId").name" type="hidden" value="@booking.id"/>
+												<input type="submit" class="btn btn-danger btn-xs btn-block" value="Cancel Booking">
+											</form>
 										</td>
 									</tr>
 								}
@@ -65,8 +82,7 @@
 										<td class="text-center">
 											<div class="text-success">Booking Complete</div>
 										</td>
-										<td>
-										</td>
+										<td></td>
 									</tr>
 								}
 							}

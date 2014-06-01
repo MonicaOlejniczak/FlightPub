@@ -17,6 +17,8 @@ POST        /luggage                                    controllers.BookingContr
 GET         /home/process                               controllers.HomeController.processFlights()
 GET         /bookings                                   controllers.BookingController.bookings()
 GET         /booking-requests                           controllers.BookingController.bookingRequests()
+POST        /bookings/cancel                            controllers.BookingController.cancel()
+POST        /bookings/complete                          controllers.BookingController.complete()
 GET         /bookings/recommend/:bookingId              controllers.BookingController.recommendFlights(bookingId: Long)
 POST        /bookings/recommendations/send              controllers.BookingController.sendRecommendations()
 GET         /bookings/recommendations/:bookingId        controllers.BookingController.reviewRecommendations(bookingId: Long)

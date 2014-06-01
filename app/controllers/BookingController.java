@@ -2,12 +2,15 @@ package controllers;
 
 import authentication.AuthenticatedUser;
 import com.avaje.ebean.Expr;
+import com.avaje.ebean.FetchConfig;
 import models.*;
 import play.data.Form;
 import play.data.validation.Constraints;
 import play.mvc.Controller;
+import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Security;
+import views.html.bookingRequests;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -19,6 +22,28 @@ import java.util.List;
  */
 @Security.Authenticated(AuthenticatedUser.class)
 public class BookingController extends Controller {
+	/**
+	 * Inner static class to facilitate the cancellation of a Booking via POST, as opposed to GET.
+	 */
+	public static class CancelBooking {
+		/**
+		 * The ID of the Booking to cancel.
+		 */
+		@Constraints.Required(message = "No Booking Specified!")
+		public Long bookingId;
+	}
+
+	/**
+	 * Inner static class to facilitate the completion of a Booking via POST, as opposed to GET.
+	 */
+	public static class CompleteBooking {
+		/**
+		 * The ID of the Booking to complete.
+		 */
+		@Constraints.Required(message = "No Booking Specified!")
+		public Long bookingId;
+	}
+
 	/**
 	 * Inner static class defining the fields involved in the 'Recommend Flights' Form.
 	 */
@@ -60,19 +85,14 @@ public class BookingController extends Controller {
 	 */
 	public static Result bookings() {
 		if (AuthenticatedUser.isLoggedIn()) {
-			// TODO: Get our list of bookings for the user
-			User testUser = User.find.where(Expr.eq("email", "test@test.com")).findUnique();
-			List<Booking> bookings = new ArrayList<>();
-			bookings.add(new Booking(Booking.Status.PENDING, testUser, null, new Date()));
-			bookings.add(new Booking(Booking.Status.AWAITING_RECOMMENDATION_RESPONSE, testUser, null, new Date()));
-			bookings.add(new Booking(Booking.Status.AWAITING_CONFIRMATION, testUser, null, new Date()));
-			bookings.add(new Booking(Booking.Status.COMPLETED, testUser, null, new Date()));
-			for (int i = 0; i < bookings.size(); i++) {
-				bookings.get(i).id = (long)i;
-			}
+			// First, get the currently logged-in user
+			AuthenticatedUser authedUser = new AuthenticatedUser();
+
+			// Pull in the user from the database, joining with them their bookings and their bookings' itinerary
+			User user = User.find.where(Expr.eq("email", authedUser.getUsername(Http.Context.current()))).fetch("bookings").fetch("bookings.itinerary").findUnique();
 
 			// Send the form back to the user
-			return ok(views.html.bookings.render(bookings));
+			return ok(views.html.bookings.render(user != null ? user.bookings : new ArrayList<>(), Form.form(CancelBooking.class)));
 		} else {
 			return forbidden();
 		}
@@ -84,19 +104,86 @@ public class BookingController extends Controller {
 	 */
 	public static Result bookingRequests() {
 		if (AuthenticatedUser.isLoggedIn()) {
-			// TODO: Get our list of booking requests
-			User testUser = User.find.where(Expr.eq("email", "test@test.com")).findUnique();
-			List<Booking> bookings = new ArrayList<>();
-			bookings.add(new Booking(Booking.Status.PENDING, testUser, null, new Date()));
-			bookings.add(new Booking(Booking.Status.AWAITING_CONFIRMATION, testUser, null, new Date()));
-			bookings.add(new Booking(Booking.Status.AWAITING_CONFIRMATION, testUser, null, new Date()));
-			bookings.add(new Booking(Booking.Status.PENDING, testUser, null, new Date()));
-			for (int i = 0; i < bookings.size(); i++) {
-				bookings.get(i).id = (long)i;
-			}
+			// Pull down all bookings from the database that have a status of either PENDING or AWAITING_CONFIRMATION, along with their itineraries and by extension, full flight listings
+			List<Booking> bookings = Booking.find.where(Expr.or(Expr.eq("status", Booking.Status.PENDING.ordinal()), Expr.eq("status", Booking.Status.AWAITING_CONFIRMATION.ordinal()))).fetch("itinerary").fetch("itinerary.flights").findList();
 
 			// Send the form back to the user
-			return ok(views.html.bookingRequests.render(bookings));
+			return ok(views.html.bookingRequests.render(bookings != null ? bookings : new ArrayList<>(), Form.form(CompleteBooking.class)));
+		} else {
+			return forbidden();
+		}
+	}
+
+	/**
+	 * Cancel action - cancels the Booking specified by POST.
+	 * @return A redirect to the Booking Requests page, or forbidden if a User is not logged in.
+	 */
+	public static Result cancel() {
+		if (AuthenticatedUser.isLoggedIn()) {
+			// Get the request parameters
+			Form<CancelBooking> cancelBookingForm = Form.form(CancelBooking.class).bindFromRequest();
+
+			// Do we have errors?
+			if (cancelBookingForm.hasErrors()) {
+				// If we do, issue a bad-request error
+
+				// First, get the currently logged-in user
+				AuthenticatedUser authedUser = new AuthenticatedUser();
+
+				// Pull in the user from the database, joining with them their bookings and their bookings' itinerary
+				User user = User.find.where(Expr.eq("email", authedUser.getUsername(Http.Context.current()))).fetch("bookings").fetch("bookings.itinerary").findUnique();
+
+				return badRequest(views.html.bookings.render(user.bookings, Form.form(CancelBooking.class)));
+			} else {
+				// Otherwise, get the form parameters' values
+				CancelBooking details = cancelBookingForm.get();
+
+				// Now get the specified booking
+				Booking booking = Booking.find.where(Expr.eq("id", details.bookingId)).findUnique();
+
+				// Finally, update its status flag
+				booking.status = Booking.Status.CANCELLED;
+				booking.update();
+
+				// Once done, redirect to the booking requests page
+				return redirect(routes.BookingController.bookings());
+			}
+		} else {
+			return forbidden();
+		}
+	}
+
+	/**
+	 * Complete action - comfirms and completes the Booking specified by POST.
+	 * @return A redirect to the Booking Requests page, or forbidden if a User is not logged in.
+	 */
+	public static Result complete() {
+		if (AuthenticatedUser.isLoggedIn()) {
+			// Get the request parameters
+			Form<CompleteBooking> completeBookingForm = Form.form(CompleteBooking.class).bindFromRequest();
+
+			// Do we have errors?
+			if (completeBookingForm.hasErrors()) {
+				// If we do, issue a bad-request error
+
+				// Pull down all bookings from the database that have a status of either PENDING or AWAITING_CONFIRMATION, along with their itineraries and by extension, full flight listings
+				List<Booking> bookings = Booking.find.where(Expr.or(Expr.eq("status", Booking.Status.PENDING.ordinal()), Expr.eq("status", Booking.Status.AWAITING_CONFIRMATION.ordinal()))).fetch("itinerary").fetch("itinerary.flights").findList();
+
+				return badRequest(bookingRequests.render(bookings, Form.form(CompleteBooking.class)));
+			} else {
+				// Otherwise, get the form parameters' values
+				CompleteBooking details = completeBookingForm.get();
+
+				// Now get the specified booking
+				Booking booking = Booking.find.where(Expr.eq("id", details.bookingId)).findUnique();
+
+				// Finally, update its status flag
+				booking.status = Booking.Status.COMPLETED;
+				booking.update();
+
+				// Once done, redirect to the booking requests page
+				return redirect(routes.BookingController.bookingRequests());
+			}
 		} else {
 			return forbidden();
 		}
@@ -144,7 +231,7 @@ public class BookingController extends Controller {
 
 	/**
 	 * Send Recommendations action - validates and sends flight recommendations.
-	 * @return
+	 * @return A redirect back to the Booking Requests page, or forbidden if no User is logged in.
 	 */
 	public static Result sendRecommendations() {
 		if (AuthenticatedUser.isLoggedIn()) {
@@ -183,10 +270,18 @@ public class BookingController extends Controller {
 				// Otherwise, get the form parameters' values
 				RecommendFlights details = recommendFlightsForm.get();
 
-				// Send the message
-				// TODO
+				// First, pull down the itineraries specified by the list of IDs we received from the form
+				List<Itinerary> itineraries = Itinerary.find.where(Expr.in("id", details.recommendedItineraryIds)).findList();
 
-				// Finally, redirect to the booking requests page
+				// Now get the specified booking, along with any existing recommendations
+				Booking booking = Booking.find.where(Expr.eq("id", details.bookingId)).fetch("recommendations").findUnique();
+
+				// Finally, add the itineraries as recommendations to the booking, and update its status flag
+				booking.recommendations.addAll(itineraries);
+				booking.status = Booking.Status.AWAITING_RECOMMENDATION_RESPONSE;
+				booking.update();
+
+				// Once done, redirect to the booking requests page
 				return redirect(routes.BookingController.bookingRequests());
 			}
 		} else {
@@ -275,8 +370,16 @@ public class BookingController extends Controller {
 				// Otherwise, get the form parameters' values
 				ReviewRecommendations details = reviewRecommendationsForm.get();
 
-				// Send the message
-				// TODO
+				// First, pull down the specified itinerary
+				Itinerary itinerary = Itinerary.find.where(Expr.eq("id", details.acceptedItinerary)).findUnique();
+
+				// Now get the specified booking
+				Booking booking = Booking.find.where(Expr.eq("id", details.bookingId)).findUnique();
+
+				// Finally, swap out the booking's current itinerary for the specified one, and update its status flag
+				booking.itinerary = itinerary;
+				booking.status = Booking.Status.AWAITING_CONFIRMATION;
+				booking.update();
 
 				// Finally, redirect to bookings page
 				return redirect(routes.BookingController.bookings());
