@@ -11,9 +11,9 @@ POST        /login/process/*destination       controllers.AuthenticationControll
 GET         /logout                           controllers.AuthenticationController.logout()
 GET         /hax                              controllers.AuthenticationController.hax()
 GET         /restricted                       controllers.TestAuthController.index()
-GET         /seatSelection                    controllers.BookingController.seatSelection()
+GET         /seat-selection                   controllers.BookingController.seatSelection()
 GET         /luggage                          controllers.BookingController.luggage()
-POST        /seatSelection/process            controllers.BookingController.submitSeats()
+POST        /seat-selection/process           controllers.BookingController.submitSeats()
 POST 		/luggage/process    			  controllers.BookingController.submitLuggage()
 GET         /home/process                     controllers.HomeController.processFlights()
 #GET         /message                          controllers.MessageController.getMessage()
@@ -24,8 +24,8 @@ GET         /payment                          controllers.BookingController.paym
 POST        /payment/process                  controllers.BookingController.submitPayment()
 
 GET         /data/flights                     controllers.DataController.flights()
-GET         /processFlights                   controllers.HomeController.processFlights()
-GET         /data/selectedFlights             controllers.DataController.selectedFlights()
+GET         /process-flights                  controllers.HomeController.processFlights()
+GET         /data/selected-flights            controllers.DataController.selectedFlights()
 GET         /data/airlines                    controllers.DataController.airlines()
 GET         /data/airports                    controllers.DataController.airports()
 

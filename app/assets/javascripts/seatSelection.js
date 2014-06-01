@@ -1,5 +1,5 @@
 window.onload=function generateTable(){
-    var formhead = '<form class="form-group" action="/seatSelection/process" id="seatForm" role="form" method="post">\n';
+    var formhead = '<form class="form-group" action="/seat-selection/process" id="seatForm" role="form" method="post">\n';
     var tbody = '';
     var alphachar = '';
     var theader = '<table class="table" style="width:310px">\n';
