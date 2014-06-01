@@ -25,6 +25,18 @@ $(document).ready(function(){
     });
 });
 
+function checkPay() {
+    if(document.getElementById("pay-methods").value === "0") {
+        alert("Choose a payment method!");
+        return false;
+    } else if((document.getElementById("pay-methods").value === "1" && (document.getElementById("mcardExpMonth").value === "0" || document.getElementById("mcardExpYear").value === "0"))) {
+        alert("Fill in you payment details!");
+        return false;
+    } else {
+        return true;
+    }
+}
+
 function confirmCancel() {
     var answer = confirm("Are you sure you wish to cancel your current booking?\nClick OK to confirm or CANCEL to continue with your booking.");
     if(answer){

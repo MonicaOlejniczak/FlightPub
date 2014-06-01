@@ -35,42 +35,55 @@ public class BookingController extends Controller {
          * First Name.
          */
         @Constraints.Required(message = "Required Field!")
+        @Constraints.MaxLength(value = 30, message = "Name Too Long!")
+        @Constraints.Pattern(value = "\\D*", message = "Name cannot contain numbers!")
         public String nameFirst;
 
         /**
          * Surname.
          */
         @Constraints.Required(message = "Required Field!")
+        @Constraints.MaxLength(value = 30, message = "Name Too Long!")
+        @Constraints.Pattern(value = "\\D*", message = "Name cannot contain numbers!")
         public String surname;
 
         /**
          * Street Address.
          */
         @Constraints.Required(message = "Required Field!")
+        @Constraints.MaxLength(value = 100, message = "Address too long!")
         public String streetAddress;
 
         /**
          * Suburb/City.
          */
         @Constraints.Required(message = "Required Field!")
+        @Constraints.MaxLength(value = 100, message = "Input too long!")
+        @Constraints.Pattern(value = "\\D*", message = "Input must not contain numbers!")
         public String suburbCity;
 
         /**
          * State.
          */
         @Constraints.Required(message = "Required Field!")
+        @Constraints.MaxLength(value = 50, message = "Input too long!")
+        @Constraints.Pattern(value = "\\D*", message = "Input must not contain numbers!")
         public String stateIn;
 
         /**
          * Post code.
          */
         @Constraints.Required(message = "Required Field!")
+        @Constraints.MinLength(value = 4, message = "Post code too short!")
+        @Constraints.MaxLength(value = 4, message = "Post code too long!")
         public String postCode;
 
         /**
          * Phone Number.
          */
         @Constraints.Required(message = "Required Field!")
+        @Constraints.MinLength(value = 10, message = "Phone number too short!")
+        @Constraints.MaxLength(value = 10, message = "Phone number too long!")
         public String phoneNumber;
     }
 
