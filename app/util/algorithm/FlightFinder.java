@@ -12,7 +12,7 @@ public class FlightFinder {
 
     public static List<List<Flight>> findFlights(Airport source, Airport destination, DateTime start, DateTime end, int depth) {
         List<List<FlightEdge>> flightEdgesList = FlightFinder.findFlightEdges(source, destination, depth);
-        return findFlights(source, destination, start, end, flightEdgesList);
+	    return findFlights(source, destination, start, end, flightEdgesList);
     }
 
     public static List<List<Flight>> findFlights(Airport source, Airport destination, DateTime start, DateTime end, List<List<FlightEdge>> flightEdgesList) {

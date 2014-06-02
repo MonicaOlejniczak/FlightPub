@@ -31,7 +31,7 @@ Ext.define('FB.controllers.Home', {
 			id: formId,
 			renderTo: 'home',
 			url: '/flights',
-			method: 'post',
+			method: 'get',
 			standardSubmit: true,
 			height: '100%',
 			items: [],
@@ -89,11 +89,12 @@ Ext.define('FB.controllers.Home', {
 	 */
 	renderFlightFrom: function (container) {
 		container.add(Ext.create('Ext.form.ComboBox', {
+            id: 'flightFrom',
 			store: 'Airport',
 			model: 'FB.models.Airport',
 			queryMode: 'remote',
 			displayField: 'name',
-			valueField: 'code',
+			valueField: 'name',
 			fieldLabel: 'Flight from',
 			flex: 1,
 			emptyText: 'none',
@@ -120,7 +121,7 @@ Ext.define('FB.controllers.Home', {
 			model: 'FB.models.Airport',
 			queryMode: 'remote',
 			displayField: 'name',
-			valueField: 'code',
+			valueField: 'name',
 			fieldLabel: 'Flight to',
 			flex: 1,
 			emptyText: 'none',
@@ -338,6 +339,10 @@ Ext.define('FB.controllers.Home', {
 			formBind: true,
 			handler: function () {
 				form.getForm().submit({
+                    params: {
+                        source: Ext.getCmp('flightFrom').getValue(),
+                        destination: Ext.getCmp('flightTo').getValue()
+                    },
 					success: function (form, action) {
 						Ext.Msg.alert('Success', action.result.msg);
 					},

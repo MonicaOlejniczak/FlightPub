@@ -5,7 +5,7 @@ Ext.define('FB.controllers.Flights', {
 	requires: [
 		'FB.models.Flight',
 		'FB.models.Airline',
-		'FB.stores.Flight',
+		'FB.stores.Itinerary',
 		'FB.stores.Airline',
 		'FB.stores.Airport',
 		'FB.sorters.Price',
@@ -39,17 +39,28 @@ Ext.define('FB.controllers.Flights', {
 			//this.durationContainer = Ext.create('FB.containers.Duration');
 			this.stopOverContainer = null;
 			this.airlineContainer = null;
-			this.dataStore = Ext.create('FB.stores.Flight');
-			this.dataStore.addListener('load', function(store, records, successful, eOpts) {
-				this.renderFlights();
-				this.sort.apply(this, ['sortPrice', this.priceSorter]);
-				this.createPriceContainer();
-				this.createDurationContainer();
-				this.createStopOverContainer();
-				this.createAirlineContainer();
-				this.createButtonContainer();
-				this.addEvents();
-			}, this);
+			this.dataStore = Ext.create('FB.stores.Itinerary', {
+                autoLoad: false,
+				listeners: {
+					'load': function (store, records, successful, eOpts) {
+						this.renderFlights();
+						this.sort.apply(this, ['sortPrice', this.priceSorter]);
+						this.createPriceContainer();
+						this.createDurationContainer();
+						this.createStopOverContainer();
+						this.createAirlineContainer();
+						this.createButtonContainer();
+						this.addEvents();
+					},
+					scope: this
+				}
+			});
+            var params = Ext.Object.fromQueryString(document.location.search);
+            Ext.apply(this.dataStore.getProxy().extraParams, {
+                source: params.source,
+                destination: params.destination
+            });
+            this.dataStore.load();
 		}, this);
 	},
 	getDataStore: function () {
@@ -60,57 +71,80 @@ Ext.define('FB.controllers.Flights', {
 	 */
 	renderFlights: function () {
 		var maxDuration = this.maxDuration();
+        var count = 0;
+        function pad(n, width, z) {
+            z = z || '0';
+            n = n + '';
+            return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+        }
 		this.dataStore.each(function (record) {
-			Ext.get('flights').createChild(Ext.create('Ext.XTemplate',
-				'<div id="flight_{id}" class="flight">',
-					'<div class="flightBar">',
-						'<div class="departure">',
-							'<div class="node"></div>',
-						'</div>',
-						'<div class="flightBarText">',
-							'<div class="flightBarTextVisible">',
-								'${price}',
-							'</div>',
-							'<div class="flightBarTextHidden">',
-								'<strong>Duration:</strong> {duration} minutes',
-							'</div>',
-						'</div>',
-						'<div class="arrival">',
-							'<div class="node"></div>',
-						'</div>',
-					'</div>',
-				'</div>', {
-					compiled: true
-				}
-			).apply({
-				id: record.get('id'),
-				airline: record.get('airline').name,
-				flightNumber: record.get('flightNumber'),
-				price: record.get('price').price,
-				duration: record.get('duration'),
-				source: record.get('source').name,
-				departureTime: new Date(record.get('departureTime')),
-				destination: record.get('destination').name,
-				arrivalTime: new Date(record.get('arrivalTime')),
-				stopOvers: record.get('stopOver') == null ? 0 : 1
+//            if (++count >= 10) {
+//                return false;
+//            }
+            var itineraryId = record.get('id');
+            var itinerary = record.get('flights');
+            var i = 0;
+            var flight = itinerary[i]; // TODO
+            var contents = [];
+            contents.push('<div id="flight_{itineraryId}" class="itinerary">'),
+            itinerary.forEach(function (flight) {
+                var date = new Date(flight.departureTime);
+                var date2 = new Date(flight.arrivalTime);
+                contents.push(
+                    '<div id="flight_{itineraryId}_{flightId}" class="flight">',
+                        '<div class="flightBar">',
+                            '<div class="departure">',
+                                '<div class="node"></div>',
+                            '</div>',
+                            '<div class="flightBarText">',
+                                '<div class="flightBarTextVisible">',
+                                    '${price}',
+                                '</div>',
+                                '<div class="flightBarTextHidden">',
+                                    '<strong>' + pad(date.getHours(), 2) + ':' + pad(date.getMinutes(), 2) + ' - ' + flight.source.name + ' -> ' + flight.destination.name + ' - ' + pad(date2.getHours(), 2) + ':' + pad(date2.getMinutes(), 2) + '</strong>',
+                                '</div>',
+                            '</div>',
+                            '<div class="arrival">',
+                                '<div class="node"></div>',
+                            '</div>',
+                        '</div>',
+                    '</div>'
+                );
+            });
+            contents.push('</div>');
+			Ext.get('flights').createChild(Ext.create('Ext.XTemplate', contents.join(''), {
+                compiled: true
+            }).apply({
+                itineraryId: itineraryId,
+				flightId: flight.id,
+				airline: flight.airline.name,
+				flightNumber: flight.flightNumber,
+				price: flight.price.price,
+				duration: flight.duration,
+				source: flight.source.name,
+				departureTime: new Date(flight.departureTime),
+				destination: flight.destination.name,
+				arrivalTime: new Date(flight.arrivalTime),
+				stopOvers: itinerary.length - 1
 			}));
-			var id = 'flight_' + record.get('id');
-			Ext.get(id).setStyle({
-				width: (record.get('duration') / maxDuration * 100) + '%'
+			var itId = 'flight_' + itineraryId;
+            var id = 'flight_' + itineraryId + "_" + flight.id;
+			Ext.get(itId).setStyle({
+				width: (flight.duration) + '%' /// maxDuration * 100) + '%'
 			});
-			var date = record.get('departureTime');
+			var date = new Date(flight.departureTime);
 			var departureTime = Ext.create('Ext.container.Container', {
 				plain: true,
 				renderTo: Ext.get(id).select('.departure .node').first(),
-				html: date.hourOfDay + ':' + date.minuteOfHour,
+				html: date.getHours() + ':' + date.getMinutes(),
 				cls: 'source',
 				hidden: true
 			});
-			date = record.get('arrivalTime');
+			date = new Date(flight.arrivalTime);
 			var arrivalTime = Ext.create('Ext.container.Container', {
 				plain: true,
 				renderTo: Ext.get(id).select('.arrival .node').first(),
-				html: date.hourOfDay + ':' + date.minuteOfHour,
+                html: date.getHours() + ':' + date.getMinutes(),
 				cls: 'destination',
 				hidden: true
 			});
@@ -125,6 +159,12 @@ Ext.define('FB.controllers.Flights', {
 					arrivalTime.hide();
 				}
 			});
+            var count = 0;
+            Ext.select(".itinerary").each(function (el) {
+                if (++count >= 10) {
+                    el.addCls("hidden");
+                }
+            });
 		}, this);
 	},
 	/**
@@ -209,7 +249,7 @@ Ext.define('FB.controllers.Flights', {
 		var id = 'startPrice';
 		var startPrice = Ext.getCmp(id).getValue();
 		this.filterFlights(id, function (value, item) {
-			return startPrice == null ? true : startPrice <= item.data.price.price;
+			return startPrice == null ? true : startPrice <= item.data.price;
 		}, 'filterPrice', startPrice == null && Ext.getCmp('endPrice').getValue() == null)
 	},
 	/**
@@ -219,7 +259,7 @@ Ext.define('FB.controllers.Flights', {
 		var id = 'endPrice';
 		var endPrice = Ext.getCmp(id).getValue();
 		this.filterFlights(id, function (value, item) {
-			return endPrice == null ? true : endPrice >= item.data.price.price;
+			return endPrice == null ? true : endPrice >= item.data.price;
 		}, 'filterPrice', Ext.getCmp('startPrice').getValue() == null && endPrice == null)
 	},
 	/**
@@ -321,7 +361,16 @@ Ext.define('FB.controllers.Flights', {
 			],
 			data : [
 				{"amount": 0},
-				{"amount": 1}
+				{"amount": 1},
+                {"amount": 2},
+                {"amount": 3},
+                {"amount": 4},
+                {"amount": 5},
+                {"amount": 6},
+                {"amount": 7},
+                {"amount": 8},
+                {"amount": 9},
+                {"amount": 10}
 			]
 		});
 		this.stopOverContainer = Ext.create('Ext.container.Container', {
@@ -372,7 +421,7 @@ Ext.define('FB.controllers.Flights', {
 		var id = 'stopOver';
 		var stopOver = Ext.getCmp(id).getValue();
 		this.filterFlights(id, function (value, item) {
-			return stopOver == null ? true : stopOver == (item.data.stopOver == null ? 0 : 1);
+			return stopOver == null ? true : stopOver > item.data.stopOvers;
 		}, 'filterStopOvers', stopOver == null)
 	},
 	/**
@@ -605,6 +654,14 @@ Ext.define('FB.controllers.Flights', {
 		this.dataStore.each(function (record) {
 			parent.appendChild(Ext.get('flight_' + record.get('id')));
 		});
+        var count = 0;
+        Ext.select(".itinerary").each(function (el) {
+            if (++count >= 10) {
+                el.addCls('hidden');
+            } else {
+                el.removeCls('hidden')
+            }
+        });
 		this.lastSortedBy = id;
 	},
 	/**
