@@ -50,6 +50,13 @@
 
 @sortLineHeight: @sortHeight;
 
+.hidden {
+    display: none;
+}
+.filter {
+    display: none;
+}
+
 #flightOptions, #sort, #results, #flights, .flight, #buttons {
 	clear: both;
 }
@@ -199,7 +206,7 @@
 	margin: 0 1em @flightMargin 0;
 	position: relative;
     display: inline-block;
-    width: 400px;
+    width: 450px;
 }
 
 .filter, .source, .flightBarTextHidden, .destination, .flight:hover .source, .flight:hover .flightBarTextHidden, .flight:hover .destination {
@@ -207,9 +214,9 @@
 }
 
 .filter, .source, .flightBarTextHidden, .destination {
-	opacity: 0;
-	filter:alpha(opacity=0);
-	visibility: hidden;
+	opacity: 1;
+	filter:alpha(opacity=100);
+	/*visibility: hidden;*/
 }
 
 .flight:hover .source, .flight:hover .flightBarTextHidden, .flight:hover .destination {

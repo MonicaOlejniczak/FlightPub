@@ -7,10 +7,7 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import util.algorithm.FlightFinder;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DataController extends Controller {
 
@@ -29,13 +26,13 @@ public class DataController extends Controller {
 	}
 
 	public static Result selectedFlights() {
-		Airport source = Airport.find.where().eq("name", "Sydney").findUnique();
-		Airport destination = Airport.find.where().eq("name", "Canberra").findUnique();
+		Airport source = Airport.find.where().eq("name", request().getQueryString("source")).findUnique();
+		Airport destination = Airport.find.where().eq("name", request().getQueryString("destination")).findUnique();
 
 		DateTime start = new DateTime().withDate(2014, 9, 23).withTime(0, 0, 0, 0);
 		DateTime end = new DateTime().withDate(2014, 9, 27).withTime(23, 59, 59, 999);
 
-		int depth = 4;
+		int depth = 10;
 
 		List<List<Flight>> flights = FlightFinder.findFlights(source, destination, start, end, depth);
 
@@ -50,7 +47,7 @@ public class DataController extends Controller {
 
             long jDepartureTime = itinerary.get(0).departureTime.getMillis();
             long jArrivalTime = itinerary.get(itinerary.size() - 1).arrivalTime.getMillis();
-            double jDuration = jArrivalTime - jDepartureTime;
+            double jDuration = (jArrivalTime - jDepartureTime) / 60000.0;
             double jStopOvers = itinerary.size() - 1;
             double jItineraryPrice = 0;
 
@@ -75,9 +72,9 @@ public class DataController extends Controller {
                 jFlight.put("airline", jAirline);
 
                 Map<String, Object> jPrice = new HashMap<>();
-                jPrice.put("price", 7);
+                jPrice.put("price", new Random().nextInt(50));
                 jFlight.put("price", jPrice);
-                jItineraryPrice += 7;
+                jItineraryPrice += new Random().nextInt(50);
 
                 jFlights.add(jFlight);
             }

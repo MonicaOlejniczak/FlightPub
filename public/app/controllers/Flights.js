@@ -40,6 +40,7 @@ Ext.define('FB.controllers.Flights', {
 			this.stopOverContainer = null;
 			this.airlineContainer = null;
 			this.dataStore = Ext.create('FB.stores.Itinerary', {
+                autoLoad: false,
 				listeners: {
 					'load': function (store, records, successful, eOpts) {
 						this.renderFlights();
@@ -54,6 +55,12 @@ Ext.define('FB.controllers.Flights', {
 					scope: this
 				}
 			});
+            var params = Ext.Object.fromQueryString(document.location.search);
+            Ext.apply(this.dataStore.getProxy().extraParams, {
+                source: params.source,
+                destination: params.destination
+            });
+            this.dataStore.load();
 		}, this);
 	},
 	getDataStore: function () {
@@ -65,10 +72,15 @@ Ext.define('FB.controllers.Flights', {
 	renderFlights: function () {
 		var maxDuration = this.maxDuration();
         var count = 0;
+        function pad(n, width, z) {
+            z = z || '0';
+            n = n + '';
+            return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+        }
 		this.dataStore.each(function (record) {
-            if (++count >= 10) {
-                return false;
-            }
+//            if (++count >= 10) {
+//                return false;
+//            }
             var itineraryId = record.get('id');
             var itinerary = record.get('flights');
             var i = 0;
@@ -76,6 +88,8 @@ Ext.define('FB.controllers.Flights', {
             var contents = [];
             contents.push('<div id="flight_{itineraryId}" class="itinerary">'),
             itinerary.forEach(function (flight) {
+                var date = new Date(flight.departureTime);
+                var date2 = new Date(flight.arrivalTime);
                 contents.push(
                     '<div id="flight_{itineraryId}_{flightId}" class="flight">',
                         '<div class="flightBar">',
@@ -87,7 +101,7 @@ Ext.define('FB.controllers.Flights', {
                                     '${price}',
                                 '</div>',
                                 '<div class="flightBarTextHidden">',
-                                    '<strong>Duration:</strong> {duration} minutes',
+                                    '<strong>' + pad(date.getHours(), 2) + ':' + pad(date.getMinutes(), 2) + ' - ' + flight.source.name + ' -> ' + flight.destination.name + ' - ' + pad(date2.getHours(), 2) + ':' + pad(date2.getMinutes(), 2) + '</strong>',
                                 '</div>',
                             '</div>',
                             '<div class="arrival">',
@@ -145,6 +159,12 @@ Ext.define('FB.controllers.Flights', {
 					arrivalTime.hide();
 				}
 			});
+            var count = 0;
+            Ext.select(".itinerary").each(function (el) {
+                if (++count >= 10) {
+                    el.addCls("hidden");
+                }
+            });
 		}, this);
 	},
 	/**
@@ -229,7 +249,7 @@ Ext.define('FB.controllers.Flights', {
 		var id = 'startPrice';
 		var startPrice = Ext.getCmp(id).getValue();
 		this.filterFlights(id, function (value, item) {
-			return startPrice == null ? true : startPrice <= item.data.price.price;
+			return startPrice == null ? true : startPrice <= item.data.price;
 		}, 'filterPrice', startPrice == null && Ext.getCmp('endPrice').getValue() == null)
 	},
 	/**
@@ -239,7 +259,7 @@ Ext.define('FB.controllers.Flights', {
 		var id = 'endPrice';
 		var endPrice = Ext.getCmp(id).getValue();
 		this.filterFlights(id, function (value, item) {
-			return endPrice == null ? true : endPrice >= item.data.price.price;
+			return endPrice == null ? true : endPrice >= item.data.price;
 		}, 'filterPrice', Ext.getCmp('startPrice').getValue() == null && endPrice == null)
 	},
 	/**
@@ -341,7 +361,16 @@ Ext.define('FB.controllers.Flights', {
 			],
 			data : [
 				{"amount": 0},
-				{"amount": 1}
+				{"amount": 1},
+                {"amount": 2},
+                {"amount": 3},
+                {"amount": 4},
+                {"amount": 5},
+                {"amount": 6},
+                {"amount": 7},
+                {"amount": 8},
+                {"amount": 9},
+                {"amount": 10}
 			]
 		});
 		this.stopOverContainer = Ext.create('Ext.container.Container', {
@@ -392,7 +421,7 @@ Ext.define('FB.controllers.Flights', {
 		var id = 'stopOver';
 		var stopOver = Ext.getCmp(id).getValue();
 		this.filterFlights(id, function (value, item) {
-			return stopOver == null ? true : stopOver == (item.data.stopOver == null ? 0 : 1);
+			return stopOver == null ? true : stopOver > item.data.stopOvers;
 		}, 'filterStopOvers', stopOver == null)
 	},
 	/**
@@ -625,6 +654,14 @@ Ext.define('FB.controllers.Flights', {
 		this.dataStore.each(function (record) {
 			parent.appendChild(Ext.get('flight_' + record.get('id')));
 		});
+        var count = 0;
+        Ext.select(".itinerary").each(function (el) {
+            if (++count >= 10) {
+                el.addCls('hidden');
+            } else {
+                el.removeCls('hidden')
+            }
+        });
 		this.lastSortedBy = id;
 	},
 	/**
