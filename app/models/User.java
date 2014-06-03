@@ -17,75 +17,96 @@ import java.util.List;
 
 @Entity
 public class User extends Person {
-	/**
-	 * An enumeration defining the user's theme
-	 */
-	public enum Theme {
-		LIGHT,
-		DARK
-	}
+    /**
+     * An enumeration defining the user's theme
+     */
+    public enum Theme {
+        LIGHT,
+        DARK
+    }
 
-	/**
-	 * An enumeration defining the units being used by the user
-	 */
-	public enum Units {
-		METRIC,
-		IMPERIAL
-	}
+    /**
+     * An enumeration defining the units being used by the user
+     */
+    public enum Units {
+        METRIC,
+        IMPERIAL
+    }
 
-	/**
-	 * Uniquely identifies the user
-	 */
-	@Id
-	public Long id;
+    /**
+     * Uniquely identifies the user
+     */
+    @Id
+    public Long id;
 
-	@Constraints.Email
-	@Constraints.Required
-	public String email;
+    @Constraints.Email
+    @Constraints.Required
+    public String email;
 
-	@Constraints.Required
-	@Constraints.MinLength(8)
-	public String password;
+    @Constraints.Required
+    @Constraints.MinLength(8)
+    public String password;
 
-	@Constraints.Required
-	@ManyToMany(mappedBy = "users", cascade = CascadeType.ALL)
-	public List<Role> roles = new ArrayList<>();
+    @Constraints.Required
+    @ManyToMany(mappedBy = "users", cascade = CascadeType.ALL)
+    public List<Role> roles = new ArrayList<>();
 
-	@Constraints.Required
-	@Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
-	public Date registrationDate;
+    @Constraints.Required
+    @Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
+    public Date registrationDate;
 
-	@Enumerated(EnumType.ORDINAL)
-	@Constraints.Required
-	public Theme theme;
+    @Enumerated(EnumType.ORDINAL)
+    @Constraints.Required
+    public Theme theme;
 
-	@Enumerated(EnumType.ORDINAL)
-	@Constraints.Required
-	public Units unit;
+    @Enumerated(EnumType.ORDINAL)
+    @Constraints.Required
+    public Units unit;
 
-	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-	public List<Booking> bookings = new ArrayList<>();
+    @Constraints.MaxLength(100)
+    public String streetAddress;
 
-	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-	public List<FlightSearch> flightSearches = new ArrayList<>();
+    @Constraints.MaxLength(100)
+    public String suburb;
 
-	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-	public List<Notification> notifications = new ArrayList<>();
+    @Constraints.MaxLength(50)
+    public String userState;
+
+    public int postcode;
+
+    public int phoneNumber;
+
+    @Constraints.MaxLength(30)
+    public String cardName;
+
+    public int cardNumber;
+
+    @Constraints.MaxLength(130)
+    public String ppUsername;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    public List<Booking> bookings = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    public List<FlightSearch> flightSearches = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    public List<Notification> notifications = new ArrayList<>();
 
     @OneToMany(mappedBy = "pUser", fetch = FetchType.LAZY)
     public List<Payment> paymentDetails = new ArrayList<>();
 
-	/**
-	 * Class constructor setting the required variables of the class
-	 */
-	public User(String firstName, String lastName, String email, String password) {
-		super(firstName, lastName);
-		this.email = email;
-		this.password = User.hashPassword(password, email);
-		this.registrationDate = new Date();
-		this.theme = Theme.LIGHT;
-		this.unit= Units.METRIC;
-	}
+    /**
+     * Class constructor setting the required variables of the class
+     */
+    public User(String firstName, String lastName, String email, String password) {
+        super(firstName, lastName);
+        this.email = email;
+        this.password = User.hashPassword(password, email);
+        this.registrationDate = new Date();
+        this.theme = Theme.LIGHT;
+        this.unit= Units.METRIC;
+    }
 
     /**
      * Function for updating user's first name
@@ -106,11 +127,11 @@ public class User extends Person {
     }
 
     /**
-     * Function for updating user's email address
-     * @param email user's new email
+     * Function for updating user's phone number
+     * @param phoneNumber user's new phone number
      */
-    public void updateEmail(String email) {
-        this.email = email;
+    public void updatePhone(int phoneNumber) {
+        this.phoneNumber = phoneNumber;
         this.save();
     }
 
@@ -123,72 +144,144 @@ public class User extends Person {
         this.save();
     }
 
-	/**
-	 * Sets this User's password to the specified new password.
-	 * @param password The new password to assign to this user, in plaintext.
-	 */
-	public void setPassword(String password) {
-		this.password = User.hashPassword(password, this.email);
-	}
+    /**
+     * Function for updating user's email address
+     * @param email user's new email
+     */
+    public void updateEmail(String email) {
+        this.email = email;
+        this.save();
+    }
 
-	/**
-	 * Registers a User account with the given registration details, returning a Boolean indicating success
-	 * or failure.
-	 * @param firstName The first name of the registering User.
-	 * @param lastName The last name of the registering User.
-	 * @param email The email address of the registering User.
-	 * @param password The plaintext password of the registering User.
-	 * @return A Boolean indicating whether or not the User is able to register with the suppl
-	 */
-	public static Boolean register(String firstName, String lastName, String email, String password) {
-		try {
-			// Create a new user
-			User newbie = new User(firstName, lastName, email, password);
+    /**
+     * Function for updating user's street address
+     * @param streetAddress user's new street address
+     */
+    public void updateAddress(String streetAddress) {
+        this.streetAddress = streetAddress;
+        this.save();
+    }
 
-			// TODO: Any additional configuration here
+    /**
+     * Function for updating user's suburb
+     * @param suburb user's new suburb
+     */
+    public void updateSuburb(String suburb) {
+        this.suburb = suburb;
+        this.save();
+    }
 
-			// Save the user to the database
-			newbie.save();
+    /**
+     * Function for updating user's state
+     * @param userState user's new state
+     */
+    public void updateState(String userState) {
+        this.userState = userState;
+        this.save();
+    }
 
-			return true;
-		} catch (Exception ignored) {
-			return false;
-		}
-	}
+    /**
+     * Function for updating user's post code
+     * @param postcode user's new post code
+     */
+    public void updatePCode(int postcode) {
+        this.postcode = postcode;
+        this.save();
+    }
 
-	/**
-	 * Attempt to authenticate with the supplied email and passwordHash, returning a Boolean indicating success or
-	 * failure.
-	 * @param email The email address of the User to check.
-	 * @param password The plaintext password of the User to check.
-	 * @return A Boolean indicating whether or not the User was authenticated.
-	 */
-	public static Boolean authenticate(String email, String password) {
-		// Find a user with the specified credentials
-		return (User.find.where().and(Expr.eq("email", email), Expr.eq("password", User.hashPassword(password, email))).findUnique() != null);
-	}
+    /**
+     * Function for updating user's card name
+     * @param cardName user's new card name
+     */
+    public void updateCName(String cardName) {
+        this.cardName = cardName;
+        this.save();
+    }
 
-	/**
-	 * Returns a hash of the specified plaintext password.
-	 * @param plaintextPassword The plaintext password to hash.
-	 * @param salt The salt used to secure the password hash.
-	 * @return A hash of the specified plaintext password.
-	 */
-	private static String hashPassword(String plaintextPassword, String salt) {
-		// Merge salt and password
-		String passwordAndSalt = Play.application().configuration().getString("application.secret") +
-				salt.substring(0, salt.length() / 2) + plaintextPassword + salt.substring(salt.length() / 2);
+    /**
+     * Function for updating user's card number
+     * @param cardNumber user's new card number
+     */
+    public void updateCNum(int cardNumber) {
+        this.cardNumber = cardNumber;
+        this.save();
+    }
 
-		try {
-			// Create a SHA-512 message digest
-			MessageDigest md = MessageDigest.getInstance("SHA-512");
+    /**
+     * Function for updating user's paypal username
+     * @param ppUsername user's new paypal username
+     */
+    public void updatePPUser(String ppUsername) {
+        this.ppUsername = ppUsername;
+        this.save();
+    }
 
-			// Return the Base64-encoded hash
-			return Codecs.toHexString(md.digest(passwordAndSalt.getBytes()));
-		} catch (NoSuchAlgorithmException e) {
-			return Crypt.sha1(passwordAndSalt);
-		}
-	}
+    /**
+     * Sets this User's password to the specified new password.
+     * @param password The new password to assign to this user, in plaintext.
+     */
+    public void setPassword(String password) {
+        this.password = User.hashPassword(password, this.email);
+    }
+
+    /**
+     * Registers a User account with the given registration details, returning a Boolean indicating success
+     * or failure.
+     * @param firstName The first name of the registering User.
+     * @param lastName The last name of the registering User.
+     * @param email The email address of the registering User.
+     * @param password The plaintext password of the registering User.
+     * @return A Boolean indicating whether or not the User is able to register with the suppl
+     */
+    public static Boolean register(String firstName, String lastName, String email, String password) {
+        try {
+            // Create a new user
+            User newbie = new User(firstName, lastName, email, password);
+
+            // TODO: Any additional configuration here
+
+            // Save the user to the database
+            newbie.save();
+
+            return true;
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    /**
+     * Attempt to authenticate with the supplied email and passwordHash, returning a Boolean indicating success or
+     * failure.
+     * @param email The email address of the User to check.
+     * @param password The plaintext password of the User to check.
+     * @return A Boolean indicating whether or not the User was authenticated.
+     */
+    public static Boolean authenticate(String email, String password) {
+        // Find a user with the specified credentials
+        return (User.find.where().and(Expr.eq("email", email), Expr.eq("password", User.hashPassword(password, email))).findUnique() != null);
+    }
+
+    /**
+     * Returns a hash of the specified plaintext password.
+     * @param plaintextPassword The plaintext password to hash.
+     * @param salt The salt used to secure the password hash.
+     * @return A hash of the specified plaintext password.
+     */
+    private static String hashPassword(String plaintextPassword, String salt) {
+        // Merge salt and password
+        String passwordAndSalt = Play.application().configuration().getString("application.secret") +
+                salt.substring(0, salt.length() / 2) + plaintextPassword + salt.substring(salt.length() / 2);
+
+        try {
+            // Create a SHA-512 message digest
+            MessageDigest md = MessageDigest.getInstance("SHA-512");
+
+            // Return the Base64-encoded hash
+            return Codecs.toHexString(md.digest(passwordAndSalt.getBytes()));
+        } catch (NoSuchAlgorithmException e) {
+            return Crypt.sha1(passwordAndSalt);
+        }
+    }
 
     /**
      * Function for adding payment details to the user.
@@ -197,9 +290,9 @@ public class User extends Person {
     public void addPayDetails(Payment payDeets) {
         paymentDetails.add(payDeets);
     }
-	
-	/**
-	 * Creates a finder for the User entity
-	 */
-	public static Model.Finder<Long, User> find = new Model.Finder<>(Long.class, User.class);
+
+    /**
+     * Creates a finder for the User entity
+     */
+    public static Model.Finder<Long, User> find = new Model.Finder<>(Long.class, User.class);
 }
