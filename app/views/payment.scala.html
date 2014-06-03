@@ -59,8 +59,8 @@
 	                        <label for="@paymentForm("streetAddress").name" class="control-label col-sm-2">Address</label>
 	                        <div class="col-sm-8">
 	                            <input type="text" required="true" class="form-control" id="@paymentForm("streetAddress").id" name="@paymentForm("streetAddress").name" value="@paymentForm("streetAddress").value" placeholder="Enter Street Address..." autofocus="true">
-	                            @if(paymentForm("surname").hasErrors) {
-	                                @paymentForm("surname").errors.map { error =>
+	                            @if(paymentForm("streetAddress").hasErrors) {
+	                                @paymentForm("streetAddress").errors.map { error =>
 	                                    <span class="label label-danger">@error.message</span>
 	                                }
 	                            }
