@@ -88,7 +88,7 @@ public class TestAuthController extends Controller {
         /**
          * Preferred payment method
          */
-        public String accPayMeth;
+        public String accPay;
 
         /**
          * Name on card
@@ -143,6 +143,9 @@ public class TestAuthController extends Controller {
             }
             if(details.accPCode > 0) {
                 User.find.where(Expr.eq("email", username)).findUnique().updatePCode(details.accPCode);
+            }
+            if(!(details.accPay.isEmpty())) {
+                User.find.where(Expr.eq("email", username)).findUnique().updatePay(details.accPay);
             }
             if(!(details.accCardName.isEmpty())) {
                 User.find.where(Expr.eq("email", username)).findUnique().updateCName(details.accCardName);

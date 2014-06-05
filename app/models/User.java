@@ -72,6 +72,9 @@ public class User extends Person {
     @Constraints.MaxLength(50)
     public String userState;
 
+    @Constraints.MaxLength(8)
+    public String payMethod;
+
     public int postcode;
 
     public int phoneNumber;
@@ -186,6 +189,15 @@ public class User extends Person {
      */
     public void updatePCode(int postcode) {
         this.postcode = postcode;
+        this.save();
+    }
+
+    /**
+     * Function for updating user's preferred payment method
+     * @param payMethod user's preferred payment method
+     */
+    public void updatePay(String payMethod) {
+        this.payMethod = payMethod;
         this.save();
     }
 
