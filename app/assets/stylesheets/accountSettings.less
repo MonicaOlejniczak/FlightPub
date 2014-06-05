@@ -1,0 +1,19 @@
+@import 'globalVariables';
+
+#accountSettings {
+	width: @contentWidth;
+	margin: 0 auto;
+}
+
+input {
+	border-radius: 0.3em;
+}
+
+#buttons {
+	width: calc(~'@{buttonWidth} * 2 + @{buttonMargin} * 1');
+	float: right;
+}
+
+.button, .cancelButton {
+	margin: 0 @buttonMargin 0 0;
+}

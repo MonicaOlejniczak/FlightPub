@@ -103,7 +103,6 @@ public class DataController extends Controller {
     }
 
     public static Result test() {
-
         Airport source = Airport.find.where().eq("name", "Sydney").findUnique();
         Airport destination = Airport.find.where().eq("name", "Canberra").findUnique();
 
@@ -129,5 +128,14 @@ public class DataController extends Controller {
         FlightFinder.genEdges();
         return ok("done");
     }
+
+	public static Result accountDetails() {
+		Map<String, Object> details = new HashMap<>();
+		User user = User.find.where().eq("email", session().get("email")).findUnique();
+		details.put("firstName", user.firstName);
+		details.put("lastName", user.lastName);
+		details.put("email", user.email);
+		return ok(Json.toJson(details));
+	}
 
 }

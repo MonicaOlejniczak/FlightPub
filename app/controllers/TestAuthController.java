@@ -17,6 +17,7 @@ import play.mvc.Security;
  */
 @Security.Authenticated(AuthenticatedUser.class)
 public class TestAuthController extends Controller {
+
 	public static Result index() {
 		if (AuthenticatedUser.isLoggedIn()) {
             return ok(views.html.accountSettings.render(Form.form(AccountForm.class)));
@@ -30,14 +31,14 @@ public class TestAuthController extends Controller {
      */
     public static class AccountForm {
         /**
-         * First Name.
+         * First Name
          */
         @Constraints.MaxLength(value = 30, message = "Name Too Long!")
         @Constraints.Pattern(value = "\\D*", message = "Name cannot contain numbers!")
         public String accFName;
 
         /**
-         * Surname.
+         * Surname
          */
         @Constraints.MaxLength(value = 30, message = "Name Too Long!")
         @Constraints.Pattern(value = "\\D*", message = "Name cannot contain numbers!")
@@ -60,7 +61,16 @@ public class TestAuthController extends Controller {
 
     public static Result processSettings() {
         Form<AccountForm> accountForm = Form.form(AccountForm.class).bindFromRequest();
-        if (accountForm.hasErrors()) {
+
+	    /*
+	    	public static Result processSettings() {
+		if (User.authenticate(session().get("email"), "")) {
+ 	        dfdfd
+		}
+		return ok();
+	}
+	     */
+	    if (accountForm.hasErrors()) {
             return badRequest(views.html.accountSettings.render(accountForm));
         } else {
             AccountForm details = accountForm.get();
@@ -78,7 +88,6 @@ public class TestAuthController extends Controller {
             if(!(details.accEmail.isEmpty())) {
                 User.find.where(Expr.eq("email", username)).findUnique().updateEmail(details.accEmail);
             }
-
         }
         return index();
     }

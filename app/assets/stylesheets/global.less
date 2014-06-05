@@ -92,11 +92,17 @@ input[type=submit] {
 	cursor: pointer;
 }*/
 
+.content, .x-form-item-label {
+	color: #fff;
+}
+
+.content, .x-list-plain {
+	font: 1em 'Ubuntu' @nextFont;
+}
+
 .content {
 	min-width: @minWidth;
 	min-height: 100%;
-	color: #fff;
-	font: 1em 'Ubuntu' @nextFont;
 	padding: 1em 0;
 	position: relative;
 	clear: both;
@@ -118,6 +124,12 @@ input[type=submit] {
 
 .panel-body {
 	background-color: lighten(@secondaryBackgroundColor, 10%);
+}
+
+.x-form-item-label {
+	font: 1.2em 'Ubuntu' @nextFont;
+	text-align: right;
+	padding: 0 1em 0 0;
 }
 
 .button, .selectedButton, .cancelButton {
@@ -184,6 +196,10 @@ input[type=submit] {
 
 .x-tool-img {
 	height: 25px;
+}
+
+.x-form-invalid-under {
+	margin: 0.2em 0 0 0;
 }
 
 ::selection {

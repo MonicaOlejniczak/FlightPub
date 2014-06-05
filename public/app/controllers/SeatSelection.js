@@ -203,7 +203,7 @@ Ext.define('FB.controllers.SeatSelection', {
 	 * Renders the next button for the form
 	 *
 	 *  @param container the button container
-	 *  @form the main form used on the page
+	 *  @param form the main form used on the page
 	 */
 	renderNextButton: function (container, form) {
 		container.add(Ext.create('Ext.button.Button', {
