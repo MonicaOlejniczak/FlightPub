@@ -1,3 +1,9 @@
+$(document).ready(function(){
+    $("#accPhone").val(0);
+    $("#accPCode").val(0);
+    $("#accCardNum").val(0);
+});
+
 function confirmPassword() {
     if(document.getElementById("accPassword").value != document.getElementById("accConfPassword").value) {
         alert("Password confirmation failed! Re-enter your password!");
