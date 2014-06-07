@@ -149,7 +149,7 @@ public class User extends Person {
      * Function for updating user's phone number
      * @param phoneNumber user's new phone number
      */
-    public void setPhoneNumber(int phoneNumber) {
+    public void setPhoneNumber(Integer phoneNumber) {
         this.phoneNumber = phoneNumber;
         this.save();
     }
@@ -202,7 +202,7 @@ public class User extends Person {
      * Function for updating user's post code
      * @param postcode user's new post code
      */
-    public void setPostcode(int postcode) {
+    public void setPostcode(Integer postcode) {
         this.postcode = postcode;
         this.save();
     }
@@ -229,7 +229,7 @@ public class User extends Person {
      * Function for updating user's card number
      * @param cardNumber user's new card number
      */
-    public void setCardNumber(int cardNumber) {
+    public void setCardNumber(Integer cardNumber) {
         this.cardNumber = cardNumber;
         this.save();
     }

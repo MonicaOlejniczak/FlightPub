@@ -135,6 +135,16 @@ public class DataController extends Controller {
 		details.put("firstName", user.firstName);
 		details.put("lastName", user.lastName);
 		details.put("email", user.email);
+		details.put("phoneNumber", user.phoneNumber);
+		details.put("address", user.streetAddress);
+		details.put("suburb", user.suburb);
+		//todo details.put("country", user.country);
+		details.put("state", user.state);
+		details.put("postcode", user.postcode);
+		details.put("paymentMethod", user.paymentMethod);
+		details.put("cardName", user.cardName);
+		details.put("cardNumber", user.cardNumber);
+		details.put("ppUsername", user.ppUsername);
 		return ok(Json.toJson(details));
 	}
 

@@ -32,20 +32,6 @@ public class TestAuthController extends Controller {
      */
     public static class AccountForm {
         /**
-         * First name
-         */
-        @Constraints.MaxLength(value = 30, message = "Name Too Long!")
-        @Constraints.Pattern(value = "\\D*", message = "Name cannot contain numbers!")
-        public String firstName;
-
-        /**
-         * Surname
-         */
-        @Constraints.MaxLength(value = 30, message = "Name Too Long!")
-        @Constraints.Pattern(value = "\\D*", message = "Name cannot contain numbers!")
-        public String lastName;
-
-        /**
          * Email
          */
         @Constraints.Email(message = "Invalid Email Address!")
@@ -68,6 +54,25 @@ public class TestAuthController extends Controller {
 	     */
 	    @Constraints.MinLength(value = 8, message = "Password Too Short!")
 	    public String confirmPassword;
+
+	    /**
+	     * First name
+	     */
+	    @Constraints.MaxLength(value = 30, message = "Name Too Long!")
+	    @Constraints.Pattern(value = "\\D*", message = "Name cannot contain numbers!")
+	    public String firstName;
+
+	    /**
+	     * Surname
+	     */
+	    @Constraints.MaxLength(value = 30, message = "Name Too Long!")
+	    @Constraints.Pattern(value = "\\D*", message = "Name cannot contain numbers!")
+	    public String lastName;
+
+	    /**
+	     * Phone number
+	     */
+	    public Integer phoneNumber;
 
         /**
          * Street address
@@ -95,14 +100,9 @@ public class TestAuthController extends Controller {
         public Integer postCode;
 
         /**
-         * Phone number
-         */
-        public Integer phone;
-
-        /**
          * Preferred payment method
          */
-        public String payment;
+        public String paymentMethod;
 
         /**
          * Name on card
@@ -114,7 +114,7 @@ public class TestAuthController extends Controller {
         /**
          * Card number
          */
-        public int cardNumber;
+        public Integer cardNumber;
 
         /**
          * PayPal username
@@ -131,50 +131,82 @@ public class TestAuthController extends Controller {
         } else {
             AccountForm details = accountForm.get();
 		    User user = User.find.where().eq("email", session().get("email")).findUnique();
-            if (!details.firstName.equals(user.firstName)) {
-                user.setFirstName(details.firstName);
-            }
-		    if (!details.lastName.equals(user.lastName)) {
-			    user.setLastName(details.lastName);
-		    }
 		    if (!details.email.equals(user.email)) {
 			    user.setEmail(details.email);
 		    }
 		    if (!details.newPassword.equals(user.password)) {
 			    user.setPassword(details.newPassword);
 		    }
-		    /*
-
-            if(!(details.accEmail.isEmpty())) {
-                User.find.where(Expr.eq("email", username)).findUnique().updateEmail(details.accEmail);
-            }
-            if(details.accPhone > 0) {
-                User.find.where(Expr.eq("email", username)).findUnique().updatePhone(details.accPhone);
-            }
-            if(!(details.accStreetAddress.isEmpty())) {
-                User.find.where(Expr.eq("email", username)).findUnique().updateAddress(details.accStreetAddress);
-            }
-            if(!(details.accSuburb.isEmpty())) {
-                User.find.where(Expr.eq("email", username)).findUnique().updateSuburb(details.accSuburb);
-            }
-            if(!(details.accState.isEmpty())) {
-                User.find.where(Expr.eq("email", username)).findUnique().updateState(details.accState);
-            }
-            if(details.accPCode > 0) {
-                User.find.where(Expr.eq("email", username)).findUnique().updatePCode(details.accPCode);
-            }
-            if(!(details.accPay.isEmpty())) {
-                User.find.where(Expr.eq("email", username)).findUnique().updatePay(details.accPay);
-            }
-            if(!(details.accCardName.isEmpty())) {
-                User.find.where(Expr.eq("email", username)).findUnique().updateCName(details.accCardName);
-            }
-            if(details.accCardNum > 0) {
-                User.find.where(Expr.eq("email", username)).findUnique().updateCNum(details.accCardNum);
-            }
-            if(!(details.accPPUsername.isEmpty())) {
-                User.find.where(Expr.eq("email", username)).findUnique().updatePPUser(details.accPPUsername);
-            }*/
+		    if (!details.firstName.equals(user.firstName)) {
+			    user.setFirstName(details.firstName);
+		    }
+		    if (!details.lastName.equals(user.lastName)) {
+			    user.setLastName(details.lastName);
+		    }
+		    if (details.phoneNumber != null) {
+			    if (!details.phoneNumber.equals(user.phoneNumber)) {
+				    user.setPhoneNumber(details.phoneNumber);
+			    }
+		    } else {
+			    user.setPhoneNumber(null);
+		    }
+		    if (details.streetAddress != null) {
+			    if (!details.streetAddress.equals(user.streetAddress)) {
+				    user.setStreetAddress(details.streetAddress);
+			    }
+		    } else {
+			    user.setStreetAddress(null);
+		    }
+		    if (details.suburb != null) {
+			    if (!details.suburb.equals(user.suburb)) {
+				    user.setSuburb(details.suburb);
+			    }
+		    } else {
+			    user.setSuburb(null);
+		    }
+		    //todo country
+		    if (details.state != null) {
+			    if (!details.state.equals(user.state)) {
+				    user.setState(details.state);
+			    }
+		    } else {
+			    user.setState(null);
+		    }
+		    if (details.postCode != null) {
+			    if (!details.postCode.equals(user.postcode)) {
+				    user.setPostcode(details.postCode);
+			    }
+		    } else {
+			    user.setPostcode(null);
+		    }
+		    if (details.paymentMethod != null) {
+			    if (!details.paymentMethod.equals(user.paymentMethod)) {
+				    user.setPaymentMethod(details.paymentMethod);
+			    }
+		    } else {
+			    user.setCardName(null);
+		    }
+		    if (details.cardName != null) {
+			    if (!details.cardName.equals(user.cardName)) {
+				    user.setCardName(details.cardName);
+			    }
+		    } else {
+			    user.setCardName(null);
+		    }
+		    if (details.cardNumber != null) {
+			    if (!details.cardNumber.equals(user.cardNumber)) {
+				    user.setCardNumber(details.cardNumber);
+			    }
+		    } else {
+			    user.setCardNumber(null);
+		    }
+		    if (details.ppUsername != null) {
+			    if (!details.ppUsername.equals(user.ppUsername)) {
+				    user.setPpUsername(details.ppUsername);
+			    }
+		    } else {
+			    user.setPpUsername(null);
+		    }
         }
         return index();
     }

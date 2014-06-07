@@ -70,9 +70,21 @@ Ext.define('FB.controller.AccountSettings', {
 	 */
 	renderDetails: function (details) {
 		var form = this.getForm();
+		form.down("#email").setValue(details.email);
 		form.down('#firstName').setValue(details.firstName);
 		form.down("#lastName").setValue(details.lastName);
-		form.down("#email").setValue(details.email);
+		form.down("#phoneNumber").setValue(details.phoneNumber);
+		form.down("#address").setValue(details.address);
+		form.down("#suburb").setValue(details.suburb);
+		//form.down("#country").setValue(details.country);
+		form.down("#state").setValue(details.state);
+		form.down("#postcode").setValue(details.postcode);
+		if (details.paymentMethod != null) {
+			form.down("#paymentMethod").setValue(details.paymentMethod);
+		}
+		form.down("#cardName").setValue(details.cardName);
+		form.down("#cardNumber").setValue(details.cardNumber);
+		form.down("#ppUsername").setValue(details.ppUsername);
 	},
 	/**
 	 * The event fired when cancelling any setting updates
@@ -98,6 +110,9 @@ Ext.define('FB.controller.AccountSettings', {
 	 */
 	submitEvent: function () {
 		this.getForm().submit({
+			url: '/account/process',
+			method: 'post',
+			submitEmptyText: false,
 			success: function(form, action) {
 				if (form.isValid()) {
 					return confirmPassword();

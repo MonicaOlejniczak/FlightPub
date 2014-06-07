@@ -63,7 +63,7 @@ html, body, .x-body {
 }
 
 .formHeading {
-	margin-bottom: 0.5em;
+	margin: 0 0 0.5em 210px;
 }
 
 a, a:hover, a:focus {
@@ -73,33 +73,6 @@ a, a:hover, a:focus {
 a:hover {
 	.transition(background, 0.5s);
 }
-
-/*p {
-	margin: 0 0 1em 0;
-}
-
-form {
-	font: @formFont;
-	color: @formColor;
-	.textShadow(@formColor);
-	clear: both;
-}
-
-input, select {
-	height: @inputFontSize * 3;
-	background-color: @inputBackgroundColor;
-	color: @inputColor;
-	font: @inputFont;
-	.textShadow(@inputColor);
-	text-indent: 0.5em;
-	border: 0;
-	border-radius: 0.1em;
-	margin: 0 0 0.1em;
-}
-
-input[type=submit] {
-	cursor: pointer;
-}*/
 
 .content, .x-form-item-label {
 	color: #fff;
@@ -133,6 +106,14 @@ input[type=submit] {
 
 .panel-body {
 	background-color: lighten(@secondaryBackgroundColor, 10%);
+}
+
+input {
+	border-radius: @borderWidth;
+}
+
+.x-form-trigger-wrap {
+	border: 0;
 }
 
 .x-form-item-label {
