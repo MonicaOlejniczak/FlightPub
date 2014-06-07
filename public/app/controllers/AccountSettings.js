@@ -3,6 +3,7 @@ Ext.define('FB.controllers.AccountSettings', {
 	 * Dependencies
 	 */
 	requires: [
+		'FB.views.AccountSettings',
 		'Ext.form.Panel',
 		'Ext.form.Label',
 		'Ext.form.field.Text',
@@ -37,7 +38,20 @@ Ext.define('FB.controllers.AccountSettings', {
 	 */
 	renderForm: function (details) {
 		var formId = 'accountSettingsForm';
-		var form = Ext.create('Ext.form.Panel', {
+		this.view = Ext.create('FB.views.AccountSettings', {
+			renderTo: 'accountSettings',
+			listeners: {
+				afterrender: function () {
+					this.down("#fuckyou").on({
+						focus: function () {
+							console.log('test');
+						},
+						scope: this
+					});
+				}
+			}
+		}, this);
+		/*var form = Ext.create('Ext.form.Panel', {
 			id: formId,
 			renderTo: 'accountSettings',
 			url: '/account/process',
@@ -48,7 +62,7 @@ Ext.define('FB.controllers.AccountSettings', {
 			buttons: []
 		}, this);
 		this.renderAccountSettings(formId, details);
-		this.renderButtons(form);
+		this.renderButtons(form);*/
 	},
 	/**
 	 * Renders the account settings inputs
