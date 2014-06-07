@@ -1,14 +1,15 @@
 package controllers;
 
 import authentication.AuthenticatedUser;
-import com.avaje.ebean.Expr;
 import models.User;
 import play.data.Form;
 import play.data.validation.Constraints;
+import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import play.mvc.Controller;
 import play.mvc.Security;
+
+import static play.data.Form.form;
 
 /**
  * A Controller class that tests User authentication.
@@ -20,7 +21,7 @@ public class TestAuthController extends Controller {
 
 	public static Result index() {
         if (AuthenticatedUser.isLoggedIn()) {
-            return ok(views.html.accountSettings.render(Form.form(AccountForm.class)));
+            return ok(views.html.accountSettings.render(form(AccountForm.class)));
         } else {
             return forbidden();
         }
@@ -31,111 +32,119 @@ public class TestAuthController extends Controller {
      */
     public static class AccountForm {
         /**
-         * First Name
+         * First name
          */
         @Constraints.MaxLength(value = 30, message = "Name Too Long!")
         @Constraints.Pattern(value = "\\D*", message = "Name cannot contain numbers!")
-        public String accFName;
+        public String firstName;
 
         /**
          * Surname
          */
         @Constraints.MaxLength(value = 30, message = "Name Too Long!")
         @Constraints.Pattern(value = "\\D*", message = "Name cannot contain numbers!")
-        public String accLName;
+        public String lastName;
 
         /**
          * Email
          */
         @Constraints.Email(message = "Invalid Email Address!")
-        public String accEmail;
+        public String email;
 
         /**
          * Password
          */
         @Constraints.MinLength(value = 8, message = "Password Too Short!")
-        public String accPassword;
+        public String password;
+
+	    /**
+	     * New password
+	     */
+	    @Constraints.MinLength(value = 8, message = "Password Too Short!")
+	    public String newPassword;
+
+	    /**
+	     * Confirmed password
+	     */
+	    @Constraints.MinLength(value = 8, message = "Password Too Short!")
+	    public String confirmPassword;
 
         /**
-         * Street Address
+         * Street address
          */
         @Constraints.MaxLength(value = 100, message = "Address too long!")
-        public String accStreetAddress;
+        public String streetAddress;
 
         /**
-         * Suburb/city
+         * Suburb or city
          */
         @Constraints.MaxLength(value = 100, message = "Input too long!")
         @Constraints.Pattern(value = "\\D*", message = "Input must not contain numbers!")
-        public String accSuburb;
+        public String suburb;
 
         /**
          * State
          */
         @Constraints.MaxLength(value = 50, message = "Input too long!")
         @Constraints.Pattern(value = "\\D*", message = "Input must not contain numbers!")
-        public String accState;
+        public String state;
 
         /**
          * Post code
          */
-        public int accPCode;
+        public Integer postCode;
 
         /**
          * Phone number
          */
-        public int accPhone;
+        public Integer phone;
 
         /**
          * Preferred payment method
          */
-        public String accPay;
+        public String payment;
 
         /**
          * Name on card
          */
         @Constraints.MaxLength(value = 30, message = "Name too long!")
         @Constraints.Pattern(value = "\\D*", message = "Name cannot contain numbers!")
-        public String accCardName;
+        public String cardName;
 
         /**
          * Card number
          */
-        public int accCardNum;
+        public int cardNumber;
 
         /**
          * PayPal username
          */
         @Constraints.MaxLength(value = 130, message = "Name too long!")
-        public String accPPUsername;
+        public String ppUsername;
     }
 
     public static Result processSettings() {
-        Form<AccountForm> accountForm = Form.form(AccountForm.class).bindFromRequest();
-
-	    /*
-	    	public static Result processSettings() {
-		if (User.authenticate(session().get("email"), "")) {
- 	        dfdfd
-		}
-		return ok();
-	}
-	     */
+	    // todo more server side checking
+        Form<AccountForm> accountForm = form(AccountForm.class).bindFromRequest();
 	    if (accountForm.hasErrors()) {
             return badRequest(views.html.accountSettings.render(accountForm));
         } else {
             AccountForm details = accountForm.get();
-            AuthenticatedUser loggedUser = new AuthenticatedUser();
-            String username = loggedUser.getUsername(Http.Context.current());
-            if(!(details.accFName.isEmpty())) {
-                User.find.where(Expr.eq("email", username)).findUnique().updateFName(details.accFName);
+		    User user = User.find.where().eq("email", session().get("email")).findUnique();
+            if (!details.firstName.equals(user.firstName)) {
+                user.setFirstName(details.firstName);
             }
-            if(!(details.accLName.isEmpty())) {
-                User.find.where(Expr.eq("email", username)).findUnique().updateLName(details.accLName);
-            }
-            if(!(details.accPassword.isEmpty())) {
-                User.find.where(Expr.eq("email", username)).findUnique().updatePassword(details.accPassword, username);
-            }
+		    if (!details.lastName.equals(user.lastName)) {
+			    user.setLastName(details.lastName);
+		    }
+		    if (!details.email.equals(user.email)) {
+			    user.setEmail(details.email);
+		    }
+		    if (!details.newPassword.equals(user.password)) {
+			    user.setPassword(details.newPassword);
+		    }
+		    /*
+
             if(!(details.accEmail.isEmpty())) {
                 User.find.where(Expr.eq("email", username)).findUnique().updateEmail(details.accEmail);
             }
@@ -165,7 +174,7 @@ public class TestAuthController extends Controller {
             }
             if(!(details.accPPUsername.isEmpty())) {
                 User.find.where(Expr.eq("email", username)).findUnique().updatePPUser(details.accPPUsername);
-            }
+            }*/
         }
         return index();
     }

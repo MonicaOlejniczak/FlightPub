@@ -131,7 +131,7 @@ public class User extends Person {
      * Function for updating user's first name
      * @param firstName user's new first name
      */
-    public void updateFName(String firstName) {
+    public void setFirstName(String firstName) {
         this.firstName = firstName;
         this.save();
     }
@@ -140,7 +140,7 @@ public class User extends Person {
      * Function for updating user's last name
      * @param lastName user's new last name
      */
-    public void updateLName(String lastName) {
+    public void setLastName(String lastName) {
         this.lastName = lastName;
         this.save();
     }
@@ -149,25 +149,24 @@ public class User extends Person {
      * Function for updating user's phone number
      * @param phoneNumber user's new phone number
      */
-    public void updatePhone(int phoneNumber) {
+    public void setPhoneNumber(int phoneNumber) {
         this.phoneNumber = phoneNumber;
         this.save();
     }
 
-    /**
-     * Function for updating user's password
-     * @param password user's new password
-     */
-    public void updatePassword(String password, String email) {
-        this.password = User.hashPassword(password, email);
-        this.save();
-    }
+	/**
+	 * Sets this User's password to the specified new password.
+	 * @param password The new password to assign to this user, in plaintext.
+	 */
+	public void setPassword(String password) {
+		this.password = User.hashPassword(password, this.email);
+	}
 
     /**
      * Function for updating user's email address
      * @param email user's new email
      */
-    public void updateEmail(String email) {
+    public void setEmail(String email) {
         this.email = email;
         this.save();
     }
@@ -176,7 +175,7 @@ public class User extends Person {
      * Function for updating user's street address
      * @param streetAddress user's new street address
      */
-    public void updateAddress(String streetAddress) {
+    public void setStreetAddress(String streetAddress) {
         this.streetAddress = streetAddress;
         this.save();
     }
@@ -185,7 +184,7 @@ public class User extends Person {
      * Function for updating user's suburb
      * @param suburb user's new suburb
      */
-    public void updateSuburb(String suburb) {
+    public void setSuburb(String suburb) {
         this.suburb = suburb;
         this.save();
     }
@@ -194,7 +193,7 @@ public class User extends Person {
      * Function for updating user's state
      * @param userState user's new state
      */
-    public void updateState(String userState) {
+    public void setState(String userState) {
         this.state = userState;
         this.save();
     }
@@ -203,17 +202,17 @@ public class User extends Person {
      * Function for updating user's post code
      * @param postcode user's new post code
      */
-    public void updatePCode(int postcode) {
+    public void setPostcode(int postcode) {
         this.postcode = postcode;
         this.save();
     }
 
     /**
      * Function for updating user's preferred payment method
-     * @param payMethod user's preferred payment method
+     * @param paymentMethod user's preferred payment method
      */
-    public void updatePay(String payMethod) {
-        this.paymentMethod = payMethod;
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
         this.save();
     }
 
@@ -221,7 +220,7 @@ public class User extends Person {
      * Function for updating user's card name
      * @param cardName user's new card name
      */
-    public void updateCName(String cardName) {
+    public void setCardName(String cardName) {
         this.cardName = cardName;
         this.save();
     }
@@ -230,7 +229,7 @@ public class User extends Person {
      * Function for updating user's card number
      * @param cardNumber user's new card number
      */
-    public void updateCNum(int cardNumber) {
+    public void setCardNumber(int cardNumber) {
         this.cardNumber = cardNumber;
         this.save();
     }
@@ -239,17 +238,9 @@ public class User extends Person {
      * Function for updating user's paypal username
      * @param ppUsername user's new paypal username
      */
-    public void updatePPUser(String ppUsername) {
+    public void setPpUsername(String ppUsername) {
         this.ppUsername = ppUsername;
         this.save();
-    }
-
-    /**
-     * Sets this User's password to the specified new password.
-     * @param password The new password to assign to this user, in plaintext.
-     */
-    public void setPassword(String password) {
-        this.password = User.hashPassword(password, this.email);
     }
 
     /**
