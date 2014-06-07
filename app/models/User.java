@@ -64,25 +64,32 @@ public class User extends Person {
     public Units unit;
 
     @Constraints.MaxLength(100)
+    @Constraints.Required
     public String streetAddress;
 
     @Constraints.MaxLength(100)
+    @Constraints.Required
     public String suburb;
 
     @Constraints.MaxLength(50)
-    public String userState;
+    @Constraints.Required
+    public String state;
 
     @Constraints.MaxLength(8)
-    public String payMethod;
+    @Constraints.Required
+    public String paymentMethod;
 
-    public int postcode;
+	@Constraints.Required
+    public Integer postcode;
 
-    public int phoneNumber;
+	@Constraints.Required
+    public Integer phoneNumber;
 
     @Constraints.MaxLength(30)
     public String cardName;
 
-    public int cardNumber;
+	@Constraints.Required
+    public Integer cardNumber;
 
     @Constraints.MaxLength(130)
     public String ppUsername;
@@ -104,11 +111,20 @@ public class User extends Person {
      */
     public User(String firstName, String lastName, String email, String password) {
         super(firstName, lastName);
-        this.email = email;
+	    this.email = email;
         this.password = User.hashPassword(password, email);
         this.registrationDate = new Date();
         this.theme = Theme.LIGHT;
         this.unit= Units.METRIC;
+	    this.streetAddress = null;
+	    this.suburb = null;
+	    this.state = null;
+	    this.paymentMethod = null;
+	    this.postcode = null;
+	    this.phoneNumber = null;
+	    this.cardName = null;
+	    this.cardNumber = null;
+	    this.ppUsername = null;
     }
 
     /**
@@ -179,7 +195,7 @@ public class User extends Person {
      * @param userState user's new state
      */
     public void updateState(String userState) {
-        this.userState = userState;
+        this.state = userState;
         this.save();
     }
 
@@ -197,7 +213,7 @@ public class User extends Person {
      * @param payMethod user's preferred payment method
      */
     public void updatePay(String payMethod) {
-        this.payMethod = payMethod;
+        this.paymentMethod = payMethod;
         this.save();
     }
 
@@ -248,13 +264,10 @@ public class User extends Person {
     public static Boolean register(String firstName, String lastName, String email, String password) {
         try {
             // Create a new user
-            User newbie = new User(firstName, lastName, email, password);
-
+            User user = new User(firstName, lastName, email, password);
             // TODO: Any additional configuration here
-
             // Save the user to the database
-            newbie.save();
-
+	        user.save();
             return true;
         } catch (Exception ignored) {
             return false;
