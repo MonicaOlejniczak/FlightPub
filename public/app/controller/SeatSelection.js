@@ -1,4 +1,4 @@
-Ext.define('FB.controllers.SeatSelection', {
+Ext.define('FB.controller.SeatSelection', {
 	/**
 	 * Dependencies
 	 */

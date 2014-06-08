@@ -1,6 +1,6 @@
 Ext.define('FB.view.AccountSettings', {
 	extend: 'Ext.form.Panel',
-	alias: 'widget.accountSettingsForm',
+	alias: 'widget.AccountSettings',
 	renderTo: 'accountSettings',
 	standardSubmit: true,
 	layout: {

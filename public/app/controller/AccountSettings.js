@@ -1,19 +1,24 @@
 Ext.define('FB.controller.AccountSettings', {
 	extend: 'Ext.app.Controller',
+	/**
+	 * Dependencies
+	 */
 	requires: [
-	  'Ext.form.Panel'
+	    'Ext.form.Panel',
+		'Ext.form.field.Number',
+		'Ext.form.field.ComboBox'
 	],
 	views: [
-		'accountSettings'
+		'AccountSettings'
 	],
 	refs: [{
 		ref: 'Form',
-		selector: 'accountSettingsForm'
+		selector: 'AccountSettings'
 	}],
 	init: function() {
 		this.getDetails();
 		this.control({
-			'accountSettingsForm': {
+			'AccountSettings': {
 				afterrender: function () {
 					var form = this.getForm();
 						Ext.apply(form.down('#newPassword'), {
@@ -24,13 +29,13 @@ Ext.define('FB.controller.AccountSettings', {
 					});
 				}
 			},
-			'accountSettingsForm button[action=cancel]': {
+			'AccountSettings button[action=cancel]': {
 				click: {
 					fn: this.cancelEvent,
 					scope: this
 				}
 			},
-			'accountSettingsForm button[action=submit]': {
+			'AccountSettings button[action=submit]': {
 				click: {
 					fn: this.submitEvent,
 					scope: this
@@ -50,7 +55,6 @@ Ext.define('FB.controller.AccountSettings', {
 			},
 			equalPasswordText: 'Error: Your new password and confirmed password do not match.'
 		});
-		Ext.widget('accountSettingsForm'); // display and render the form
 	},
 	/**
 	 * Gets the details of the user through an ajax request to the server

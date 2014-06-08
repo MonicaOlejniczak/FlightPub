@@ -102,6 +102,7 @@ public class AuthenticationController extends Controller {
 			RegistrationDetails details = registrationForm.get();
 
 			// Register the user
+			System.out.println(details.email);
 			User.register(details.firstName, details.lastName, details.email, details.password);
 
 			// Then log them in, and redirect to the homepage

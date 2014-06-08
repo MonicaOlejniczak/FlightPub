@@ -1,4 +1,4 @@
-Ext.define('FB.controllers.Luggage', {
+Ext.define('FB.controller.Luggage', {
 	/**
 	 * Dependencies
 	 */

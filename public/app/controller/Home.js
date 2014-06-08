@@ -1,10 +1,12 @@
-Ext.define('FB.controllers.Home', {
+Ext.define('FB.controller.Home', {
+	extend: 'Ext.app.Controller',
 	/**
 	 * Dependencies
 	 */
 	requires: [
 		'FB.models.Airport',
 		'FB.stores.Airport',
+		'Ext.container.Container',
 		'Ext.form.Panel',
 		'Ext.form.Label',
 		'Ext.form.field.ComboBox',

@@ -7,17 +7,13 @@ Ext.application({
 	paths: {
 		'FB': '/assets/app'
 	},
-	controllers: [
-		'AccountSettings'
-	],
-	views: [
-		'AccountSettings'
-	]
+	autoCreateViewport: false
 });
+
 // horrible things ahead
 Ext.syncRequire('Ext.data.Store');
 
-/*loadStores([
+loadStores([
     'FB.stores.Airport'
 ]);
 
@@ -37,4 +33,3 @@ function loadStores (stores) {
         }
     }, this);
 }
-*/

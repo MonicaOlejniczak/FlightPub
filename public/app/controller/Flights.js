@@ -1,4 +1,4 @@
-Ext.define('FB.controllers.Flights', {
+Ext.define('FB.controller.Flights', {
 	/**
 	 * Dependencies
 	 */
