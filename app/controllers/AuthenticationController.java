@@ -34,6 +34,12 @@ public class AuthenticationController extends Controller {
 		@Constraints.MaxLength(value = 30, message = "Name Too Long!")
 		public String lastName;
 
+        /**
+         * User type field from the request
+         */
+        @Constraints.Required
+        public String userType;
+
 		/**
 		 * Email field from the request.
 		 */
@@ -107,7 +113,7 @@ public class AuthenticationController extends Controller {
 			RegistrationDetails details = registrationForm.get();
 
 			// Register the user
-			User.register(details.firstName, details.lastName, details.email, details.password);
+			User.register(details.firstName, details.lastName, details.email, details.userType, details.password);
 
 			// Then log them in, and redirect to the homepage
 			session().clear();

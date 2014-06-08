@@ -39,6 +39,9 @@ public class User extends Person {
     @Id
     public Long id;
 
+    @Constraints.Required
+    public String userType;
+
     @Constraints.Email
     @Constraints.Required
     public String email;
@@ -109,9 +112,10 @@ public class User extends Person {
     /**
      * Class constructor setting the required variables of the class
      */
-    public User(String firstName, String lastName, String email, String password) {
+    public User(String firstName, String lastName, String email, String userType, String password) {
         super(firstName, lastName);
-	    this.email = email;
+	    this.userType = userType;
+        this.email = email;
         this.password = User.hashPassword(password, email);
         this.registrationDate = new Date();
         this.theme = Theme.LIGHT;
@@ -261,10 +265,10 @@ public class User extends Person {
      * @param password The plaintext password of the registering User.
      * @return A Boolean indicating whether or not the User is able to register with the suppl
      */
-    public static Boolean register(String firstName, String lastName, String email, String password) {
+    public static Boolean register(String firstName, String lastName, String email, String userType, String password) {
         try {
             // Create a new user
-            User user = new User(firstName, lastName, email, password);
+            User user = new User(firstName, lastName, email, userType, password);
             // TODO: Any additional configuration here
             // Save the user to the database
 	        user.save();
