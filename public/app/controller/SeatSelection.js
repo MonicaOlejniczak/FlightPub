@@ -1,4 +1,5 @@
 Ext.define('FB.controller.SeatSelection', {
+	extend: 'Ext.app.Controller',
 	/**
 	 * Dependencies
 	 */
@@ -8,10 +9,9 @@ Ext.define('FB.controller.SeatSelection', {
 		'Ext.button.Button'
 	],
 	/**
-	 * A constructor that adds the click events to the flights page and converts the json file to a data store
-	 * @constructor
+	 * The initialising function
 	 */
-	constructor: function () {
+	init: function () {
 		Ext.onReady(function () {
 			this.rowCount = 6;
 			this.columnCount = 6;

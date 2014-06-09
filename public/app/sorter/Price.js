@@ -1,6 +1,6 @@
-Ext.define('FB.sorters.ArrivalTime', {
+Ext.define('FB.sorter.Price', {
 	extend: 'Ext.util.Sorter',
 	root: 'data',
-	property: 'arrivalTime',
+	property: 'price',
 	direction: 'ASC'
 });

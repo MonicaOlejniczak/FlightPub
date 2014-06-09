@@ -1,6 +1,6 @@
 Ext.define('FB.store.Airline', {
 	extend: 'Ext.data.Store',
-	model: 'FB.models.Airline',
+	model: 'FB.model.Airline',
 	fields: [
 		'name',
 		'code'

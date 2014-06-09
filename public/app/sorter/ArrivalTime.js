@@ -1,6 +1,6 @@
-Ext.define('FB.sorters.StopOver', {
+Ext.define('FB.sorter.ArrivalTime', {
 	extend: 'Ext.util.Sorter',
 	root: 'data',
-	property: 'stopOver',
+	property: 'arrivalTime',
 	direction: 'ASC'
 });

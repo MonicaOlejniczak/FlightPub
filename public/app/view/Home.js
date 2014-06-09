@@ -24,11 +24,11 @@ Ext.define('FB.view.Home', {
 		},
 		items: [{
 			itemId: 'flightFrom',
-			name: 'flightFrom',
+			name: 'source',
 			fieldLabel: 'Flight from'
 		},  {
 			itemId: 'flightTo',
-			name: 'flightTo',
+			name: 'destination',
 			fieldLabel: 'Flight to'
 		}]
 	},  {

@@ -1,6 +1,6 @@
-Ext.define('FB.sorters.Price', {
+Ext.define('FB.sorter.StopOver', {
 	extend: 'Ext.util.Sorter',
 	root: 'data',
-	property: 'price',
+	property: 'stopOver',
 	direction: 'ASC'
 });

@@ -15,6 +15,9 @@ Ext.define('FB.controller.AccountSettings', {
 		ref: 'Form',
 		selector: 'AccountSettings'
 	}],
+	/**
+	 * Initialising function
+	 */
 	init: function() {
 		Ext.widget('AccountSettings', {
 			renderTo: Ext.get('accountSettings')

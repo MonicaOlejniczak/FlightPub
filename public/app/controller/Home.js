@@ -4,7 +4,7 @@ Ext.define('FB.controller.Home', {
 	 * Dependencies
 	 */
 	requires: [
-		'FB.models.Airport',
+		'FB.model.Airport',
 		'FB.store.Airport',
 		'Ext.container.Container',
 		'Ext.form.Panel',
@@ -71,10 +71,6 @@ Ext.define('FB.controller.Home', {
 	submitEvent: function () {
 		var form = this.getForm();
 		form.submit({
-			params: {
-				source: form.down('#flightFrom').getValue(),
-				destination: form.down('#flightTo').getValue()
-			},
 			url: '/flights',
 			method: 'get',
 			submitEmptyText: false,

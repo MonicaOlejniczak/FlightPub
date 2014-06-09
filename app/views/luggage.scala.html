@@ -1,16 +1,12 @@
-@(luggage: List[Luggage])
-
 @styles = {
     <link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/luggage.css")'>
 }
 
-@scripts = {
-	<script type='text/javascript'>
-		Ext.create('FB.controller.Luggage');
-	</script>
+@controller = @{
+	"Luggage"
 }
 
-@main("FlightPub - Luggage Options", styles, scripts) {
+@main("FlightPub - Luggage Options", styles, controller = controller) {
 
 	<h1>Ticket and Luggage Type</h1>
 	<div class="content">

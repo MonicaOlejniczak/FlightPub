@@ -1,4 +1,4 @@
-Ext.define('FB.models.Airline', {
+Ext.define('FB.model.Airline', {
 	extend: 'Ext.data.Model',
 	fields: [
 		'name',

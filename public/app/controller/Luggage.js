@@ -1,4 +1,5 @@
 Ext.define('FB.controller.Luggage', {
+	extend: 'Ext.app.Controller',
 	/**
 	 * Dependencies
 	 */
@@ -9,10 +10,9 @@ Ext.define('FB.controller.Luggage', {
 		'Ext.button.Button'
 	],
 	/**
-	 * A constructor that adds the click events to the flights page and converts the json file to a data store
-	 * @constructor
+	 * The initialising function
 	 */
-	constructor: function () {
+	init: function () {
 		Ext.onReady(function () {
 			this.passengers = 3; // TODO: fix
 			this.renderForm();

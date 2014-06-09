@@ -1,4 +1,4 @@
-Ext.define('FB.sorters.Airline', {
+Ext.define('FB.sorter.Airline', {
 	extend: 'Ext.util.Sorter',
 	root: 'data',
 	property: 'airline',

@@ -1,46 +1,44 @@
 Ext.define('FB.controller.Flights', {
+	extend: 'Ext.app.Controller',
 	/**
 	 * Dependencies
 	 */
 	requires: [
-		'FB.models.Flight',
-		'FB.models.Airline',
-		'FB.stores.Itinerary',
-		'FB.stores.Airline',
-		'FB.stores.Airport',
-		'FB.sorters.Price',
-		'FB.sorters.Duration',
-		'FB.sorters.DepartureTime',
-		'FB.sorters.ArrivalTime',
-		'FB.sorters.StopOver',
-		'FB.sorters.Airline',
+		'FB.model.Flight',
+		'FB.model.Airline',
+		'FB.store.Itinerary',
+		'FB.store.Airline',
+		'FB.store.Airport',
+		'FB.sorter.Price',
+		'FB.sorter.Duration',
+		'FB.sorter.DepartureTime',
+		'FB.sorter.ArrivalTime',
+		'FB.sorter.StopOver',
+		'FB.sorter.Airline',
 		'Ext.container.Container',
-		'FB.containers.Duration',
 		'Ext.layout.container.Border',
 		'Ext.form.field.Number',
 		'Ext.form.field.ComboBox'
 	],
 	/**
-	 * A constructor that adds the click events to the flights page and converts the json file to a data store
-	 * @constructor
+	 * Initialising function
 	 */
-	constructor: function () {
+	init: function () {
 		Ext.onReady(function () {
 			this.lastSortedBy = null;
 			this.activeContainer = null;
-			this.priceSorter = Ext.create('FB.sorters.Price');
-			this.durationSorter = Ext.create('FB.sorters.Duration');
-			this.departureTimeSorter = Ext.create('FB.sorters.DepartureTime');
-			this.arrivalTimeSorter = Ext.create('FB.sorters.ArrivalTime');
-			this.stopOverSorter = Ext.create('FB.sorters.StopOver');
-			this.airlineSorter = Ext.create('FB.sorters.Airline');
+			this.priceSorter = Ext.create('FB.sorter.Price');
+			this.durationSorter = Ext.create('FB.sorter.Duration');
+			this.departureTimeSorter = Ext.create('FB.sorter.DepartureTime');
+			this.arrivalTimeSorter = Ext.create('FB.sorter.ArrivalTime');
+			this.stopOverSorter = Ext.create('FB.sorter.StopOver');
+			this.airlineSorter = Ext.create('FB.sorter.Airline');
 			this.priceContainer = null;
 			this.durationContainer = null;
-			//this.durationContainer = Ext.create('FB.containers.Duration');
 			this.stopOverContainer = null;
 			this.airlineContainer = null;
             this.selectedItinerary = null;
-			this.dataStore = Ext.create('FB.stores.Itinerary', {
+			this.dataStore = Ext.create('FB.store.Itinerary', {
                 autoLoad: false,
 				listeners: {
 					'load': function (store, records, successful, eOpts) {
@@ -453,7 +451,7 @@ Ext.define('FB.controller.Flights', {
 				name: 'airline',
 				id: 'airline',
 				store: airlines,
-				model: 'FB.models.Airline',
+				model: 'FB.model.Airline',
 				displayField: 'name',
 				valueField: 'name',
 				editable: false,

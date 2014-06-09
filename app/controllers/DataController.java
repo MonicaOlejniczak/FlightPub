@@ -32,9 +32,16 @@ public class DataController extends Controller {
 		DateTime start = new DateTime().withDate(2014, 9, 23).withTime(0, 0, 0, 0);
 		DateTime end = new DateTime().withDate(2014, 9, 27).withTime(23, 59, 59, 999);
 
+		List<Flight> possibleFlights = Flight.find.where().between("departureTime", start, end).findList();
+
+		System.out.println("possible: ");
+		System.out.println(possibleFlights.size());
+
 		int depth = 10;
 
 		List<List<Flight>> flights = FlightFinder.findFlights(source, destination, start, end, depth);
+
+		System.out.println(flights.size());
 
         // generate limited version
         // NOTE: THIS IS GREAT HAHA /WRISTS

@@ -1,4 +1,4 @@
-Ext.define('FB.models.Itinerary', {
+Ext.define('FB.model.Itinerary', {
 	extend: 'Ext.data.Model',
 	fields: [
         'id',

@@ -1,6 +1,6 @@
 Ext.define('FB.store.Flight', {
 	extend: 'Ext.data.Store',
-	model: 'FB.models.Flight',
+	model: 'FB.model.Flight',
 	proxy: {
 		url: 'data/selectedFlights',
 		type: 'ajax',
