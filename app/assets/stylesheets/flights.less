@@ -50,6 +50,13 @@
 
 @sortLineHeight: @sortHeight;
 
+.hidden {
+    display: none;
+}
+.filter {
+    display: none;
+}
+
 #flightOptions, #sort, #results, #flights, .flight, #buttons {
 	clear: both;
 }
@@ -186,12 +193,21 @@
 #flights {
 	max-width: @flightsWidth;
 	margin: 0 auto;
+    overflow-x: scroll;
+    position: relative;
+}
+
+.itinerary {
+    position: relative;
+    white-space: nowrap;
 }
 
 .flight {
 	height: @flightHeight;
-	margin: 0 0 @flightMargin 0;
+	margin: 0 1em @flightMargin 0;
 	position: relative;
+    display: inline-block;
+    width: 450px;
 }
 
 .filter, .source, .flightBarTextHidden, .destination, .flight:hover .source, .flight:hover .flightBarTextHidden, .flight:hover .destination {
@@ -199,9 +215,9 @@
 }
 
 .filter, .source, .flightBarTextHidden, .destination {
-	opacity: 0;
-	filter:alpha(opacity=0);
-	visibility: hidden;
+	opacity: 1;
+	filter:alpha(opacity=100);
+	/*visibility: hidden;*/
 }
 
 .flight:hover .source, .flight:hover .flightBarTextHidden, .flight:hover .destination {
@@ -325,13 +341,13 @@
 	right: 0;
 }
 
-.selectFlight {
+.itinerary.selectFlight .flightBar {
 	background: @secondaryColor;
 }
 
 #buttons {
 	width: calc(~'@{buttonWidth} * 3 + @{buttonMargin} * 2');
 	height: 100%;
-	margin: 0 1em 1em 0;
+	margin: 2em 1em 1em 0;
 	float: right;
 }

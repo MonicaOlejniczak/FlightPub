@@ -39,27 +39,29 @@
 @animationWidth: 100% / @imageCount;
 @moveAmount: 100%;
 
-.inputs {
+#home {
 	width: @contentWidth;
 	margin: 0 auto;
 }
 
-#homeForm label {
-	color: #fff;
-	font: 1.2em 'Ubuntu' @nextFont;
-	text-align: right;
-	padding: 0 0.5em 0 0;
+input {
+	border-radius: @borderWidth 0 0 @borderWidth;
 }
 
-#map {
+.passengers {
+	font: 1.2em 'Ubuntu' @nextFont;
+	text-align: right;
+	padding: 0 1em 0 0;
+}
+
+.map {
 	width: 100%;
 	height: 500px;
 	clear: both;
-	margin: 1em 0;
 	.boxShadow(0, 0, 0.05em, 0.05em, darken(@informationBackgroundColor, 10%));
 }
 
-#map a, #map span {
+.map a, .map span {
 	display: none;
 }
 

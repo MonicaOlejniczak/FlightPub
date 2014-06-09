@@ -453,8 +453,7 @@ public class BookingController extends Controller {
     }
 
     public static Result luggage() {
-        List<Luggage> luggageTypes = Luggage.find.all();
-        return ok(views.html.luggage.render(luggageTypes));
+        return ok(views.html.luggage.render());
     }
 
     public static Result submitLuggage() {

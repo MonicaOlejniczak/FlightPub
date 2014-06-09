@@ -4,12 +4,13 @@
 
 @scripts = {
     <script type='text/javascript' src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
-    <script type='text/javascript'>
-    Ext.create('FB.controllers.Home');
-    </script>
 }
 
-@main("FlightPub - Home", styles, scripts) {
+@controller = @{
+	"Home"
+}
+
+@main("FlightPub - Home", styles, scripts, controller) {
 
 	<h1>Home</h1>
 	<div class="content">

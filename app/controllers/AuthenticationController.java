@@ -1,15 +1,10 @@
 package controllers;
 
-import com.avaje.ebean.Ebean;
 import models.User;
 import play.data.Form;
 import play.data.validation.Constraints;
-import play.libs.Yaml;
 import play.mvc.Controller;
 import play.mvc.Result;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * Controller responsible for all authentication in the FlightPub system.
@@ -33,6 +28,12 @@ public class AuthenticationController extends Controller {
 		@Constraints.Required(message = "Required Field!")
 		@Constraints.MaxLength(value = 30, message = "Name Too Long!")
 		public String lastName;
+
+        /**
+         * User type field from the request
+         */
+        @Constraints.Required
+        public String userType;
 
 		/**
 		 * Email field from the request.
@@ -107,7 +108,7 @@ public class AuthenticationController extends Controller {
 			RegistrationDetails details = registrationForm.get();
 
 			// Register the user
-			User.register(details.firstName, details.lastName, details.email, details.password);
+			User.register(details.firstName, details.lastName, details.email, details.userType, details.password);
 
 			// Then log them in, and redirect to the homepage
 			session().clear();
@@ -156,4 +157,5 @@ public class AuthenticationController extends Controller {
 		session().clear();
 		return redirect(controllers.routes.MainController.home());
 	}
+
 }

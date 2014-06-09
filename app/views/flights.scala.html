@@ -2,13 +2,11 @@
 	<link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/flights.css")'>
 }
 
-@scripts = {
-	<script type='text/javascript'>
-		Ext.create('FB.controllers.Flights');
-	</script>
+@controller = @{
+	"Flights"
 }
 
-@main("FlightPub - Flight Results", styles, scripts) {
+@main("FlightPub - Flight Results", styles, controller = controller) {
 
 	<h1>Flight Results</h1>
 	<div id="flightOptions">

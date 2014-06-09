@@ -1,16 +1,13 @@
 Ext.Loader.setConfig({
-    enabled : true,
-    paths : {
-        'FB': '/assets/app'
-    }
+    enabled : true
 });
 
-Ext.namespace('FB');
 // horrible things ahead
+Ext.syncRequire('Ext.data.Request');
 Ext.syncRequire('Ext.data.Store');
 
 loadStores([
-    'FB.stores.Airport'
+    'FB.store.Airport'
 ]);
 
 function loadStores (stores) {
@@ -29,4 +26,3 @@ function loadStores (stores) {
         }
     }, this);
 }
-
