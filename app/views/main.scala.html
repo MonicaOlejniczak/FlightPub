@@ -1,4 +1,4 @@
-@(title: String, styles: Html = Html(""), scripts: Html = Html(""))(content: Html)
+@(title: String, styles: Html = Html(""), scripts: Html = Html(""), controller: String = "")(content: Html)
 @activeLink(currentPath:String) = @{
 	if(request.path.equals(currentPath)) "active"
 }
@@ -18,8 +18,33 @@
         <script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("jquery.min.js"))'></script>
 		<script type='text/javascript' src='@routes.Assets.at("extjs/ext-dev.js")'></script>
     	<script type='text/javascript' src='@routes.Assets.at("extjs/ext-theme-neptune.js")'></script>
-		<script type='text/javascript' src='@routes.Assets.at("javascripts/global.js")'></script>
         @scripts
+	    @if(controller != "") {
+		    <script type='text/javascript'>
+			    Ext.application({
+				    name: 'FB',
+				    paths: {
+				        'FB': '/assets/app'
+				    },
+				    controllers: [
+				        '@controller'
+				    ],
+				    views: [
+				        '@controller'
+			        ],
+				    stores: [
+					    'Adult',
+				        'Airline',
+				        'Airport',
+					    'Child',
+				        'Flight',
+					    'Infant',
+				        'Itinerary'
+				    ],
+				    autoCreateViewport: false
+			    });
+		    </script>
+	    }
     </head>
     <body>
         <header>

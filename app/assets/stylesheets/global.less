@@ -57,6 +57,15 @@ html, body, .x-body {
 	position: absolute;
 }
 
+#content h2, .formHeading {
+	color: @buttonBackgroundColor;
+	font: bold 1.5em 'Ubuntu' @nextFont;
+}
+
+.formHeading {
+	margin: 0 0 0.5em 205px;
+}
+
 a, a:hover, a:focus {
 	text-decoration: none;
 }
@@ -65,38 +74,17 @@ a:hover {
 	.transition(background, 0.5s);
 }
 
-/*p {
-	margin: 0 0 1em 0;
+.content, .x-form-item-label {
+	color: #fff;
 }
 
-form {
-	font: @formFont;
-	color: @formColor;
-	.textShadow(@formColor);
-	clear: both;
+.content, .x-list-plain {
+	font: 1em 'Ubuntu' @nextFont;
 }
-
-input, select {
-	height: @inputFontSize * 3;
-	background-color: @inputBackgroundColor;
-	color: @inputColor;
-	font: @inputFont;
-	.textShadow(@inputColor);
-	text-indent: 0.5em;
-	border: 0;
-	border-radius: 0.1em;
-	margin: 0 0 0.1em;
-}
-
-input[type=submit] {
-	cursor: pointer;
-}*/
 
 .content {
 	min-width: @minWidth;
 	min-height: 100%;
-	color: #fff;
-	font: 1em 'Ubuntu' @nextFont;
 	padding: 1em 0;
 	position: relative;
 	clear: both;
@@ -118,6 +106,24 @@ input[type=submit] {
 
 .panel-body {
 	background-color: lighten(@secondaryBackgroundColor, 10%);
+}
+
+input {
+	border-radius: @borderWidth;
+}
+
+.x-form-trigger-wrap {
+	border: 0;
+}
+
+.x-form-item-label {
+	font: 1.2em 'Ubuntu' @nextFont;
+	text-align: right;
+	padding: 0 1em 0 0;
+}
+
+.x-toolbar {
+	background: none;
 }
 
 .button, .selectedButton, .cancelButton {
@@ -184,6 +190,10 @@ input[type=submit] {
 
 .x-tool-img {
 	height: 25px;
+}
+
+.x-form-invalid-under {
+	margin: 0.2em 0 0 0;
 }
 
 ::selection {

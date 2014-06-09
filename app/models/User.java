@@ -46,52 +46,41 @@ public class User extends Person {
     @Constraints.Required
     public String email;
 
-    @Constraints.Required
     @Constraints.MinLength(8)
+    @Constraints.Required
     public String password;
 
-    @Constraints.Required
     @ManyToMany(mappedBy = "users", cascade = CascadeType.ALL)
     public List<Role> roles = new ArrayList<>();
 
-    @Constraints.Required
     @Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
     public Date registrationDate;
 
     @Enumerated(EnumType.ORDINAL)
-    @Constraints.Required
     public Theme theme;
 
     @Enumerated(EnumType.ORDINAL)
-    @Constraints.Required
     public Units unit;
 
     @Constraints.MaxLength(100)
-    @Constraints.Required
     public String streetAddress;
 
     @Constraints.MaxLength(100)
-    @Constraints.Required
     public String suburb;
 
     @Constraints.MaxLength(50)
-    @Constraints.Required
     public String state;
 
     @Constraints.MaxLength(8)
-    @Constraints.Required
     public String paymentMethod;
 
-	@Constraints.Required
     public Integer postcode;
 
-	@Constraints.Required
     public Integer phoneNumber;
 
     @Constraints.MaxLength(30)
-    public String cardName;
+	public String cardName;
 
-	@Constraints.Required
     public Integer cardNumber;
 
     @Constraints.MaxLength(130)
@@ -120,141 +109,15 @@ public class User extends Person {
         this.registrationDate = new Date();
         this.theme = Theme.LIGHT;
         this.unit= Units.METRIC;
-	    this.streetAddress = null;
-	    this.suburb = null;
-	    this.state = null;
-	    this.paymentMethod = null;
-	    this.postcode = null;
-	    this.phoneNumber = null;
-	    this.cardName = null;
-	    this.cardNumber = null;
-	    this.ppUsername = null;
     }
 
-    /**
-     * Function for updating user's first name
-     * @param firstName user's new first name
-     */
-    public void updateFName(String firstName) {
-        this.firstName = firstName;
-        this.save();
-    }
-
-    /**
-     * Function for updating user's last name
-     * @param lastName user's new last name
-     */
-    public void updateLName(String lastName) {
-        this.lastName = lastName;
-        this.save();
-    }
-
-    /**
-     * Function for updating user's phone number
-     * @param phoneNumber user's new phone number
-     */
-    public void updatePhone(int phoneNumber) {
-        this.phoneNumber = phoneNumber;
-        this.save();
-    }
-
-    /**
-     * Function for updating user's password
-     * @param password user's new password
-     */
-    public void updatePassword(String password, String email) {
-        this.password = User.hashPassword(password, email);
-        this.save();
-    }
-
-    /**
-     * Function for updating user's email address
-     * @param email user's new email
-     */
-    public void updateEmail(String email) {
-        this.email = email;
-        this.save();
-    }
-
-    /**
-     * Function for updating user's street address
-     * @param streetAddress user's new street address
-     */
-    public void updateAddress(String streetAddress) {
-        this.streetAddress = streetAddress;
-        this.save();
-    }
-
-    /**
-     * Function for updating user's suburb
-     * @param suburb user's new suburb
-     */
-    public void updateSuburb(String suburb) {
-        this.suburb = suburb;
-        this.save();
-    }
-
-    /**
-     * Function for updating user's state
-     * @param userState user's new state
-     */
-    public void updateState(String userState) {
-        this.state = userState;
-        this.save();
-    }
-
-    /**
-     * Function for updating user's post code
-     * @param postcode user's new post code
-     */
-    public void updatePCode(int postcode) {
-        this.postcode = postcode;
-        this.save();
-    }
-
-    /**
-     * Function for updating user's preferred payment method
-     * @param payMethod user's preferred payment method
-     */
-    public void updatePay(String payMethod) {
-        this.paymentMethod = payMethod;
-        this.save();
-    }
-
-    /**
-     * Function for updating user's card name
-     * @param cardName user's new card name
-     */
-    public void updateCName(String cardName) {
-        this.cardName = cardName;
-        this.save();
-    }
-
-    /**
-     * Function for updating user's card number
-     * @param cardNumber user's new card number
-     */
-    public void updateCNum(int cardNumber) {
-        this.cardNumber = cardNumber;
-        this.save();
-    }
-
-    /**
-     * Function for updating user's paypal username
-     * @param ppUsername user's new paypal username
-     */
-    public void updatePPUser(String ppUsername) {
-        this.ppUsername = ppUsername;
-        this.save();
-    }
-
-    /**
-     * Sets this User's password to the specified new password.
-     * @param password The new password to assign to this user, in plaintext.
-     */
-    public void setPassword(String password) {
-        this.password = User.hashPassword(password, this.email);
-    }
+	/**
+	 * Sets this User's password to the specified new password.
+	 * @param password The new password to assign to this user, in plaintext.
+	 */
+	public void setPassword(String password) {
+		this.password = User.hashPassword(password, this.email);
+	}
 
     /**
      * Registers a User account with the given registration details, returning a Boolean indicating success
@@ -296,7 +159,7 @@ public class User extends Person {
      * @param salt The salt used to secure the password hash.
      * @return A hash of the specified plaintext password.
      */
-    private static String hashPassword(String plaintextPassword, String salt) {
+    public static String hashPassword(String plaintextPassword, String salt) {
         // Merge salt and password
         String passwordAndSalt = Play.application().configuration().getString("application.secret") +
                 salt.substring(0, salt.length() / 2) + plaintextPassword + salt.substring(salt.length() / 2);
@@ -314,14 +177,15 @@ public class User extends Person {
 
     /**
      * Function for adding payment details to the user.
-     * @param payDeets  The set of payment details being added to the payment details list.
+     * @param payment  The set of payment details being added to the payment details list.
      */
-    public void addPayDetails(Payment payDeets) {
-        paymentDetails.add(payDeets);
+    public void addPayDetails(Payment payment) {
+        paymentDetails.add(payment);
     }
 
     /**
      * Creates a finder for the User entity
      */
     public static Model.Finder<Long, User> find = new Model.Finder<>(Long.class, User.class);
+
 }

@@ -1,15 +1,10 @@
 package controllers;
 
-import com.avaje.ebean.Ebean;
 import models.User;
 import play.data.Form;
 import play.data.validation.Constraints;
-import play.libs.Yaml;
 import play.mvc.Controller;
 import play.mvc.Result;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * Controller responsible for all authentication in the FlightPub system.
@@ -162,4 +157,5 @@ public class AuthenticationController extends Controller {
 		session().clear();
 		return redirect(controllers.routes.MainController.home());
 	}
+
 }

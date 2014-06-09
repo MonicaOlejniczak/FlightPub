@@ -1,4 +1,4 @@
-Ext.define('FB.controllers.Luggage', {
+Ext.define('FB.controller.Luggage', {
 	/**
 	 * Dependencies
 	 */
@@ -78,6 +78,7 @@ Ext.define('FB.controllers.Luggage', {
 				queryMode: 'local',
 				displayField: 'name',
 				valueField: 'name',
+				fieldCls: 'passengerLabel',
 				value: 'Economy',
 				flex: 1,
 				editable: false,
@@ -149,7 +150,6 @@ Ext.define('FB.controllers.Luggage', {
 	 * Renders the back button for the form
 	 *
 	 *  @param container the button container
-	 *  @param buttonClass the class being used for all buttons on the page
 	 */
 	renderBackButton: function (container) {
 		container.add(Ext.create('Ext.button.Button', {
@@ -165,7 +165,7 @@ Ext.define('FB.controllers.Luggage', {
 	 * Renders the next button for the form
 	 *
 	 *  @param container the button container
-	 *  @form the main form used on the page
+	 *  @param form the main form used on the page
 	 */
 	renderNextButton: function (container, form) {
 		container.add(Ext.create('Ext.button.Button', {

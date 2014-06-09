@@ -1,14 +1,15 @@
 package controllers;
 
 import authentication.AuthenticatedUser;
-import com.avaje.ebean.Expr;
 import models.User;
 import play.data.Form;
 import play.data.validation.Constraints;
+import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import play.mvc.Controller;
 import play.mvc.Security;
+
+import static play.data.Form.form;
 
 /**
  * A Controller class that tests User authentication.
@@ -17,9 +18,10 @@ import play.mvc.Security;
  */
 @Security.Authenticated(AuthenticatedUser.class)
 public class TestAuthController extends Controller {
-    public static Result index() {
+
+	public static Result index() {
         if (AuthenticatedUser.isLoggedIn()) {
-            return ok(views.html.accountSettings.render(Form.form(AccountForm.class)));
+            return ok(views.html.accountSettings.render(form(AccountForm.class)));
         } else {
             return forbidden();
         }
@@ -30,132 +32,185 @@ public class TestAuthController extends Controller {
      */
     public static class AccountForm {
         /**
-         * First Name.
-         */
-        @Constraints.MaxLength(value = 30, message = "Name Too Long!")
-        @Constraints.Pattern(value = "\\D*", message = "Name cannot contain numbers!")
-        public String accFName;
-
-        /**
-         * Surname.
-         */
-        @Constraints.MaxLength(value = 30, message = "Name Too Long!")
-        @Constraints.Pattern(value = "\\D*", message = "Name cannot contain numbers!")
-        public String accLName;
-
-        /**
          * Email
          */
         @Constraints.Email(message = "Invalid Email Address!")
-        public String accEmail;
+        public String email;
 
         /**
          * Password
          */
         @Constraints.MinLength(value = 8, message = "Password Too Short!")
-        public String accPassword;
+        public String password;
+
+	    /**
+	     * New password
+	     */
+	    @Constraints.MinLength(value = 8, message = "Password Too Short!")
+	    public String newPassword;
+
+	    /**
+	     * Confirmed password
+	     */
+	    @Constraints.MinLength(value = 8, message = "Password Too Short!")
+	    public String confirmPassword;
+
+	    /**
+	     * First name
+	     */
+	    @Constraints.MaxLength(value = 30, message = "Name Too Long!")
+	    @Constraints.Pattern(value = "\\D*", message = "Name cannot contain numbers!")
+	    public String firstName;
+
+	    /**
+	     * Surname
+	     */
+	    @Constraints.MaxLength(value = 30, message = "Name Too Long!")
+	    @Constraints.Pattern(value = "\\D*", message = "Name cannot contain numbers!")
+	    public String lastName;
+
+	    /**
+	     * Phone number
+	     */
+	    public Integer phoneNumber;
 
         /**
-         * Street Address
+         * Street address
          */
         @Constraints.MaxLength(value = 100, message = "Address too long!")
-        public String accStreetAddress;
+        public String streetAddress;
 
         /**
-         * Suburb/city
+         * Suburb or city
          */
         @Constraints.MaxLength(value = 100, message = "Input too long!")
         @Constraints.Pattern(value = "\\D*", message = "Input must not contain numbers!")
-        public String accSuburb;
+        public String suburb;
 
         /**
          * State
          */
         @Constraints.MaxLength(value = 50, message = "Input too long!")
         @Constraints.Pattern(value = "\\D*", message = "Input must not contain numbers!")
-        public String accState;
+        public String state;
 
         /**
          * Post code
          */
-        public int accPCode;
-
-        /**
-         * Phone number
-         */
-        public int accPhone;
+        public Integer postCode;
 
         /**
          * Preferred payment method
          */
-        public String accPay;
+        public String paymentMethod;
 
         /**
          * Name on card
          */
         @Constraints.MaxLength(value = 30, message = "Name too long!")
         @Constraints.Pattern(value = "\\D*", message = "Name cannot contain numbers!")
-        public String accCardName;
+        public String cardName;
 
         /**
          * Card number
          */
-        public int accCardNum;
+        public Integer cardNumber;
 
         /**
          * PayPal username
          */
         @Constraints.MaxLength(value = 130, message = "Name too long!")
-        public String accPPUsername;
+        public String ppUsername;
     }
 
     public static Result processSettings() {
-        Form<AccountForm> accountForm = Form.form(AccountForm.class).bindFromRequest();
-        if (accountForm.hasErrors()) {
+        Form<AccountForm> accountForm = form(AccountForm.class).bindFromRequest();
+	    if (accountForm.hasErrors()) {
             return badRequest(views.html.accountSettings.render(accountForm));
         } else {
             AccountForm details = accountForm.get();
-            AuthenticatedUser loggedUser = new AuthenticatedUser();
-            String username = loggedUser.getUsername(Http.Context.current());
-            if(!(details.accFName.isEmpty())) {
-                User.find.where(Expr.eq("email", username)).findUnique().updateFName(details.accFName);
-            }
-            if(!(details.accLName.isEmpty())) {
-                User.find.where(Expr.eq("email", username)).findUnique().updateLName(details.accLName);
-            }
-            if(!(details.accPassword.isEmpty())) {
-                User.find.where(Expr.eq("email", username)).findUnique().updatePassword(details.accPassword, username);
-            }
-            if(!(details.accEmail.isEmpty())) {
-                User.find.where(Expr.eq("email", username)).findUnique().updateEmail(details.accEmail);
-            }
-            if(details.accPhone > 0) {
-                User.find.where(Expr.eq("email", username)).findUnique().updatePhone(details.accPhone);
-            }
-            if(!(details.accStreetAddress.isEmpty())) {
-                User.find.where(Expr.eq("email", username)).findUnique().updateAddress(details.accStreetAddress);
-            }
-            if(!(details.accSuburb.isEmpty())) {
-                User.find.where(Expr.eq("email", username)).findUnique().updateSuburb(details.accSuburb);
-            }
-            if(!(details.accState.isEmpty())) {
-                User.find.where(Expr.eq("email", username)).findUnique().updateState(details.accState);
-            }
-            if(details.accPCode > 0) {
-                User.find.where(Expr.eq("email", username)).findUnique().updatePCode(details.accPCode);
-            }
-            if(!(details.accPay.isEmpty())) {
-                User.find.where(Expr.eq("email", username)).findUnique().updatePay(details.accPay);
-            }
-            if(!(details.accCardName.isEmpty())) {
-                User.find.where(Expr.eq("email", username)).findUnique().updateCName(details.accCardName);
-            }
-            if(details.accCardNum > 0) {
-                User.find.where(Expr.eq("email", username)).findUnique().updateCNum(details.accCardNum);
-            }
-            if(!(details.accPPUsername.isEmpty())) {
-                User.find.where(Expr.eq("email", username)).findUnique().updatePPUser(details.accPPUsername);
-            }
+		    User user = User.find.where().eq("email", session().get("email")).findUnique();
+		    if (!details.email.equals(user.email)) {
+			    user.email = details.email;
+		    }
+		    if (!details.newPassword.isEmpty()) {
+			    String newPassword = User.hashPassword(details.newPassword, user.email);
+			    if (!newPassword.equals(user.password)) {
+				    System.out.println("no");
+				    user.password = newPassword;
+			    }
+		    }
+		    if (!details.firstName.equals(user.firstName)) {
+			    user.firstName = details.firstName;
+		    }
+		    if (!details.lastName.equals(user.lastName)) {
+			    user.lastName = details.lastName;
+		    }
+		    if (details.phoneNumber != null) {
+			    if (!details.phoneNumber.equals(user.phoneNumber)) {
+				    user.phoneNumber = details.phoneNumber;
+			    }
+		    } else {
+			    user.phoneNumber = null;
+		    }
+		    if (!details.streetAddress.isEmpty()) {
+			    if (!details.streetAddress.equals(user.streetAddress)) {
+				    user.streetAddress = details.streetAddress;
+			    }
+		    } else {
+			    user.streetAddress = null;
+		    }
+		    if (!details.suburb.isEmpty()) {
+			    if (!details.suburb.equals(user.suburb)) {
+				    user.suburb = details.suburb;
+			    }
+		    } else {
+			    user.suburb = null;
+		    }
+		    //todo country
+		    if (!details.state.isEmpty()) {
+			    if (!details.state.equals(user.state)) {
+				    user.state = details.state;
+			    }
+		    } else {
+			    user.state = null;
+		    }
+		    if (details.postCode != null) {
+			    if (!details.postCode.equals(user.postcode)) {
+				    user.postcode = details.postCode;
+			    }
+		    } else {
+			    user.postcode = null;
+		    }
+		    if (!details.paymentMethod.isEmpty()) {
+			    if (!details.paymentMethod.equals(user.paymentMethod)) {
+				    user.paymentMethod = details.paymentMethod;
+			    }
+		    } else {
+			    user.paymentMethod = null;
+		    }
+		    if (!details.cardName.isEmpty()) {
+			    if (!details.cardName.equals(user.cardName)) {
+				    user.cardName = details.cardName;
+			    }
+		    } else {
+			    user.cardName = null;
+		    }
+		    if (details.cardNumber != null) {
+			    if (!details.cardNumber.equals(user.cardNumber)) {
+				    user.cardNumber = details.cardNumber;
+			    }
+		    } else {
+			    user.cardNumber = null;
+		    }
+		    if (!details.ppUsername.isEmpty()) {
+			    if (!details.ppUsername.equals(user.ppUsername)) {
+				    user.ppUsername = details.ppUsername;
+			    }
+		    } else {
+			    user.ppUsername = null;
+		    }
+		    user.save();
         }
         return index();
     }

@@ -1,7 +1,6 @@
-Ext.define('FB.stores.Airline', {
+Ext.define('FB.store.Airline', {
 	extend: 'Ext.data.Store',
 	model: 'FB.models.Airline',
-	autoLoad: true,
 	fields: [
 		'name',
 		'code'
