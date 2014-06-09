@@ -2,19 +2,12 @@ Ext.Loader.setConfig({
     enabled : true
 });
 
-Ext.application({
-	name: 'FB',
-	paths: {
-		'FB': '/assets/app'
-	},
-	autoCreateViewport: false
-});
-
 // horrible things ahead
+Ext.syncRequire('Ext.data.Request');
 Ext.syncRequire('Ext.data.Store');
 
 loadStores([
-    'FB.stores.Airport'
+    'FB.store.Airport'
 ]);
 
 function loadStores (stores) {

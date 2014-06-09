@@ -124,7 +124,6 @@ public class TestAuthController extends Controller {
     }
 
     public static Result processSettings() {
-	    // todo more server side checking
         Form<AccountForm> accountForm = form(AccountForm.class).bindFromRequest();
 	    if (accountForm.hasErrors()) {
             return badRequest(views.html.accountSettings.render(accountForm));
@@ -132,81 +131,86 @@ public class TestAuthController extends Controller {
             AccountForm details = accountForm.get();
 		    User user = User.find.where().eq("email", session().get("email")).findUnique();
 		    if (!details.email.equals(user.email)) {
-			    user.setEmail(details.email);
+			    user.email = details.email;
 		    }
-		    if (!details.newPassword.equals(user.password)) {
-			    user.setPassword(details.newPassword);
+		    if (!details.newPassword.isEmpty()) {
+			    String newPassword = User.hashPassword(details.newPassword, user.email);
+			    if (!newPassword.equals(user.password)) {
+				    System.out.println("no");
+				    user.password = newPassword;
+			    }
 		    }
 		    if (!details.firstName.equals(user.firstName)) {
-			    user.setFirstName(details.firstName);
+			    user.firstName = details.firstName;
 		    }
 		    if (!details.lastName.equals(user.lastName)) {
-			    user.setLastName(details.lastName);
+			    user.lastName = details.lastName;
 		    }
 		    if (details.phoneNumber != null) {
 			    if (!details.phoneNumber.equals(user.phoneNumber)) {
-				    user.setPhoneNumber(details.phoneNumber);
+				    user.phoneNumber = details.phoneNumber;
 			    }
 		    } else {
-			    user.setPhoneNumber(null);
+			    user.phoneNumber = null;
 		    }
-		    if (details.streetAddress != null) {
+		    if (!details.streetAddress.isEmpty()) {
 			    if (!details.streetAddress.equals(user.streetAddress)) {
-				    user.setStreetAddress(details.streetAddress);
+				    user.streetAddress = details.streetAddress;
 			    }
 		    } else {
-			    user.setStreetAddress(null);
+			    user.streetAddress = null;
 		    }
-		    if (details.suburb != null) {
+		    if (!details.suburb.isEmpty()) {
 			    if (!details.suburb.equals(user.suburb)) {
-				    user.setSuburb(details.suburb);
+				    user.suburb = details.suburb;
 			    }
 		    } else {
-			    user.setSuburb(null);
+			    user.suburb = null;
 		    }
 		    //todo country
-		    if (details.state != null) {
+		    if (!details.state.isEmpty()) {
 			    if (!details.state.equals(user.state)) {
-				    user.setState(details.state);
+				    user.state = details.state;
 			    }
 		    } else {
-			    user.setState(null);
+			    user.state = null;
 		    }
 		    if (details.postCode != null) {
 			    if (!details.postCode.equals(user.postcode)) {
-				    user.setPostcode(details.postCode);
+				    user.postcode = details.postCode;
 			    }
 		    } else {
-			    user.setPostcode(null);
+			    user.postcode = null;
 		    }
-		    if (details.paymentMethod != null) {
+		    if (!details.paymentMethod.isEmpty()) {
 			    if (!details.paymentMethod.equals(user.paymentMethod)) {
-				    user.setPaymentMethod(details.paymentMethod);
+				    user.paymentMethod = details.paymentMethod;
 			    }
 		    } else {
-			    user.setCardName(null);
+			    user.paymentMethod = null;
 		    }
-		    if (details.cardName != null) {
+		    if (!details.cardName.isEmpty()) {
 			    if (!details.cardName.equals(user.cardName)) {
-				    user.setCardName(details.cardName);
+				    user.cardName = details.cardName;
 			    }
 		    } else {
-			    user.setCardName(null);
+			    user.cardName = null;
 		    }
 		    if (details.cardNumber != null) {
 			    if (!details.cardNumber.equals(user.cardNumber)) {
-				    user.setCardNumber(details.cardNumber);
+				    user.cardNumber = details.cardNumber;
 			    }
 		    } else {
-			    user.setCardNumber(null);
+			    user.cardNumber = null;
 		    }
-		    if (details.ppUsername != null) {
+		    if (!details.ppUsername.isEmpty()) {
 			    if (!details.ppUsername.equals(user.ppUsername)) {
-				    user.setPpUsername(details.ppUsername);
+				    user.ppUsername = details.ppUsername;
 			    }
 		    } else {
-			    user.setPpUsername(null);
+			    user.ppUsername = null;
 		    }
+		    user.save();
         }
         return index();
     }

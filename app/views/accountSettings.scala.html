@@ -5,12 +5,13 @@
 }
 
 @scripts = {
-	<script type='text/javascript'>
-		Ext.create('FB.controller.AccountSettings');
-	</script>
 }
 
-@main("FlightPub - Account Settings", styles, scripts) {
+@controller = @{
+	"AccountSettings"
+}
+
+@main("FlightPub - Account Settings", styles, scripts, controller) {
 
 	<h1>Account Settings</h1>
 	<div class="content">

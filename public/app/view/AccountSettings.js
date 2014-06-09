@@ -126,13 +126,7 @@ Ext.define('FB.view.AccountSettings', {
 		valueField: 'option',
 		emptyText: 'please select a payment option',
 		editable: false,
-		hideTrigger: false,
-		listeners: {
-			select: function () {
-				//this.filterStopOvers();
-			},
-			scope: this
-		}
+		hideTrigger: false
 	},  {
 		itemId: 'cardName',
 		name: 'cardName',
@@ -154,17 +148,26 @@ Ext.define('FB.view.AccountSettings', {
 		name: 'ppUsername',
 		fieldLabel: 'PayPal username',
 		emptyText: 'please enter your paypal username'
-	}],
-	buttons: [{
-		action: 'cancel',
-		text: 'Cancel',
-		cls: 'cancelButton',
-		scale: 'large'
 	},  {
-		action: 'submit',
-		text: 'Update Details',
-		cls: 'button',
-		scale: 'large',
-		width: 120
+		xtype: 'container',
+		layout: {
+			type: 'hbox',
+			pack: 'end'
+		},
+		margin: '5px 0 0 0',
+		defaults: {
+			xtype: 'button',
+			scale: 'large'
+		},
+		items: [{
+			action: 'cancel',
+			text: 'Cancel',
+			cls: 'cancelButton',
+			margin: '0 5px 0 0'
+		},  {
+			action: 'submit',
+			text: 'Update Details',
+			cls: 'button'
+		}]
 	}]
 });

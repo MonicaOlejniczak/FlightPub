@@ -16,6 +16,9 @@ Ext.define('FB.controller.AccountSettings', {
 		selector: 'AccountSettings'
 	}],
 	init: function() {
+		Ext.widget('AccountSettings', {
+			renderTo: Ext.get('accountSettings')
+		});
 		this.getDetails();
 		this.control({
 			'AccountSettings': {
@@ -103,10 +106,10 @@ Ext.define('FB.controller.AccountSettings', {
 			},
 			fn: function (buttonId, text, opt) {
 				if (buttonId == "yes") {
-					form.getForm().reset();
+					this.getForm().reset();
 					window.location.href = '/';
 				}
-			}
+			}, scope: this
 		});
 	},
 	/**

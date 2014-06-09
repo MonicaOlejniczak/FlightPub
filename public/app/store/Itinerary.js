@@ -1,7 +1,7 @@
-Ext.define('FB.stores.Flight', {
+Ext.define('FB.store.Itinerary', {
 	extend: 'Ext.data.Store',
-	model: 'FB.models.Flight',
-	autoLoad: true,
+    requires: 'FB.models.Flight',
+	model: 'FB.models.Itinerary',
 	proxy: {
 		url: 'data/selectedFlights',
 		type: 'ajax',
