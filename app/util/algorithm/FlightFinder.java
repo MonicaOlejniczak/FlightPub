@@ -3,6 +3,7 @@ package util.algorithm;
 import models.Airport;
 import models.Flight;
 import models.FlightEdge;
+import models.Itinerary;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -10,27 +11,27 @@ import java.util.List;
 
 public class FlightFinder {
 
-    public static List<List<Flight>> findFlights(Airport source, Airport destination, DateTime start, DateTime end, int depth) {
+    public static List<Itinerary> findFlights(Airport source, Airport destination, DateTime start, DateTime end, int depth) {
         List<List<FlightEdge>> flightEdgesList = FlightFinder.findFlightEdges(source, destination, depth);
 	    return findFlights(source, destination, start, end, flightEdgesList);
     }
 
-    public static List<List<Flight>> findFlights(Airport source, Airport destination, DateTime start, DateTime end, List<List<FlightEdge>> flightEdgesList) {
+    public static List<Itinerary> findFlights(Airport source, Airport destination, DateTime start, DateTime end, List<List<FlightEdge>> flightEdgesList) {
 
-        List<List<Flight>> flights = new ArrayList<>();
+        List<Itinerary> flights = new ArrayList<>();
         List<Flight> possibleFlights = Flight.find.where().between("departureTime", start, end).findList();
         for (List<FlightEdge> flightEdges : flightEdgesList) {
             FlightEdge firstEdge = flightEdges.get(0);
             for (Flight possibleFlight : possibleFlights) {
                 if (possibleFlight.source.equals(source) && possibleFlight.destination.equals(firstEdge.destination)) {
-                    List<Flight> path = new ArrayList<>();
-                    path.add(possibleFlight);
+                    Itinerary itinerary = new Itinerary();
+                    itinerary.flights.add(possibleFlight);
                     if (possibleFlight.destination.equals(destination)) {
                         // direct flight, yeaaah
-                        flights.add(path);
+                        flights.add(itinerary);
                     } else {
                         // aww, find them the harder way
-                        findFlights(destination, path, possibleFlights, flightEdges, flights, 1);
+                        findFlights(destination, itinerary, possibleFlights, flightEdges, flights, 1);
                     }
                 }
             }
@@ -38,28 +39,28 @@ public class FlightFinder {
         return flights;
     }
 
-    private static void findFlights(Airport destination, List<Flight> path, List<Flight> possibleFlights, List<FlightEdge> flightEdges, List<List<Flight>> flights, int depth) {
+    private static void findFlights(Airport destination, Itinerary itinerary, List<Flight> possibleFlights, List<FlightEdge> flightEdges, List<Itinerary> flights, int depth) {
         if (depth >= flightEdges.size()) {
             // seek no more!
             return;
         }
         FlightEdge flightEdge = flightEdges.get(depth);
         for (Flight flight : possibleFlights) {
-            if (path.contains(flight)) {
+            if (itinerary.flights.contains(flight)) {
                 // move along
                 continue;
             }
-            path.add(flight);
-            if (flight.departureTime.isAfter(path.get(path.size() - 2).arrivalTime)) {
+            itinerary.flights.add(flight);
+            if (flight.departureTime.isAfter(itinerary.flights.get(itinerary.flights.size() - 2).arrivalTime)) {
                 if (flight.source.equals(flightEdge.source) && flight.destination.equals(destination)) {
-                    flights.add(new ArrayList<>(path));
+                    flights.add(new Itinerary(itinerary));
                     // found a full path ^_^
                 } else if (flight.source.equals(flightEdge.source) && flight.destination.equals(flightEdge.destination)) {
                     // linking flight!
-                    findFlights(destination, path, possibleFlights, flightEdges, flights, depth + 1);
+                    findFlights(destination, itinerary, possibleFlights, flightEdges, flights, depth + 1);
                 }
             }
-            path.remove(flight);
+            itinerary.flights.remove(flight);
         }
     }
 

@@ -39,27 +39,25 @@ public class DataController extends Controller {
 
 		int depth = 10;
 
-		List<List<Flight>> flights = FlightFinder.findFlights(source, destination, start, end, depth);
-
-		System.out.println(flights.size());
+		List<Itinerary> flights = FlightFinder.findFlights(source, destination, start, end, depth);
 
         // generate limited version
         // NOTE: THIS IS GREAT HAHA /WRISTS
         // TODO: use http://wiki.fasterxml.com/JacksonJsonViews
         int id = 0;
         List<Map<String, Object>> jItineraries = new ArrayList<>();
-        for (List<Flight> itinerary : flights) {
+        for (Itinerary itinerary : flights) {
             Map<String, Object> jItinerary = new HashMap<>();
 
             List<Map<String, Object>> jFlights = new ArrayList<>();
 
-            long jDepartureTime = itinerary.get(0).departureTime.getMillis();
-            long jArrivalTime = itinerary.get(itinerary.size() - 1).arrivalTime.getMillis();
+            long jDepartureTime = itinerary.flights.get(0).departureTime.getMillis();
+            long jArrivalTime = itinerary.flights.get(itinerary.flights.size() - 1).arrivalTime.getMillis();
             double jDuration = (jArrivalTime - jDepartureTime) / 60000.0;
-            double jStopOvers = itinerary.size() - 1;
+            double jStopOvers = itinerary.flights.size() - 1;
             double jItineraryPrice = 0;
 
-            for (Flight flight : itinerary) {
+            for (Flight flight : itinerary.flights) {
                 Map<String, Object> jFlight = new HashMap<>();
                 jFlight.put("id", flight.id);
                 jFlight.put("flightNumber", flight.flightNumber);
@@ -123,9 +121,9 @@ public class DataController extends Controller {
         for (List<FlightEdge> flightEdges : flightEdgesList) {
             System.out.println(flightEdges);
         }
-        List<List<Flight>> flights = FlightFinder.findFlights(source, destination, start, end, flightEdgesList);
-        System.out.println(String.format("Flights: %d", flights.size()));
-        for (List<Flight> itinerary : flights) {
+        List<Itinerary> itineraries = FlightFinder.findFlights(source, destination, start, end, flightEdgesList);
+        System.out.println(String.format("Flights: %d", itineraries.size()));
+        for (Itinerary itinerary : itineraries) {
             System.out.println(itinerary);
         }
         return ok("yes");
