@@ -24,6 +24,10 @@ public class Availability extends Model {
 	@ManyToOne(cascade = CascadeType.ALL)
 	public TicketType ticketType;
 
+    @Constraints.Required
+    @ManyToOne(cascade = CascadeType.ALL)
+    public TicketClass ticketClass;
+
 	@Constraints.Required
 	@Constraints.Min(0)
 	@Constraints.MinLength(1)
