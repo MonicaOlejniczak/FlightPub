@@ -45,6 +45,19 @@ public class Itinerary extends Model {
 	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "recommendations")
 	public List<Booking> recommendedIn;
 
+    /**
+     * Instantiates an Itinerary
+     */
+    public Itinerary() {
+        this.flights = new ArrayList<>();
+        this.bookings = new ArrayList<>();
+        this.recommendedIn = new ArrayList<>();
+    }
+
+    public Itinerary(Itinerary itinerary) {
+        this(new ArrayList<>(itinerary.flights));
+    }
+
 	/**
 	 * Instantiates an Itinerary with the specified List of Flights.
 	 * @param flights The List of Flights to include in this Itinerary.
