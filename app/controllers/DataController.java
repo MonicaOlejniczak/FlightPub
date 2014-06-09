@@ -121,9 +121,9 @@ public class DataController extends Controller {
         for (List<FlightEdge> flightEdges : flightEdgesList) {
             System.out.println(flightEdges);
         }
-        List<List<Flight>> flights = FlightFinder.findFlights(source, destination, start, end, flightEdgesList);
-        System.out.println(String.format("Flights: %d", flights.size()));
-        for (List<Flight> itinerary : flights) {
+        List<Itinerary> itineraries = FlightFinder.findFlights(source, destination, start, end, flightEdgesList);
+        System.out.println(String.format("Flights: %d", itineraries.size()));
+        for (Itinerary itinerary : itineraries) {
             System.out.println(itinerary);
         }
         return ok("yes");
