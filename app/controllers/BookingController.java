@@ -246,7 +246,7 @@ public class BookingController extends Controller {
 	 * @return The 'Recommend Flights' form.
 	 */
 	public static Result recommendFlights(Long bookingId) {
-		if (AuthenticatedUser.isLoggedIn()) {
+		if (AuthenticatedUser.isLoggedIn() && User.find.where(Expr.eq("email", new AuthenticatedUser().getUsername(Http.Context.current()))).findUnique().userType.equals("travel")) {
 			// Pass through the booking ID to the Form
 			RecommendFlights recommendFlights = new RecommendFlights();
 			recommendFlights.bookingId = bookingId;
@@ -271,7 +271,7 @@ public class BookingController extends Controller {
 	 * @return A redirect back to the Booking Requests page, or forbidden if no User is logged in.
 	 */
 	public static Result sendRecommendations() {
-		if (AuthenticatedUser.isLoggedIn()) {
+		if (AuthenticatedUser.isLoggedIn() && User.find.where(Expr.eq("email", new AuthenticatedUser().getUsername(Http.Context.current()))).findUnique().userType.equals("travel")) {
 			// Get the request parameters
 			Form<RecommendFlights> recommendFlightsForm = Form.form(RecommendFlights.class).bindFromRequest();
 
