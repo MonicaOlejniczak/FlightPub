@@ -28,7 +28,7 @@ Ext.define('FB.controllers.SeatSelection', {
 		var form = Ext.create('Ext.form.Panel', {
 			id: formId,
 			renderTo: 'seats',
-			url: '/seat-selection/process',
+			url: '/payment',
 			method: 'post',
 			standardSubmit: true,
 			height: '100%',
@@ -195,7 +195,7 @@ Ext.define('FB.controllers.SeatSelection', {
 			cls: 'button',
 			scale: 'large',
 			handler: function () {
-				window.location.href = '/luggage';
+                window.history.back();
 			}
 		}));
 	},

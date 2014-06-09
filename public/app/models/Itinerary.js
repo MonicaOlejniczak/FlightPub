@@ -8,11 +8,17 @@ Ext.define('FB.models.Itinerary', {
         'stopOvers',
         'departureTime',
         'arrivalTime'
-    ]/*, didn't work, no time to fix
+    ],/*, didn't work, no time to fix
 	hasMany: {
 		model: 'Flight',
 		name: 'flights',
         associationKey: 'flights'
 	}*/
+    getFlightIds: function () {
+        return this.get('flights').reduce(function (array, flight) {
+            array.push(flight.id);
+            return array
+        }, []);
+    }
 });
 

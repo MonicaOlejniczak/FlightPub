@@ -38,6 +38,7 @@ public class DataController extends Controller {
 
         // generate limited version
         // NOTE: THIS IS GREAT HAHA /WRISTS
+        // TODO: use http://wiki.fasterxml.com/JacksonJsonViews
         int id = 0;
         List<Map<String, Object>> jItineraries = new ArrayList<>();
         for (List<Flight> itinerary : flights) {
@@ -88,7 +89,6 @@ public class DataController extends Controller {
 
             jItineraries.add(jItinerary);
         }
-        System.out.println(jItineraries);
         return ok(Json.toJson(jItineraries));
 	}
 

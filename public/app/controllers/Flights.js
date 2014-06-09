@@ -39,6 +39,7 @@ Ext.define('FB.controllers.Flights', {
 			//this.durationContainer = Ext.create('FB.containers.Duration');
 			this.stopOverContainer = null;
 			this.airlineContainer = null;
+            this.selectedItinerary = null;
 			this.dataStore = Ext.create('FB.stores.Itinerary', {
                 autoLoad: false,
 				listeners: {
@@ -148,8 +149,8 @@ Ext.define('FB.controllers.Flights', {
 				cls: 'destination',
 				hidden: true
 			});
-			Ext.get(id).on({
-				'click': Ext.pass(this.selectFlight, id, this),
+			Ext.get(itId).on({
+				'click': Ext.bind(this.selectFlight, this, [record], true),
 				'mouseenter': function () {
 					departureTime.show();
 					arrivalTime.show();
@@ -170,9 +171,10 @@ Ext.define('FB.controllers.Flights', {
 	/**
 	 * Selects a particular flight
 	 */
-	selectFlight: function (id) {
+	selectFlight: function (e, target, eOpts, record) {
 		Ext.select('.selectFlight').removeCls('selectFlight');
-		Ext.get(id).select('.flightBar').addCls('selectFlight');
+		Ext.get(target).up('.itinerary').addCls('selectFlight');
+        this.selectedItinerary = record;
 	},
 	/**
 	 * Adds the container for the price filter
@@ -544,15 +546,24 @@ Ext.define('FB.controllers.Flights', {
 				text: 'Next',
 				listeners: {
 					click: function () {
-						var selected = Ext.select('.selectFlight').elements.length;
-						// todo add and returning to boolean
-						var returning = true;
-						if (selected == 0 || (selected == 1 && !returning)) {
+						// TODO: add returning functionality
+                        var itinerary = this.selectedItinerary;
+						if (itinerary === null) {
 							Ext.create('Ext.window.MessageBox').alert('Error', 'You have not selected a flight.');
 						} else {
-							window.location.href = '/luggage';
+                            var form = Ext.create('Ext.form.Panel', {
+                                url: '/luggage',
+                                standardSubmit: true,
+                                method: 'post'
+                            });
+                            form.submit({
+                                params: {
+                                    itinerary: itinerary.getFlightIds()
+                                }
+                            });
 						}
-					}
+					},
+                    scope: this
 				}
 			}]
 		});

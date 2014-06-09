@@ -14,7 +14,7 @@ Ext.define('FB.controllers.Luggage', {
 	 */
 	constructor: function () {
 		Ext.onReady(function () {
-			this.passengers = 3;
+			this.passengers = 3; // TODO: fix
 			this.renderForm();
 		}, this);
 	},
@@ -26,7 +26,7 @@ Ext.define('FB.controllers.Luggage', {
 		var form = Ext.create('Ext.form.Panel', {
 			id: formId,
 			renderTo: 'luggage',
-			url: '/luggage/process',
+			url: '/seat-selection',
 			method: 'post',
 			standardSubmit: true,
 			height: '100%',
@@ -157,7 +157,7 @@ Ext.define('FB.controllers.Luggage', {
 			cls: 'button',
 			scale: 'large',
 			handler: function () {
-				window.location.href = '/flights';
+				window.history.back();
 			}
 		}));
 	},
