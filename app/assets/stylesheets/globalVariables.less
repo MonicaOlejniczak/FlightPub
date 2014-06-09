@@ -1,14 +1,26 @@
 @width: 80%;
 @minWidth: 1000px;
 @maxWidth: 1920px;
+@contentWidth: 80%;
+@buttonWidth: 8em;
 
-@themeBackgroundColor: #d10000;
+@themeBackgroundColor: @bannerStop;
 @themeBackgroundColorHover: lighten(@themeBackgroundColor, 5%);
 @secondaryBackgroundColor: #1d2c3f;
 @thirdBackgroundColor: #fff;
-@h1BackgroundColor: @themeBackgroundColor;
-@h1BackgroundColorHover: @themeBackgroundColorHover;
 @inputBackgroundColor: #fff;
+@buttonBackgroundColor: #428bca;
+@buttonBackgroundColorHover: #3276b1;
+@cancelButtonBackgroundColor: #d9534f;
+@cancelButtonBackgroundColorHover: #d2322d;
+@selectedButtonBackgroundColor: #5cb85c;
+@selectedButtonBackgroundColorHover: #47a447;
+
+@bannerStart: #000;
+@bannerSecond: #0b1a2d;
+@bannerThird: #23497b;
+@bannerFourth: #3a2d47;
+@bannerStop: #810f1d;
 
 @themeColor: #fff;
 @secondaryColor: #f8ae13;
@@ -21,21 +33,23 @@
 @selectionColour: lighten(@themeBackgroundColor, 30%);
 
 @bodyFontSize: 16px;
-@h1FontSize: 48px;
 @formFontSize: 1.5em;
 @inputFontSize: 0.6em;
 
 @bodyFont: 	@bodyFontSize 'Open sans', @nextFont;
-@h1Font:    bold @h1FontSize "Ubuntu", @nextFont;
 @formFont:  @formFontSize 'Roboto', @nextFont;
 @inputFont: @inputFontSize 'Open sans', @nextFont;
 @nextFont: 'Helvetica', 'Century gothic', verdana, sans-serif;
 
-@padding: 0.3em;
+@borderWidth: 0.3em;
+
+@padding: @borderWidth;
 
 @margin: @padding;
+@buttonMargin: 1em;
 
 @h1BoxShadow: 0.03em;
+@contentBoxShadow: 0.025em;
 
 @time: 0.3s;
 @imageFolder: "../images";

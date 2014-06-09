@@ -16,6 +16,7 @@ import play.mvc.Security;
  * @author Trey Brisbane
  */
 public class AuthenticatedUser extends Security.Authenticator {
+
 	@Override
 	public String getUsername(Http.Context context) {
 		return context.session().get("email");
@@ -30,4 +31,5 @@ public class AuthenticatedUser extends Security.Authenticator {
 	public static Boolean isLoggedIn() {
 		return !("".equals(Http.Context.current().request().username()));
 	}
+
 }

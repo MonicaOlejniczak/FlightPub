@@ -39,96 +39,51 @@
 @animationWidth: 100% / @imageCount;
 @moveAmount: 100%;
 
-#flightsWrapper, #informationWrapper, #destinations, .animation img {
-	width: 100%;
-	height: 100%;
-	min-height: 100%;
-}
-
-/* Flights */
-#flightsWrapper {
-	background-color: @flightsWrapperBackgroundColor;
-	color: @flightsWrapperColor;
-	font: @flightsWrapperFont;
-	.gradient(top, @flightsWrapperDarkerBackgroundColor, 0, transparent, 40%);
-}
-
-.flights, #information {
-	width: @width;
-	min-width: @minWidth;
-	max-width: @maxWidth;
+#home {
+	width: @contentWidth;
 	margin: 0 auto;
 }
 
-#flightColumns {
-	clear: both;
+input {
+	border-radius: @borderWidth 0 0 @borderWidth;
 }
 
-#flightColumns, #flightRows {
-	width: 100%;
-}
-
-.flightColumn, .flightRow label, .flightColumn .flightRow input {
-	float: left;
-	display: block;
-}
-
-.flightColumn {
-	width: 50%;
-	margin: 0 0 1.5em 0;
-}
-
-.flightColumn .flightRow input {
-	width: @flightRowInputWidth;
-}
-
-.flightRow {
-	clear: both;
-	margin: 0 0 1.5em 0;
-}
-
-.flightRow label {
-	width: @labelWidth;
+.passengers {
+	font: 1.2em 'Ubuntu' @nextFont;
 	text-align: right;
-	line-height: @flightRowLabelLineHeight;
 	padding: 0 1em 0 0;
 }
 
-#flightRows .flightRow label {
-	width: @labelWidth / 2;
-}
-
-.flightRow select {
-	width: @selectWidth;
-}
-
-#map {
+.map {
 	width: 100%;
 	height: 500px;
 	clear: both;
 	.boxShadow(0, 0, 0.05em, 0.05em, darken(@informationBackgroundColor, 10%));
 }
 
-#map a, #map span {
+.map a, .map span {
 	display: none;
 }
 
-#findFlights {
-	width: 25%;
-	background-color: @themeBackgroundColor;
-	color: @findFlightsColor;
-	font: @findFlightsFont;
-	.textShadow(@findFlightsColor);
-	text-align: center;
-	border: 0;
-	border-radius: 0.1em;
-	padding: 0.1em 0;
-	.gradient(top, transparent, 50%, darken(@themeBackgroundColor, 10%), 50%);
+a.buttons {
+	width: @buttonWidth;
+	height: 100%;
+	margin: @buttonMargin 0 0 0;
+	float: right;
 }
 
-#findFlights:hover {
-	background-color: lighten(@themeBackgroundColor, 10%);
-	.gradient(top, transparent, 50%, darken(@themeBackgroundColor, 5%), 50%);
+#informationWrapper, #destinations, .animation img {
+	width: 100%;
+	height: 100%;
+	min-height: 100%;
+}
+
+/* Flights */
+#information {
+	width: @width;
+	min-width: @minWidth;
+	max-width: @maxWidth;
+	margin: 0 auto;
 }
 
 .informationGradient (@start: transparent, @second: transparent, @third: transparent, @stop: transparent) {

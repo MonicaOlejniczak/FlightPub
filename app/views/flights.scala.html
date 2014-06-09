@@ -2,67 +2,49 @@
 	<link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/flights.css")'>
 }
 
-@scripts = {
-	<script type='text/javascript'>
-		Ext.create('FB.controllers.Flights');
-	</script>
+@controller = @{
+	"Flights"
 }
 
-@main("FlightPub - Flight Results", styles, scripts) {
+@main("FlightPub - Flight Results", styles, controller = controller) {
 
-	<div id="flightsContainer">
-		<!-- get actual data for this -->
-		<div id="departureTab" class="selectedTab">
-			<a>Sydney &rarr; Melbourne</a>
-		</div>
-		<!-- todo add if for returns -->
-		<div id="returnTab" class="deselectedTab">
-			<a href="">Melbourne &rarr; Sydney</a>
-		</div>
-		<div id="topContainer">
-			<!--<h1>Departing from Sydney</h1>-->
-			<div id="sort">
-				<!-- add reverse sort click -->
-				<div id="sortText">
-					Sort by
-				</div>
-				<span id="sortPrice">Price</span>
-				<span id="sortDuration">Duration</span>
-				<span id="sortDepartureTime">Departure Time</span>
-				<span id="sortArrivalTime">Arrival Time</span>
-				<span id="sortStopOvers">Number of stop-overs</span>
-				<span id="sortAirline">Airline</span>
+	<h1>Flight Results</h1>
+	<div id="flightOptions">
+		<!--<h1>Departing from Sydney</h1>-->
+		<div id="sort">
+			<!-- add reverse sort click -->
+			<div id="sortText">
+				Sort by
 			</div>
-			<div id="filterContainer">
-				<div id="filter">
-					<div id="filterText">
-						Filter by
-					</div>
-					<div id="filterContent">
-						<span id="filterNone">None</span>
-						<span id="filterPrice">Price</span>
-						<span id="filterDuration">Duration</span>
-						<span id="filterStopOvers">Number of stop-overs</span>
-						<span id="filterAirline">Airline</span>
-					</div>
+			<span id="sortPrice">Price</span>
+			<span id="sortDuration">Duration</span>
+			<span id="sortDepartureTime">Departure Time</span>
+			<span id="sortArrivalTime">Arrival Time</span>
+			<span id="sortStopOvers">Number of stop-overs</span>
+			<span id="sortAirline">Airline</span>
+		</div>
+		<div id="filterContainer">
+			<div id="filter">
+				<div id="filterText">
+					Filter by
+				</div>
+				<div id="filterContent">
+					<span id="filterNone">None</span>
+					<span id="filterPrice">Price</span>
+					<span id="filterDuration">Duration</span>
+					<span id="filterStopOvers">Number of stop-overs</span>
+					<span id="filterAirline">Airline</span>
 				</div>
 			</div>
-			<div class="clear"></div>
 		</div>
-		<div id="results">
-			<div id="timeContainer">
-				<div id="departureTime">
-					Timezone
-				</div>
-				<div id="arrivalTime">
-					hello
-				</div>
-			</div>
-			<div id="flights">
-			</div>
-			<div id="buttons">
-			</div>
-			<div class="clear"></div>
-		</div>
+		<div class="clear"></div>
 	</div>
+	<div class="content">
+		<div id="flights">
+		</div>
+		<div id="buttons">
+		</div>
+		<div class="clear"></div>
+	</div>
+
 }

@@ -1,20 +1,18 @@
-@(luggage: List[Luggage])
-
 @styles = {
     <link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/luggage.css")'>
 }
 
-@scripts = {
-    <script type='text/javascript' src='@routes.Assets.at("javascripts/luggage.js")'></script>
+@controller = @{
+	"Luggage"
 }
 
-@main("FlightPub - Luggage Options", styles, scripts) {
-    <div class="container">
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                <h1 class="panel-title">FlightPub - Ticket and Luggage Type</h1>
-            </div>
-            <div class="panel-body" id="luggage"></div>
+@main("FlightPub - Luggage Options", styles, controller = controller) {
+
+	<h1>Ticket and Luggage Type</h1>
+	<div class="content">
+        <div id="luggage">
+	        For each passenger, please select what class of ticket and whether you wish to include only carry-on luggage with your booking, or if you wish to also include checked luggage.
         </div>
     </div>
+
 }

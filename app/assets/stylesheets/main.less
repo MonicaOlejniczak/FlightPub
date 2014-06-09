@@ -1,34 +1,22 @@
 @import 'globalMethods';
 @import 'globalVariables';
 
-@logoWidth: 35%;
-@navigationContainerWidth: 100 - @logoWidth;
-@navLinksAmount: 6;
-@navWidth: round(((100% / @navLinksAmount) - (@navBorderWeight * (@navLinksAmount - 1))) + 0.05, 1);
+@navigationHeight: 2.2em;
+@bannerContainerHeight: 350px;
 
-@headerHeight: 40px;
-@logoLineHeight: @headerHeight - @logoFontSize;
-@navLineHeight: @headerHeight - @navFontSize;
+@navLineHeight: @navigationHeight;
 
-@headerBackgroundColor: #fff;
-@headerBackgroundColorDarker: darken(@headerBackgroundColor, 20%);
-@footerBackgroundColor: #111;
+@navigationBackgroundColor: #000;
+@activeBackgroundColor: lighten(@navigationBackgroundColor, 10%);
+@footerBackgroundColor: #000;
 
-@logoColor: darken(@themeBackgroundColor, 10%);
-@navColor: @logoColor;
+@navColor: darken(@activeColor, 10%);
+@activeColor: #fff;
 @footerColor: #ccc;
 @headerSelectionColour: #bbb;
 @footerSelectionColour: #bbb;
 
-@headerFontSize: 1em;
-@logoFontSize: 2em;
-@navFontSize: 1.2em;
-@footerFontSize: 1em;
-
-@headerFont:	@headerFontSize 'Open sans', @nextFont;
-@logoFont: 		bold @logoFontSize 'Ubuntu', @nextFont;
-@navFont: 		@navFontSize 'Ubuntu', 'Helvetica', @nextFont;
-@footerFont: 	@footerFontSize 'Ubuntu', @nextFont;
+@navFontSize: 1em;
 
 @navBorderWeight: 0.05em;
 @navSpanBorderWeight: 0.15em;
@@ -43,39 +31,15 @@ header, #logo, nav, nav a, .active, #headerOptions {
 	float: left;
 }
 
-#header, #logo, #logo a, #navigationContainer, nav, nav a, .active {
+#header, #logo, #logo a, nav, nav a, .active {
 	height: 100%;
-}
-
-.headerGradient (@start: transparent, @second: transparent, @third: transparent, @stop: transparent) {
-	@origin: right;
-	@startPercent: 0%;
-	@secondPercent: 25%;
-	@thirdPercent: 75%;
-	@stopPercent: 100%;
-	background-image: -webkit-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
-	background-image: -moz-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
-	background-image: -o-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
-	background-image: -ms-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
-	background-image: linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
 }
 
 header {
 	width: 100%;
-	height: @headerHeight;
-	background-color: @headerBackgroundColor;
-	font: @headerFont;
-	.border(@headerBorderWidth, 0, 0, 0, @themeBackgroundColor, solid);
+	font: 1em 'Ubuntu', @nextFont;
 	overflow: hidden;
-	.headerGradient(@headerBackgroundColorDarker, transparent, transparent, @headerBackgroundColorDarker);
-	.boxShadow(0, -@headerBoxShadow, @headerBoxShadow, @headerBoxShadow, darken(@headerBackgroundColor, 25%));
-}
-
-#header {
-	width: @width;
-	min-width: @minWidth;
-	max-width: @maxWidth;
-	margin: 0 auto;
+	.boxShadow(0, -@headerBoxShadow, @headerBoxShadow, @headerBoxShadow, @navigationBackgroundColor);
 }
 
 header::selection {
@@ -86,62 +50,24 @@ header::-moz-selection {
 	background-color: @headerSelectionColour;
 }
 
-/*#logo {
-	width: @logoWidth;
-}*/
-
-#logo a {
+#navigation {
 	width: 100%;
-	color: @logoColor;
-	font: @logoFont;
-	.textShadow(@mainFontColor);
-	text-align: center;
-	line-height: @logoLineHeight;
-	display: block;
-	/*.transition(background-color, @time, linear);*/
-}
-
-#logo a:hover, #logo span, #logo a:hover span, nav a, nav a:hover, .active, .active:hover {
-	.transition(color, @time, linear);
-}
-
-#logo span {
-	color: @themeBackgroundColor;
-	.textShadow(@themeBackgroundColor);
-}
-
-#logo a:hover {
-	color: @themeBackgroundColor;
-	/*background-color: lighten(@base, 5%);
-	.transition(background-color, @time, linear);*/
-}
-
-#logo a:hover span {
-	color: @themeBackgroundColorHover;
-}
-
-#navigationContainer {
-	width: @navigationContainerWidth;
-	float: right;
-}
-
-.navBorder (@top: 0, @right: 0, @bottom: 0, @left: 0, @colour: darken(@headerBackgroundColor, 15%)) {
-	.border(@top, @right, @bottom, @left, @colour, solid);
+	height: @navigationHeight;
+	background-color: @navigationBackgroundColor;
 }
 
 nav {
-	font: @navFont;
-	.navBorder(0, 0, 0, @navBorderWeight);
+	max-width: @maxWidth;
+	height: @navigationHeight;
+	font: @navFontSize 'Ubuntu', 'Helvetica', @nextFont;
 	float: right;
+	display: block;
 }
 
 nav a, .active {
-	/*width: @navWidth;*/
 	text-align: center;
 	line-height: @navLineHeight;
-	.navBorder(0, @navBorderWeight, 0, 0);
 	padding: 0 0.5em;
-	/*display: block;*/
 }
 
 nav a, nav a:hover {
@@ -155,51 +81,111 @@ nav a {
 }
 
 nav a:hover {
-	background-color: darken(@headerBackgroundColor, 2%);
-	color: lighten(@navColor, 5%);
-}
-
-.navTransition {
-	.transition(border-bottom, @time, linear);
-}
-
-/* After hover */
-nav a span {
-	.navBorder(0, 0, @navSpanBorderWeight, 0, transparent);
-	.navTransition;
-}
-
-/* On hover */
-nav a:hover span {
-	.navBorder(0, 0, @navSpanBorderWeight, 0, lighten(@navColor, 10%));
-	.navTransition;
+	background-color: lighten(@activeBackgroundColor, 10%);
+	color: @activeColor;
+	text-decoration: none;
 }
 
 .active {
-	color: @themeBackgroundColor;
-	.textShadow(@themeBackgroundColor);
+	background-color: @activeBackgroundColor;
+	color: @activeColor;
+	.textShadow(@activeColor);
 }
 
-.active:hover{
-	color: @themeBackgroundColorHover;
+.active:hover {
+	color: ligthen(@activeColor, 10%);
 }
 
-#headerOptions a {
-	color: @mainFontColor;
+#bannerContainer, #bannerContainer:before, #bannerGradient {
+	height: @bannerContainerHeight;
+}
+
+#bannerContainer, #bannerGradient {
+	position: relative;
+}
+
+#bannerContainer {
+	background-color: #000;
+	.multiGradient(@bannerStart, @bannerSecond, @bannerThird, @bannerFourth, @bannerStop);
+}
+
+#bannerContainer:before {
+	content: '';
+	top: 0;
+	left: 0;
+	width: 100%;
+	background: #555 url('@{imageFolder}/banner.png');
+	position: absolute;
+	opacity:0.30;
+	filter:alpha(opacity=30);
+}
+
+.bannerGradient () {
+	@origin: left;
+	@start: @bannerStart;
+	@startPercent: 0;
+	@second: transparent;
+	@secondPercent: 10%;
+	@third: transparent;
+	@thirdPercent: 100%;
+	@stop: transparent;
+	@stopPercent: 100%;
+	background-image: -webkit-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+	background-image: -moz-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+	background-image: -o-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+	background-image: -ms-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+	background-image: linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+}
+
+#bannerGradient {
+	width: 100%;
+	.bannerGradient();
+}
+
+#banner {
+	height: @bannerContainerHeight - 3em;
+	padding: 4em 0 0 5em;
+}
+
+#logo {
+	width: 100%;
+	height: 1em;
+	font: 7em 'Ubuntu' @nextFont;
+	margin: 0 0 0.2em 0;
+	display: block;
+}
+
+#logo a, #logo a:hover {
+	.transition(color, @time, linear);
+}
+
+#logo a {
+	color: @buttonBackgroundColorHover;
+}
+
+#logo a:hover {
+	color: @buttonBackgroundColor;
+	text-decoration: none;
+}
+
+#subtext {
+	color: #fff;
+	font: 3em 'Ubuntu' @nextFont;
+	.textShadow(#fff);
 }
 
 /* Content */
 #content {
-	min-height: 100%;
-	display: block;
-	clear: both;
+	height: auto !important;
+	height: 100%;
+	background-color: @secondaryBackgroundColor;
 }
 
 /* Footer */
 footer {
 	background-color: @footerBackgroundColor;
 	color: @footerColor;
-	font: @footerFont;
+	font: 1em 'Ubuntu', @nextFont;
 	text-align: center;
 	padding: 1em 0;
 }

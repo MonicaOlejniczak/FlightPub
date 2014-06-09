@@ -19,6 +19,21 @@
 	background-image: linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
 }
 
+.multiGradient (@start: @bannerStart, @second: @bannerSecond, @third: @bannerThird, @fourth: @bannerFourth,
+		@stop: @bannerStop) {
+	@origin: left;
+	@startPercent: 0;
+	@secondPercent: 25%;
+	@thirdPercent: 50%;
+	@fourthPercent: 70%;
+	@stopPercent: 100%;
+	background-image: -webkit-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @fourth @fourthPercent, @stop @stopPercent);
+	background-image: -moz-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @fourth @fourthPercent, @stop @stopPercent);
+	background-image: -o-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @fourth @fourthPercent, @stop @stopPercent);
+	background-image: -ms-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @fourth @fourthPercent, @stop @stopPercent);
+	background-image: linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @fourth @fourthPercent, @stop @stopPercent);
+}
+
 .border(@top: 0, @right: 0, @bottom: 0, @left: 0, @colour: #000, @style: solid) {
 	border-top-width: @top;
 	border-right-width: @right;

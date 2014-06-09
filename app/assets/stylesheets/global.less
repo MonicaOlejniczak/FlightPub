@@ -10,6 +10,7 @@ html, body, .x-body {
 	height: 100%;
 	min-width: 1000px;
 	min-height: 800px;
+	background-color: #000;
 	color: @fontColor;
 	font: @bodyFont;
 }
@@ -23,31 +24,49 @@ html, body, .x-body {
 	background-image: url(@path) @repeatType @positionX @positionY, linear-gradient(@origin, @start, @stop);*/
 }
 
-h1, h1:hover {
+#content h1, #content h1:hover {
 	.transition(background-color, @time, linear);
 }
 
-h1 {
-	background: @h1BackgroundColor url(@h1Path) no-repeat 95% 55%;
-	background-size: 40px;
+#content h1 {
+	background-color: @themeBackgroundColor;
 	color: @h1Color;
-	font: @h1Font;
-	.textShadow(@h1BackgroundColor);
+	font: bold 2em "Ubuntu", @nextFont;
+	.textShadow(@themeBackgroundColor);
 	text-align: right;
 	border-radius: 0.1em;
-	padding: @padding 4% @padding @padding;
-	margin: @margin 0;
+	padding: @padding 1.7em @padding @padding;
+	margin: @margin;
 	float: right;
-	display: block;
-	/*.h1Gradient(@arrowPath, no-repeat, 90%, 50%, right, @themeColor, transparent);(*/
-	.boxShadow(0, @h1BoxShadow * 2, @h1BoxShadow, -@h1BoxShadow, darken(@h1BackgroundColor, 10%));
+	position: relative;
+	.boxShadow(0, @h1BoxShadow * 2, @h1BoxShadow, -@h1BoxShadow, darken(@themeBackgroundColor, 10%));
 }
 
-h1:hover {
-	background-color: @h1BackgroundColorHover;
+#content h1:hover {
+	background-color: lighten(@themeBackgroundColor, 10%);
 }
 
-a {
+#content h1:after {
+	content: '';
+	right: 0.5em;
+	top: 0.7em;
+	width: 1em;
+	height: 1em;
+	background: url(@h1Path) no-repeat;
+	background-size: 1em;
+	position: absolute;
+}
+
+#content h2, .formHeading {
+	color: @buttonBackgroundColor;
+	font: bold 1.5em 'Ubuntu' @nextFont;
+}
+
+.formHeading {
+	margin: 0 0 0.5em 205px;
+}
+
+a, a:hover, a:focus {
 	text-decoration: none;
 }
 
@@ -55,32 +74,127 @@ a:hover {
 	.transition(background, 0.5s);
 }
 
-/*p {
-	margin: 0 0 1em 0;
+.content, .x-form-item-label {
+	color: #fff;
 }
 
-form {
-	font: @formFont;
-	color: @formColor;
-	.textShadow(@formColor);
+.content, .x-list-plain {
+	font: 1em 'Ubuntu' @nextFont;
+}
+
+.content {
+	min-width: @minWidth;
+	min-height: 100%;
+	padding: 1em 0;
+	position: relative;
 	clear: both;
+	.multiGradient(@bannerStart, @bannerSecond, @bannerThird, @bannerFourth, @bannerStop);
+	.boxShadow(0, -@contentBoxShadow, @contentBoxShadow, @contentBoxShadow, #000);
 }
 
-input, select {
-	height: @inputFontSize * 3;
-	background-color: @inputBackgroundColor;
-	color: @inputColor;
-	font: @inputFont;
-	.textShadow(@inputColor);
-	text-indent: 0.5em;
+.content:before {
+	content: '';
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: url('@{imageFolder}/content.png');
+	position: absolute;
+	opacity:0.075;
+	filter:alpha(opacity=7);
+}
+
+.panel-body {
+	background-color: lighten(@secondaryBackgroundColor, 10%);
+}
+
+input {
+	border-radius: @borderWidth;
+}
+
+.x-form-trigger-wrap {
 	border: 0;
-	border-radius: 0.1em;
-	margin: 0 0 0.1em;
 }
 
-input[type=submit] {
-	cursor: pointer;
-}*/
+.x-form-item-label {
+	font: 1.2em 'Ubuntu' @nextFont;
+	text-align: right;
+	padding: 0 1em 0 0;
+}
+
+.x-toolbar {
+	background: none;
+}
+
+.button, .selectedButton, .cancelButton {
+	width: @buttonWidth;
+	border: 0;
+}
+
+.button .x-btn-inner, .selected .x-btn-inner, .cancelButton .x-btn-inner {
+	margin: 0.4em 0 0 0;
+}
+
+.button {
+	background: @buttonBackgroundColor;
+}
+
+.button:hover {
+	background: @buttonBackgroundColorHover;
+}
+
+.selectedButton {
+	background: @selectedButtonBackgroundColor;
+}
+
+.selectedButton:hover {
+	background: @selectedButtonBackgroundColorHover;
+}
+
+.cancelButton {
+	background: @cancelButtonBackgroundColor;
+}
+
+.cancelButton:hover {
+	background: @cancelButtonBackgroundColorHover;
+}
+
+.button .x-btn-inner, .selectedButton .x-btn-inner, .cancelButton .x-btn-inner {
+	font: 1em 'Ubuntu' @nextFont;
+}
+
+.button a, .button:hover, .button:active, .button:visited, .selectedButton a, .selectedButton:hover, .selectedButton:active,
+.selectedButton:visited, .cancelButton a, .cancelButton:hover, .cancelButton:active, .cancelButton:visited {
+	text-decoration: none;
+}
+
+.button, .button:hover, .selectedButton, .selectedButton:hover, .cancelButton, .cancelButton:hover {
+	.transition(background, @time, linear);
+}
+
+.x-boundlist-item, .x-boundlist-selected, .x-boundlist-item-over, .x-form-field {
+	font: 0.9em 'Ubuntu' @nextFont;
+	text-indent: 1em;
+	border: 0;
+	padding: 0.3em 0;
+}
+
+.x-boundlist-item {
+	color: #000;
+}
+
+.x-boundlist-selected, .x-boundlist-item-over {
+	background: @buttonBackgroundColor;
+	color: #fff;
+}
+
+.x-tool-img {
+	height: 25px;
+}
+
+.x-form-invalid-under {
+	margin: 0.2em 0 0 0;
+}
 
 ::selection {
 	background-color: @selectionColour;
