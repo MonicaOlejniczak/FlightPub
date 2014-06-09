@@ -10,6 +10,7 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Security;
+import util.algorithm.FlightFinder;
 import views.html.bookingRequests;
 
 import java.util.ArrayList;
@@ -250,30 +251,16 @@ public class BookingController extends Controller {
 			RecommendFlights recommendFlights = new RecommendFlights();
 			recommendFlights.bookingId = bookingId;
 
-			// TODO: Get some flights to send back
-			List<Itinerary> its = new ArrayList<>();
-			List<Flight> flights = new ArrayList<>();
-			Flight f1 = new Flight(null, "107", null, null, new DateTime(), new DateTime(), null, 1);
-			f1.id = (long)1;
-			Flight f2 = new Flight(null, "108", null, null, new DateTime(), new DateTime(), null, 1);
-			f2.id = (long)2;
-			Flight f3 = new Flight(null, "109", null, null, new DateTime(), new DateTime(), null, 1);
-			f3.id = (long)3;
-			flights.add(f1);
-			flights.add(f2);
-			flights.add(f3);
-			Itinerary i1 = new Itinerary(flights);
-			i1.id = (long)1;
-			Itinerary i2 = new Itinerary(flights);
-			i2.id = (long)2;
-			Itinerary i3 = new Itinerary(flights);
-			i3.id = (long)3;
-			its.add(i1);
-			its.add(i2);
-			its.add(i3);
+			// Get the details of the booking
+			Booking booking = Booking.find.where(Expr.eq("id", bookingId)).fetch("itinerary").fetch("itinerary.flights").findUnique();
+			Flight source = booking.itinerary.flights.get(0);
+			Flight destination = booking.itinerary.flights.get(booking.itinerary.flights.size() - 1);
+
+			// Get a list of itineraries
+			List<Itinerary> recommendations = FlightFinder.findFlights(source.source, destination.destination, new DateTime(booking.date), new DateTime(booking.date).plusDays(5), FlightFinder.DEFAULT_SEARCH_DEPTH);
 
 			// Send the form + flights back to the user
-			return ok(views.html.recommendFlights.render(Form.form(RecommendFlights.class).fill(recommendFlights), its));
+			return ok(views.html.recommendFlights.render(Form.form(RecommendFlights.class).fill(recommendFlights), recommendations.subList(0, 5)));
 		} else {
 			return forbidden();
 		}
@@ -292,35 +279,22 @@ public class BookingController extends Controller {
 			if (recommendFlightsForm.hasErrors()) {
 				// If we do, issue a bad-request error
 
-				// TODO: Get some flights to send back
-				List<Itinerary> its = new ArrayList<>();
-				List<Flight> flights = new ArrayList<>();
-				Flight f1 = new Flight(null, "107", null, null, new DateTime(), new DateTime(), null, 1);
-				f1.id = (long)1;
-				Flight f2 = new Flight(null, "108", null, null, new DateTime(), new DateTime(), null, 1);
-				f2.id = (long)2;
-				Flight f3 = new Flight(null, "109", null, null, new DateTime(), new DateTime(), null, 1);
-				f3.id = (long)3;
-				flights.add(f1);
-				flights.add(f2);
-				flights.add(f3);
-				Itinerary i1 = new Itinerary(flights);
-				i1.id = (long)1;
-				Itinerary i2 = new Itinerary(flights);
-				i2.id = (long)2;
-				Itinerary i3 = new Itinerary(flights);
-				i3.id = (long)3;
-				its.add(i1);
-				its.add(i2);
-				its.add(i3);
+				// Get the details of the booking
+				Booking booking = Booking.find.where(Expr.eq("id", recommendFlightsForm.get().bookingId)).fetch("itinerary").fetch("itinerary.flights").findUnique();
+				Flight source = booking.itinerary.flights.get(0);
+				Flight destination = booking.itinerary.flights.get(booking.itinerary.flights.size() - 1);
+
+				// Get a list of itineraries
+				List<Itinerary> recommendations = FlightFinder.findFlights(source.source, destination.destination, new DateTime(booking.date), new DateTime(booking.date).plusDays(5), FlightFinder.DEFAULT_SEARCH_DEPTH);
 
 				// Send the form + flights back to the user
-				return badRequest(views.html.recommendFlights.render(recommendFlightsForm, its));
+				return badRequest(views.html.recommendFlights.render(recommendFlightsForm, recommendations.subList(0, 5)));
 			} else {
 				// Otherwise, get the form parameters' values
 				RecommendFlights details = recommendFlightsForm.get();
 
 				// First, pull down the itineraries specified by the list of IDs we received from the form
+				// TODO: This don't actually exist. Need to AJAX stuff then actually persist them in Booking.recommendations
 				List<Itinerary> itineraries = Itinerary.find.where(Expr.in("id", details.recommendedItineraryIds)).findList();
 
 				// Now get the specified booking, along with any existing recommendations
@@ -350,30 +324,11 @@ public class BookingController extends Controller {
 			ReviewRecommendations reviewRecommendations = new ReviewRecommendations();
 			reviewRecommendations.bookingId = bookingId;
 
-			// TODO: Get some flights to send back
-			List<Itinerary> its = new ArrayList<>();
-			List<Flight> flights = new ArrayList<>();
-			Flight f1 = new Flight(null, "107", null, null, new DateTime(), new DateTime(), null, 1);
-			f1.id = (long)1;
-			Flight f2 = new Flight(null, "108", null, null, new DateTime(), new DateTime(), null, 1);
-			f2.id = (long)2;
-			Flight f3 = new Flight(null, "109", null, null, new DateTime(), new DateTime(), null, 1);
-			f3.id = (long)3;
-			flights.add(f1);
-			flights.add(f2);
-			flights.add(f3);
-			Itinerary i1 = new Itinerary(flights);
-			i1.id = (long)1;
-			Itinerary i2 = new Itinerary(flights);
-			i2.id = (long)2;
-			Itinerary i3 = new Itinerary(flights);
-			i3.id = (long)3;
-			its.add(i1);
-			its.add(i2);
-			its.add(i3);
+			// Get the details of the booking
+			Booking booking = Booking.find.where(Expr.eq("id", bookingId)).fetch("recommendations").findUnique();
 
 			// Send the form + flights back to the user
-			return ok(views.html.reviewRecommendations.render(Form.form(ReviewRecommendations.class).fill(reviewRecommendations), its));
+			return ok(views.html.reviewRecommendations.render(Form.form(ReviewRecommendations.class).fill(reviewRecommendations), booking.recommendations));
 		} else {
 			return forbidden();
 		}
@@ -392,30 +347,11 @@ public class BookingController extends Controller {
 			if (reviewRecommendationsForm.hasErrors()) {
 				// If we do, issue a bad-request error
 
-				// TODO: Get some flights to send back
-				List<Itinerary> its = new ArrayList<>();
-				List<Flight> flights = new ArrayList<>();
-				Flight f1 = new Flight(null, "107", null, null, new DateTime(), new DateTime(), null, 1);
-				f1.id = (long)1;
-				Flight f2 = new Flight(null, "108", null, null, new DateTime(), new DateTime(), null, 1);
-				f2.id = (long)2;
-				Flight f3 = new Flight(null, "109", null, null, new DateTime(), new DateTime(), null, 1);
-				f3.id = (long)3;
-				flights.add(f1);
-				flights.add(f2);
-				flights.add(f3);
-				Itinerary i1 = new Itinerary(flights);
-				i1.id = (long)1;
-				Itinerary i2 = new Itinerary(flights);
-				i2.id = (long)2;
-				Itinerary i3 = new Itinerary(flights);
-				i3.id = (long)3;
-				its.add(i1);
-				its.add(i2);
-				its.add(i3);
+				// Get the details of the booking
+				Booking booking = Booking.find.where(Expr.eq("id", reviewRecommendationsForm.get().bookingId)).fetch("recommendations").findUnique();
 
 				// Send the form + flights back to the user
-				return badRequest(views.html.reviewRecommendations.render(reviewRecommendationsForm, its));
+				return badRequest(views.html.reviewRecommendations.render(reviewRecommendationsForm, booking.recommendations));
 			} else {
 				// Otherwise, get the form parameters' values
 				ReviewRecommendations details = reviewRecommendationsForm.get();

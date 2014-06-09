@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FlightFinder {
+	public static final int DEFAULT_SEARCH_DEPTH = 4;
 
     public static List<Itinerary> findFlights(Airport source, Airport destination, DateTime start, DateTime end, int depth) {
         List<List<FlightEdge>> flightEdgesList = FlightFinder.findFlightEdges(source, destination, depth);
