@@ -124,10 +124,12 @@ public class DataController extends Controller {
 		//todo details.put("country", user.country);
 		details.put("state", user.state);
 		details.put("postcode", user.postcode);
-		details.put("paymentMethod", user.paymentMethod);
-		details.put("cardName", user.cardName);
-		details.put("cardNumber", user.cardNumber);
-		details.put("ppUsername", user.ppUsername);
+		if (user.lastPayment != null) {
+			details.put("paymentMethod", user.lastPayment.paymentMethod);
+			details.put("cardName", user.lastPayment.cardName);
+			details.put("cardNumber", user.lastPayment.cardNumber);
+			details.put("ppUsername", user.lastPayment.ppUsername);
+		}
 		return ok(Json.toJson(details));
 	}
 

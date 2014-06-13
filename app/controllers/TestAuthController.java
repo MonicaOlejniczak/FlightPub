@@ -183,32 +183,32 @@ public class TestAuthController extends Controller {
 			    user.postcode = null;
 		    }
 		    if (!details.paymentMethod.isEmpty()) {
-			    if (!details.paymentMethod.equals(user.paymentMethod)) {
-				    user.paymentMethod = details.paymentMethod;
+			    if (!details.paymentMethod.equals(user.lastPayment.paymentMethod)) {
+				    user.lastPayment.paymentMethod = details.paymentMethod;
 			    }
 		    } else {
-			    user.paymentMethod = null;
+			    user.lastPayment.paymentMethod = null;
 		    }
 		    if (!details.cardName.isEmpty()) {
-			    if (!details.cardName.equals(user.cardName)) {
-				    user.cardName = details.cardName;
+			    if (!details.cardName.equals(user.lastPayment.cardName)) {
+				    user.lastPayment.cardName = details.cardName;
 			    }
 		    } else {
-			    user.cardName = null;
+			    user.lastPayment.cardName = null;
 		    }
 		    if (details.cardNumber != null) {
-			    if (!details.cardNumber.equals(user.cardNumber)) {
-				    user.cardNumber = details.cardNumber;
+			    if (!details.cardNumber.equals(user.lastPayment.cardNumber)) {
+				    user.lastPayment.cardNumber = details.cardNumber;
 			    }
 		    } else {
-			    user.cardNumber = null;
+			    user.lastPayment.cardNumber = null;
 		    }
 		    if (!details.ppUsername.isEmpty()) {
-			    if (!details.ppUsername.equals(user.ppUsername)) {
-				    user.ppUsername = details.ppUsername;
+			    if (!details.ppUsername.equals(user.lastPayment.ppUsername)) {
+				    user.lastPayment.ppUsername = details.ppUsername;
 			    }
 		    } else {
-			    user.ppUsername = null;
+			    user.lastPayment.ppUsername = null;
 		    }
 		    user.save();
         }
