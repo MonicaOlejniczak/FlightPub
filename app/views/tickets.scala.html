@@ -1,16 +1,18 @@
+@(postParams: String = "")
+
 @styles = {
-    <link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/luggage.css")'>
+    <link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/tickets.css")'>
 }
 
 @controller = @{
-	"Luggage"
+	"Tickets"
 }
 
-@main("FlightPub - Luggage Options", styles, controller = controller) {
+@main("FlightPub - Ticket Options", styles, controller = controller, postParams = postParams) {
 
 	<h1>Ticket and Luggage Type</h1>
 	<div class="content">
-        <div id="luggage">
+        <div id="tickets">
 	        For each passenger, please select what class of ticket and whether you wish to include only carry-on luggage with your booking, or if you wish to also include checked luggage.
         </div>
     </div>

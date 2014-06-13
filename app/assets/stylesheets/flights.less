@@ -40,8 +40,6 @@
 @sortFilterMargin: 1em;
 @filterStyleMargin: @filterStylePadding;
 @flightMargin: @nodeWidth / 2;
-@flightBarTextMarginTop: @flightBarHeight - 1.2em;
-@flightBarTextMarginLeft: @nodeWidth;
 
 @sortBoxShadow: 0.03em;
 @filterStyleBoxShadow: 0.05em;
@@ -50,11 +48,15 @@
 
 @sortLineHeight: @sortHeight;
 
-.hidden {
+.hidden, .filter {
     display: none;
 }
-.filter {
-    display: none;
+
+#sort span, #filterContent span, .flightBar, .waitBar {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-khtml-user-select: none;
+	-ms-user-select: none;
 }
 
 #flightOptions, #sort, #results, #flights, .flight, #buttons {
@@ -121,16 +123,12 @@
 	.transition(border-bottom, @time, linear);
 }
 
-#sort span, #filterContent span {
+#sort span, #filterContent span, {
 	border-bottom: @sortLinkBorderWidth transparent solid;
 	margin: 0 @sortFilterMargin 0 0;
-	-webkit-user-select: none;
-	-moz-user-select: none;
-	-khtml-user-select: none;
-	-ms-user-select: none;
 }
 
-#sort span:hover, #filterContent span:hover, .flightBar, .node, .source, .destination {
+#sort span:hover, #filterContent span:hover, .flightBar, .node, .source, .destination, .waitBar {
 	cursor: pointer;
 }
 
@@ -194,20 +192,22 @@
 	max-width: @flightsWidth;
 	margin: 0 auto;
     overflow-x: scroll;
-    position: relative;
+	position: relative;
 }
 
 .itinerary {
-    position: relative;
     white-space: nowrap;
+}
+
+.flight, .flightBar, .waitBar {
+	display: inline-block;
 }
 
 .flight {
 	height: @flightHeight;
-	margin: 0 1em @flightMargin 0;
-	position: relative;
-    display: inline-block;
+	margin-bottom: @flightMargin;
     width: 450px;
+	vertical-align: top;
 }
 
 .filter, .source, .flightBarTextHidden, .destination, .flight:hover .source, .flight:hover .flightBarTextHidden, .flight:hover .destination {
@@ -240,10 +240,6 @@
 	.transition(background-color, @time, linear);
 }
 
-.flightBarTextVisible, .flightBarTextHidden, .source, .destination {
-	float: left;
-}
-
 .node {
 	top: 0.35em;
 	width: @nodeWidth;
@@ -253,24 +249,18 @@
 	position: relative;
 }
 
+.departure .node, .arrival .node {
+	margin-top: -0.2em;
+}
+
 .departure .node {
-	left: 0.3em;
+	margin-left: 0.3em;
+	float: left;
 }
 
 .arrival .node {
-	right: 0.3em;
-}
-
-.departure, .flightBar, .arrival {
-	position: absolute;
-}
-
-.departure, .arrival {
-	top: -0.2em;
-}
-
-.departure {
-	left: 0;
+	margin-right: 0.3em;
+	float: right;
 }
 
 .source, .destination {
@@ -316,19 +306,24 @@
 }
 
 .flightBar {
-	left: 0;
-	top: 0;
 	width: 100%;
 	height: @flightBarHeight;
-	min-width: 325px;
+	//min-width: 200px;
 	background: @flightBarBackgroundColor;
 	.boxShadow(0, 0, @flightBarBoxShadow, @flightBarBoxShadow, @flightBarBoxShadowColor);
 }
 
-.flightBarText {
+.flightBarTextVisible, .flightBarTextHidden {
+	float: left;
+}
+
+.flightBarText, .waitBar {
 	font: 1em 'Ubuntu' @nextFont;
+}
+
+.flightBarText {
 	color: @secondaryBackgroundColor;
-	margin: @flightBarTextMarginTop 0 0 @flightBarTextMarginLeft;
+	margin-left: @nodeWidth + 0.5em;
 }
 
 .flightBarTextVisible {
@@ -337,8 +332,11 @@
 	margin: 0 0.5em;
 }
 
-.arrival {
-	right: 0;
+.waitBar {
+	min-width: 3em;
+	background: #000;
+	color: #fff;
+	text-align: center;
 }
 
 .itinerary.selectFlight .flightBar {

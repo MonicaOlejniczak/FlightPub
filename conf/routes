@@ -29,7 +29,7 @@ POST        /payment                            controllers.BookingController.pa
 POST        /payment/process                    controllers.BookingController.submitPayment()
 #POST 	    /luggage/process    			    controllers.BookingController.submitLuggage()
 POST        /seat-selection                     controllers.BookingController.seatSelection()
-POST        /luggage                            controllers.BookingController.luggage()
+POST        /tickets                            controllers.BookingController.tickets()
 #POST        /seat-selection/process             controllers.BookingController.submitSeats()
 GET         /restricted                         controllers.TestAuthController.index()
 POST        /account/process                    controllers.TestAuthController.processSettings()
@@ -38,7 +38,6 @@ GET         /account                            controllers.TestAuthController.i
 
 # Brendan Stuff
 GET         /                                   controllers.MainController.home()
-GET         /data/test                          controllers.DataController.test()
 GET         /data/genEdges                      controllers.DataController.genEdges()
 GET         /data/airlines                      controllers.DataController.airlines()
 GET         /data/airports                      controllers.DataController.airports()

@@ -1,4 +1,4 @@
-@(seatSelection: List[Seat])
+@(seatSelection: List[Seat], postParams: String = "")
 
 @styles = {
     <link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/seatSelection.css")'>
@@ -8,7 +8,7 @@
 	"SeatSelection"
 }
 
-@main("FlightPub - Seat Selection", styles, controller = controller) {
+@main("FlightPub - Seat Selection", styles, controller = controller, postParams = postParams) {
 
 	<h1>Seat Selection</h1>
 	<div class="content">
