@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FlightFinder {
+	public static final int DEFAULT_SEARCH_DEPTH = 4;
 
     /**
      * Find a list of itineraries matching the given parameters
