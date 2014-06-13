@@ -109,6 +109,9 @@ Ext.define('FB.controller.PaymentOptions', {
 			url: '/payment/process',
 			method: 'post',
 			submitEmptyText: false,
+			params: {
+				params: Ext.encode(POST_PARAMS)
+			},
 			success: function(form, action) {
 				if (form.isValid()) {
 					Ext.Msg.alert('Success', action.result.msg);

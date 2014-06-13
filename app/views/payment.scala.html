@@ -1,4 +1,4 @@
-@(paymentForm: Form[controllers.BookingController.PaymentForm])
+@(paymentForm: Form[controllers.BookingController.PaymentForm], postParams: String = "")
 
 @styles = {
     <link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/payment.css")'>
@@ -8,7 +8,7 @@
 	"PaymentOptions"
 }
 
-@main("FlightPub - Payment Options", styles, controller = controller) {
+@main("FlightPub - Payment Options", styles, controller = controller, postParams = postParams) {
 
 	<h1>Payment Options</h1>
 	<div class="content">

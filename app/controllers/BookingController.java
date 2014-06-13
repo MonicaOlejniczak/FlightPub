@@ -2,10 +2,12 @@ package controllers;
 
 import authentication.AuthenticatedUser;
 import com.avaje.ebean.Expr;
+import com.fasterxml.jackson.databind.JsonNode;
 import models.*;
 import org.joda.time.DateTime;
 import play.data.Form;
 import play.data.validation.Constraints;
+import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -400,7 +402,13 @@ public class BookingController extends Controller {
      * Inner static class to specify and validate the fields used in the payment form.
      */
     public static class PaymentForm {
-        /**
+
+	    /**
+	     * List of flight ids
+	     */
+	    public String params;
+
+	    /**
          * First Name
          */
         @Constraints.Required(message = "Required Field!")
@@ -511,21 +519,28 @@ public class BookingController extends Controller {
 
     }
 
-    public static Result payment() { 
-        return ok(views.html.payment.render(Form.form(PaymentForm.class)));
+    public static Result payment() {
+	    String params = request().body().asFormUrlEncoded().get("params")[0];
+        return ok(views.html.payment.render(Form.form(PaymentForm.class), params));
     }
 
     public static Result submitPayment() {
         Form<PaymentForm> paymentForm = Form.form(PaymentForm.class).bindFromRequest();
         if (paymentForm.hasErrors()) {
-            return badRequest(views.html.payment.render(paymentForm));
+            return badRequest(views.html.payment.render(paymentForm, ""));
         } else {
             PaymentForm details = paymentForm.get();
 	        User user = User.find.where().eq("email", session().get("email")).findUnique();
+	        JsonNode params = Json.parse(details.params);
+	        //params.get()
+	        List<Flight> flights = new ArrayList<>();
+	        //List<Long> list = details.itinerary;
+	        Itinerary itinerary = new Itinerary(flights);
             Payment payment = new Payment(details.paymentMethod, details.cardName, details.cardNumber, null, null, null, details.ppUsername, null);
-	        Booking booking = new Booking(user, null, payment);
+	        Booking booking = new Booking(user, itinerary, payment);
 	        user.lastPayment = payment;
 	        user.bookings.add(booking);
+	        booking.save();
 	        user.save();
         }
         return ok(views.html.home.render());
