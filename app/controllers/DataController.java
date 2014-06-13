@@ -41,6 +41,7 @@ public class DataController extends Controller {
         // TODO: use http://wiki.fasterxml.com/JacksonJsonViews
         int id = 0;
         List<Map<String, Object>> jItineraries = new ArrayList<>();
+		double totalPrice = 0;
         for (Itinerary itinerary : flights) {
             Map<String, Object> jItinerary = new HashMap<>();
 
@@ -48,7 +49,7 @@ public class DataController extends Controller {
 
             long jDepartureTime = itinerary.flights.get(0).departureTime.getMillis();
             long jArrivalTime = itinerary.flights.get(itinerary.flights.size() - 1).arrivalTime.getMillis();
-            double jDuration = (jArrivalTime - jDepartureTime) / 60000.0;
+            double jDuration = jArrivalTime - jDepartureTime;
             double jStopOvers = itinerary.flights.size() - 1;
             double jItineraryPrice = 0;
 
@@ -66,15 +67,18 @@ public class DataController extends Controller {
 
                 Map<String, Object> jDestination = new HashMap<>();
                 jDestination.put("name", flight.destination.name);
+	            jDestination.put("code", flight.destination.code);
                 jFlight.put("destination", jDestination);
 
                 Map<String, Object> jAirline = new HashMap<>();
                 jAirline.put("name", flight.airline.name);
                 jFlight.put("airline", jAirline);
 
+	            double price = new Random().nextInt(50); // TODO
                 Map<String, Object> jPrice = new HashMap<>();
-                jPrice.put("price", new Random().nextInt(50));
+                jPrice.put("price", price);
                 jFlight.put("price", jPrice);
+	            totalPrice += price;
                 jItineraryPrice += new Random().nextInt(50);
 
                 jFlights.add(jFlight);
@@ -86,6 +90,7 @@ public class DataController extends Controller {
             jItinerary.put("stopOvers", jStopOvers);
             jItinerary.put("departureTime", jDepartureTime);
             jItinerary.put("arrivalTime", jArrivalTime);
+	        jItinerary.put("price", totalPrice);
 
             jItineraries.add(jItinerary);
         }
