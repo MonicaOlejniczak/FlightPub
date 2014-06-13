@@ -26,22 +26,38 @@ public class DataController extends Controller {
 	}
 
 	public static Result selectedFlights() {
-		Airport source = Airport.find.where().eq("name", request().getQueryString("source")).findUnique();
-		Airport destination = Airport.find.where().eq("name", request().getQueryString("destination")).findUnique();
+        String sourceName = request().getQueryString("source");
+        String destinationName = request().getQueryString("destination");
+        Long departing = Long.parseLong(request().getQueryString("departing"));
+//        Long returning = Long.parseLong(request().getQueryString("returning"));
 
-		DateTime start = new DateTime().withDate(2014, 9, 23).withTime(0, 0, 0, 0);
-		DateTime end = new DateTime().withDate(2014, 9, 27).withTime(23, 59, 59, 999);
+        int MAX_NUM_DAYS = 3;
+
+		Airport source = Airport.find.where().eq("name", sourceName).findUnique();
+		Airport destination = Airport.find.where().eq("name", destinationName).findUnique();
+
+		DateTime start = new DateTime(departing).withTime(0, 0, 0, 0);
+		DateTime end = new DateTime(departing).plusDays(MAX_NUM_DAYS).withTime(23, 59, 59, 999);
+
+        System.out.println(start);
+        System.out.println(end);
 
 		int depth = 7;
 
-		List<Itinerary> flights = FlightFinder.findFlights(source, destination, start, end, depth).subList(0, 100);
+		List<Itinerary> flights = FlightFinder.findFlights(source, destination, start, end, depth);
+        flights.sort(new Comparator<Itinerary>() {
+            @Override
+            public int compare(Itinerary o1, Itinerary o2) {
+                return Integer.compare(o1.flights.size(), o2.flights.size());
+            }
+        });
+        flights = flights.subList(0, Math.min(flights.size(), 100));
 
         // generate limited version
         // NOTE: THIS IS GREAT HAHA /WRISTS
         // TODO: use http://wiki.fasterxml.com/JacksonJsonViews
         int id = 0;
         List<Map<String, Object>> jItineraries = new ArrayList<>();
-		double totalPrice = 0;
         for (Itinerary itinerary : flights) {
             Map<String, Object> jItinerary = new HashMap<>();
 
@@ -74,12 +90,11 @@ public class DataController extends Controller {
                 jAirline.put("name", flight.airline.name);
                 jFlight.put("airline", jAirline);
 
-	            double price = new Random().nextInt(50); // TODO
+	            double price = flight.getPrice().price; //new Random().nextInt(50); // TODO
                 Map<String, Object> jPrice = new HashMap<>();
                 jPrice.put("price", price);
                 jFlight.put("price", jPrice);
-	            totalPrice += price;
-                jItineraryPrice += new Random().nextInt(50);
+                jItineraryPrice += price;
 
                 jFlights.add(jFlight);
             }
@@ -90,7 +105,6 @@ public class DataController extends Controller {
             jItinerary.put("stopOvers", jStopOvers);
             jItinerary.put("departureTime", jDepartureTime);
             jItinerary.put("arrivalTime", jArrivalTime);
-	        jItinerary.put("price", totalPrice);
 
             jItineraries.add(jItinerary);
         }
