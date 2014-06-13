@@ -29,18 +29,17 @@ public class DataController extends Controller {
         String sourceName = request().getQueryString("source");
         String destinationName = request().getQueryString("destination");
         Long departing = Long.parseLong(request().getQueryString("departing"));
-//        Long returning = Long.parseLong(request().getQueryString("returning"));
+//        Long returning = Long.parseLong(request().getQueryString("returning")); // TODO: not used
 
+        // TODO: move to constants somewhere better
         int MAX_NUM_DAYS = 3;
+        int MAX_RESULTS = 100;
 
 		Airport source = Airport.find.where().eq("name", sourceName).findUnique();
 		Airport destination = Airport.find.where().eq("name", destinationName).findUnique();
 
 		DateTime start = new DateTime(departing).withTime(0, 0, 0, 0);
 		DateTime end = new DateTime(departing).plusDays(MAX_NUM_DAYS).withTime(23, 59, 59, 999);
-
-        System.out.println(start);
-        System.out.println(end);
 
 		int depth = 7;
 
@@ -51,7 +50,7 @@ public class DataController extends Controller {
                 return Integer.compare(o1.flights.size(), o2.flights.size());
             }
         });
-        flights = flights.subList(0, Math.min(flights.size(), 100));
+        flights = flights.subList(0, Math.min(flights.size(), MAX_RESULTS));
 
         // generate limited version
         // NOTE: THIS IS GREAT HAHA /WRISTS

@@ -532,14 +532,16 @@ public class BookingController extends Controller {
             PaymentForm details = paymentForm.get();
 	        User user = User.find.where().eq("email", session().get("email")).findUnique();
 	        JsonNode params = Json.parse(details.params);
-	        //params.get()
-	        List<Flight> flights = new ArrayList<>();
-	        //List<Long> list = details.itinerary;
-	        Itinerary itinerary = new Itinerary(flights);
+            JsonNode flightIds = params.get("itinerary");
+            Itinerary itinerary = new Itinerary();
+            for (JsonNode flightId : flightIds) {
+                itinerary.flights.add(Flight.find.byId(flightId.asLong()));
+            }
             Payment payment = new Payment(details.paymentMethod, details.cardName, details.cardNumber, null, null, null, details.ppUsername, null);
 	        Booking booking = new Booking(user, itinerary, payment);
 	        user.lastPayment = payment;
 	        user.bookings.add(booking);
+            itinerary.save();
 	        booking.save();
 	        user.save();
         }
