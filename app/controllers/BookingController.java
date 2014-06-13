@@ -452,8 +452,8 @@ public class BookingController extends Controller {
 	    return payment();
     }
 
-    public static Result luggage() {
-        return ok(views.html.luggage.render());
+    public static Result tickets() {
+        return ok(views.html.tickets.render());
     }
 
     public static Result submitLuggage() {

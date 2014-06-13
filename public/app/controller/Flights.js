@@ -550,7 +550,7 @@ Ext.define('FB.controller.Flights', {
 							Ext.create('Ext.window.MessageBox').alert('Error', 'You have not selected a flight.');
 						} else {
                             var form = Ext.create('Ext.form.Panel', {
-                                url: '/luggage',
+                                url: '/tickets',
                                 standardSubmit: true,
                                 method: 'post'
                             });

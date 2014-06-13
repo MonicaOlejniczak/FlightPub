@@ -32,14 +32,9 @@ public class DataController extends Controller {
 		DateTime start = new DateTime().withDate(2014, 9, 23).withTime(0, 0, 0, 0);
 		DateTime end = new DateTime().withDate(2014, 9, 27).withTime(23, 59, 59, 999);
 
-		List<Flight> possibleFlights = Flight.find.where().between("departureTime", start, end).findList();
+		int depth = 7;
 
-		System.out.println("possible: ");
-		System.out.println(possibleFlights.size());
-
-		int depth = 10;
-
-		List<Itinerary> flights = FlightFinder.findFlights(source, destination, start, end, depth);
+		List<Itinerary> flights = FlightFinder.findFlights(source, destination, start, end, depth).subList(0, 100);
 
         // generate limited version
         // NOTE: THIS IS GREAT HAHA /WRISTS
@@ -105,28 +100,6 @@ public class DataController extends Controller {
     public static Result airports() {
         List<Airport> airports = Airport.find.findList();
         return ok(Json.toJson(airports));
-    }
-
-    public static Result test() {
-        Airport source = Airport.find.where().eq("name", "Sydney").findUnique();
-        Airport destination = Airport.find.where().eq("name", "Canberra").findUnique();
-
-        DateTime start = new DateTime().withDate(2014, 9, 23).withTime(0, 0, 0, 0);
-        DateTime end = new DateTime().withDate(2014, 9, 27).withTime(23, 59, 59, 999);
-
-        int depth = 4;
-
-        List<List<FlightEdge>> flightEdgesList = FlightFinder.findFlightEdges(source, destination, depth);
-        System.out.println(String.format("Edges: %d", flightEdgesList.size()));
-        for (List<FlightEdge> flightEdges : flightEdgesList) {
-            System.out.println(flightEdges);
-        }
-        List<Itinerary> itineraries = FlightFinder.findFlights(source, destination, start, end, flightEdgesList);
-        System.out.println(String.format("Flights: %d", itineraries.size()));
-        for (Itinerary itinerary : itineraries) {
-            System.out.println(itinerary);
-        }
-        return ok("yes");
     }
 
     public static Result genEdges() {

@@ -11,8 +11,26 @@ import java.util.List;
 
 public class FlightFinder {
 
-    public static List<Itinerary> findFlights(Airport source, Airport destination, DateTime start, DateTime end, int depth) {
-        List<List<FlightEdge>> flightEdgesList = FlightFinder.findFlightEdges(source, destination, depth);
+    /**
+     * Find a list of itineraries matching the given parameters
+     * Note: It is assumed that getEdges() has been called previously to create the unified graph edges
+     *
+     * Details:
+     * The algorithm works by using a single unified graph of the flight network. This network is then used to
+     * drastically reduce the search space when searching for specific flights on a particular set of dates. The
+     * algorithm then does a standard recursive breadth-first search (with a limited depth), looking for a paths from
+     * source to destination. Once all possibilities have been searched and found, the list of matching itineraries
+     * are returned.
+     *
+     * @param source The source airport
+     * @param destination The destination airport
+     * @param start The date the flights must be after (inclusive)
+     * @param end The date the flights must be before (inclusive)
+     * @param maxFlightsPerItinerary The search depth, being the maximum number of flights in an itinerary
+     * @return A list of itineraries containing an ordered list of flights
+     */
+    public static List<Itinerary> findFlights(Airport source, Airport destination, DateTime start, DateTime end, int maxFlightsPerItinerary) {
+        List<List<FlightEdge>> flightEdgesList = FlightFinder.findFlightEdges(source, destination, maxFlightsPerItinerary);
 	    return findFlights(source, destination, start, end, flightEdgesList);
     }
 
@@ -40,17 +58,18 @@ public class FlightFinder {
     }
 
     private static void findFlights(Airport destination, Itinerary itinerary, List<Flight> possibleFlights, List<FlightEdge> flightEdges, List<Itinerary> flights, int depth) {
-        if (depth >= flightEdges.size()) {
+        if (flightEdges.size() <= depth) {
             // seek no more!
             return;
         }
         FlightEdge flightEdge = flightEdges.get(depth);
         for (Flight flight : possibleFlights) {
             if (itinerary.flights.contains(flight)) {
-                // move along
+                // move along, flight already in itinerary
                 continue;
             }
             itinerary.flights.add(flight);
+            // checks that next flight departs after arrival time of previous flight
             if (flight.departureTime.isAfter(itinerary.flights.get(itinerary.flights.size() - 2).arrivalTime)) {
                 if (flight.source.equals(flightEdge.source) && flight.destination.equals(destination)) {
                     flights.add(new Itinerary(itinerary));
@@ -66,16 +85,9 @@ public class FlightFinder {
 
     public static List<List<FlightEdge>> findFlightEdges(Airport source, Airport destination, int depth) {
         List<List<FlightEdge>> flights = new ArrayList<>();
-//        List<Flight> flightList = Flight.find.where().between("departureTime", start, end).findList();
         List<FlightEdge> edgeList = FlightEdge.find.all();
-        //List<Flight> sourceFlights = Flight.find.where().between("departureTime", start, end).eq("source", source).findList();
-
         List<FlightEdge> path = new ArrayList<>();
         findFlightEdges(source, destination, path, edgeList, flights, depth);
-
-        /*for (Flight sourceFlight : sourceFlights) {
-
-        }*/
         return flights;
     }
 
@@ -94,7 +106,6 @@ public class FlightFinder {
             if (flightEdge.source.equals(currentAirport)) {
                 path.add(flightEdge);
 //                System.out.println(String.format("Exploring %s at depth %d", path, depth));
-                // do things
                 if (flightEdge.destination.equals(destination)) {
                     // valid flight!
                     flights.add(new ArrayList<>(path));
@@ -108,6 +119,9 @@ public class FlightFinder {
         }
     }
 
+    /**
+     * Generate a unified network edges of direct flights between airports
+     */
     public static void genEdges() {
         List<Airport> airports = Airport.find.all();
         for (FlightEdge flightEdge : FlightEdge.find.all()) {

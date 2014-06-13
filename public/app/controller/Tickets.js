@@ -1,4 +1,4 @@
-Ext.define('FB.controller.Luggage', {
+Ext.define('FB.controller.Tickets', {
 	extend: 'Ext.app.Controller',
 	/**
 	 * Dependencies
@@ -25,7 +25,7 @@ Ext.define('FB.controller.Luggage', {
 		var formId = 'luggageForm';
 		var form = Ext.create('Ext.form.Panel', {
 			id: formId,
-			renderTo: 'luggage',
+			renderTo: 'tickets',
 			url: '/seat-selection',
 			method: 'post',
 			standardSubmit: true,
