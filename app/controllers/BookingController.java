@@ -2,12 +2,12 @@ package controllers;
 
 import authentication.AuthenticatedUser;
 import com.avaje.ebean.Expr;
+import com.fasterxml.jackson.databind.JsonNode;
 import models.*;
 import org.joda.time.DateTime;
-import play.data.DynamicForm;
-import play.libs.Json;
 import play.data.Form;
 import play.data.validation.Constraints;
+import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -107,10 +107,10 @@ public class BookingController extends Controller {
 			i1.id = (long)1;
 			User testUser = User.find.where(Expr.eq("email", "test@test.com")).findUnique();
 			List<Booking> bookings = new ArrayList<>();
-			bookings.add(new Booking(Booking.Status.PENDING, testUser, null, new Date()));
-			bookings.add(new Booking(Booking.Status.AWAITING_RECOMMENDATION_RESPONSE, testUser, i1, new Date()));
-			bookings.add(new Booking(Booking.Status.AWAITING_CONFIRMATION, testUser, null, new Date()));
-			bookings.add(new Booking(Booking.Status.COMPLETED, testUser, null, new Date()));
+			bookings.add(new Booking(Booking.Status.PENDING, testUser, null, null));
+			bookings.add(new Booking(Booking.Status.AWAITING_RECOMMENDATION_RESPONSE, testUser, i1, null));
+			bookings.add(new Booking(Booking.Status.AWAITING_CONFIRMATION, testUser, null, null));
+			bookings.add(new Booking(Booking.Status.COMPLETED, testUser, null, null));
 			for (int i = 0; i < bookings.size(); i++) {
 				bookings.get(i).id = (long)i;
 			}
@@ -142,10 +142,10 @@ public class BookingController extends Controller {
 			// Testing code
 			User testUser = User.find.where(Expr.eq("email", "test@test.com")).findUnique();
 			List<Booking> bookings2 = new ArrayList<>();
-			bookings2.add(new Booking(Booking.Status.PENDING, testUser, null, new Date()));
-			bookings2.add(new Booking(Booking.Status.AWAITING_CONFIRMATION, testUser, null, new Date()));
-			bookings2.add(new Booking(Booking.Status.AWAITING_CONFIRMATION, testUser, null, new Date()));
-			bookings2.add(new Booking(Booking.Status.PENDING, testUser, null, new Date()));
+			bookings2.add(new Booking(Booking.Status.PENDING, testUser, null, null));
+			bookings2.add(new Booking(Booking.Status.AWAITING_CONFIRMATION, testUser, null, null));
+			bookings2.add(new Booking(Booking.Status.AWAITING_CONFIRMATION, testUser, null, null));
+			bookings2.add(new Booking(Booking.Status.PENDING, testUser, null, null));
 			for (int i = 0; i < bookings2.size(); i++) {
 				bookings2.get(i).id = (long)i;
 			}
@@ -402,120 +402,146 @@ public class BookingController extends Controller {
      * Inner static class to specify and validate the fields used in the payment form.
      */
     public static class PaymentForm {
-        /**
-         * First Name.
+
+	    /**
+	     * List of flight ids
+	     */
+	    public String params;
+
+	    /**
+         * First Name
          */
         @Constraints.Required(message = "Required Field!")
         @Constraints.MaxLength(value = 30, message = "Name Too Long!")
         @Constraints.Pattern(value = "\\D*", message = "Name cannot contain numbers!")
-        public String nameFirst;
+        public String firstName;
 
         /**
-         * Surname.
+         * Last Name
          */
         @Constraints.Required(message = "Required Field!")
         @Constraints.MaxLength(value = 30, message = "Name Too Long!")
         @Constraints.Pattern(value = "\\D*", message = "Name cannot contain numbers!")
-        public String surname;
+        public String lastName;
+
+	    /**
+	     * Phone Number
+	     */
+	    @Constraints.Required(message = "Required Field!")
+	    public Integer phoneNumber;
 
         /**
-         * Street Address.
+         * Street Address
          */
         @Constraints.Required(message = "Required Field!")
         @Constraints.MaxLength(value = 100, message = "Address too long!")
         public String streetAddress;
 
         /**
-         * Suburb/City.
+         * Suburb
          */
         @Constraints.Required(message = "Required Field!")
         @Constraints.MaxLength(value = 100, message = "Input too long!")
         @Constraints.Pattern(value = "\\D*", message = "Input must not contain numbers!")
-        public String suburbCity;
+        public String suburb;
 
         /**
-         * State.
+         * State
          */
         @Constraints.Required(message = "Required Field!")
         @Constraints.MaxLength(value = 50, message = "Input too long!")
         @Constraints.Pattern(value = "\\D*", message = "Input must not contain numbers!")
-        public String stateIn;
+        public String state;
 
         /**
-         * Post code.
+         * Post code
          */
         @Constraints.Required(message = "Required Field!")
-        public int postCode;
+        public Integer postcode;
 
-        /**
-         * Phone Number.
-         */
-        @Constraints.Required(message = "Required Field!")
-        public int phoneNumber;
+	    /**
+	     * Preferred payment method
+	     */
+	    @Constraints.Required(message = "Required Field!")
+	    public String paymentMethod;
+
+	    /**
+	     * Name on card
+	     */
+	    @Constraints.MaxLength(value = 30, message = "Name too long!")
+	    @Constraints.Pattern(value = "\\D*", message = "Name cannot contain numbers!")
+	    public String cardName;
+
+	    /**
+	     * Card number
+	     */
+	    public Integer cardNumber;
 
         /**
          * Name on card
          */
-        @Constraints.MaxLength(value = 30, message = "Name too long!")
+        /*@Constraints.MaxLength(value = 30, message = "Name too long!")
         @Constraints.Pattern(value = "\\D*", message = "Name cannot contain numbers!")
         public String mcardName;
 
         /**
          * Card number
          */
-        public int mcardNum;
+        /*public int mcardNum;
 
         /**
          * Card CVV number
          */
-        public int mcardCCV;
+        /*public int mcardCCV;
 
         /**
          * Card expiry month
          */
-        public String mcardExpMonth;
+        /*public String mcardExpMonth;
 
         /**
          * Card expiry year
          */
-        public String mcardExpYear;
+        /*public String mcardExpYear;
 
         /**
          * PayPal username
          */
         @Constraints.MaxLength(value = 130, message = "Name too long!")
-        public String pPalUser;
+        public String ppUsername;
 
         /**
          * PayPal password
          */
-        @Constraints.MinLength(value = 8, message = "Password too short!")
+        /*@Constraints.MinLength(value = 8, message = "Password too short!")
         @Constraints.MaxLength(value = 20, message = "Password too long!")
-        public String pPalPass;
+        public String pPalPass;*/
 
     }
 
-    public static Result payment() { 
-        return ok(views.html.payment.render(Form.form(PaymentForm.class)));
+    public static Result payment() {
+	    String params = request().body().asFormUrlEncoded().get("params")[0];
+        return ok(views.html.payment.render(Form.form(PaymentForm.class), params));
     }
 
     public static Result submitPayment() {
         Form<PaymentForm> paymentForm = Form.form(PaymentForm.class).bindFromRequest();
         if (paymentForm.hasErrors()) {
-            return badRequest(views.html.payment.render(paymentForm));
+            return badRequest(views.html.payment.render(paymentForm, ""));
         } else {
             PaymentForm details = paymentForm.get();
-            AuthenticatedUser loggedUser = new AuthenticatedUser();
-            String username = loggedUser.getUsername(Http.Context.current());
-            User temp = User.find.where(Expr.eq("email", username)).findUnique();
-            Payment payTemp = new Payment(temp, details.nameFirst, details.surname, details.streetAddress, details.suburbCity, details.stateIn, details.postCode, details.phoneNumber);
-            if(!(details.mcardName.isEmpty())) {
-                payTemp.addCardDetails(details.mcardName, details.mcardNum, details.mcardCCV, details.mcardExpMonth, details.mcardExpYear);
-            } else if (!(details.pPalUser.isEmpty())) {
-                payTemp.addPPDetails(details.pPalUser, details.pPalPass);
-            }
-            temp.addPayDetails(payTemp);
-
+	        User user = User.find.where().eq("email", session().get("email")).findUnique();
+	        JsonNode params = Json.parse(details.params);
+	        //params.get()
+	        List<Flight> flights = new ArrayList<>();
+	        //List<Long> list = details.itinerary;
+	        Itinerary itinerary = new Itinerary(flights);
+            Payment payment = new Payment(details.paymentMethod, details.cardName, details.cardNumber, null, null, null, details.ppUsername, null);
+	        Booking booking = new Booking(user, itinerary, payment);
+	        user.lastPayment = payment;
+	        user.bookings.add(booking);
+	        booking.save();
+	        user.save();
         }
         return ok(views.html.home.render());
     }

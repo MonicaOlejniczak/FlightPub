@@ -55,7 +55,9 @@ Ext.define('FB.controller.Flights', {
             var params = Ext.Object.fromQueryString(document.location.search);
             Ext.apply(this.dataStore.getProxy().extraParams, {
                 source: params.source,
-                destination: params.destination
+                destination: params.destination,
+                departing: params.departing,
+                returning: params.returning
             });
             this.dataStore.load();
 		}, this);
@@ -168,6 +170,11 @@ Ext.define('FB.controller.Flights', {
                 }
             });
 		}, this);
+        if (this.dataStore.getTotalCount() === 0) {
+            Ext.get('flights').createChild(Ext.create('Ext.XTemplate',
+                '<div style="font-size: 2em; text-align: center; padding: 30px">No Flights Found</div>').apply({
+            }));
+        }
 	},
 	/**
 	 * Selects a particular flight

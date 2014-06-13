@@ -66,6 +66,13 @@ public class Booking extends Model {
 	public Itinerary itinerary;
 
 	/**
+	 * The payment used for the booking
+	 */
+	@Constraints.Required
+	@ManyToOne(cascade = CascadeType.ALL)
+	public Payment payment;
+
+	/**
 	 * The List of alternate possible Itineraries recommended by a travel agent during the booking process.
 	 */
 	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -89,12 +96,21 @@ public class Booking extends Model {
 	/**
 	 * Class constructor setting the required variables of the class
 	 */
-	public Booking(Status status, User user, Itinerary itinerary, Date date) {
-		this.status = status;
+	public Booking(User user, Itinerary itinerary, Payment payment) {
+		this.status = Status.PENDING;
 		this.user = user;
 		this.itinerary = itinerary;
 		this.recommendations = new ArrayList<>();
-		this.date = date;
+		this.payment = payment;
+		this.date = new Date();
+	}
+
+	/**
+	 * Class constructor setting the required variables of the class
+	 */
+	public Booking(Status status, User user, Itinerary itinerary, Payment payment) {
+		this(user, itinerary, payment);
+		this.status = status;
 	}
 
 	/**

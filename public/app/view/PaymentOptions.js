@@ -1,6 +1,6 @@
-Ext.define('FB.view.AccountSettings', {
+Ext.define('FB.view.PaymentOptions', {
 	extend: 'Ext.form.Panel',
-	alias: 'widget.AccountSettings',
+	alias: 'widget.PaymentOptions',
 	standardSubmit: true,
 	layout: {
 		type: 'anchor'
@@ -16,38 +16,10 @@ Ext.define('FB.view.AccountSettings', {
 		border: false,
 		hideTrigger: true,
 		keyNavEnabled: false,
-		mouseWheelEnabled: false
+		mouseWheelEnabled: false,
+		allowBlank: false
 	},
 	items: [{
-		xtype: 'header',
-		html: 'Account settings',
-		cls: 'formHeading'
-	},  {
-		itemId: 'email',
-		name: 'email',
-		fieldLabel: 'Email',
-		inputType: 'email',
-		emptyText: 'please enter your email address',
-		allowBlank: false
-	},  {
-		itemId: 'currentPassword',
-		name: 'currentPassword',
-		fieldLabel: '* Current password',
-		inputType: 'password',
-		emptyText: 'please enter your current password',
-		allowBlank: false
-	},  {
-		itemId: 'newPassword',
-		name: 'newPassword',
-		fieldLabel: 'New password',
-		inputType: 'password',
-		emptyText: 'please enter your new password'
-	},  {
-		itemId: 'confirmPassword',
-		fieldLabel: 'Confirm new password',
-		inputType: 'password',
-		emptyText: 'please enter your new password again'
-	},  {
 		xtype: 'header',
 		html: 'Personal details',
 		cls: 'formHeading'
@@ -55,14 +27,12 @@ Ext.define('FB.view.AccountSettings', {
 		itemId: 'firstName',
 		name: 'firstName',
 		fieldLabel: 'First name',
-		emptyText: 'please enter your first name',
-		allowBlank: false
+		emptyText: 'please enter your first name'
 	},  {
 		itemId: 'lastName',
 		name: 'lastName',
 		fieldLabel: 'Last name',
-		emptyText: 'please enter your last name',
-		allowBlank: false
+		emptyText: 'please enter your last name'
 	},  {
 		itemId: 'phoneNumber',
 		xtype: 'numberfield',
