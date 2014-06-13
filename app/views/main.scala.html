@@ -53,10 +53,13 @@
 	                <a href="/" class="@activeLink("/")">Home</a>
 	                <a href="/about" class="@activeLink("/about")">About</a>
 	                <a href="/contact" class="@activeLink("/contact")">Contact</a>
-	                @if(Http.Context.current().session().get("email") != null) {
+	                @if(authentication.AuthenticatedUser.isLoggedIn) {
 		                <a href="@routes.AuthenticationController.logout()" class="@activeLink("/logout")">Logout</a>
-                        <a href="/bookings" class="@activeLink("/bookings")">Bookings</a>
-                        <a href="/booking-requests" class="@activeLink("/booking-requests")">Booking Requests</a>
+						@if(User.find.where(com.avaje.ebean.Expr.eq("email", new authentication.AuthenticatedUser().getUsername(Http.Context.current()))).findUnique().userType.equals("travel")) {
+							<a href="/booking-requests" class="@activeLink("/booking-requests")">Booking Requests</a>
+						} else {
+							<a href="/bookings" class="@activeLink("/bookings")">Bookings</a>
+						}
 	                } else {
 		                <a href="@routes.AuthenticationController.register()" class="@activeLink("/register")">Register</a>
 		                <a href="@routes.AuthenticationController.login()" class="@activeLink("/login")">Login</a>
