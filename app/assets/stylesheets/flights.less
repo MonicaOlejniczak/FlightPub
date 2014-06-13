@@ -217,13 +217,13 @@
 .filter, .source, .flightBarTextHidden, .destination {
 	opacity: 1;
 	filter:alpha(opacity=100);
-	/*visibility: hidden;*/
+	display: none;
 }
 
 .flight:hover .source, .flight:hover .flightBarTextHidden, .flight:hover .destination {
 	opacity: 1;
 	filter:alpha(opacity=100);
-	visibility: visible;
+	display: block;
 	cursor: pointer;
 }
 
@@ -264,7 +264,6 @@
 }
 
 .source, .destination {
-	top: -0.1em;
 	width: @sourceWidth;
 	height: @flightBarHeight;
 	background-color: @flightHoverBackgroundColor;
@@ -278,11 +277,11 @@
 }
 
 .source {
-	margin: 0 auto 0 -6.2em;
+	margin: 0 auto 0 0.3em;
 }
 
 .destination {
-	margin: 0 auto 0 3em;
+	margin: 0 0.3em 0 auto;
 }
 
 .source:before, .destination:before {
