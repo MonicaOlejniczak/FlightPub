@@ -546,6 +546,8 @@ Ext.define('FB.controller.Flights', {
 					click: function () {
 						// TODO: add returning functionality
                         var itinerary = this.selectedItinerary;
+                        var qParams = Ext.Object.fromQueryString(document.location.search);
+                        var numTickets = parseInt(qParams.adults, 10) + parseInt(qParams.children, 10) + parseInt(qParams.infants, 10);
 						if (itinerary === null) {
 							Ext.create('Ext.window.MessageBox').alert('Error', 'You have not selected a flight.');
 						} else {
@@ -556,7 +558,10 @@ Ext.define('FB.controller.Flights', {
                             });
                             form.submit({
                                 params: {
-                                    itinerary: itinerary.getFlightIds()
+                                    params: Ext.encode({
+                                        itinerary: itinerary.getFlightIds(),
+                                        numTickets: numTickets
+                                    })
                                 }
                             });
 						}

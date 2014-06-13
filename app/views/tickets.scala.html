@@ -1,3 +1,5 @@
+@(postParams: String = "")
+
 @styles = {
     <link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/tickets.css")'>
 }
@@ -6,7 +8,7 @@
 	"Tickets"
 }
 
-@main("FlightPub - Ticket Options", styles, controller = controller) {
+@main("FlightPub - Ticket Options", styles, controller = controller, postParams = postParams) {
 
 	<h1>Ticket and Luggage Type</h1>
 	<div class="content">

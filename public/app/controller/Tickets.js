@@ -14,7 +14,7 @@ Ext.define('FB.controller.Tickets', {
 	 */
 	init: function () {
 		Ext.onReady(function () {
-			this.passengers = 3; // TODO: fix
+			this.passengers = POST_PARAMS.numTickets;
 			this.renderForm();
 		}, this);
 	},
@@ -175,6 +175,9 @@ Ext.define('FB.controller.Tickets', {
 			formBind: true,
 			handler: function () {
 				form.getForm().submit({
+                    params: {
+                        params: Ext.encode(POST_PARAMS)
+                    },
 					success: function(form, action) {
 						Ext.Msg.alert('Success', action.result.msg);
 					},

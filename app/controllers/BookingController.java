@@ -4,6 +4,8 @@ import authentication.AuthenticatedUser;
 import com.avaje.ebean.Expr;
 import models.*;
 import org.joda.time.DateTime;
+import play.data.DynamicForm;
+import play.libs.Json;
 import play.data.Form;
 import play.data.validation.Constraints;
 import play.mvc.Controller;
@@ -12,9 +14,7 @@ import play.mvc.Result;
 import play.mvc.Security;
 import views.html.bookingRequests;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Controller responsible for handling all aspects of the FlightPub booking process.
@@ -445,7 +445,8 @@ public class BookingController extends Controller {
 
     public static Result seatSelection() {
 	    List<Seat> seats = Seat.find.all();
-        return ok(views.html.seatSelection.render(seats));
+        String params = request().body().asFormUrlEncoded().get("params")[0];
+        return ok(views.html.seatSelection.render(seats, params));
     }
 
     public static Result submitSeats() {
@@ -453,7 +454,8 @@ public class BookingController extends Controller {
     }
 
     public static Result tickets() {
-        return ok(views.html.tickets.render());
+        String params = request().body().asFormUrlEncoded().get("params")[0];
+        return ok(views.html.tickets.render(params));
     }
 
     public static Result submitLuggage() {

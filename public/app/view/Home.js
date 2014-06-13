@@ -52,28 +52,28 @@ Ext.define('FB.view.Home', {
 			xtype: 'combo',
 			queryMode: 'local',
 			displayField: 'name',
-			valueField: 'name',
+			valueField: 'value',
 			labelCls: 'passengers',
 			flex: 1
 		},
 		items: [{
 			itemId: 'adult',
 			store: 'Adult',
-			name: 'adult',
+			name: 'adults',
 			fieldLabel: 'Passengers',
-			value: '1 Adult',
+			value: 1,
 			margin: '0 10px 0 0'
 		},  {
 			itemId: 'child',
 			store: 'Child',
-			name: 'child',
-			value: '0 Children',
+			name: 'children',
+			value: 0,
 			margin: '0 10px 0 0'
 		},  {
 			itemId: 'infant',
 			store: 'Infant',
-			name: 'infant',
-			value: '0 Infants'
+			name: 'infants',
+			value: 0
 		}]
 	},  {
 		xtype: 'container',

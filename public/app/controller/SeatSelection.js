@@ -16,7 +16,7 @@ Ext.define('FB.controller.SeatSelection', {
 			this.rowCount = 6;
 			this.columnCount = 6;
 			this.totalSeats = 34;
-			this.passengers = 3;
+			this.passengers = POST_PARAMS.numTickets;
 			this.renderForm();
 		}, this);
 	},
@@ -215,6 +215,9 @@ Ext.define('FB.controller.SeatSelection', {
 				var selected = Ext.select('.selectedButton').elements.length;
 				if (selected == this.passengers) {
 					form.getForm().submit({
+                        params: {
+                            params: Ext.encode(POST_PARAMS)
+                        },
 						success: function(form, action) {
 							Ext.Msg.alert('Success', action.result.msg);
 						},

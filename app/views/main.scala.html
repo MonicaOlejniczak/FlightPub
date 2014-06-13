@@ -1,4 +1,4 @@
-@(title: String, styles: Html = Html(""), scripts: Html = Html(""), controller: String = "")(content: Html)
+@(title: String, styles: Html = Html(""), scripts: Html = Html(""), controller: String = "", postParams: String = "")(content: Html)
 @activeLink(currentPath:String) = @{
 	if(request.path.equals(currentPath)) "active"
 }
@@ -51,7 +51,6 @@
 	        <div id="navigation">
 	            <nav role="navigation">
 	                <a href="/" class="@activeLink("/")">Home</a>
-	                <a href="/flights" class="@activeLink("/flights")">Flights</a>
 	                <a href="/about" class="@activeLink("/about")">About</a>
 	                <a href="/contact" class="@activeLink("/contact")">Contact</a>
 	                @if(Http.Context.current().session().get("email") != null) {
@@ -81,6 +80,16 @@
         <div id="content">
             @content
 		</div>
+        @* horrible method of passing POST variables to the javascriptz *@
+        @if(postParams != "") {
+            <div id="post">
+                <script type="text/javascript">
+                    (function (window) {
+                        window.POST_PARAMS = @Html(postParams);
+                    }(window));
+                </script>
+            </div>
+        }
 	    <footer>
 	        FlightPub &copy; 2014-present. All rights reserved.
 	    </footer>
