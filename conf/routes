@@ -1,0 +1,53 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Trey
+GET         /register                          controllers.AuthenticationController.register()
+POST        /register/process                  controllers.AuthenticationController.processRegistration()
+GET         /login                             controllers.AuthenticationController.login()
+POST        /login/process                     controllers.AuthenticationController.processLogin(destination = null)
+POST        /login/process/*destination        controllers.AuthenticationController.processLogin(destination)
+GET         /logout                            controllers.AuthenticationController.logout()
+GET         /register                          controllers.AuthenticationController.register()
+POST        /register/process                  controllers.AuthenticationController.processRegistration()
+#GET         /message                          controllers.MessageController.getMessage()
+#GET         /assets/javascripts/routes        controllers.MessageController.javascriptRoutes()
+GET         /bookings                                   controllers.BookingController.bookings()
+GET         /booking-requests                           controllers.BookingController.bookingRequests()
+POST        /bookings/cancel                            controllers.BookingController.cancel()
+POST        /bookings/complete                          controllers.BookingController.complete()
+GET         /bookings/recommend/:bookingId              controllers.BookingController.recommendFlights(bookingId: Long)
+POST        /bookings/recommendations/send              controllers.BookingController.sendRecommendations()
+GET         /bookings/recommendations/:bookingId        controllers.BookingController.reviewRecommendations(bookingId: Long)
+POST        /bookings/recommendations/respond           controllers.BookingController.sendRecommendationResponse()
+
+# Chris stuff
+GET         /about                              controllers.MainController.about()
+GET         /contact                            controllers.MainController.contact()
+POST        /payment                            controllers.BookingController.payment()
+POST        /payment/process                    controllers.BookingController.submitPayment()
+#POST 	    /luggage/process    			    controllers.BookingController.submitLuggage()
+POST        /seat-selection                     controllers.BookingController.seatSelection()
+POST        /tickets                            controllers.BookingController.tickets()
+#POST        /seat-selection/process             controllers.BookingController.submitSeats()
+GET         /restricted                         controllers.TestAuthController.index()
+POST        /account/process                    controllers.TestAuthController.processSettings()
+GET         /data/selected-flights              controllers.DataController.selectedFlights()
+GET         /account                            controllers.TestAuthController.index()
+
+# Brendan Stuff
+GET         /                                   controllers.MainController.home()
+GET         /data/genEdges                      controllers.DataController.genEdges()
+GET         /data/airlines                      controllers.DataController.airlines()
+GET         /data/airports                      controllers.DataController.airports()
+
+# Monica Stuff
+GET         /flights                            controllers.BookingController.flights()
+POST        /flights                            controllers.BookingController.flights()
+GET         /data/selectedFlights               controllers.DataController.selectedFlights()
+GET         /data/account-details               controllers.DataController.accountDetails()
+
+# Map static resources from the /public folder to the /assets URL path
+GET         /assets/*file                       controllers.Assets.at(path="/public", file)
+GET         /webjars/*file                      controllers.WebJarAssets.at(file)

@@ -1,0 +1,18 @@
+@(accountForm: Form[controllers.TestAuthController.AccountForm])
+
+@styles = {
+    <link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/accountSettings.css")'>
+}
+
+@controller = @{
+	"AccountSettings"
+}
+
+@main("FlightPub - Account Settings", styles, controller = controller) {
+
+	<h1>Account Settings</h1>
+	<div class="content">
+		<div id="accountSettings"></div>
+	</div>
+
+}

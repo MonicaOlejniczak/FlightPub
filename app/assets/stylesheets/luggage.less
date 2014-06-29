@@ -1,0 +1,35 @@
+@import 'globalVariables';
+
+#luggage {
+	width: @contentWidth;
+	margin: 0 auto;
+}
+
+#luggageForm {
+	margin: 1em 0 0 0;
+}
+
+.passenger {
+	margin: 0 0 1em 0;
+}
+
+#luggageForm table, #luggageForm td, #luggageForm tr {
+	border: 0;
+}
+
+#luggageForm input {
+	color: #000;
+	font: 1em 'Ubuntu' @nextFont;
+	border-radius: 0.3em 0 0 0;
+}
+
+#buttons {
+	width: calc(~'@{buttonWidth} * 3 + @{buttonMargin} * 2');
+	height: 100%;
+	margin: 0 1em 1em 0;
+	float: right;
+}
+
+.button, .cancelButton {
+	margin: 0 @buttonMargin 0 0;
+}

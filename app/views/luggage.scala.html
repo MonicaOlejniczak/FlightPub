@@ -1,0 +1,18 @@
+@styles = {
+    <link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/luggage.css")'>
+}
+
+@controller = @{
+	"Luggage"
+}
+
+@main("FlightPub - Luggage Options", styles, controller = controller) {
+
+	<h1>Ticket and Luggage Type</h1>
+	<div class="content">
+        <div id="luggage">
+	        For each passenger, please select what class of ticket and whether you wish to include only carry-on luggage with your booking, or if you wish to also include checked luggage.
+        </div>
+    </div>
+
+}
