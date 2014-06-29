@@ -10,7 +10,6 @@
 		<link rel='stylesheet' type='text/css' href='@routes.Assets.at("extjs/resources/css/ext-all-neptune-debug.css")'>
         <link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/global.css")'>
         <link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/main.css")'>
-        <link rel='stylesheet' type='text/css' href='@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap.min.css"))'>
         @styles
         <link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Roboto'>
         <link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Open+Sans'>
@@ -33,13 +32,15 @@
 				        '@controller'
 			        ],
 				    stores: [
+					    'AccountType',
 					    'Adult',
 				        'Airline',
 				        'Airport',
 					    'Child',
 				        'Flight',
 					    'Infant',
-				        'Itinerary'
+				        'Itinerary',
+					    'PaymentType'
 				    ],
 				    autoCreateViewport: false
 			    });
@@ -55,11 +56,11 @@
 	                <a href="/contact" class="@activeLink("/contact")">Contact</a>
 	                @if(authentication.AuthenticatedUser.isLoggedIn) {
 		                <a href="@routes.AuthenticationController.logout()" class="@activeLink("/logout")">Logout</a>
-						@if(User.find.where(com.avaje.ebean.Expr.eq("email", new authentication.AuthenticatedUser().getUsername(Http.Context.current()))).findUnique().userType.equals("travel")) {
+						<!--@@if(User.find.where().eq("email", new authentication.AuthenticatedUser().getUsername(Http.Context.current())).findUnique().userType.equals("travel")) {
 							<a href="/booking-requests" class="@activeLink("/booking-requests")">Booking Requests</a>
 						} else {
 							<a href="/bookings" class="@activeLink("/bookings")">Bookings</a>
-						}
+						}-->
 	                } else {
 		                <a href="@routes.AuthenticationController.register()" class="@activeLink("/register")">Register</a>
 		                <a href="@routes.AuthenticationController.login()" class="@activeLink("/login")">Login</a>

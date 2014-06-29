@@ -30,10 +30,10 @@ public class AuthenticationController extends Controller {
 		public String lastName;
 
         /**
-         * User type field from the request
+         * Account type field from the request
          */
         @Constraints.Required
-        public String userType;
+        public String accountType;
 
 		/**
 		 * Email field from the request.
@@ -96,21 +96,20 @@ public class AuthenticationController extends Controller {
 	 * failure.
 	 */
 	public static Result processRegistration() {
-		// Get the request parameters
+		// retrieve the request parameters
 		Form<RegistrationDetails> registrationForm = Form.form(RegistrationDetails.class).bindFromRequest();
-
-		// Do we have errors?
+		// check for registration errors
 		if (registrationForm.hasErrors()) {
-			// If we do, issue a bad-request error
+			// return a bad-request error
+			System.out.println("bad");
 			return badRequest(views.html.register.render(registrationForm));
 		} else {
-			// Otherwise, get the form parameters' values
+			System.out.println("hello");
+			// retrieve the form parameters' values
 			RegistrationDetails details = registrationForm.get();
-
-			// Register the user
-			User.register(details.firstName, details.lastName, details.email, details.userType, details.password);
-
-			// Then log them in, and redirect to the homepage
+			// register the user
+			User.register(details.firstName, details.lastName, details.email, details.accountType, details.password);
+			// log the user in and redirect them to the homepage
 			session().clear();
 			session("email", details.email);
 			return redirect(controllers.routes.MainController.home());

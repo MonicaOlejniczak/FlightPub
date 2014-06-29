@@ -4,107 +4,15 @@
     <link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/register.css")'>
 }
 
-@scripts = {
-    <script type='text/javascript' src='@routes.Assets.at("javascripts/register.js")'></script>
+@controller = @{
+	"Register"
 }
 
-@main("FlightPub - Register", styles, scripts) {
+@main("FlightPub - Register", styles, controller = controller) {
 
 	<h1>Register</h1>
 	<div class="content">
-		<div class="container">
-			<div class="panel panel-primary">
-				<div class="panel-body">
-					<form action="@routes.AuthenticationController.processRegistration()" id="regForm" method="POST" role="form" class="form-horizontal">
-						@if(registrationForm.hasGlobalErrors) {
-							<div class="alert alert-danger">
-								<strong>Error! </strong>
-								@registrationForm.globalError.message
-							</div>
-						}
-
-						<div class="form-group @if(registrationForm("firstName").hasErrors || registrationForm.hasGlobalErrors) {has-error}">
-							<label for="@registrationForm("firstName").name" class="control-label col-sm-2">First Name</label>
-							<div class="col-sm-8">
-								<input type="text" required="true" maxlength="30" class="form-control" id="@registrationForm("firstName").id" name="@registrationForm("firstName").name" value="@registrationForm("firstName").value" placeholder="Enter First Name..." autofocus="true">
-								@if(registrationForm("firstName").hasErrors) {
-									@registrationForm("firstName").errors.map { error =>
-										<span class="label label-danger">@error.message</span>
-									}
-								}
-							</div>
-						</div>
-
-						<div class="form-group @if(registrationForm("lastName").hasErrors || registrationForm.hasGlobalErrors) {has-error}">
-							<label for="@registrationForm("lastName").name" class="control-label col-sm-2">Last Name</label>
-							<div class="col-sm-8">
-								<input type="text" required="true" maxlength="30" class="form-control" id="@registrationForm("lastName").id" name="@registrationForm("lastName").name" value="@registrationForm("lastName").value" placeholder="Enter Last Name...">
-								@if(registrationForm("lastName").hasErrors) {
-									@registrationForm("lastName").errors.map { error =>
-										<span class="label label-danger">@error.message</span>
-									}
-								}
-							</div>
-						</div>
-
-                        <div class="form-group">
-                            <label for="@registrationForm("payOption").name" class="control-label col-sm-2">User Type</label>
-                            <div class="col-sm-8">
-                                <select class="reg-text" name="userType" id="userType">
-                                    <option value="">Choose A User Type</option>
-                                    <option value="standard">Standard User</option>
-                                    <option value="travel">Travel Agent</option>
-                                    <option value="admin">Site Manager</option>
-                                </select>
-                            </div>
-                        </div>
-
-						<div class="form-group @if(registrationForm("email").hasErrors || registrationForm.hasGlobalErrors) {has-error}">
-							<label for="@registrationForm("email").name" class="control-label col-sm-2">Email Address</label>
-							<div class="col-sm-8">
-								<input type="email" required="true" class="form-control" id="@registrationForm("email").id" name="@registrationForm("email").name" value="@registrationForm("email").value" placeholder="Enter Email Address...">
-								@if(registrationForm("email").hasErrors) {
-									@registrationForm("email").errors.map { error =>
-										<span class="label label-danger">@error.message</span>
-									}
-								}
-							</div>
-						</div>
-
-						<div class="form-group @if(registrationForm("password").hasErrors || registrationForm.hasGlobalErrors) {has-error}">
-							<label for="@registrationForm("password").name" class="control-label col-sm-2">Password</label>
-							<div class="col-sm-8">
-								<input type="password" required="true" pattern=".{8,}" class="form-control" id="@registrationForm("password").id" name="@registrationForm("password").name" placeholder="Enter Password...">
-								@if(registrationForm("password").hasErrors) {
-									@registrationForm("password").errors.map { error =>
-										<span class="label label-danger">@error.message</span>
-									}
-								}
-							</div>
-						</div>
-
-	                    <div class="form-group @if(registrationForm("confirmPassword").hasErrors || registrationForm.hasGlobalErrors) {has-error}">
-	                        <label for="@registrationForm("confirmPassword").name" class="control-label col-sm-2">Confirm Password</label>
-	                        <div class="col-sm-8">
-	                            <input type="password" required="true" pattern=".{8,}" class="form-control" id="@registrationForm("confirmPassword").id" name="@registrationForm("confirmPassword").name" placeholder="Enter Password For Confirmation...">
-	                            @if(registrationForm("confirmPassword").hasErrors) {
-	                                @registrationForm("confirmPassword").errors.map { error =>
-	                                    <span class="label label-danger">@error.message</span>
-	                                }
-	                            }
-	                        </div>
-	                    </div>
-
-						<div class="form-group">
-							<div class="col-sm-offset-2 col-sm-8">
-								<input type="submit" class="btn btn-primary" value="Register" onclick="return confirmRegPassword();">
-								<a href="@routes.MainController.home()" class="btn btn-danger" onclick="return confirmCancel();">Cancel</a>
-							</div>
-						</div>
-					</form>
-				</div>
-			</div>
-		</div>
+		<div id="register"></div>
 	</div>
 
 }

@@ -111,16 +111,7 @@ Ext.define('FB.view.AccountSettings', {
 		cls: 'paymentMethod',
 		name: 'paymentMethod',
 		fieldLabel: 'Preferred payment method',
-		store: Ext.create('Ext.data.Store', {
-			fields: [
-				'option'
-			],
-			data : [
-				{'option': 'Visa'},
-				{'option': 'Mastercard'},
-				{'option': 'PayPal'}
-			]
-		}),
+		store: 'PaymentType',
 		displayField: 'option',
 		valueField: 'option',
 		emptyText: 'please select a payment option',
