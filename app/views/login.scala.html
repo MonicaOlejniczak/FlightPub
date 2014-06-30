@@ -1,58 +1,18 @@
-@(loginForm: Form[controllers.AuthenticationController.LoginCredentials])
+@(accountForm: Form[controllers.AuthenticationController.LoginCredentials])
 
 @styles = {
-	<link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/login.css")'>
+	<link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/authentication.css")'>
 }
 
-@main("FlightPub - Login", styles) {
+@controller = @{
+	"Login"
+}
+
+@main("FlightPub - Login", styles, controller = controller) {
 
 	<h1>Login</h1>
 	<div class="content">
-		<div class="container">
-			<div class="panel panel-primary">
-				<div class="panel-body">
-					<form action="@routes.AuthenticationController.processLogin(flash.get("destination"))" method="POST" role="form" class="form-horizontal">
-						@if(loginForm.hasGlobalErrors) {
-							<div class="alert alert-danger">
-								<strong>Error! </strong>
-								@loginForm.globalError.message
-							</div>
-						}
-
-						<div class="form-group @if(loginForm("email").hasErrors || loginForm.hasGlobalErrors) {has-error}">
-							<label for="@loginForm("email").name" class="control-label col-sm-2">Email Address</label>
-							<div class="col-sm-8">
-								<input type="email" required="true" class="form-control" id="@loginForm("email").id" name="@loginForm("email").name" value="@loginForm("email").value" placeholder="Enter Email Address..." autofocus="true">
-								@if(loginForm("email").hasErrors) {
-									@loginForm("email").errors.map { error =>
-										<span class="label label-danger">@error.message</span>
-									}
-								}
-							</div>
-						</div>
-
-						<div class="form-group @if(loginForm("password").hasErrors || loginForm.hasGlobalErrors) {has-error}">
-							<label for="@loginForm("password").name" class="control-label col-sm-2">Password</label>
-							<div class="col-sm-8">
-								<input type="password" required="true" pattern=".{8,}" class="form-control" id="@loginForm("password").id" name="@loginForm("password").name" placeholder="Enter Password...">
-								@if(loginForm("password").hasErrors) {
-									@loginForm("password").errors.map { error =>
-										<span class="label label-danger">@error.message</span>
-									}
-								}
-							</div>
-						</div>
-
-						<div class="form-group">
-							<div class="col-sm-offset-2 col-sm-8">
-								<input type="submit" class="btn btn-primary" value="Login">
-								<a href="@routes.MainController.home()" class="btn btn-danger">Cancel</a>
-							</div>
-						</div>
-					</form>
-				</div>
-			</div>
-		</div>
+		<div id="login"></div>
 	</div>
 
 }

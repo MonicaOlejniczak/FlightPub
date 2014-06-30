@@ -29,7 +29,7 @@ public class AuthenticatedUser extends Security.Authenticator {
 	}
 
 	public static Boolean isLoggedIn() {
-		return !("".equals(Http.Context.current().request().username()));
+		return Http.Context.current().session().get("email") != null && !Http.Context.current().session().get("email").equals("");
 	}
 
 }

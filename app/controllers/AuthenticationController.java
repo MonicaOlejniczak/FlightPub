@@ -96,15 +96,14 @@ public class AuthenticationController extends Controller {
 	 * failure.
 	 */
 	public static Result processRegistration() {
+		// todo check unique email
 		// retrieve the request parameters
 		Form<RegistrationDetails> registrationForm = Form.form(RegistrationDetails.class).bindFromRequest();
 		// check for registration errors
 		if (registrationForm.hasErrors()) {
 			// return a bad-request error
-			System.out.println("bad");
 			return badRequest(views.html.register.render(registrationForm));
 		} else {
-			System.out.println("hello");
 			// retrieve the form parameters' values
 			RegistrationDetails details = registrationForm.get();
 			// register the user
