@@ -82,16 +82,36 @@ Ext.define('FB.controller.Register', {
 	 * The event fired when processing registration
 	 */
 	submitEvent: function () {
+		// client side validation
+		if (this.getForm().isValid()) {
+			// server validation
+			Ext.Ajax.request({
+				url: '/register/is-valid',
+				method: 'POST',
+				params: this.getForm().getValues(),
+				success: function(response) {
+					console.log(response.responseText);
+					this.submitForm();
+				},
+				failure: function(response) {
+					Ext.Msg.alert('Error', response.responseText);
+				}, scope: this
+			});
+		} else {
+			Ext.Msg.alert('Error', 'Form fields may not be submitted with invalid values.');
+		}
+	},
+	/**
+	 * The method called when a server side check is performed on the form
+	 */
+	submitForm: function () {
 		this.getForm().submit({
 			url: '/register/process',
-			method: 'post',
+			method: 'POST',
 			submitEmptyText: false,
 			success: function(form, action) {
-				if (form.isValid()) {
-					Ext.Msg.alert('Success', action.result.msg);
-				} else {
-					Ext.Msg.alert('Error', 'Form fields may not be submitted with invalid values.');
-				}
+				// always successful at this point
+				Ext.Msg.alert('Success', action.result.msg);
 			},
 			failure: function(form, action) {
 				switch (action.failureType) {

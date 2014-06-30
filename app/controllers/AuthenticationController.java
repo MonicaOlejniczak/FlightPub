@@ -14,19 +14,19 @@ public class AuthenticationController extends Controller {
 	/**
 	 * Inner static class to specify and validate the fields used in the registration Form.
 	 */
-	public static class RegistrationDetails {
+	public static class RegistrationForm {
 		/**
 		 * First-name field from the request.
 		 */
-		@Constraints.Required(message = "Required Field!")
-		@Constraints.MaxLength(value = 30, message = "Name Too Long!")
+		@Constraints.Required(message = "First name is a required field.")
+		@Constraints.MaxLength(value = 30, message = "The first name provided is too long.")
 		public String firstName;
 
 		/**
 		 * Last-name field from the request.
 		 */
-		@Constraints.Required(message = "Required Field!")
-		@Constraints.MaxLength(value = 30, message = "Name Too Long!")
+		@Constraints.Required(message = "Last name is a required Field.")
+		@Constraints.MaxLength(value = 30, message = "The last name provided is too long.")
 		public String lastName;
 
         /**
@@ -38,15 +38,15 @@ public class AuthenticationController extends Controller {
 		/**
 		 * Email field from the request.
 		 */
-		@Constraints.Required(message = "Required Field!")
-		@Constraints.Email(message = "Invalid Email Address!")
+		@Constraints.Required(message = "Email is a required field.")
+		@Constraints.Email(message = "The email address provided is invalid.")
 		public String email;
 
 		/**
 		 * Password field from the request.
 		 */
-		@Constraints.Required(message = "Required Field!")
-		@Constraints.MinLength(value = 8, message = "Password Too Short!")
+		@Constraints.Required(message = "Password is a required field.")
+		@Constraints.MinLength(value = 8, message = "The password provided is too short.")
 		public String password;
 	}
 
@@ -57,15 +57,15 @@ public class AuthenticationController extends Controller {
 		/**
 		 * Email field from the request.
 		 */
-		@Constraints.Required(message = "Required Field!")
-		@Constraints.Email(message = "Invalid Email Address!")
+		@Constraints.Required(message = "Email is a required field.")
+		@Constraints.Email(message = "The email address provided is invalid.")
 		public String email;
 
 		/**
 		 * Password field from the request.
 		 */
-		@Constraints.Required(message = "Required Field!")
-		@Constraints.MinLength(value = 8, message = "Password Too Short!")
+		@Constraints.Required(message = "Password is a required field.")
+		@Constraints.MinLength(value = 8, message = "The password provided is too short.")
 		public String password;
 
 		/**
@@ -86,7 +86,25 @@ public class AuthenticationController extends Controller {
 	 * @return The registration form.
 	 */
 	public static Result register() {
-		return ok(views.html.register.render(Form.form(RegistrationDetails.class)));
+		return ok(views.html.register.render());
+	}
+
+	/**
+	 * Checks if the registration details are correct
+	 *
+	 * @return whether the registration is valid or not
+	 */
+	public static Result checkRegistration() {
+		// get the form
+		Form<RegistrationForm> registrationForm = Form.form(RegistrationForm.class).bindFromRequest();
+		// get the form details
+		RegistrationForm details = registrationForm.get();
+		// check is user is taken
+		boolean isUsernameTaken = User.find.where().eq("email", details.email).findUnique() != null;
+		// return validity
+		return registrationForm.hasErrors() ? badRequest("There was an error processing your registration.") :
+							isUsernameTaken ? badRequest("The email you have supplied is already in use.") :
+							ok("Registration was successful.");
 	}
 
 	/**
@@ -95,24 +113,15 @@ public class AuthenticationController extends Controller {
 	 * @return A redirect to the specified destination page if successful, or a redirect back to the Register action on
 	 * failure.
 	 */
-	public static Result processRegistration() {
-		// todo check unique email
-		// retrieve the request parameters
-		Form<RegistrationDetails> registrationForm = Form.form(RegistrationDetails.class).bindFromRequest();
-		// check for registration errors
-		if (registrationForm.hasErrors()) {
-			// return a bad-request error
-			return badRequest(views.html.register.render(registrationForm));
-		} else {
-			// retrieve the form parameters' values
-			RegistrationDetails details = registrationForm.get();
-			// register the user
-			User.register(details.firstName, details.lastName, details.email, details.accountType, details.password);
-			// log the user in and redirect them to the homepage
-			session().clear();
-			session("email", details.email);
-			return redirect(controllers.routes.MainController.home());
-		}
+	public static Result registerUser() {
+		// retrieve the registration details
+		RegistrationForm details = Form.form(RegistrationForm.class).bindFromRequest().get();
+		// retrieve the form parameters' values// register the user
+		User.register(details.firstName, details.lastName, details.email, details.accountType, details.password);
+		// log the user in and redirect them to the homepage
+		session().clear();
+		session("email", details.email);
+		return redirect(controllers.routes.MainController.home().url());
 	}
 
 	/**
@@ -133,7 +142,6 @@ public class AuthenticationController extends Controller {
 	public static Result processLogin(String destination) {
 		// Get request parameters
 		Form<LoginCredentials> loginForm = Form.form(LoginCredentials.class).bindFromRequest();
-
 		// Do we have errors?
 		if (loginForm.hasErrors()) {
 			// If we do, re-save the destination URL (unlike every other side, ever) and issue a bad-request error
