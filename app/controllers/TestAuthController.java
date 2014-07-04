@@ -5,7 +5,6 @@ import models.User;
 import play.data.Form;
 import play.data.validation.Constraints;
 import play.mvc.Controller;
-import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Security;
 
@@ -14,14 +13,13 @@ import static play.data.Form.form;
 /**
  * A Controller class that tests User authentication.
  *
- * @author Trey Brisbane
  */
 @Security.Authenticated(AuthenticatedUser.class)
 public class TestAuthController extends Controller {
 
 	public static Result index() {
         if (AuthenticatedUser.isLoggedIn()) {
-            return ok(views.html.accountSettings.render(form(AccountForm.class)));
+            return ok(views.html.accountSettings.render());
         } else {
             return forbidden();
         }
@@ -34,18 +32,21 @@ public class TestAuthController extends Controller {
         /**
          * Email
          */
+        @Constraints.Required(message = "Email is a required field.")
         @Constraints.Email(message = "Invalid Email Address!")
         public String email;
 
         /**
          * Password
          */
+        @Constraints.Required(message = "Password is a required field.")
         @Constraints.MinLength(value = 8, message = "Password Too Short!")
         public String password;
 
 	    /**
 	     * New password
 	     */
+	    // todo make new and confirm new the same server side
 	    @Constraints.MinLength(value = 8, message = "Password Too Short!")
 	    public String newPassword;
 
@@ -53,11 +54,12 @@ public class TestAuthController extends Controller {
 	     * Confirmed password
 	     */
 	    @Constraints.MinLength(value = 8, message = "Password Too Short!")
-	    public String confirmPassword;
+	    public String confirmNewPassword;
 
 	    /**
 	     * First name
 	     */
+	    @Constraints.Required(message = "First name is a required field.")
 	    @Constraints.MaxLength(value = 30, message = "Name Too Long!")
 	    @Constraints.Pattern(value = "\\D*", message = "Name cannot contain numbers!")
 	    public String firstName;
@@ -65,6 +67,7 @@ public class TestAuthController extends Controller {
 	    /**
 	     * Surname
 	     */
+	    @Constraints.Required(message = "Last name is a required field.")
 	    @Constraints.MaxLength(value = 30, message = "Name Too Long!")
 	    @Constraints.Pattern(value = "\\D*", message = "Name cannot contain numbers!")
 	    public String lastName;
@@ -123,20 +126,28 @@ public class TestAuthController extends Controller {
         public String ppUsername;
     }
 
+	/**
+	 * A method that processes any account setting changes made by the user
+	 *
+	 * @return whether the settings were processed successfully
+	 */
     public static Result processSettings() {
         Form<AccountForm> accountForm = form(AccountForm.class).bindFromRequest();
 	    if (accountForm.hasErrors()) {
-            return badRequest(views.html.accountSettings.render(accountForm));
+            return badRequest("There were errors processing your account changes.");
         } else {
             AccountForm details = accountForm.get();
 		    User user = User.find.where().eq("email", session().get("email")).findUnique();
 		    if (!details.email.equals(user.email)) {
+			    // check if the username is taken
+			    if (AuthenticationController.isUsernameTaken(details.email)) {
+				    return badRequest("The email you have supplied is already in use.");
+			    }
 			    user.email = details.email;
 		    }
 		    if (!details.newPassword.isEmpty()) {
 			    String newPassword = User.hashPassword(details.newPassword, user.email);
 			    if (!newPassword.equals(user.password)) {
-				    System.out.println("no");
 				    user.password = newPassword;
 			    }
 		    }
@@ -212,6 +223,6 @@ public class TestAuthController extends Controller {
 		    }
 		    user.save();
         }
-        return index();
+        return ok("Account settings have been processed successfully.");
     }
 }

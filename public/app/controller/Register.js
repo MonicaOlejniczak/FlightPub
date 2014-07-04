@@ -46,6 +46,7 @@ Ext.define('FB.controller.Register', {
 				}
 			}
 		}, this);
+		// todo apply vtype to email
 		Ext.apply(Ext.form.field.VTypes, {
 			confirmedPassword: function() {
 				return this.getForm().down('#confirmPassword').getValue() !== "";
@@ -84,14 +85,16 @@ Ext.define('FB.controller.Register', {
 	submitEvent: function () {
 		// client side validation
 		if (this.getForm().isValid()) {
-			// server validation
+			// server side validation
 			Ext.Ajax.request({
-				url: '/register/is-valid',
+				url: '/register/process',
 				method: 'POST',
+				submitEmptyText: false,
 				params: this.getForm().getValues(),
 				success: function(response) {
+					// server side validation was successful and the user is redirected to the home page
 					console.log(response.responseText);
-					this.submitForm();
+					window.location.href = '/';
 				},
 				failure: function(response) {
 					Ext.Msg.alert('Error', response.responseText);
@@ -100,32 +103,6 @@ Ext.define('FB.controller.Register', {
 		} else {
 			Ext.Msg.alert('Error', 'Form fields may not be submitted with invalid values.');
 		}
-	},
-	/**
-	 * The method called when a server side check is performed on the form
-	 */
-	submitForm: function () {
-		this.getForm().submit({
-			url: '/register/process',
-			method: 'POST',
-			submitEmptyText: false,
-			success: function(form, action) {
-				// always successful at this point
-				Ext.Msg.alert('Success', action.result.msg);
-			},
-			failure: function(form, action) {
-				switch (action.failureType) {
-					case Ext.form.action.Action.CLIENT_INVALID:
-						Ext.Msg.alert('Failure', 'Form fields may not be submitted with invalid values.');
-						break;
-					case Ext.form.action.Action.CONNECT_FAILURE:
-						Ext.Msg.alert('Failure', 'Ajax communication failed.');
-						break;
-					case Ext.form.action.Action.SERVER_INVALID:
-						Ext.Msg.alert('Failure', action.result.msg);
-				}
-			}
-		});
 	}
 
 });

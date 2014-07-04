@@ -10,7 +10,7 @@ Ext.define('FB.view.AccountSettings', {
 	defaults: {
 		anchor: '100%',
 		xtype: 'textfield',
-		labelWidth: 200,
+		labelWidth: 250,
 		maxLength: 50,
 		msgTarget: 'under',
 		border: false,
@@ -30,8 +30,8 @@ Ext.define('FB.view.AccountSettings', {
 		emptyText: 'please enter your email address',
 		allowBlank: false
 	},  {
-		itemId: 'currentPassword',
-		name: 'currentPassword',
+		itemId: 'password',
+		name: 'password',
 		fieldLabel: '* Current password',
 		inputType: 'password',
 		emptyText: 'please enter your current password',
@@ -44,6 +44,7 @@ Ext.define('FB.view.AccountSettings', {
 		emptyText: 'please enter your new password'
 	},  {
 		itemId: 'confirmPassword',
+		name: 'confirmPassword',
 		fieldLabel: 'Confirm new password',
 		inputType: 'password',
 		emptyText: 'please enter your new password again'

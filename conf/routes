@@ -2,13 +2,11 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# Trey
 GET         /register/                                  controllers.AuthenticationController.register()
-POST         /register/is-valid                          controllers.AuthenticationController.checkRegistration()
 POST        /register/process                           controllers.AuthenticationController.registerUser()
 GET         /login                                      controllers.AuthenticationController.login()
-POST        /login/process                              controllers.AuthenticationController.processLogin(destination =        null)
-POST        /login/process/*destination                 controllers.AuthenticationController.processLogin(destination)
+POST        /login/process                              controllers.AuthenticationController.loginUser(destination =        null)
+POST        /login/process/*destination                 controllers.AuthenticationController.loginUser(destination)
 GET         /logout                                     controllers.AuthenticationController.logout()
 GET         /bookings                                   controllers.BookingController.bookings()
 GET         /booking-requests                           controllers.BookingController.bookingRequests()
@@ -18,8 +16,6 @@ GET         /bookings/recommend/:bookingId              controllers.BookingContr
 POST        /bookings/recommendations/send              controllers.BookingController.sendRecommendations()
 GET         /bookings/recommendations/:bookingId        controllers.BookingController.reviewRecommendations(bookingId: Long)
 POST        /bookings/recommendations/respond           controllers.BookingController.sendRecommendationResponse()
-
-# Chris stuff
 GET         /about                                      controllers.MainController.about()
 GET         /contact                                    controllers.MainController.contact()
 POST        /payment                                    controllers.BookingController.payment()
@@ -32,14 +28,10 @@ GET         /restricted                                 controllers.TestAuthCont
 POST        /account/process                            controllers.TestAuthController.processSettings()
 GET         /data/selected-flights                      controllers.DataController.selectedFlights()
 GET         /account                                    controllers.TestAuthController.index()
-
-# Brendan Stuff
 GET         /                                           controllers.MainController.home()
 GET         /data/genEdges                              controllers.DataController.genEdges()
 GET         /data/airlines                              controllers.DataController.airlines()
 GET         /data/airports                              controllers.DataController.airports()
-
-# Monica Stuff
 GET         /flights                                    controllers.BookingController.flights()
 POST        /flights                                    controllers.BookingController.flights()
 GET         /data/selectedFlights                       controllers.DataController.selectedFlights()

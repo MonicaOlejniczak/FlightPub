@@ -26,8 +26,10 @@ Ext.define('FB.controller.AccountSettings', {
 		this.control({
 			'AccountSettings': {
 				afterrender: function () {
+					debugger;
+					// todo fix this not being fired
 					var form = this.getForm();
-						Ext.apply(form.down('#newPassword'), {
+					Ext.apply(form.down('#newPassword'), {
 						vtype: 'confirmedPassword'
 					});
 					Ext.apply(form.down('#confirmPassword'), {
@@ -119,30 +121,26 @@ Ext.define('FB.controller.AccountSettings', {
 	 * The event fired when updating settings
 	 */
 	submitEvent: function () {
-		this.getForm().submit({
-			url: '/account/process',
-			method: 'post',
-			submitEmptyText: false,
-			success: function(form, action) {
-				if (form.isValid()) {
-					Ext.Msg.alert('Success', action.result.msg);
-				} else {
-					Ext.Msg.alert('Error', 'Form fields may not be submitted with invalid values.');
-				}
-			},
-			failure: function(form, action) {
-				switch (action.failureType) {
-					case Ext.form.action.Action.CLIENT_INVALID:
-						Ext.Msg.alert('Failure', 'Form fields may not be submitted with invalid values.');
-						break;
-					case Ext.form.action.Action.CONNECT_FAILURE:
-						Ext.Msg.alert('Failure', 'Ajax communication failed.');
-						break;
-					case Ext.form.action.Action.SERVER_INVALID:
-						Ext.Msg.alert('Failure', action.result.msg);
-				}
-			}
-		});
+		// client side validation
+		if (this.getForm().isValid()) {
+			// server side validation
+			Ext.Ajax.request({
+				url: '/account/process',
+				method: 'POST',
+				params: this.getForm().getValues(),
+				submitEmptyText: false,
+				success: function (response) {
+					// server side validation was successful
+					Ext.Msg.alert('Success', response.responseText);
+					window.location.href = '/restricted';
+				},
+				failure: function (response) {
+					Ext.Msg.alert('Error', response.responseText);
+				}, scope: this
+			});
+		} else {
+			Ext.Msg.alert('Error', 'Form fields may not be submitted with invalid values.');
+		}
 	}
 
 });

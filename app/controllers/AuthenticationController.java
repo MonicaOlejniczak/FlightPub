@@ -12,6 +12,15 @@ import play.mvc.Result;
  */
 public class AuthenticationController extends Controller {
 	/**
+	 * A method that checks if the specified username is taken
+	 *
+	 * @param username the account username being checked
+	 * @return whether the specified username is taken
+	 */
+	public static boolean isUsernameTaken(String username) {
+		return User.find.where().eq("email", username).findUnique() != null;
+	}
+	/**
 	 * Inner static class to specify and validate the fields used in the registration Form.
 	 */
 	public static class RegistrationForm {
@@ -48,6 +57,7 @@ public class AuthenticationController extends Controller {
 		@Constraints.Required(message = "Password is a required field.")
 		@Constraints.MinLength(value = 8, message = "The password provided is too short.")
 		public String password;
+
 	}
 
 	/**
@@ -73,11 +83,7 @@ public class AuthenticationController extends Controller {
 		 * @return The error message if an error occurred, or null if validation was successful.
 		 */
 		public String validate() {
-			if (User.authenticate(this.email, this.password)) {
-				return null;
-			} else {
-				return "Invalid credentials. Please try again.";
-			}
+			return User.authenticate(this.email, this.password) ? null : "Invalid credentials. Please try again.";
 		}
 	}
 
@@ -90,38 +96,31 @@ public class AuthenticationController extends Controller {
 	}
 
 	/**
-	 * Checks if the registration details are correct
-	 *
-	 * @return whether the registration is valid or not
-	 */
-	public static Result checkRegistration() {
-		// get the form
-		Form<RegistrationForm> registrationForm = Form.form(RegistrationForm.class).bindFromRequest();
-		// get the form details
-		RegistrationForm details = registrationForm.get();
-		// check is user is taken
-		boolean isUsernameTaken = User.find.where().eq("email", details.email).findUnique() != null;
-		// return validity
-		return registrationForm.hasErrors() ? badRequest("There was an error processing your registration.") :
-							isUsernameTaken ? badRequest("The email you have supplied is already in use.") :
-							ok("Registration was successful.");
-	}
-
-	/**
 	 * Process-Registration action - processes the registration details supplied by the user, storing them if they are
 	 * valid.
 	 * @return A redirect to the specified destination page if successful, or a redirect back to the Register action on
 	 * failure.
 	 */
 	public static Result registerUser() {
+		// get the form
+		Form<RegistrationForm> registrationForm = Form.form(RegistrationForm.class).bindFromRequest();
 		// retrieve the registration details
-		RegistrationForm details = Form.form(RegistrationForm.class).bindFromRequest().get();
-		// retrieve the form parameters' values// register the user
-		User.register(details.firstName, details.lastName, details.email, details.accountType, details.password);
-		// log the user in and redirect them to the homepage
-		session().clear();
-		session("email", details.email);
-		return redirect(controllers.routes.MainController.home().url());
+		RegistrationForm details = registrationForm.get();
+		// return validity
+		if (registrationForm.hasErrors()) {
+			// the form is invalid and a bad request must be sent
+			return badRequest("There was an error processing your registration.");
+		} else if (AuthenticationController.isUsernameTaken(details.email)) {
+			// the username is invalid and a bad request must be sent
+			return badRequest("The email you have supplied is already in use.");
+		} else {
+			// register the user
+			User.register(details.firstName, details.lastName, details.email, details.accountType, details.password);
+			// log the user in and return a success
+			session().clear();
+			session("email", details.email);
+			return ok("Registration was successful.");
+		}
 	}
 
 	/**
@@ -139,19 +138,16 @@ public class AuthenticationController extends Controller {
 	 * @return A redirect to the specified destination page if successful, or a redirect back to the Login action on
 	 * failure.
 	 */
-	public static Result processLogin(String destination) {
-		// Get request parameters
+	public static Result loginUser(String destination) {
+		// get the form
 		Form<LoginCredentials> loginForm = Form.form(LoginCredentials.class).bindFromRequest();
-		// Do we have errors?
 		if (loginForm.hasErrors()) {
-			// If we do, re-save the destination URL (unlike every other side, ever) and issue a bad-request error
-			if (destination != null) { flash().put("destination", destination); }
-			return badRequest(views.html.login.render(loginForm));
+			return badRequest("The login details provided are incorrect.");
 		} else {
-			// Otherwise, log the user in and redirect to the previous page (if one exists) or the homepage
+			// log the user in and redirect to the previous page (if one exists) or the homepage
 			session().clear();
 			session("email", loginForm.get().email);
-			return redirect(destination != null ? destination : controllers.routes.MainController.home().url());
+			return ok("Login was successful.");
 		}
 	}
 
