@@ -14,76 +14,29 @@
         <link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Roboto'>
         <link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Open+Sans'>
         <link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Ubuntu'>
-        <script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("jquery.min.js"))'></script>
+	    <script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("jquery.min.js"))'></script>
 		<script type='text/javascript' src='@routes.Assets.at("extjs/ext-dev.js")'></script>
     	<script type='text/javascript' src='@routes.Assets.at("extjs/ext-theme-neptune.js")'></script>
+	    <script type='text/javascript' src='@routes.Assets.at("javascripts/Application.js")'></script>
         @scripts
-	    @if(controller != "") {
-		    <script type='text/javascript'>
-			    Ext.application({
-				    name: 'FB',
-				    paths: {
-				        'FB': '/assets/app'
-				    },
-				    controllers: [
-				        '@controller'
-				    ],
-				    views: [
-				        '@controller'
-			        ],
-				    stores: [
-					    'AccountType',
-					    'Adult',
-				        'Airline',
-				        'Airport',
-					    'Child',
-				        'Flight',
-					    'Infant',
-				        'Itinerary',
-					    'PaymentType'
-				    ],
-				    autoCreateViewport: false
-			    });
-		    </script>
-	    }
     </head>
     <body>
-        <header>
-	        <div id="navigation">
-	            <nav role="navigation">
-	                <a href="/" class="@activeLink("/")">Home</a>
-	                <a href="/about" class="@activeLink("/about")">About</a>
-	                <a href="/contact" class="@activeLink("/contact")">Contact</a>
-	                @if(authentication.AuthenticatedUser.isLoggedIn) {
-		                <a href="@routes.AuthenticationController.logout()" class="@activeLink("/logout")">Logout</a>
-						<!--@@if(User.find.where().eq("email", new authentication.AuthenticatedUser().getUsername(Http.Context.current())).findUnique().userType.equals("travel")) {
-							<a href="/booking-requests" class="@activeLink("/booking-requests")">Booking Requests</a>
-						} else {
-							<a href="/bookings" class="@activeLink("/bookings")">Bookings</a>
-						}-->
-	                } else {
-		                <a href="@routes.AuthenticationController.register()" class="@activeLink("/register")">Register</a>
-		                <a href="@routes.AuthenticationController.login()" class="@activeLink("/login")">Login</a>
-	                }
-	                <a href="@routes.TestAuthController.index()" class="@activeLink("/restricted")">Account</a>
-	            </nav>
-	        </div>
-	        <div id="bannerContainer">
-		        <div id="bannerGradient">
-			        <div id="banner">
-						<div id="logo">
-							<a href="/">FlightPub</a>
-						</div>
-				        <div id="subtext">
-							Flights, simplified.
-				        </div>
-			        </div>
-		        </div>
-	        </div>
-        </header>
-        <div id="content">
-            @content
-		</div>
+        <!--
+            <a href="/" class="@activeLink("/")">Home</a>
+            <a href="/about" class="@activeLink("/about")">About</a>
+            <a href="/contact" class="@activeLink("/contact")">Contact</a>
+            @@if(authentication.AuthenticatedUser.isLoggedIn) {
+                <a href="@routes.AuthenticationController.logout()" class="@activeLink("/logout")">Logout</a>
+				<!--@@if(User.find.where().eq("email", new authentication.AuthenticatedUser().getUsername(Http.Context.current())).findUnique().userType.equals("travel")) {
+					<a href="/booking-requests" class="@activeLink("/booking-requests")">Booking Requests</a>
+				} else {
+					<a href="/bookings" class="@activeLink("/bookings")">Bookings</a>
+				}-->
+            <!--} else {
+                <a href="@routes.AuthenticationController.register()" class="@activeLink("/register")">Register</a>
+                <a href="@routes.AuthenticationController.login()" class="@activeLink("/login")">Login</a>
+            }
+            <a href="@routes.TestAuthController.index()" class="@activeLink("/restricted")">Account</a>-->
         @* horrible method of passing POST variables to the javascriptz *@
         @if(postParams != "") {
             <div id="post">
@@ -94,8 +47,5 @@
                 </script>
             </div>
         }
-	    <footer>
-	        FlightPub &copy; 2014-present. All rights reserved.
-	    </footer>
     </body>
 </html>

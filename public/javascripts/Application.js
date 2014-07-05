@@ -1,12 +1,37 @@
 Ext.Loader.setConfig({
-    enabled : true
+    enabled: true
 });
 
 // horrible things ahead
 Ext.syncRequire('Ext.data.Request');
 Ext.syncRequire('Ext.data.Store');
 
-loadStores([
+Ext.application({
+	name: 'FB',
+	paths: {
+		'FB': '/assets/app'
+	},
+	controllers: [
+	],
+	views: [
+	],
+	stores: [
+		'AccountType',
+		'Adult',
+		'Airline',
+		'Airport',
+		'Child',
+		'Flight',
+		'Infant',
+		'Itinerary',
+		'PaymentType'
+	],
+	autoCreateViewport: true,
+	launch: function () {
+	}
+});
+
+/*loadStores([
     'FB.store.Airport'
 ]);
 
@@ -25,4 +50,4 @@ function loadStores (stores) {
             }
         }
     }, this);
-}
+}*/
