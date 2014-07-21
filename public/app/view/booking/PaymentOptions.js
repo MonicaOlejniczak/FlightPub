@@ -1,7 +1,7 @@
-Ext.define('FB.view.PaymentOptions', {
+Ext.define('FB.view.booking.PaymentOptions', {
 	extend: 'Ext.form.Panel',
 	requires: [
-		'FB.view.PaymentOptionsController'
+		'FB.view.booking.PaymentOptionsController'
 	],
 	xtype: 'PaymentOptions',
 	controller: 'PaymentOptions',

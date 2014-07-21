@@ -1,4 +1,4 @@
-Ext.define('FB.view.SeatSelectionController', {
+Ext.define('FB.view.booking.SeatSelectionController', {
 	extend: 'Ext.app.Controller',
 	alias: 'controller.SeatSelection',
 	requires: [

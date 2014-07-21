@@ -1,7 +1,7 @@
-Ext.define('FB.view.Tickets', {
+Ext.define('FB.view.booking.Tickets', {
 	extend: 'Ext.form.Panel',
 	requires: [
-		'FB.view.TicketsController'
+		'FB.view.booking.TicketsController'
 	],
 	xtype: 'Tickets',
 	controller: 'Tickets'

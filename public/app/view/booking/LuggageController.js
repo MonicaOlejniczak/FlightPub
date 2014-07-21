@@ -1,4 +1,4 @@
-Ext.define('FB.view.LuggageController', {
+Ext.define('FB.view.booking.LuggageController', {
 	extend: 'Ext.app.ViewController',
 	alias: 'controller.Luggage',
 	requires: [

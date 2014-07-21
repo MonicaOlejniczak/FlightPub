@@ -1,4 +1,4 @@
-Ext.define('FB.view.PaymentOptionsController', {
+Ext.define('FB.view.booking.PaymentOptionsController', {
 	extend: 'Ext.app.ViewController',
 	alias: 'controller.PaymentOptions',
 	requires: [

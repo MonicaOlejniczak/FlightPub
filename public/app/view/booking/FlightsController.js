@@ -1,4 +1,4 @@
-Ext.define('FB.view.FlightsController', {
+Ext.define('FB.view.booking.FlightsController', {
 	extend: 'Ext.app.ViewController',
 	alias: 'controller.Flights',
 	/**
