@@ -1,6 +1,10 @@
 Ext.define('FB.view.PaymentOptions', {
 	extend: 'Ext.form.Panel',
-	alias: 'widget.PaymentOptions',
+	requires: [
+		'FB.view.PaymentOptionsController'
+	],
+	xtype: 'PaymentOptions',
+	controller: 'PaymentOptions',
 	standardSubmit: true,
 	layout: {
 		type: 'anchor'

@@ -1,4 +1,8 @@
 Ext.define('FB.view.Flights', {
 	extend: 'Ext.form.Panel',
-	alias: 'widget.Flights'
+	requires: [
+		'FB.view.FlightsController'
+	],
+	xtype: 'Flights',
+	controller: 'Flights'
 });

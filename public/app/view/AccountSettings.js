@@ -1,6 +1,10 @@
 Ext.define('FB.view.AccountSettings', {
 	extend: 'Ext.form.Panel',
-	alias: 'widget.AccountSettings',
+	requires: [
+		'FB.view.AccountSettingsController'
+	],
+	xtype: 'AccountSettings',
+	controller: 'AccountSettings',
 	standardSubmit: true,
 	layout: {
 		type: 'anchor'

@@ -1,28 +1,8 @@
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-GNU General Public License Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as
-published by the Free Software Foundation and appearing in the file LICENSE included in the
-packaging of this file.
-
-Please review the following information to ensure the GNU General Public License version 3.0
-requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
-*/
 /**
  * This ComponentLayout handles docking for Panels. It takes care of panels that are
  * part of a ContainerLayout that sets this Panel's size and Panels that are part of
  * an AutoContainerLayout in which this panel get his height based of the CSS or
- * or its content.
+ * its content.
  * @private
  */
 Ext.define('Ext.layout.component.Dock', {
@@ -1078,8 +1058,8 @@ Ext.define('Ext.layout.component.Dock', {
             after = this.afterInvalidateShrinkWrapDock,
             horzSize = horz.end - horz.begin,
             vertSize = vert.initialSize,
-            invalidateHorz = horz.shrinkWrapDock && horz.maxChildSize < horzSize,
-            invalidateVert = vert.shrinkWrapDock && vert.maxChildSize < vertSize,
+            invalidateHorz = horz.shrinkWrapDock && horz.maxChildSize <= horzSize,
+            invalidateVert = vert.shrinkWrapDock && vert.maxChildSize <= vertSize,
             dockedItems, len, i, itemContext, itemSize, isHorz, axis, sizeProp;
 
         if (invalidateHorz || invalidateVert) {
@@ -1331,7 +1311,7 @@ Ext.define('Ext.layout.component.Dock', {
         // Calculate the number of DOM nodes in our target that are not our docked items
         for (i = 0, j = 0; i < targetChildCount; i++) {
             targetChildNode = targetNodes[i];
-            if (Ext.fly(targetChildNode).hasCls(Ext.baseCSSPrefix + 'resizable-handle')) {
+            if (targetChildNode.nodeType === 1 && Ext.fly(targetChildNode).hasCls(Ext.baseCSSPrefix + 'resizable-handle')) {
                 break;
             }
             for (j = 0; j < dockedItemCount; j++) {
@@ -1509,7 +1489,9 @@ Ext.define('Ext.layout.component.Dock', {
         this.callParent(arguments);
 
         item.addCls(Ext.baseCSSPrefix + 'docked');
-        item.addClsWithUI(this.getDockCls(item.dock));
+        if (!item.ignoreBorderManagement) {
+            item.addClsWithUI(this.getDockCls(item.dock));
+        }
     },
 
     /**

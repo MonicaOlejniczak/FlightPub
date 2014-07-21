@@ -1,6 +1,10 @@
 Ext.define('FB.view.SeatSelection', {
 	extend: 'Ext.form.Panel',
-	alias: 'widget.SeatSelection',
+	requires: [
+		'FB.view.SeatSelectionController'
+	],
+	xtype: 'SeatSelection',
+	controller: 'SeatSelection',
 	initComponent: function () {
 		Ext.apply(this, {
 

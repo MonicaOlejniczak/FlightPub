@@ -1,6 +1,10 @@
 Ext.define('FB.view.Register', {
 	extend: 'Ext.form.Panel',
-	alias: 'widget.Register',
+	requires: [
+		'FB.view.RegisterController'
+	],
+	xtype: 'Register',
+	controller: 'Register',
 	standardSubmit: true,
 	layout: {
 		type: 'anchor'

@@ -1,6 +1,10 @@
 Ext.define('FB.view.Login', {
 	extend: 'Ext.form.Panel',
-	alias: 'widget.Login',
+	requires: [
+		'FB.view.LoginController'
+	],
+	xtype: 'Login',
+	controller: 'Login',
 	standardSubmit: true,
 	layout: {
 		type: 'anchor'

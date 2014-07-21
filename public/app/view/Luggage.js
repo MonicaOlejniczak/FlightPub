@@ -1,4 +1,8 @@
 Ext.define('FB.view.Luggage', {
 	extend: 'Ext.form.Panel',
-	alias: 'widget.Luggage'
+	requires: [
+		'FB.view.LuggageController'
+	],
+	xtype: 'Luggage',
+	controller: 'Luggage'
 });

@@ -1,34 +1,22 @@
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-GNU General Public License Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as
-published by the Free Software Foundation and appearing in the file LICENSE included in the
-packaging of this file.
-
-Please review the following information to ensure the GNU General Public License version 3.0
-requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
-*/
 /**
  * This class is the base for all layout types: component and container.
  * @protected
  */
 Ext.define('Ext.layout.Layout', {
+    mixins: [
+        'Ext.mixin.Factoryable'
+    ],
+
     requires: [
         'Ext.XTemplate',
         'Ext.layout.SizeModel'
     ],
 
     uses: [ 'Ext.layout.Context' ],
+
+    factoryConfig: {
+        type: 'layout'
+    },
 
     /**
      * @property {Boolean} isLayout
@@ -39,6 +27,27 @@ Ext.define('Ext.layout.Layout', {
     initialized: false,
     running: false,
 
+    /**
+     * @private
+     * `true` if this layout may need to incorporate the dimensions of individual child
+     * items into its layout calculations.  Layouts that handle the size of their children
+     * as a group (autocontainer, form) can set this to false for an additional performance
+     * optimization.  When `false` the layout system will not recurse into the child
+     * items if {@link #activeItemCount} is `0`, which will be the case if all child items
+     * use "liquid" CSS layout, e.g. form fields.  (See Ext.Component#liquidLayout)
+     */
+    needsItemSize: true,
+
+    /**
+     * @private
+     * `true` if this layout may set the size of its child items.  Layouts that do not
+     * set the size of their child items (autocontainer, form) can set this to false
+     * for an additional performance optimization.  When `true` the layout system will
+     * not create a context item for children that use liquid layout, because there is
+     * no need for a context item if item size is neither read nor set by the owning layout.
+     */
+    setsItemSize: true,
+
     autoSizePolicy: {
         readsWidth: 1,
         readsHeight: 1,
@@ -46,49 +55,14 @@ Ext.define('Ext.layout.Layout', {
         setsHeight: 0
     },
 
-    statics: {
-        layoutsByType: {},
-
-        create: function(layout, defaultType) {
-            var ClassManager = Ext.ClassManager,
-                layoutsByType = this.layoutsByType,
-                alias, className, config, layoutClass, type, load;
-
-            if (!layout || typeof layout === 'string') {
-                type = layout || defaultType;
-                config = {};                    
-            } else if (layout.isLayout) {
-                return layout;
-            } else {
-                config = layout;
-                type = layout.type || defaultType;
-            }
-
-            if (!(layoutClass = layoutsByType[type])) {
-                alias = 'layout.' + type;
-                className = ClassManager.getNameByAlias(alias);
-
-                // this is needed to support demand loading of the class
-                if (!className) {
-                    load = true;
-                }
-                
-                layoutClass = ClassManager.get(className);
-                if (load || !layoutClass) {
-                    return ClassManager.instantiateByAlias(alias, config || {});
-                }
-                layoutsByType[type] = layoutClass;
-            }
-
-            return new layoutClass(config);
-        }
-    },
-
     constructor : function(config) {
         var me = this;
 
         me.id = Ext.id(null, me.type + '-');
         Ext.apply(me, config);
+        // prevent any "type" that was passed as the alias from overriding the "type"
+        // property from the prototype
+        delete me.type;
         me.layoutCount = 0;
     },
 
@@ -261,6 +235,14 @@ Ext.define('Ext.layout.Layout', {
     getItemSizePolicy: function (item) {
         return this.autoSizePolicy;
     },
+
+    /**
+     * Returns the element that wraps the contents for the purposes of touch scrolling.
+     * Only applicable when the layout adds the scroller element as part of its renderTpl
+     * (e.g. autocontainer and box)
+     * @private
+     */
+    getScrollerEl: Ext.emptyFn,
 
     isItemBoxParent: function (itemContext) {
         return false;
@@ -482,7 +464,7 @@ Ext.define('Ext.layout.Layout', {
 
     /**
      * This method is called when a child item changes in some way. By default this calls
-     * {@link Ext.AbstractComponent#updateLayout} on this layout's owner.
+     * {@link Ext.Component#updateLayout} on this layout's owner.
      * 
      * @param {Ext.Component} child The child item that has changed.
      * @return {Boolean} True if this layout has handled the content change.
@@ -525,7 +507,7 @@ Ext.define('Ext.layout.Layout', {
      * Clears the managed dimensions flags
      * @protected
      */
-    afterRemove : function(item) {
+    afterRemove: function(item) {
         var me = this,
             el = item.el,
             owner = me.owner,

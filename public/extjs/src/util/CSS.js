@@ -1,23 +1,3 @@
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-GNU General Public License Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as
-published by the Free Software Foundation and appearing in the file LICENSE included in the
-packaging of this file.
-
-Please review the following information to ensure the GNU General Public License version 3.0
-requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
-*/
 /**
  * Utility class for manipulating CSS rules
  * @singleton
@@ -59,7 +39,8 @@ Ext.define('Ext.util.CSS', function() {
                styleEl.setAttribute("id", id);
             }
 
-            if (Ext.isIE) {
+            // IE11 switched to standard CSSOM
+            if (Ext.isIE10m) {
                head.appendChild(styleEl);
                ss = styleEl.styleSheet;
                ss.cssText = cssText;
@@ -101,14 +82,6 @@ Ext.define('Ext.util.CSS', function() {
             ss.setAttribute("id", id);
             ss.setAttribute("href", url);
             doc.getElementsByTagName("head")[0].appendChild(ss);
-        },
-
-        /**
-         * Refresh the rule cache if you have dynamically added stylesheets
-         * @return {Object} An object (hash) of rules indexed by selector
-         */
-        refreshCache : function() {
-            return CSS.getRules(true);
         },
 
         // @private
@@ -160,7 +133,7 @@ Ext.define('Ext.util.CSS', function() {
                         parentStyleSheet: styleSheet,
                         cssRule: cssRule
                     };
-                };
+                }
             }
         },
 
@@ -187,7 +160,7 @@ Ext.define('Ext.util.CSS', function() {
                 i = 0,
                 len = ds.length;
 
-            rules = CSS.rules = {}
+            rules = CSS.rules = {};
             for (; i < len; i++) {
                 try {
                     if (!ds[i].disabled) {
@@ -210,7 +183,7 @@ Ext.define('Ext.util.CSS', function() {
                 CSS.refreshCache();
             }
             if (!Ext.isArray(selector)) {
-                result = rules[selector.toLowerCase()]
+                result = rules[selector.toLowerCase()];
                 if (result && !rawCache) {
                     result = result.cssRule;
                 }
@@ -237,7 +210,7 @@ Ext.define('Ext.util.CSS', function() {
                 index = ruleSet.length;
 
             if (styleSheet.insertRule) {
-                styleSheet.insertRule(selector + '{' + cssText + '}', index);
+                styleSheet.insertRule(selector + ' {' + cssText + '}', index);
             } else {
                 styleSheet.addRule(selector, cssText||' ');
             }
@@ -258,7 +231,7 @@ Ext.define('Ext.util.CSS', function() {
                 rule = CSS.getRule(selector);
                 if (rule) {
                     // 2 arg form means cssText sent, so parse it and update each style
-                    if (arguments.length == 2) {
+                    if (arguments.length === 2) {
                         styles = Ext.Element.parseStyles(property);
                         for (property in styles) {
                             rule.style[property.replace(camelRe, camelFn)] = styles[property];

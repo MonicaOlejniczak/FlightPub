@@ -1,23 +1,3 @@
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-GNU General Public License Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as
-published by the Free Software Foundation and appearing in the file LICENSE included in the
-packaging of this file.
-
-Please review the following information to ensure the GNU General Public License version 3.0
-requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
-*/
 /**
  * Provides automatic scrolling of overflow regions in the page during drag operations.
  *
@@ -47,7 +27,7 @@ Ext.define('Ext.dd.ScrollManager', {
         var ddm = Ext.dd.DragDropManager;
         ddm.fireEvents = Ext.Function.createSequence(ddm.fireEvents, this.onFire, this);
         ddm.stopDrag = Ext.Function.createSequence(ddm.stopDrag, this.onStop, this);
-        this.doScroll = Ext.Function.bind(this.doScroll, this);
+        this.doScroll = this.doScroll.bind(this);
         this.ddmInstance = ddm;
         this.els = {};
         this.dragEl = null;
@@ -71,9 +51,10 @@ Ext.define('Ext.dd.ScrollManager', {
             var proc   = this.proc,
                 procEl = proc.el,
                 ddScrollConfig = proc.el.ddScrollConfig,
-                inc = ddScrollConfig ? ddScrollConfig.increment : this.increment;
+                inc =     ddScrollConfig && ddScrollConfig.increment    ? ddScrollConfig.increment : this.increment,
+                animate = ddScrollConfig && 'animate' in ddScrollConfig ? ddScrollConfig.animate   : this.animate;
 
-            if (!this.animate) {
+            if (!animate) {
                 if (procEl.scroll(proc.dir, inc)) {
                     this.triggerRefresh();
                 }
@@ -117,8 +98,7 @@ Ext.define('Ext.dd.ScrollManager', {
             this.refreshCache();
         }
 
-        var xy = e.getXY(),
-            pt = e.getPoint(),
+        var pt = e.getPoint(),
             proc = this.proc,
             els = this.els,
             id, el, r, c;
@@ -135,7 +115,7 @@ Ext.define('Ext.dd.ScrollManager', {
                     return;
                 }else if (r.right - pt.x <= c.hthresh) {
                     if (proc.el != el) {
-                        this.startProc(el, "left");
+                        this.startProc(el, "right");
                     }
                     return;
                 } else if(pt.y - r.top <= c.vthresh) {
@@ -145,7 +125,7 @@ Ext.define('Ext.dd.ScrollManager', {
                     return;
                 } else if(pt.x - r.left <= c.hthresh) {
                     if (proc.el != el) {
-                        this.startProc(el, "right");
+                        this.startProc(el, "left");
                     }
                     return;
                 }

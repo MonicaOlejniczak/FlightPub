@@ -128,7 +128,7 @@ public class AuthenticationController extends Controller {
 	 * @return The login form.
 	 */
 	public static Result login() {
-		return ok(views.html.login.render(Form.form(LoginCredentials.class)));
+		return ok(views.html.login.render());
 	}
 
 	/**
@@ -158,6 +158,15 @@ public class AuthenticationController extends Controller {
 	public static Result logout() {
 		session().clear();
 		return redirect(controllers.routes.MainController.home());
+	}
+
+	/**
+	 * Checks if the user is logged in
+	 *
+	 * @return whether the user is logged in or not
+	 */
+	public static Result isLoggedIn() {
+		return authentication.AuthenticatedUser.isLoggedIn() ? status(1) : status(0);
 	}
 
 }

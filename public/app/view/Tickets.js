@@ -1,4 +1,8 @@
 Ext.define('FB.view.Tickets', {
 	extend: 'Ext.form.Panel',
-	alias: 'widget.Luggage'
+	requires: [
+		'FB.view.TicketsController'
+	],
+	xtype: 'Tickets',
+	controller: 'Tickets'
 });

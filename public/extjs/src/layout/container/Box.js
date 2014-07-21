@@ -1,32 +1,11 @@
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-GNU General Public License Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as
-published by the Free Software Foundation and appearing in the file LICENSE included in the
-packaging of this file.
-
-Please review the following information to ensure the GNU General Public License version 3.0
-requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
-*/
 /**
  * Base Class for HBoxLayout and VBoxLayout Classes. Generally it should not need to be used directly.
  */
 Ext.define('Ext.layout.container.Box', {
-
-    /* Begin Definitions */
-
-    alias: ['layout.box'],
     extend: 'Ext.layout.container.Container',
+
+    alias: 'layout.box',
+
     alternateClassName: 'Ext.layout.BoxLayout',
 
     requires: [
@@ -37,7 +16,53 @@ Ext.define('Ext.layout.container.Box', {
         'Ext.dd.DragDropManager'
     ],
 
-    /* End Definitions */
+    type: 'box',
+
+    /**
+     * @cfg {String} [align="begin"]
+     * Controls how the child items of the container are aligned. The value is used to 
+     * position items "perpendicularly". That is, for horizontal boxes (where `vertical`
+     * is `false`), then this will position items vertically. Otherwise, this will position
+     * items horizontally. The acceptable values for this property are best explained in
+     * context with the value of `vertical`.
+     * 
+     * If `vertical` is `false` then this layout is behaving as an `hbox` and this config
+     * operates as follows:
+     *
+     * - **begin** : Child items are aligned vertically at the top of the container.
+     * - **middle** : Child items are vertically centered in the container.
+     * - **end** : Child items are aligned vertically at the bottom of the container.
+     * - **stretch** : Child items are stretched vertically to fill the height of the container.
+     * - **stretchmax** : Child items are stretched vertically to the height of the largest item.
+     * 
+     * If `vertical` is `true` then this layout is behaving as an `vbox` and this config
+     * operates as follows:
+     *
+     * - **begin** : Child items are aligned horizontally at the left side of the container.
+     * - **middle** : Child items are horizontally centered in the container.
+     * - **end** : Child items are aligned horizontally at the right of the container.
+     * - **stretch** : Child items are stretched horizontally to fill the width of the container.
+     * - **stretchmax** : Child items are stretched horizontally to the size of the largest item.
+     * 
+     * For backwards compatibility, the following values are also recognized:
+     * 
+     * - **left** : Same as **begin**.
+     * - **top** : Same as **begin**.
+     * - **center** : Same as **middle**.
+     * - **right** : Samas as **end**.
+     * - **bottom** : Samas as **end**.
+     */
+    align: 'begin', // end, middle, stretch, strechmax
+    
+    /**
+     * @cfg {Boolean} constrainAlign
+     * Limits the size of {@link #align aligned} components to the size of the container
+     * under certain circumstances. Firstly, the container's height (for `hbox`) or width
+     * (for `vbox`) must not be determined by the size of the child components. Secondly,
+     * the child components must have {@link Ext.AbstractComponent#shrinkWrap shrinkwrap}
+     * enabled for this dimension.
+     */
+    constrainAlign: false,
 
     /**
      * @cfg {Object} defaultMargins
@@ -69,6 +94,13 @@ Ext.define('Ext.layout.container.Box', {
         bottom: 0,
         left: 0
     },
+
+    /**
+     * @cfg {Boolean} [enableSplitters=true]
+     * This flag can be set to `false` to ignore the `split` config on box items. This is
+     * set to `false` by `Ext.layout.container.Accordion`.
+     */
+    enableSplitters: true,
 
     /**
      * @cfg {String} padding
@@ -116,9 +148,18 @@ Ext.define('Ext.layout.container.Box', {
      */
     stretchMaxPartner: undefined,
 
+    /**
+     * @cfg {Boolean} [vertical=false]
+     * Set to `true` to switch the layout to `vbox`.
+     */
+    vertical: false,
+
+    /**
+     * @cfg {"round"/"floor"/"ceil"} [alignRoundingMethod='round'] The Math method to use
+     * for rounding fractional pixels when `{@link #align}:middle` is used.
+     */
     alignRoundingMethod: 'round',
 
-    type: 'box',
     scrollOffset: 0,
     itemCls: Ext.baseCSSPrefix + 'box-item',
     targetCls: Ext.baseCSSPrefix + 'box-layout-ct',
@@ -146,8 +187,9 @@ Ext.define('Ext.layout.container.Box', {
         'if (oh.getPrefixConfig!==Ext.emptyFn) {',
             'if(oc=oh.getPrefixConfig())dh.generateMarkup(oc, out)',
         '}%}',
-        '<div id="{ownerId}-innerCt" class="{[l.innerCls]} {[oh.getOverflowCls()]}" role="presentation">',
-            '<div id="{ownerId}-targetEl" class="{targetElCls}">',
+        '<div id="{ownerId}-innerCt" class="{[l.innerCls]} {[oh.getOverflowCls()]} "',
+            'role="presentation">',
+            '<div id="{ownerId}-targetEl" class="{targetElCls}" role="presentation">',
                 '{%this.renderBody(out, values)%}',
             '</div>',
         '</div>',
@@ -166,18 +208,24 @@ Ext.define('Ext.layout.container.Box', {
 
         me.callParent(arguments);
 
+        me.setVertical(me.vertical);
+
         // The sort function needs access to properties in this, so must be bound.
-        me.flexSortFn = Ext.Function.bind(me.flexSort, me);
+        me.flexSortFn = me.flexSort.bind(me);
 
         me.initOverflowHandler();
 
         type = typeof me.padding;
-        if (type == 'string' || type == 'number') {
+        if (type === 'string' || type === 'number') {
             me.padding = Ext.util.Format.parseBox(me.padding);
             me.padding.height = me.padding.top  + me.padding.bottom;
             me.padding.width  = me.padding.left + me.padding.right;
         }
     },
+
+    _beginRe: /^(?:begin|left|top)$/,
+    _centerRe: /^(?:center|middle)$/,
+    _endRe: /^(?:end|right|bottom)$/,
 
     // Matches: `<spaces>digits[.digits]<spaces>%<spaces>`
     // Captures: `digits[.digits]`
@@ -194,8 +242,8 @@ Ext.define('Ext.layout.container.Box', {
             height = item[names.height],
             percentageRe = me._percentageRe,
             percentageWidth = percentageRe.test(width),
-            isStretch = (align == 'stretch'),
-            isStretchMax = (align == 'stretchmax'),
+            isStretch = (align === 'stretch'),
+            isStretchMax = (align === 'stretchmax'),
             constrain = me.constrainAlign;
             
         // Getting the size model is expensive, so we only want to do so if we really need it
@@ -338,6 +386,7 @@ Ext.define('Ext.layout.container.Box', {
         me.callParent(arguments);
 
         ownerContext.innerCtContext = ownerContext.getEl('innerCt', me);
+        ownerContext.targetElContext = ownerContext.getEl('targetEl', me);
 
         // Capture whether the owning Container is scrolling in the parallel direction
         me.scrollParallel = owner.scrollFlags[names.x];
@@ -360,6 +409,7 @@ Ext.define('Ext.layout.container.Box', {
             align = me.align,
             names = ownerContext.boxNames,
             pack = me.pack,
+            centerRe = me._centerRe,
             heightModelName = names.heightModel;
 
         // this must happen before callParent to allow the overflow handler to do its work
@@ -376,14 +426,14 @@ Ext.define('Ext.layout.container.Box', {
 
         ownerContext.boxOptions = {
             align: align = {
-                stretch:    align == 'stretch',
-                stretchmax: align == 'stretchmax',
-                center:     align == names.center,
-                bottom:     align == names.afterY
+                stretch:    align === 'stretch',
+                stretchmax: align === 'stretchmax',
+                center:     centerRe.test(align),
+                bottom:     me._endRe.test(align)
             },
             pack: pack = {
-                center: pack == 'center',
-                end:    pack == 'end'
+                center: centerRe.test(pack),
+                end:    pack === 'end'
             }
         };
 
@@ -496,12 +546,6 @@ Ext.define('Ext.layout.container.Box', {
 
         plan.targetSize = targetSize;
 
-        // If we are not widthModel.shrinkWrap, we need the width before we can lay out boxes:
-        if (!ownerContext.parallelSizeModel.shrinkWrap && !targetSize[names.gotWidth]) {
-            me.done = false;
-            return;
-        }
-
         if (!state.parallelDone) {
             state.parallelDone = me.calculateParallel(ownerContext, names, plan);
         }
@@ -511,25 +555,11 @@ Ext.define('Ext.layout.container.Box', {
         }
 
         if (state.parallelDone && state.perpendicularDone) {
-            // Fix for left and right docked Components in a dock component layout. This is for docked Headers and docked Toolbars.
-            // Older Microsoft browsers do not size a position:absolute element's width to match its content.
-            // So in this case, in the publishInnerCtSize method we may need to adjust the size of the owning Container's element explicitly based upon
-            // the discovered max width. So here we put a calculatedWidth property in the metadata to facilitate this.
-            if (me.owner.dock && (Ext.isIE7m || Ext.isIEQuirks) && !me.owner.width && !me.horizontal) {
-                plan.isIEVerticalDock = true;
-                plan.calculatedWidth = plan.maxSize + ownerContext.getPaddingInfo().width + ownerContext.getFrameInfo().width;
-                if (targetContext !== ownerContext) {
-                    // targetContext can have additional padding, e.g. vertically
-                    // oriented toolbar body element has a few px of left or right padding
-                    // to make room for the tab strip.
-                    plan.calculatedWidth += targetContext.getPaddingInfo().width;
-                }
-            }
-
             me.publishInnerCtSize(ownerContext, me.reserveOffset ? me.availableSpaceOffset : 0);
 
-            // Calculate stretchmax only if there is >1 child item, or there is a stretchMaxPartner wanting the info
-            if (me.done && (ownerContext.childItems.length > 1 || ownerContext.stretchMaxPartner) && ownerContext.boxOptions.align.stretchmax && !state.stretchMaxDone) {
+            // We always need to run calculateStretchMax, when relevant since we may 
+            // have hit a constraint in an earlier calculation.
+            if (me.done && ownerContext.boxOptions.align.stretchmax && !state.stretchMaxDone) {
                 me.calculateStretchMax(ownerContext, names, plan);
                 state.stretchMaxDone = true;
             }
@@ -551,7 +581,8 @@ Ext.define('Ext.layout.container.Box', {
             flexedItemsLength = flexedItems.length,
             pack = ownerContext.boxOptions.pack,
             padding = me.padding,
-            containerWidth = plan.targetSize[widthName],
+            targetSize = plan.targetSize,
+            containerWidth = targetSize[widthName],
             totalMargin = 0,
             left = padding[beforeXName],
             nonFlexWidth = left + padding[afterXName] + me.scrollOffset +
@@ -559,6 +590,14 @@ Ext.define('Ext.layout.container.Box', {
             scrollbarWidth = Ext.getScrollbarSize()[names.width],
             i, childMargins, remainingWidth, remainingFlex, childContext, flex, flexedWidth,
             contentWidth, mayNeedScrollbarAdjust, childWidth, percentageSpace;
+            
+        // If we are not widthModel.shrinkWrap, we need the width before we can lay out boxes.
+        // This check belongs here so it does not prevent the perpendicular from attempting to
+        // calculate. It may have a dependency on the width, but it may be able to achieve
+        // the correct size without the width.
+        if (!ownerContext.parallelSizeModel.shrinkWrap && !targetSize[names.gotWidth]) {
+            return false;
+        }
 
         // We may need to add scrollbar size to parallel size if
         //     Scrollbars take up space
@@ -693,11 +732,10 @@ Ext.define('Ext.layout.container.Box', {
             // tell the component layout to set the parallel size in the dom
             ownerContext.target.componentLayout[names.setWidthInDom] = true;
 
-            // IE8 in what passes for "strict" mode will not create a scrollbar if 
-            // there is just the *exactly correct* spare space created for it. We
-            // have to force that to happen once all the styles have been flushed
-            // to the DOM (see completeLayout):
-            ownerContext[names.invalidateScrollY] = Ext.isStrict && Ext.isIE8;
+            // IE8 will not create a scrollbar if there is just the *exactly correct*
+            // spare space created for it. We have to force that to happen once all the
+            // styles have been flushed to the DOM (see completeLayout):
+            ownerContext[names.invalidateScrollY] = Ext.isIE8;
         }
         ownerContext[names.setContentWidth](contentWidth);
 
@@ -737,6 +775,14 @@ Ext.define('Ext.layout.container.Box', {
             if (isNaN(availHeight)) {
                 return false;
             }
+        }
+        
+        // If we don't have the parallel size done, we can't calculate scrolling yet
+        // The only exception is when we're aligning stretch. This means that the perpendicular
+        // dimension won't have any effect since we'll be stretching to the container size. If we hit a min
+        // constrain we'll get invalidated and we'll need to recalculate anyway
+        if (!isStretch && !ownerContext.parallelSizeModel.shrinkWrap && !ownerContext.state.parallelDone && me.scrollParallel) {
+            return false;
         }
 
         // If the intention is to horizontally scroll child components, but the container is too narrow,
@@ -810,11 +856,10 @@ Ext.define('Ext.layout.container.Box', {
                 // tell the component layout to set the perpendicular size in the dom
                 ownerContext.target.componentLayout[names.setHeightInDom] = true;
 
-                // IE8 in what passes for "strict" mode will not create a scrollbar if 
-                // there is just the *exactly correct* spare space created for it. We
-                // have to force that to happen once all the styles have been flushed
-                // to the DOM (see completeLayout):
-                ownerContext[names.invalidateScrollX] = Ext.isStrict && Ext.isIE8;
+                // IE8 will not create a scrollbar if there is just the *exactly correct*
+                // spare space created for it. We have to force that to happen once all
+                // the styles have been flushed to the DOM (see completeLayout):
+                ownerContext[names.invalidateScrollX] = Ext.isIE8;
             }
 
             // If we are associated with another box layout, grab its maxChildHeight
@@ -935,7 +980,7 @@ Ext.define('Ext.layout.container.Box', {
             props = childContext.props;
             childHeight = height - childContext.getMarginInfo()[heightName];
 
-            if (childHeight != props[heightName] ||   // if (wrong height ...
+            if (childHeight !== props[heightName] ||   // if (wrong height ...
                 childContext[names.heightModel].constrained) { // ...or needs invalidation)
                 // When we invalidate a child, since we won't be around to size or position
                 // it, we include an after callback that will be run after the invalidate
@@ -1012,7 +1057,7 @@ Ext.define('Ext.layout.container.Box', {
             if (invalidateScrollX) {
                 // get computed style to see if we are 'auto'
                 overflowX = el.getStyle('overflowX');
-                if (overflowX == 'auto') {
+                if (overflowX === 'auto') {
                     // capture the inline style (if any) so we can restore it later:
                     overflowX = styles.overflowX;
                     styles.overflowX = 'scroll'; // force the scrollbar to appear
@@ -1024,7 +1069,7 @@ Ext.define('Ext.layout.container.Box', {
             if (invalidateScrollY) {
                 // get computed style to see if we are 'auto'
                 overflowY = el.getStyle('overflowY');
-                if (overflowY == 'auto') {
+                if (overflowY === 'auto') {
                     // capture the inline style (if any) so we can restore it later:
                     overflowY = styles.overflowY;
                     styles.overflowY = 'scroll'; // force the scrollbar to appear
@@ -1055,17 +1100,105 @@ Ext.define('Ext.layout.container.Box', {
     finishedLayout: function(ownerContext) {
         this.overflowHandler.finishedLayout(ownerContext);
         this.callParent(arguments);
+    },
 
-        // Fix for an obscure webkit bug (EXTJSIV-5962) caused by the targetEl's 20000px
-        // width.  We set a very large width on the targetEl at the beginning of the 
-        // layout cycle to prevent any "crushing" effect on the child items, however
-        // in some cases the very large width makes it possible to scroll the innerCt
-        // by dragging on certain child elements. To prevent this from happening we ensure
-        // that the targetEl's width is the same as the innerCt.
-        // IE needs it because of its scrollIntoView bug: https://sencha.jira.com/browse/EXTJSIV-6520
-        // Webkit needs it because of its mouse drag bug: https://sencha.jira.com/browse/EXTJSIV-5962
-        // FF needs it because of a vertical tab bug: https://sencha.jira.com/browse/EXTJSIV-8614
-        this.targetEl.setWidth(ownerContext.innerCtContext.props.width);
+    getLayoutItems: function() {
+        var items = this.callParent(),
+            n = items.length,
+            lastVisibleItem, hide, i, item, splitAfter, splitBefore, splitter;
+
+        for (i = 0; i < n; ++i) {
+            if ((item = items[i]).isSplitter) {
+                continue;
+            }
+
+            splitter = item.splitter;
+            
+            if (item.hidden) {
+                if (splitter) {
+                    // hidden items always need to hide their splitter
+                    if (!splitter.hidden) {
+                        splitter.hidden = true;
+                        if (splitter.el) {
+                            splitter.el.hide();
+                        }
+                    }
+                }
+                continue;
+            }
+
+            if (splitter) {
+                splitBefore = splitter.collapseTarget === 'next';
+            } else { // item w/o splitter
+                splitBefore = false;
+            }
+
+            hide = null;
+            if (lastVisibleItem && splitAfter) {
+                // the last item had a splitter after it so we can keep it and hide
+                // this one if splitBefore
+                if (splitAfter.hidden) {
+                    splitAfter.hidden = false;
+                    if (splitAfter.el) {
+                        splitAfter.el.show();
+                    }
+                }
+                if (splitBefore) {
+                    hide = true;
+                }
+            } else if (splitBefore) {
+                hide = !lastVisibleItem;
+            }
+            // else we have no splitter or are !splitBefore, so we defer the fate of this
+            // splitter
+            
+            if (hide !== null && splitter.hidden !== hide) {
+                splitter.hidden = hide;
+                if (splitter.el) {
+                    splitter.el.setVisible(!hide);
+                }
+            }
+            
+            splitAfter = !splitBefore && splitter;
+            lastVisibleItem = item;
+        }
+
+        // If we ended with a visible item and a splitAfter, we need to hide the tail
+        // splitter
+        if (lastVisibleItem && splitAfter && !splitAfter.hidden) {
+            splitAfter.hidden = true;
+            if (splitAfter.el) {
+                splitAfter.el.hide();
+            }
+        }
+
+        return items;
+    },
+
+    getScrollerEl: function() {
+        return this.innerCt;
+    },
+
+    /**
+     * Inserts the splitter for a given region. A reference to the splitter is also stored
+     * on the component as "splitter".
+     * @private
+     */
+    insertSplitter: function (item, index, hidden, splitterCfg) {
+        var splitter = {
+                xtype: 'splitter',
+                id: item.id + '-splitter',
+                hidden: hidden,
+                splitterFor: item,
+                synthetic: true // not user-defined
+            },
+            at = index + ((splitterCfg.collapseTarget === 'prev') ? 1 : 0);
+
+        splitter[this.names.height] = '100%';
+        if (splitterCfg) {
+            Ext.apply(splitter, splitterCfg);
+        }
+        item.splitter = this.owner.add(at, splitter);
     },
 
     publishInnerCtSize: function(ownerContext, reservedSpace) {
@@ -1085,6 +1218,9 @@ Ext.define('Ext.layout.container.Box', {
                     : targetSize[widthName]) - (reservedSpace || 0),
             innerCtHeight;
 
+        // Allow the other co-operating objects to know whether the columns overflow the available width.
+        me.owner.tooNarrow = plan.tooNarrow;
+
         if (align.stretch) {
             innerCtHeight = height;
         } else {
@@ -1098,6 +1234,17 @@ Ext.define('Ext.layout.container.Box', {
         innerCtContext[names.setWidth](innerCtWidth);
         innerCtContext[names.setHeight](innerCtHeight);
 
+        // Fix for an obscure webkit bug (EXTJSIV-5962) caused by the targetEl's 20000px
+        // width.  We set a very large width on the targetEl at the beginning of the 
+        // layout cycle to prevent any "crushing" effect on the child items, however
+        // in some cases the very large width makes it possible to scroll the innerCt
+        // by dragging on certain child elements. To prevent this from happening we ensure
+        // that the targetEl's width is the same as the innerCt.
+        // IE needs it because of its scrollIntoView bug: https://sencha.jira.com/browse/EXTJSIV-6520
+        // Webkit needs it because of its mouse drag bug: https://sencha.jira.com/browse/EXTJSIV-5962
+        // FF needs it because of a vertical tab bug: https://sencha.jira.com/browse/EXTJSIV-8614
+        ownerContext.targetElContext.setWidth(ownerContext.innerCtContext.props.width - reservedSpace);
+
         // If unable to publish both dimensions, this layout needs to run again
         if (isNaN(innerCtWidth + innerCtHeight)) {
             me.done = false;
@@ -1109,20 +1256,69 @@ Ext.define('Ext.layout.container.Box', {
         //
         // We MUST pass the dirty flag to get that into the DOM, and because we are a Container
         // layout, and not really supposed to perform sizing, we must also use the force flag.
-        if (plan.calculatedWidth && (dock == 'left' || dock == 'right')) {
+        if (plan.calculatedWidth && (dock === 'left' || dock === 'right')) {
             // TODO: setting the owner size should be the job of the component layout.
             ownerContext.setWidth(plan.calculatedWidth, true, true);
         }
     },
 
-    onRemove: function(comp){
-        var me = this;
+    onAdd: function (item, index) {
+        var me = this,
+            // Buttons will gain a split param
+            split = me.enableSplitters && item.split && !item.isButton;
+
         me.callParent(arguments);
+
+        if (split) {
+            if (split === true) {
+                split = {
+                    collapseTarget: 'next'
+                };
+            } else if (Ext.isString(split)) {
+                split = {
+                    collapseTarget: split === 'before' ? 'next' : 'prev'
+                };
+            } else {
+                split = Ext.apply({
+                    collapseTarget: split.side === 'before' ? 'next' : 'prev'
+                }, split);
+            }
+
+            me.insertSplitter(item, index, !!item.hidden, split);
+        }
+    },
+
+    onRemove: function(comp, isDestroying){
+        var me = this,
+            names = me.names,
+            owner = me.owner,
+            splitter = comp.splitter,
+            el;
+            
+        me.callParent(arguments);
+
+        if (splitter && owner.contains(splitter)) {
+            owner.doRemove(splitter, true);
+            comp.splitter = null;
+        }
         if (me.overflowHandler) {
             me.overflowHandler.onRemove(comp);
         }
-        if (comp.layoutMarginCap == me.id) {
+        if (comp.layoutMarginCap === me.id) {
             delete comp.layoutMarginCap;
+        }
+        
+        if (!owner.destroying && !isDestroying && comp.rendered) {
+            // Clear top/left styles
+            el = comp.getEl();
+            if (el) {
+                el.setStyle(names.beforeY, '');
+                el.setStyle(names.beforeX, '');
+
+                // Box layout imposes margin:0 on its child items and the layout provides margins
+                // using its absolute positioning strategy. This has to be reversed on remove.
+                el.setStyle('margin', '');
+            }
         }
     },
 
@@ -1135,7 +1331,7 @@ Ext.define('Ext.layout.container.Box', {
             handlerType,
             constructor;
 
-        if (typeof handler == 'string') {
+        if (typeof handler === 'string') {
             handler = {
                 type: handler
             };
@@ -1176,8 +1372,10 @@ Ext.define('Ext.layout.container.Box', {
      * @private
      */
     destroy: function() {
-        Ext.destroy(this.innerCt, this.overflowHandler);
-        this.callParent(arguments);
+        var me = this;
+        Ext.destroy(me.innerCt, me.overflowHandler);
+        me.flexSortFn = me.innerCt = null;
+        me.callParent(arguments);
     },
 
     getRenderData: function() {
@@ -1186,5 +1384,216 @@ Ext.define('Ext.layout.container.Box', {
         data.targetElCls = this.targetElCls;
 
         return data;
+    },
+
+    setVertical: function (vertical) {
+        var box = (vertical && "vbox") || "hbox";
+        
+        Ext.apply(this, this._props[box]);
+    },
+
+    _props: {
+        // HBOX - this key is produced by setVertical
+        "hbox": {
+            direction: 'horizontal',
+            horizontal: true,
+            vertical: false,
+            names: {
+                // parallel
+                beforeX: 'left',
+                beforeScrollX: 'left',
+                beforeScrollerSuffix: '-before-scroller',
+                afterScrollerSuffix: '-after-scroller',
+                leftCap: 'Left',
+                afterX: 'right',
+                width: 'width',
+                contentWidth: 'contentWidth',
+                minWidth: 'minWidth',
+                maxWidth: 'maxWidth',
+                widthCap: 'Width',
+                widthModel: 'widthModel',
+                widthIndex: 0,
+                x: 'x',
+                scrollLeft: 'scrollLeft',
+                overflowX: 'overflowX',
+                hasOverflowX: 'hasOverflowX',
+                invalidateScrollX: 'invalidateScrollX',
+                parallelMargins: 'lr',
+
+                // perpendicular
+                center: 'middle',
+                beforeY: 'top',
+                afterY: 'bottom',
+                height: 'height',
+                contentHeight: 'contentHeight',
+                minHeight: 'minHeight',
+                maxHeight: 'maxHeight',
+                heightCap: 'Height',
+                heightModel: 'heightModel',
+                heightIndex: 1,
+                y: 'y',
+                overflowY: 'overflowY',
+                hasOverflowY: 'hasOverflowY',
+                invalidateScrollY: 'invalidateScrollY',
+                perpendicularMargins: 'tb',
+
+                // Methods
+                getWidth: 'getWidth',
+                getHeight: 'getHeight',
+                setWidth: 'setWidth',
+                setHeight: 'setHeight',
+                gotWidth: 'gotWidth',
+                gotHeight: 'gotHeight',
+                setContentWidth: 'setContentWidth',
+                setContentHeight: 'setContentHeight',
+                setWidthInDom: 'setWidthInDom',
+                setHeightInDom: 'setHeightInDom',
+                getScrollLeft: 'getScrollLeft',
+                setScrollLeft: 'setScrollLeft',
+                scrollTo: 'scrollTo'
+            },
+
+            sizePolicy: {
+                flex: {
+                    '': {
+                        readsWidth : 0,
+                        readsHeight: 1,
+                        setsWidth  : 1,
+                        setsHeight : 0
+                    },
+                    stretch: {
+                        readsWidth : 0,
+                        readsHeight: 0,
+                        setsWidth  : 1,
+                        setsHeight : 1
+                    },
+                    stretchmax: {
+                        readsWidth : 0,
+                        readsHeight: 1,
+                        setsWidth  : 1,
+                        setsHeight : 1
+                    }
+                },
+                '': {
+                    readsWidth : 1,
+                    readsHeight: 1,
+                    setsWidth  : 0,
+                    setsHeight : 0
+                },
+                stretch: {
+                    readsWidth : 1,
+                    readsHeight: 0,
+                    setsWidth  : 0,
+                    setsHeight : 1
+                },
+                stretchmax: {
+                    readsWidth : 1,
+                    readsHeight: 1,
+                    setsWidth  : 0,
+                    setsHeight : 1
+                }
+            }
+        },
+        // VBOX
+        "vbox": {
+            direction: 'vertical',
+            horizontal: false,
+            vertical: true,
+            names: {
+                // parallel
+                beforeX: 'top',
+                beforeScrollX: 'top',
+                beforeScrollerSuffix: '-before-scroller',
+                afterScrollerSuffix: '-after-scroller',
+                leftCap: 'Top',
+                afterX: 'bottom',
+                width: 'height',
+                contentWidth: 'contentHeight',
+                minWidth: 'minHeight',
+                maxWidth: 'maxHeight',
+                widthCap: 'Height',
+                widthModel: 'heightModel',
+                widthIndex: 1,
+                x: 'y',
+                scrollLeft: 'scrollTop',
+                overflowX: 'overflowY',
+                hasOverflowX: 'hasOverflowY',
+                invalidateScrollX: 'invalidateScrollY',
+                parallelMargins: 'tb',
+
+                // perpendicular
+                center: 'center',
+                beforeY: 'left',
+                afterY: 'right',
+                height: 'width',
+                contentHeight: 'contentWidth',
+                minHeight: 'minWidth',
+                maxHeight: 'maxWidth',
+                heightCap: 'Width',
+                heightModel: 'widthModel',
+                heightIndex: 0,
+                y: 'x',
+                overflowY: 'overflowX',
+                hasOverflowY: 'hasOverflowX',
+                invalidateScrollY: 'invalidateScrollX',
+                perpendicularMargins: 'lr',
+
+                // Methods
+                getWidth: 'getHeight',
+                getHeight: 'getWidth',
+                setWidth: 'setHeight',
+                setHeight: 'setWidth',
+                gotWidth: 'gotHeight',
+                gotHeight: 'gotWidth',
+                setContentWidth: 'setContentHeight',
+                setContentHeight: 'setContentWidth',
+                setWidthInDom: 'setHeightInDom',
+                setHeightInDom: 'setWidthInDom',
+                getScrollLeft: 'getScrollTop',
+                setScrollLeft: 'setScrollTop',
+                scrollTo: 'scrollTo'
+            },
+
+            sizePolicy: {
+                flex: {
+                    '': {
+                        readsWidth : 1,
+                        readsHeight: 0,
+                        setsWidth  : 0,
+                        setsHeight : 1
+                    },
+                    stretch: {
+                        readsWidth : 0,
+                        readsHeight: 0,
+                        setsWidth  : 1,
+                        setsHeight : 1
+                    },
+                    stretchmax: {
+                        readsWidth : 1,
+                        readsHeight: 0,
+                        setsWidth  : 1,
+                        setsHeight : 1
+                    }
+                },
+                '': {
+                    readsWidth : 1,
+                    readsHeight: 1,
+                    setsWidth  : 0,
+                    setsHeight : 0
+                },
+                stretch: {
+                    readsWidth : 0,
+                    readsHeight: 1,
+                    setsWidth  : 1,
+                    setsHeight : 0
+                },
+                stretchmax: {
+                    readsWidth : 1,
+                    readsHeight: 1,
+                    setsWidth  : 1,
+                    setsHeight : 0
+                }
+            }
+        }
     }
 });

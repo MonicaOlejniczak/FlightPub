@@ -27,16 +27,15 @@
 @footerBoxShadow: 5em;
 
 /* Header */
-.header, .logo, .navigationLinks, .navigationLinks a, .active {
+.header, .logo, nav, nav a, .active {
 	float: left;
 }
 
-.header, .logo, .logo a, .navigationLinks, .navigationLinks a, .active {
+.header, .logo, .logo a, nav, nav a, .active {
 	height: 100%;
 }
 
 .header {
-	width: 100%;
 	font: 1em 'Ubuntu', @nextFont;
 	overflow: hidden;
 	.boxShadow(0, -@headerBoxShadow, @headerBoxShadow, @headerBoxShadow, @navigationBackgroundColor);
@@ -51,48 +50,47 @@
 }
 
 .navigation {
-	width: 100%;
 	height: @navigationHeight;
 	background-color: @navigationBackgroundColor;
 }
 
-.navigationLinks {
+nav {
 	max-width: @maxWidth;
-	height: @navigationHeight;
 	font: @navFontSize 'Ubuntu', 'Helvetica', @nextFont;
 	float: right;
 	display: block;
 }
 
-.navigationLinks a, .active {
+nav a, .active {
+	height: @navigationHeight;
 	text-align: center;
 	line-height: @navLineHeight;
 	padding: 0 0.5em;
 }
 
-.navigationLinks a, .navigationLinks a:hover {
+nav a, nav a:hover {
 	.transition(background-color, @time, linear);
 }
 
-.navigationLinks a {
+nav a {
 	background-color: transparent;
 	color: @navColor;
 	.textShadow(@navColor);
 }
 
-.navigationLinks a:hover {
+nav a:hover {
 	background-color: lighten(@activeBackgroundColor, 10%);
 	color: @activeColor;
 	text-decoration: none;
 }
 
-.active {
+a.active {
 	background-color: @activeBackgroundColor;
 	color: @activeColor;
 	.textShadow(@activeColor);
 }
 
-.active:hover {
+a.active:hover {
 	color: ligthen(@activeColor, 10%);
 }
 
@@ -174,10 +172,15 @@
 }
 
 /* Content */
-#content {
+.contentContainer {
 	height: auto !important;
 	height: 100%;
 	background-color: @secondaryBackgroundColor;
+}
+
+.smallerContent {
+	width: @contentWidth;
+	margin: 0 auto;
 }
 
 /* Footer */

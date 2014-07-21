@@ -2,10 +2,11 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-GET         /register/                                  controllers.AuthenticationController.register()
+GET         /authentication/is-logged-in                controllers.AuthenticationController.isLoggedIn()
+GET         /register                                   controllers.AuthenticationController.register()
 POST        /register/process                           controllers.AuthenticationController.registerUser()
 GET         /login                                      controllers.AuthenticationController.login()
-POST        /login/process                              controllers.AuthenticationController.loginUser(destination =        null)
+POST        /login/process                              controllers.AuthenticationController.loginUser(destination = null)
 POST        /login/process/*destination                 controllers.AuthenticationController.loginUser(destination)
 GET         /logout                                     controllers.AuthenticationController.logout()
 GET         /bookings                                   controllers.BookingController.bookings()

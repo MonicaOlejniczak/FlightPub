@@ -1,23 +1,3 @@
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-GNU General Public License Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as
-published by the Free Software Foundation and appearing in the file LICENSE included in the
-packaging of this file.
-
-Please review the following information to ensure the GNU General Public License version 3.0
-requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
-*/
 /**
  * Provides a registry of available Plugin classes indexed by a mnemonic code known as the Plugin's ptype.
  *
@@ -39,7 +19,6 @@ Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
  *     })
  */
 Ext.define('Ext.PluginManager', {
-    extend: 'Ext.AbstractManager',
     alternateClassName: 'Ext.PluginMgr',
     singleton: true,
     typeName: 'ptype',
@@ -53,7 +32,7 @@ Ext.define('Ext.PluginManager', {
      * @return {Ext.Component} The newly instantiated Plugin.
      */
     create : function(config, defaultType, host) {
-        var result;
+        var result, type;
 
         if (config.init) {
             result = config;
@@ -72,11 +51,8 @@ Ext.define('Ext.PluginManager', {
                 result = Ext.create(config);
             } else {
                 // Lookup the class from the ptype and instantiate unless its a singleton
-                result = Ext.ClassManager.getByAlias(('plugin.' + (config.ptype || defaultType)));
-
-                if (typeof result === 'function') {
-                    result = new result(config);
-                }
+                type = 'plugin.' + (config.ptype || defaultType);
+                result = Ext.ClassManager.instantiateByAlias(type, config);
             }
         }
 
@@ -86,34 +62,9 @@ Ext.define('Ext.PluginManager', {
             result.setCmpCalled = true;
         }
         return result;
-    },
-
-    /**
-     * Returns all plugins registered with the given type. Here, 'type' refers to the type of plugin, not its ptype.
-     * @param {String} type The type to search for
-     * @param {Boolean} defaultsOnly True to only return plugins of this type where the plugin's isDefault property is
-     * truthy
-     * @return {Ext.AbstractPlugin[]} All matching plugins
-     */
-    findByType: function(type, defaultsOnly) {
-        var matches = [],
-            types   = this.types,
-            name,
-            item;
-
-        for (name in types) {
-            if (!types.hasOwnProperty(name)) {
-                continue;
-            }
-            item = types[name];
-
-            if (item.type == type && (!defaultsOnly || (defaultsOnly === true && item.isDefault))) {
-                matches.push(item);
-            }
-        }
-
-        return matches;
     }
+
+    //<deprecated since=5.0>
 }, function() {
     /**
      * Shorthand for {@link Ext.PluginManager#registerType}
@@ -122,8 +73,8 @@ Ext.define('Ext.PluginManager', {
      * @param {Function} cls The new Plugin class.
      * @member Ext
      * @method preg
+     * @deprecated 5.0
      */
-    Ext.preg = function() {
-        return Ext.PluginManager.registerType.apply(Ext.PluginManager, arguments);
-    };
+    Ext.preg = Ext.emptyFn;
+    //</deprecated since=5.0>
 });

@@ -24,11 +24,11 @@ html, body, .x-body {
 	background-image: url(@path) @repeatType @positionX @positionY, linear-gradient(@origin, @start, @stop);*/
 }
 
-#content h1, #content h1:hover {
+h1, h1:hover {
 	.transition(background-color, @time, linear);
 }
 
-#content h1 {
+h1 {
 	background-color: @themeBackgroundColor;
 	color: @h1Color;
 	font: bold 2em "Ubuntu", @nextFont;
@@ -42,11 +42,11 @@ html, body, .x-body {
 	.boxShadow(0, @h1BoxShadow * 2, @h1BoxShadow, -@h1BoxShadow, darken(@themeBackgroundColor, 10%));
 }
 
-#content h1:hover {
+h1:hover {
 	background-color: lighten(@themeBackgroundColor, 10%);
 }
 
-#content h1:after {
+h1:after {
 	content: '';
 	right: 0.5em;
 	top: 0.7em;
@@ -57,7 +57,7 @@ html, body, .x-body {
 	position: absolute;
 }
 
-#content h2, .formHeading {
+h2, .formHeading {
 	color: @buttonBackgroundColor;
 	font: bold 1.5em 'Ubuntu' @nextFont;
 }

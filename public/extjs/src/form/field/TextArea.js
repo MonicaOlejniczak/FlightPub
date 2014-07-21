@@ -1,23 +1,3 @@
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-GNU General Public License Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as
-published by the Free Software Foundation and appearing in the file LICENSE included in the
-packaging of this file.
-
-Please review the following information to ensure the GNU General Public License version 3.0
-requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
-*/
 /**
  * @docauthor Robert Dougan <rob@sencha.com>
  *
@@ -58,7 +38,6 @@ Ext.define('Ext.form.field.TextArea', {
     alternateClassName: 'Ext.form.TextArea',
     requires: [
         'Ext.XTemplate', 
-        'Ext.layout.component.field.TextArea',
         'Ext.util.DelayedTask'
     ],
 
@@ -73,17 +52,14 @@ Ext.define('Ext.form.field.TextArea', {
     //     </textarea>
     //
     fieldSubTpl: [
-        '<textarea id="{id}" {inputAttrTpl}',
+        '<textarea id="{id}" role="{role}" {inputAttrTpl}',
             '<tpl if="name"> name="{name}"</tpl>',
-            '<tpl if="rows"> rows="{rows}" </tpl>',
-            '<tpl if="cols"> cols="{cols}" </tpl>',
             '<tpl if="placeholder"> placeholder="{placeholder}"</tpl>',
-            '<tpl if="size"> size="{size}"</tpl>',
             '<tpl if="maxLength !== undefined"> maxlength="{maxLength}"</tpl>',
             '<tpl if="readOnly"> readonly="readonly"</tpl>',
             '<tpl if="disabled"> disabled="disabled"</tpl>',
             '<tpl if="tabIdx"> tabIndex="{tabIdx}"</tpl>',
-            ' class="{fieldCls} {typeCls} {inputCls}" ',
+            ' class="{fieldCls} {typeCls} {typeCls}-{ui} {inputCls}" ',
             '<tpl if="fieldStyle"> style="{fieldStyle}"</tpl>',
             ' autocomplete="off">\n',
             '<tpl if="value">{[Ext.util.Format.htmlEncode(values.value)]}</tpl>',
@@ -114,20 +90,6 @@ Ext.define('Ext.form.field.TextArea', {
     growAppend: '\n-',
 
     /**
-     * @cfg {Number} cols
-     * An initial value for the 'cols' attribute on the textarea element. This is only used if the component has no
-     * configured {@link #width} and is not given a width by its container's layout.
-     */
-    cols: 20,
-
-    /**
-     * @cfg {Number} rows
-     * An initial value for the 'rows' attribute on the textarea element. This is only used if the component has no
-     * configured {@link #height} and is not given a height by its container's layout. Defaults to 4.
-     */
-    rows: 4,
-
-    /**
      * @cfg {Boolean} enterIsSpecial
      * True if you want the ENTER key to be classed as a special key and the {@link #specialkey} event to be fired
      * when ENTER is pressed.
@@ -141,14 +103,26 @@ Ext.define('Ext.form.field.TextArea', {
      */
     preventScrollbars: false,
 
-    // private
-    componentLayout: 'textareafield',
-    
     setGrowSizePolicy: Ext.emptyFn,
     
     returnRe: /\r/g,
 
     inputCls: Ext.baseCSSPrefix + 'form-textarea',
+
+    extraFieldBodyCls: Ext.baseCSSPrefix + 'form-textarea-body',
+
+    //<debug>
+    constructor: function(config) {
+        this.callParent([config]);
+        if (this.cols) {
+            Ext.log.warn('Ext.form.field.TextArea "cols" config was removed in Ext 5.0. Please specify a "width" or use a layout instead.');
+        }
+
+        if (this.rows) {
+            Ext.log.warn('Ext.form.field.TextArea "rows" config was removed in Ext 5.0. Please specify a "height" or use a layout instead.');
+        }
+    },
+    //</debug>
 
     // private
     getSubTplData: function() {
@@ -161,11 +135,6 @@ Ext.define('Ext.form.field.TextArea', {
                 ret.fieldStyle = (fieldStyle||'') + ';overflow:hidden;height:' + me.growMin + 'px';
             }
         }
-
-        Ext.applyIf(ret, {
-            cols: me.cols,
-            rows: me.rows
-        });
 
         return ret;
     },
@@ -189,10 +158,6 @@ Ext.define('Ext.form.field.TextArea', {
     // we override in all cases when setting the value to control this.
     transformRawValue: function(value){
         return this.stripReturns(value);
-    },
-    
-    transformOriginalValue: function(value){
-        return this.stripReturns(value); 
     },
     
     getValue: function(){
@@ -282,12 +247,6 @@ Ext.define('Ext.form.field.TextArea', {
         }
     },
 
-    // private
-    initAria: function() {
-        this.callParent(arguments);
-        this.getActionEl().dom.setAttribute('aria-multiline', true);
-    },
-    
     beforeDestroy: function(){
         var task = this.pasteTask;
         if (task) {

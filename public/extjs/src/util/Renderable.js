@@ -1,23 +1,3 @@
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-GNU General Public License Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as
-published by the Free Software Foundation and appearing in the file LICENSE included in the
-packaging of this file.
-
-Please review the following information to ensure the GNU General Public License version 3.0
-requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
-*/
 /**
  * Given a component hierarchy of this:
  *
@@ -85,7 +65,7 @@ Ext.define('Ext.util.Renderable', {
 
     frameIdRegex: /[\-]frame\d+[TMB][LCR]$/,
     
-    frameElNames: ['TL','TC','TR','ML','MC','MR','BL','BC','BR'],
+    frameElNames: ['TL','TC','TR','ML','MC','MR','BL','BC','BR','Table'],
 
     frameTpl: [
         '{%this.renderDockedItems(out,values,0);%}',
@@ -115,15 +95,15 @@ Ext.define('Ext.util.Renderable', {
 
     frameTableTpl: [
         '{%this.renderDockedItems(out,values,0);%}',
-        '<table class="', Ext.plainTableCls, '" cellpadding="0"><tbody>',
+        '<table id="{fgid}Table" class="', Ext.plainTableCls, '" cellpadding="0" role="presentation">',
             '<tpl if="top">',
-                '<tr>',
+                '<tr role="presentation">',
                     '<tpl if="left"><td id="{fgid}TL" class="{frameCls}-tl {baseCls}-tl {baseCls}-{ui}-tl<tpl for="uiCls"> {parent.baseCls}-{parent.ui}-{.}-tl</tpl>{frameElCls}" role="presentation"></td></tpl>',
                     '<td id="{fgid}TC" class="{frameCls}-tc {baseCls}-tc {baseCls}-{ui}-tc<tpl for="uiCls"> {parent.baseCls}-{parent.ui}-{.}-tc</tpl>{frameElCls}" role="presentation"></td>',
                     '<tpl if="right"><td id="{fgid}TR" class="{frameCls}-tr {baseCls}-tr {baseCls}-{ui}-tr<tpl for="uiCls"> {parent.baseCls}-{parent.ui}-{.}-tr</tpl>{frameElCls}" role="presentation"></td></tpl>',
                 '</tr>',
             '</tpl>',
-            '<tr>',
+            '<tr role="presentation">',
                 '<tpl if="left"><td id="{fgid}ML" class="{frameCls}-ml {baseCls}-ml {baseCls}-{ui}-ml<tpl for="uiCls"> {parent.baseCls}-{parent.ui}-{.}-ml</tpl>{frameElCls}" role="presentation"></td></tpl>',
                 '<td id="{fgid}MC" class="{frameCls}-mc {baseCls}-mc {baseCls}-{ui}-mc<tpl for="uiCls"> {parent.baseCls}-{parent.ui}-{.}-mc</tpl>{frameElCls}" role="presentation">',
                     '{%this.applyRenderTpl(out, values)%}',
@@ -131,40 +111,147 @@ Ext.define('Ext.util.Renderable', {
                 '<tpl if="right"><td id="{fgid}MR" class="{frameCls}-mr {baseCls}-mr {baseCls}-{ui}-mr<tpl for="uiCls"> {parent.baseCls}-{parent.ui}-{.}-mr</tpl>{frameElCls}" role="presentation"></td></tpl>',
             '</tr>',
             '<tpl if="bottom">',
-                '<tr>',
+                '<tr role="presentation">',
                     '<tpl if="left"><td id="{fgid}BL" class="{frameCls}-bl {baseCls}-bl {baseCls}-{ui}-bl<tpl for="uiCls"> {parent.baseCls}-{parent.ui}-{.}-bl</tpl>{frameElCls}" role="presentation"></td></tpl>',
                     '<td id="{fgid}BC" class="{frameCls}-bc {baseCls}-bc {baseCls}-{ui}-bc<tpl for="uiCls"> {parent.baseCls}-{parent.ui}-{.}-bc</tpl>{frameElCls}" role="presentation"></td>',
                     '<tpl if="right"><td id="{fgid}BR" class="{frameCls}-br {baseCls}-br {baseCls}-{ui}-br<tpl for="uiCls"> {parent.baseCls}-{parent.ui}-{.}-br</tpl>{frameElCls}" role="presentation"></td></tpl>',
                 '</tr>',
             '</tpl>',
-        '</tbody></table>',
+        '</table>',
         '{%this.renderDockedItems(out,values,1);%}'
     ],
 
     /**
-     * Allows addition of behavior after rendering is complete. At this stage the Component’s Element
+     * @property {Number} _renderState
+     * This property holds one of the following values during the render process:
+     *
+     *   * **0** - The component is not rendered.
+     *   * **1** - The component has fired beforerender and is about to call beforeRender.
+     *    The component has just started rendering.
+     *   * **2** - The component has finished the `beforeRender` process and is about to
+     *    call `onRender`. This is when `rendering` is set to `true`.
+     *   * **3** - The component has started `onRender`. This is when `rendered` is set
+     *    to `true`.
+     *   * **4** - The component has finished its afterrender process.
+     *
+     * @private
+     * @readonly
+     * @since 5.0.0
+     */
+    _renderState: 0,
+
+    statics: {
+        makeRenderSetter: function (cfg, renderState) {
+            var name = cfg.name;
+
+            return function (value) {
+                var me = this,
+                    bucket = (me.renderConfigs || (me.renderConfigs = {})),
+                    pending = bucket[renderState];
+
+                if (me._renderState >= renderState) {
+                    (cfg.setter || cfg.getSetter()).call(me, value);
+                } else {
+                    if (!pending) {
+                        bucket[renderState] = pending = {};
+                    }
+
+                    if (!(name in pending)) {
+                        pending[name] = me[name];
+                    }
+
+                    me[name] = value;
+                }
+
+                return me;
+            };
+        },
+
+        processRenderConfig: function (source, configName, state) {
+            // Even though this is not inheritableState, our onClassExtended adds it to
+            // all derived classes so that our "this" pointer is the derived class.
+            var proto = this.prototype,
+                configurator = this.getConfigurator(),
+                Renderable = Ext.util.Renderable,
+                makeSetter = Renderable.makeRenderSetter,
+                renderConfig = source[configName],
+                cachedSetter, cfg, name, setterName;
+
+            for (name in renderConfig) {
+                cfg = Ext.Config.get(name);
+
+                if (!proto[setterName = cfg.names.set]) {
+                    cachedSetter = (cfg.renderSetter || (cfg.renderSetter = {}));
+                    proto[setterName] = cachedSetter[state] ||
+                                        (cachedSetter[state] = makeSetter(cfg, state));
+                }
+            }
+
+            delete source[configName];
+            configurator.add(renderConfig);
+        }
+    },
+
+    onClassMixedIn: function (targetClass) {
+        var override = targetClass.override,
+            processRenderConfig = this.processRenderConfig,
+            processOverride = function (body) {
+                if (body.beforeRenderConfig) {
+                    this.processRenderConfig(body, 'beforeRenderConfig', 1);
+                }
+                if (body.renderConfig) {
+                    this.processRenderConfig(body, 'renderConfig', 3);
+                }
+                override.call(this, body);
+            },
+            processClass = function (theClass, classBody) {
+                // We need to process overrides for renderConfig declarations:
+                theClass.override = processOverride;
+
+                // While we are here we add this method (an inheritableStatic basically)
+                theClass.processRenderConfig = processRenderConfig;
+
+                if (classBody.beforeRenderConfig) {
+                    theClass.processRenderConfig(classBody, 'beforeRenderConfig', 1);
+                }
+                if (classBody.renderConfig) {
+                    theClass.processRenderConfig(classBody, 'renderConfig', 3);
+                }
+            };
+
+        // Process Component itself.
+        processClass(targetClass, targetClass.prototype);
+
+        // And apply to all Component-derived classes as well:
+        targetClass.onExtended(processClass);
+    },
+
+    /**
+     * Allows addition of behavior after rendering is complete. At this stage the Component's Element
      * will have been styled according to the configuration, will have had any configured CSS class
      * names added, and will be in the configured visibility and the configured enable state.
      *
      * @template
      * @protected
      */
-    afterRender : function() {
+    afterRender: function() {
         var me = this,
             data = {},
             protoEl = me.protoEl,
             target = me.el,
-            item, pre, hide, contentEl;
+            item, pre, hidden, contentEl;
 
         me.finishRenderChildren();
-        
+        me._renderState = 4;
+
         // We need to do the contentEl here because it depends on the layout items (inner/outerCt)
         // to be rendered before we can put it in
         if (me.contentEl) {
             pre = Ext.baseCSSPrefix;
-            hide = pre + 'hide-';
+            hidden = pre + 'hidden-';
             contentEl = Ext.get(me.contentEl);
-            contentEl.removeCls([pre+'hidden', hide+'display', hide+'offsets', hide+'nosize']);
+            contentEl.component = me;
+            contentEl.removeCls([ pre + 'hidden', hidden + 'display', hidden + 'offsets' ]);
             me.getContentTarget().appendChild(contentEl.dom);
         }
 
@@ -194,21 +281,33 @@ Ext.define('Ext.util.Renderable', {
         if (!me.ownerCt) {
             me.updateLayout();
         }
+
+        if (!(me.x && me.y) && (me.pageX || me.pageY)) {
+            me.setPagePosition(me.pageX, me.pageY);
+        }
+
+        if (me.disableOnRender) {
+            me.onDisable();
+        } else if (me.enableOnRender) {
+            me.onEnable();
+        }
     },
 
-    afterFirstLayout : function(width, height) {
+    afterFirstLayout: function(width, height) {
         var me = this,
             x = me.x,
             y = me.y,
             hasX,
             hasY,
-            pos, xy;
+            pos, xy,
+            alignSpec = me.defaultAlign,
+            alignOffset = me.alignOffset;
 
         // We only have to set absolute position here if there is no ownerlayout which should take responsibility.
         // Consider the example of rendered components outside of a viewport - these might need their positions setting.
         if (!me.ownerLayout) {
-            hasX = Ext.isDefined(x);
-            hasY = Ext.isDefined(y);
+            hasX = x !== undefined;
+            hasY = y !== undefined;
         }
 
         // For floaters, calculate x and y if they aren't defined by aligning
@@ -216,11 +315,11 @@ Ext.define('Ext.util.Renderable', {
         if (me.floating && (!hasX || !hasY)) {
             if (me.floatParent) {
                 pos = me.floatParent.getTargetEl().getViewRegion();
-                xy = me.el.getAlignToXY(me.floatParent.getTargetEl(), 'c-c');
+                xy = me.el.getAlignToXY(me.alignTarget || me.floatParent.getTargetEl(), alignSpec, alignOffset);
                 pos.x = xy[0] - pos.x;
                 pos.y = xy[1] - pos.y;
             } else {
-                xy = me.el.getAlignToXY(me.container, 'c-c');
+                xy = me.el.getAlignToXY(me.alignTarget || me.container, alignSpec, alignOffset);
                 pos = me.container.translateXY(xy[0], xy[1]);
             }
             x = hasX ? x : pos.x;
@@ -231,19 +330,19 @@ Ext.define('Ext.util.Renderable', {
         if (hasX || hasY) {
             me.setPosition(x, y);
         }
+
         me.onBoxReady(width, height);
     },
 
     /**
-     * Sets references to elements inside the component. This applies {@link Ext.AbstractComponent#cfg-renderSelectors renderSelectors}
-     * as well as {@link Ext.AbstractComponent#cfg-childEls childEls}.
+     * Sets references to elements inside the component. This applies {@link Ext.Component#cfg-renderSelectors renderSelectors}
+     * as well as {@link Ext.Component#cfg-childEls childEls}.
      * @private
      */
     applyRenderSelectors: function() {
         var me = this,
             selectors = me.renderSelectors,
             el = me.el,
-            dom = el.dom,
             selector;
 
         me.applyChildEls(el);
@@ -254,19 +353,68 @@ Ext.define('Ext.util.Renderable', {
         if (selectors) {
             for (selector in selectors) {
                 if (selectors.hasOwnProperty(selector) && selectors[selector]) {
-                    me[selector] = Ext.get(Ext.DomQuery.selectNode(selectors[selector], dom));
+                    me[selector] = el.selectNode(selectors[selector], false);
                 }
+            }
+        }
+    },
+
+    flushRenderConfigs: function () {
+        var me = this,
+            configs = me.renderConfigs,
+            state = me._renderState,
+            bucket, i, name, newConfigs, value;
+
+        if (configs) {
+            for (i = 0; i <= state; ++i) {
+                bucket = configs[i];
+                if (bucket) {
+                    configs[i] = null;
+
+                    for (name in bucket) {
+                        value = bucket[name];
+                        (newConfigs || (newConfigs = {}))[name] = me[name];
+                        me[name] = value;
+                    }
+                }
+            }
+
+            if (newConfigs) {
+                me.setConfig(newConfigs);
             }
         }
     },
 
     beforeRender: function () {
         var me = this,
-            target = me.getTargetEl(),
-            overflowEl = me.getOverflowEl(),
+            floating = me.floating,
             layout = me.getComponentLayout(),
-            // Call the style calculation early which sets the public scrollFlags property
-            overflowStyle = me.getOverflowStyle();
+            cls;
+
+        me._renderState = 1;
+
+        // Force bindings to be created
+        me.getBind();
+        
+        if (me.renderConfigs) {
+            me.flushRenderConfigs();
+        }
+
+        if (me.reference) {
+            // If we have no "reference" config then we do not publish our state to the
+            // viewmodel. This needs to happen after the beforeRenderConfig block is
+            // processed because that is what creates the viewModel.
+            me.publishState();
+        }
+
+        if (floating) {
+            me.addCls(Ext.baseCSSPrefix + 'layer');
+
+            cls = floating.cls;
+            if (cls) {
+                me.addCls(cls);
+            }
+        }
 
         // Just before rendering, set the frame flag if we are an always-framed component like Window or Tip.
         me.frame = me.frame || me.alwaysFramed;
@@ -277,10 +425,7 @@ Ext.define('Ext.util.Renderable', {
 
         // Attempt to set overflow style prior to render if the targetEl can be accessed.
         // If the targetEl does not exist yet, this will take place in finishRender
-        if (overflowEl) {
-            overflowEl.setStyle(overflowStyle);
-            me.overflowStyleSet = true;
-        }
+        me.initOverflow();
 
         me.setUI(me.ui);
 
@@ -295,7 +440,7 @@ Ext.define('Ext.util.Renderable', {
      * Called from the selected frame generation template to insert this Component's inner structure inside the framing structure.
      *
      * When framing is used, a selected frame generation template is used as the primary template of the #getElConfig instead
-     * of the configured {@link Ext.AbstractComponent#renderTpl renderTpl}. The renderTpl is invoked by this method which is injected into the framing template.
+     * of the configured {@link Ext.Component#renderTpl renderTpl}. The renderTpl is invoked by this method which is injected into the framing template.
      */
     doApplyRenderTpl: function(out, values) {
         // Careful! This method is bolted on to the frameTpl so all we get for context is
@@ -320,7 +465,7 @@ Ext.define('Ext.util.Renderable', {
         var me = this;
         if (!me.rendered) {
             if (me.floating) {
-                me.render(document.body);
+                me.render(me.renderTo || document.body);
             } else {
                 me.render(Ext.isBoolean(me.autoRender) ? Ext.getBody() : me.autoRender);
             }
@@ -331,7 +476,8 @@ Ext.define('Ext.util.Renderable', {
         // Careful! This method is bolted on to the renderTpl so all we get for context is
         // the renderData! The "this" pointer is the renderTpl instance!
 
-        var me = renderData.$comp;
+        var me = renderData.$comp,
+            data = me.data;
 
         if (me.html) {
             Ext.DomHelper.generateMarkup(me.html, out);
@@ -344,9 +490,10 @@ Ext.define('Ext.util.Renderable', {
                 me.tpl = new Ext.XTemplate(me.tpl);
             }
 
-            if (me.data) {
+            if (data) {
+                me.data = data = data.isEntity ? data.getData(true) : data
                 //me.tpl[me.tplWriteMode](target, me.data);
-                me.tpl.applyOut(me.data, out);
+                me.tpl.applyOut(data, out);
                 delete me.data;
             }
         }
@@ -395,7 +542,7 @@ Ext.define('Ext.util.Renderable', {
             if (me.container) {
                 el = me.container.getById(me.id, true);
             } else {
-                el = Ext.getDom(me.id);
+                el = Ext.getDom(me.$pid || me.id);
             }
 
             if (!me.el) {
@@ -414,7 +561,7 @@ Ext.define('Ext.util.Renderable', {
                 Ext.removeNode(el); // remove placeholder el
                 // TODO - what about class/style?
             }
-        } else if (!me.rendering) {
+        } else if (me.needsRenderTpl) {
             // We were configured with an el and then told to render (e.g., Viewport). We
             // need to generate the proper DOM. Insert first because the layout system
             // insists that child Component elements indices match the Component indices.
@@ -425,6 +572,8 @@ Ext.define('Ext.util.Renderable', {
             }
         }
         // else we are rendering
+
+        me.el.component = me;
 
         if (!me.container) {
             // top-level rendered components will already have me.container set up
@@ -439,8 +588,8 @@ Ext.define('Ext.util.Renderable', {
         me.onRender(me.container, containerIdx);
 
         // If we could not access a target protoEl in beforeRender, we have to set the overflow styles here.
-        if (!me.overflowStyleSet) {
-            me.getOverflowEl().setStyle(me.getOverflowStyle());
+        if (!me.overflowInited) {
+            me.initOverflow();
         }
 
         // Tell the encapsulating element to hide itself in the way the Component is configured to hide
@@ -475,7 +624,7 @@ Ext.define('Ext.util.Renderable', {
         layout.finishRender();
     },
 
-    getElConfig : function() {
+    getElConfig: function() {
         var me = this,
             autoEl = me.autoEl,
             frameInfo = me.getFrameInfo(),
@@ -575,11 +724,14 @@ Ext.define('Ext.util.Renderable', {
         var me = this;
 
         if (!me.hasListeners.beforerender || me.fireEvent('beforerender', me) !== false) {
+            me._renderState = 1;
+
             me.beforeRender();
 
             // Flag to let the layout's finishRenderItems and afterFinishRenderItems
             // know which items to process
             me.rendering = true;
+            me._renderState = 2;
 
             if (me.el) {
                 // Since we are producing a render tree, we produce a "proxy el" that will
@@ -587,6 +739,7 @@ Ext.define('Ext.util.Renderable', {
                 // proxy el in the finishRender phase.
                 return {
                     tag: 'div',
+                    role: 'presentation',
                     id: (me.$pid = Ext.id())
                 };
             }
@@ -628,6 +781,9 @@ Ext.define('Ext.util.Renderable', {
             baseCls: me.baseCls,
             componentCls: me.componentCls,
             frame: me.frame,
+            renderScroller: me.touchScroll,
+            scrollerCls: me.scrollerCls,
+            role: me.ariaRole,
             childElCls: '' // overridden in RTL
         }, me.renderData);
     },
@@ -667,8 +823,8 @@ Ext.define('Ext.util.Renderable', {
             x = me.x,
             y = me.y,
             lastBox = null,
-            width, height,
-            el = me.el;
+            el = me.el,
+            width, height;
 
         me.applyRenderSelectors();
 
@@ -677,6 +833,11 @@ Ext.define('Ext.util.Renderable', {
         me.rendering = null;
 
         me.rendered = true;
+        me._renderState = 3;
+
+        if (me.renderConfigs) {
+            me.flushRenderConfigs();
+        }
 
         // We need to remember these to avoid writing them during the initial layout:
         if (x != null) {
@@ -687,8 +848,7 @@ Ext.define('Ext.util.Renderable', {
         }
         // Framed components need their width/height to apply to the frame, which is
         // best handled in layout at present.
-        // If we're using the content box model, we also cannot assign initial sizes since we do not know the border widths to subtract
-        if (!me.getFrameInfo() && Ext.isBorderBox) {
+        if (!me.getFrameInfo()) {
             width = me.width;
             height = me.height;
 
@@ -700,6 +860,13 @@ Ext.define('Ext.util.Renderable', {
                 lastBox = lastBox || {};
                 lastBox.height = height;
             }
+        }
+
+        if (me.touchScroll === 1) {
+            // In browsers that use native browser overflow, but also have a touch screen
+            // we must disable scrolling when triggered by touch so that the scroller
+            // can take over
+            me.getOverflowEl().disableTouchScroll();
         }
 
         me.lastBox = el.lastBox = lastBox;
@@ -748,7 +915,8 @@ Ext.define('Ext.util.Renderable', {
         nextSibling = me.getInsertPosition(position);
 
         if (!el) {
-            tree = me.getRenderTree();
+            tree = me.getRenderTree();  // calls beforeRender
+
             if (me.ownerLayout && me.ownerLayout.transformItemRenderTree) {
                 tree = me.ownerLayout.transformItemRenderTree(tree);
             }
@@ -766,6 +934,11 @@ Ext.define('Ext.util.Renderable', {
         } else {
             if (!me.hasListeners.beforerender || me.fireEvent('beforerender', me) !== false) {
                 me.beforeRender();
+                // We're simulating the above block here as much as possible, but we're already
+                // given an el, so we don't need to create it. We still need to initialize the renderTpl later.
+                me.needsRenderTpl = me.rendering = true;
+                me._renderState = 2;
+
                 // Set configured styles on pre-rendered Component's element
                 me.initStyles(el);
                 if (me.allowDomMove !== false) {
@@ -815,16 +988,13 @@ Ext.define('Ext.util.Renderable', {
 
     setupRenderTpl: function (renderTpl) {
         renderTpl.renderBody = renderTpl.renderContent = this.doRenderContent;
-    },
-
-    wrapPrimaryEl: function (dom) {
-        this.el = Ext.get(dom, true);
+        renderTpl.renderPadding = this.doRenderPadding;
     },
 
     /**
      * @private
      */
-    initFrame : function() {
+    initFrame: function() {
         if (Ext.supports.CSS3BorderRadius || !this.frame) {
             return;
         }
@@ -913,7 +1083,7 @@ Ext.define('Ext.util.Renderable', {
                 // Framing elements have been selected in initFrame, no need to run applyRenderSelectors
                 // Replace the new mc with the old mc
                 oldFrameMC.insertAfter(me.frameMC);
-                me.frameMC.remove();
+                me.frameMC.destroy();
 
                 // Restore the reference to the old frame mc as the framebody
                 me.frameBody = me.frameMC = oldFrameMC;
@@ -923,17 +1093,17 @@ Ext.define('Ext.util.Renderable', {
 
                 // Remove the old framing
                 if (wasTable) {
-                    me.el.query('> table')[1].remove();
+                    me.el.query('> table')[1].destroy();
                 }
                 else {
                     if (oldFrameTL) {
-                        oldFrameTL.remove();
+                        oldFrameTL.destroy();
                     }
                     if (oldFrameBL) {
-                        oldFrameBL.remove();
+                        oldFrameBL.destroy();
                     }
                     if (oldFrameML) {
-                        oldFrameML.remove();
+                        oldFrameML.destroy();
                     }
                 }
             }
@@ -1082,7 +1252,12 @@ Ext.define('Ext.util.Renderable', {
      * part of the document, has no styling.
      */
     getStyleProxy: function(cls) {
-        var result = this.styleProxyEl || (Ext.AbstractComponent.prototype.styleProxyEl = Ext.getBody().createChild({
+        var result = this.styleProxyEl || (Ext.Component.prototype.styleProxyEl = Ext.getBody().createChild({
+                //<debug>
+                // tell the spec runner to ignore this element when checking if the dom is clean 
+                'data-sticky': true,
+                //</debug>
+                role: 'presentation',
                 style: {
                     position: 'absolute',
                     top: '-10000px'
@@ -1096,8 +1271,52 @@ Ext.define('Ext.util.Renderable', {
     /**
      * @private
      */
-    getFrameTpl : function(table) {
+    getFrameTpl: function(table) {
         return this.getTpl(table ? 'frameTableTpl' : 'frameTpl');
+    },
+
+    initOverflow: function() {
+        var me = this,
+            // Call the style calculation early which sets the public scrollFlags property
+            overflowStyle = me.getOverflowStyle(),
+            scrollFlags = me.scrollFlags,
+            overflowEl = me.getOverflowEl(),
+            touchScroll = me.touchScroll =
+                (scrollFlags.y || scrollFlags.x) && Ext.supports.touchScroll;
+
+        if (!overflowEl) {
+            return;
+        }
+
+        me.overflowInited = true;
+
+        if (touchScroll === 2) {
+            // only touchScroll === 2 gets overflow:hidden, touchScroll === 1 means that
+            // we use native scrolling but control scroll position using the touch scroller
+            overflowEl.setStyle('overflow', 'hidden');
+        } else {
+            overflowEl.setStyle(overflowStyle);
+        }
+    },
+
+    doRenderPadding: function(out, renderData) {
+        // Careful! This method is bolted on to the renderTpl so all we get for context is
+        // the renderData! The "this" pointer is the renderTpl instance!
+
+        // Some browsers lose the right and/or bottom padding of an element when it has
+        // overflow.  Normally we don't worry about correcting this bug for plain vanilla
+        // Ext.Component instances since all the content is visible, and it is just padding
+        // that is lost.  However when a touch scroller is used, this bug can cause some
+        // of the actual content to be obscured due to the way the scroller measures the
+        // size of the content.  Fortunately there is an easy fix - since we shrinkwrap the
+        // contents in a scroller element, we can just apply the padding to that element
+        // instead of the overflowing element.
+
+        var me = renderData.$comp;
+
+        if (me.touchScroll) {
+            out.push('padding:', me.unitizeBox(me.padding));
+        }
     },
 
     // Cache the frame information object so as not to cause style recalculations

@@ -1,23 +1,3 @@
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-GNU General Public License Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as
-published by the Free Software Foundation and appearing in the file LICENSE included in the
-packaging of this file.
-
-Please review the following information to ensure the GNU General Public License version 3.0
-requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
-*/
 /**
  * This mixin enables classes to declare relationships to child elements and provides the
  * mechanics for acquiring the {@link Ext.Element elements} and storing them on an object
@@ -53,8 +33,8 @@ Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
  * one of the following additional properties:
  *      - `id`: The full id of the child element.
  *      - `itemId`: The suffix part of the id to which "componentId-" is prepended.
- *      - `select`: A selector that will be passed to {@link Ext#select}.
- *      - `selectNode`: A selector that will be passed to {@link Ext.DomQuery#selectNode}.
+ *      - `select`: A selector that will be passed to {@link Ext.dom.Element#select}.
+ *      - `selectNode`: A selector that will be passed to {@link Ext.Element#static-method-selectNode}.
  * 
  * The example above could have used this instead to achieve the same result:
  *
@@ -143,13 +123,13 @@ Ext.define('Ext.util.ElementContainer', {
             child = me[childName];
             if (child) {
                 me[childName] = null; // better than delete since that changes the "shape"
-                child.remove();
+                child.destroy();
             }
         }
     },
 
     /**
-     * Adds each argument passed to this method to the {@link Ext.AbstractComponent#cfg-childEls childEls} array.
+     * Adds each argument passed to this method to the {@link Ext.Component#cfg-childEls childEls} array.
      */
     addChildEls: function () {
         var me = this,
@@ -171,27 +151,38 @@ Ext.define('Ext.util.ElementContainer', {
     applyChildEls: function(el, id) {
         var me = this,
             childEls = me.getChildEls(),
-            baseId, childName, i, selector, value;
+            baseId, childName, elements, i, k, selector, value;
 
         baseId = (id || me.id) + '-';
         for (i = childEls.length; i--; ) {
             childName = childEls[i];
 
             if (typeof childName == 'string') {
-                // We don't use Ext.get because that is 3x (or more) slower on IE6-8. Since
+                // We don't use Ext.get because that is 3x (or more) slower on IE8. Since
                 // we know the el's are children of our el we use getById instead:
                 value = el.getById(baseId + childName);
             } else {
                 if ((selector = childName.select)) {
-                    value = Ext.select(selector, true, el.dom); // a CompositeElement
+                    value = el.select(selector, true); // a CompositeElement
                 } else if ((selector = childName.selectNode)) {
-                    value = Ext.get(Ext.DomQuery.selectNode(selector, el.dom));
+                    value = el.selectNode(selector, false);
                 } else {
                     // see above re:getById...
                     value = el.getById(childName.id || (baseId + childName.itemId));
                 }
 
                 childName = childName.name;
+            }
+
+            if (value) {
+                if (value.isElement) {
+                    value.component = me;
+                } else if (value.isComposite && !value.isLite) {
+                    elements = value.elements;
+                    for (k = elements.length; k--; ) {
+                        elements[k].component = me;
+                    }
+                }
             }
 
             me[childName] = value;

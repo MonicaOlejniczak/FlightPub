@@ -1,23 +1,3 @@
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-GNU General Public License Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as
-published by the Free Software Foundation and appearing in the file LICENSE included in the
-packaging of this file.
-
-Please review the following information to ensure the GNU General Public License version 3.0
-requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
-*/
 /**
  * Provides precise pixel measurements for blocks of text so that you can determine exactly how high and
  * wide, in pixels, a given block of text will be. Note that when measuring text, it should be plain text and
@@ -74,6 +54,11 @@ Ext.define('Ext.util.TextMetrics', {
     constructor: function(bindTo, fixedWidth){
         var me = this,
             measure = Ext.getBody().createChild({
+                //<debug>
+                // tell the spec runner to ignore this element when checking if the dom is clean 
+                'data-sticky': true,
+                //</debug>
+                role: 'presentation',
                 cls: Ext.baseCSSPrefix + 'textmetrics'
             });
             
@@ -100,9 +85,9 @@ Ext.define('Ext.util.TextMetrics', {
         var measure = this.measure,
             size;
         
-        measure.update(text);
+        measure.setHtml(text);
         size = measure.getSize();
-        measure.update('');
+        measure.setHtml('');
         return size;
     },
     
@@ -115,7 +100,7 @@ Ext.define('Ext.util.TextMetrics', {
         
         me.el = Ext.get(el);
         me.measure.setStyle(
-            me.el.getStyles('font-size','font-style', 'font-weight', 'font-family','line-height', 'text-transform', 'letter-spacing')
+            me.el.getStyle(['font-size','font-style', 'font-weight', 'font-family','line-height', 'text-transform', 'letter-spacing', 'word-break'])
         );
     },
     
@@ -152,12 +137,12 @@ Ext.define('Ext.util.TextMetrics', {
       */
      destroy: function(){
          var me = this;
-         me.measure.remove();
+         me.measure.destroy();
          delete me.el;
          delete me.measure;
      }
 }, function(){
-    Ext.Element.addMethods({
+    Ext.Element.override({
         /**
          * Returns the width in pixels of the passed text, or the width of the text in this Element.
          * @param {String} text The text to measure. Defaults to the innerHTML of the element.
@@ -167,7 +152,7 @@ Ext.define('Ext.util.TextMetrics', {
          * @member Ext.dom.Element
          */
         getTextWidth : function(text, min, max){
-            return Ext.Number.constrain(Ext.util.TextMetrics.measure(this.dom, Ext.value(text, this.dom.innerHTML, true)).width, min || 0, max || 1000000);
+            return Ext.Number.constrain(Ext.util.TextMetrics.measure(this.dom, Ext.valueFrom(text, this.dom.innerHTML, true)).width, min || 0, max || 1000000);
         }
     });
 });
