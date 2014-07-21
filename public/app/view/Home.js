@@ -1,10 +1,12 @@
 Ext.define('FB.view.Home', {
 	extend: 'Ext.form.Panel',
 	requires: [
-		'FB.view.HomeController'
+		'FB.view.HomeController',
+		'FB.controller.Pages'
 	],
-	xtype: 'Home',
-	controller: 'Home',
+	xtype: FB.controller.Pages.getXtype(FB.controller.Pages.Page.HOME),
+	controller: FB.controller.Pages.getXtype(FB.controller.Pages.Page.HOME),
+	itemId: FB.controller.Pages.getItemId(FB.controller.Pages.Page.HOME),
 	standardSubmit: true,
 	cls: 'x-plain',
 	baseCls: 'x-plain',

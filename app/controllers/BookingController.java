@@ -13,9 +13,9 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Security;
 import util.algorithm.FlightFinder;
-import views.html.bookingRequests;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Controller responsible for handling all aspects of the FlightPub booking process.
@@ -124,7 +124,8 @@ public class BookingController extends Controller {
 			}
 
 			// Send the form back to the user
-			return ok(views.html.bookings.render(result, Form.form(CancelBooking.class), Form.form(ReviewRecommendations.class)));
+			return ok();
+			//return ok(views.html.bookings.render(result, Form.form(CancelBooking.class), Form.form(ReviewRecommendations.class)));
 		} else {
 			return forbidden();
 		}
@@ -159,7 +160,8 @@ public class BookingController extends Controller {
 			}
 
 			// Send the form back to the user
-			return ok(views.html.bookingRequests.render(result, Form.form(CompleteBooking.class)));
+			return ok();
+			//return ok(views.html.bookingRequests.render(result, Form.form(CompleteBooking.class)));
 		} else {
 			return forbidden();
 		}
@@ -184,7 +186,8 @@ public class BookingController extends Controller {
 				// Pull in the user from the database, joining with them their bookings and their bookings' itinerary
 				User user = User.find.where(Expr.eq("email", authedUser.getUsername(Http.Context.current()))).fetch("bookings").fetch("bookings.itinerary").findUnique();
 
-				return badRequest(views.html.bookings.render(user.bookings, Form.form(CancelBooking.class), Form.form(ReviewRecommendations.class)));
+				return badRequest();
+				//return badRequest(views.html.bookings.render(user.bookings, Form.form(CancelBooking.class), Form.form(ReviewRecommendations.class)));
 			} else {
 				// Otherwise, get the form parameters' values
 				CancelBooking details = cancelBookingForm.get();
@@ -220,7 +223,8 @@ public class BookingController extends Controller {
 				// Pull down all bookings from the database that have a status of either PENDING or AWAITING_CONFIRMATION, along with their itineraries and by extension, full flight listings
 				List<Booking> bookings = Booking.find.where(Expr.or(Expr.eq("status", Booking.Status.PENDING.ordinal()), Expr.eq("status", Booking.Status.AWAITING_CONFIRMATION.ordinal()))).fetch("itinerary").fetch("itinerary.flights").findList();
 
-				return badRequest(bookingRequests.render(bookings, Form.form(CompleteBooking.class)));
+				return badRequest();
+				//return badRequest(bookingRequests.render(bookings, Form.form(CompleteBooking.class)));
 			} else {
 				// Otherwise, get the form parameters' values
 				CompleteBooking details = completeBookingForm.get();
@@ -260,7 +264,8 @@ public class BookingController extends Controller {
 			List<Itinerary> recommendations = FlightFinder.findFlights(source.source, destination.destination, new DateTime(booking.date), new DateTime(booking.date).plusDays(5), FlightFinder.DEFAULT_SEARCH_DEPTH);
 
 			// Send the form + flights back to the user
-			return ok(views.html.recommendFlights.render(Form.form(RecommendFlights.class).fill(recommendFlights), recommendations.subList(0, 5)));
+			return ok();
+			// return ok(views.html.recommendFlights.render(Form.form(RecommendFlights.class).fill(recommendFlights), recommendations.subList(0, 5)));
 		} else {
 			return forbidden();
 		}
@@ -288,7 +293,8 @@ public class BookingController extends Controller {
 				List<Itinerary> recommendations = FlightFinder.findFlights(source.source, destination.destination, new DateTime(booking.date), new DateTime(booking.date).plusDays(5), FlightFinder.DEFAULT_SEARCH_DEPTH);
 
 				// Send the form + flights back to the user
-				return badRequest(views.html.recommendFlights.render(recommendFlightsForm, recommendations.subList(0, 5)));
+				return badRequest();
+				// return badRequest(views.html.recommendFlights.render(recommendFlightsForm, recommendations.subList(0, 5)));
 			} else {
 				// Otherwise, get the form parameters' values
 				RecommendFlights details = recommendFlightsForm.get();
@@ -328,7 +334,8 @@ public class BookingController extends Controller {
 			Booking booking = Booking.find.where(Expr.eq("id", bookingId)).fetch("recommendations").findUnique();
 
 			// Send the form + flights back to the user
-			return ok(views.html.reviewRecommendations.render(Form.form(ReviewRecommendations.class).fill(reviewRecommendations), booking.recommendations));
+			return ok();
+			//return ok(views.html.reviewRecommendations.render(Form.form(ReviewRecommendations.class).fill(reviewRecommendations), booking.recommendations));
 		} else {
 			return forbidden();
 		}
@@ -351,7 +358,8 @@ public class BookingController extends Controller {
 				Booking booking = Booking.find.where(Expr.eq("id", reviewRecommendationsForm.get().bookingId)).fetch("recommendations").findUnique();
 
 				// Send the form + flights back to the user
-				return badRequest(views.html.reviewRecommendations.render(reviewRecommendationsForm, booking.recommendations));
+				return badRequest();
+				//return badRequest(views.html.reviewRecommendations.render(reviewRecommendationsForm, booking.recommendations));
 			} else {
 				// Otherwise, get the form parameters' values
 				ReviewRecommendations details = reviewRecommendationsForm.get();
@@ -382,11 +390,8 @@ public class BookingController extends Controller {
     public static Result seatSelection() {
 	    List<Seat> seats = Seat.find.all();
         String params = request().body().asFormUrlEncoded().get("params")[0];
-        return ok(views.html.seatSelection.render(seats, params));
-    }
-
-    public static Result submitSeats() {
-	    return payment();
+        return ok();
+        //return ok(views.html.seatSelection.render(seats, params));
     }
 
     public static Result tickets() {
@@ -519,15 +524,10 @@ public class BookingController extends Controller {
 
     }
 
-    public static Result payment() {
-	    String params = request().body().asFormUrlEncoded().get("params")[0];
-        return ok(views.html.payment.render(Form.form(PaymentForm.class), params));
-    }
-
     public static Result submitPayment() {
         Form<PaymentForm> paymentForm = Form.form(PaymentForm.class).bindFromRequest();
         if (paymentForm.hasErrors()) {
-            return badRequest(views.html.payment.render(paymentForm, ""));
+            return badRequest();
         } else {
             PaymentForm details = paymentForm.get();
 	        User user = User.find.where().eq("email", session().get("email")).findUnique();

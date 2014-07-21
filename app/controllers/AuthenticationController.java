@@ -88,14 +88,6 @@ public class AuthenticationController extends Controller {
 	}
 
 	/**
-	 * Register action - displays the FlightPub registration form.
-	 * @return The registration form.
-	 */
-	public static Result register() {
-		return ok(views.html.register.render());
-	}
-
-	/**
 	 * Process-Registration action - processes the registration details supplied by the user, storing them if they are
 	 * valid.
 	 * @return A redirect to the specified destination page if successful, or a redirect back to the Register action on
@@ -121,14 +113,6 @@ public class AuthenticationController extends Controller {
 			session("email", details.email);
 			return ok("Registration was successful.");
 		}
-	}
-
-	/**
-	 * Login action - displays the FlightPub login form.
-	 * @return The login form.
-	 */
-	public static Result login() {
-		return ok(views.html.login.render());
 	}
 
 	/**

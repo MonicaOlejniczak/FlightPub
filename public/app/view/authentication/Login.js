@@ -1,10 +1,12 @@
-Ext.define('FB.view.Login', {
+Ext.define('FB.view.authentication.Login', {
 	extend: 'Ext.form.Panel',
 	requires: [
-		'FB.view.LoginController'
+		'FB.view.authentication.LoginController',
+		'FB.controller.Pages'
 	],
-	xtype: 'Login',
-	controller: 'Login',
+	xtype: FB.controller.Pages.getXtype(FB.controller.Pages.Page.LOGIN),
+	controller: FB.controller.Pages.getXtype(FB.controller.Pages.Page.LOGIN),
+	itemId: FB.controller.Pages.getItemId(FB.controller.Pages.Page.LOGIN),
 	standardSubmit: true,
 	layout: {
 		type: 'anchor'

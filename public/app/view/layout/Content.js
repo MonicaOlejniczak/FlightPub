@@ -1,7 +1,10 @@
-Ext.define('FB.view.Content', {
+Ext.define('FB.view.layout.Content', {
 	extend: 'Ext.container.Container',
 	requires: [
-		'FB.view.ContentController'
+		'FB.view.layout.ContentController',
+		'FB.view.About',
+		'FB.view.Home',
+		'FB.view.layout.Footer'
 	],
 	xtype: 'Content',
 	controller: 'Content',
@@ -20,7 +23,13 @@ Ext.define('FB.view.Content', {
 		},  {
 			xtype: 'container',
 			itemId: 'content',
-			cls: 'content'
+			layout: 'card',
+			cls: 'content',
+			items: [{
+				xtype: 'About'
+			},  {
+				xtype: 'Home'
+			}]
 		},  {
 			xtype: 'Footer'
 		}]

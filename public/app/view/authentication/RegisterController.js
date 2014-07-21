@@ -1,4 +1,4 @@
-Ext.define('FB.view.RegisterController', {
+Ext.define('FB.view.authentication.RegisterController', {
 	extend: 'Ext.app.ViewController',
 	alias: 'controller.Register',
 	requires: [
@@ -6,18 +6,7 @@ Ext.define('FB.view.RegisterController', {
 		'Ext.form.field.ComboBox'
 	],
 	control: {
-		'Register': {
-			afterrender: function () {
-				var form = this.getForm();
-				Ext.apply(form.down('#password'), {
-					vtype: 'confirmedPassword'
-				});
-				Ext.apply(form.down('#confirmPassword'), {
-					vtype: 'equalPassword'
-				});
-			}
-		},
-		'Register button[action=cancel]': {
+		/*'Register button[action=cancel]': {
 			click: {
 				fn: this.cancelEvent,
 				scope: this
@@ -28,19 +17,25 @@ Ext.define('FB.view.RegisterController', {
 				fn: this.submitEvent,
 				scope: this
 			}
-		}
+		} */
 	},
 	init: function() {
 		// todo apply vtype to email
+		var form = this.getView();
+		Ext.apply(form.down('#password'), {
+			vtype: 'confirmedPassword'
+		});
 		Ext.apply(Ext.form.field.VTypes, {
 			confirmedPassword: function() {
-				return this.getForm().down('#confirmPassword').getValue() !== "";
+				return form.down('#confirmPassword').getValue() !== "";
 			},
 			confirmedPasswordText: 'Error: You must confirm your password.'
 		}, this);
+		Ext.apply(form.down('#confirmPassword'), {
+			vtype: 'equalPassword'
+		});
 		Ext.apply(Ext.form.field.VTypes, {
 			equalPassword: function() {
-				var form = this.getForm();
 				return form.down('#password').getValue() == form.down('#confirmPassword').getValue();
 			},
 			equalPasswordText: 'Error: Your new password and confirmed password do not match.'
@@ -50,7 +45,7 @@ Ext.define('FB.view.RegisterController', {
 	 * The event fired when cancelling the registration process
 	 */
 	cancelEvent: function () {
-		Ext.create('Ext.window.MessageBox').show ({
+		Ext.create('Ext.window.MessageBox').show({
 			title: 'Cancel',
 			msg: 'Do you wish to cancel registration?',
 			buttonText: {
@@ -69,7 +64,7 @@ Ext.define('FB.view.RegisterController', {
 	 */
 	submitEvent: function () {
 		// client side validation
-		if (this.getForm().isValid()) {
+		if (this.getView().isValid()) {
 			// server side validation
 			Ext.Ajax.request({
 				url: '/register/process',

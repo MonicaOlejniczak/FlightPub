@@ -8,7 +8,7 @@ Ext.application({
 	},
 	requires: [
 		'FB.view.Viewport',
-		'FB.view.Home'
+		'FB.controller.Pages'
 	],
 	stores: [
 		'AccountType',
@@ -32,11 +32,12 @@ Ext.application({
 	 */
 	launch: function () {
 		// create application wide variables for the viewport and content
+		debugger;
 		var viewport = Ext.create('FB.view.Viewport');
 		var content = viewport.down('[region=center]').controller;
 		this.viewport = viewport;
 		this.content = content;
 		// change the content to the home page
-		content.setPage('Home', 'Home');
+		content.setPage(FB.controller.Pages.Page.HOME);
 	}
 });

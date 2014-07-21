@@ -1,7 +1,7 @@
-Ext.define('FB.view.Footer', {
+Ext.define('FB.view.layout.Footer', {
 	extend: 'Ext.container.Container',
 	requires: [
-		'FB.view.FooterController'
+		'FB.view.layout.FooterController'
 	],
 	xtype: 'Footer',
 	controller: 'Footer',

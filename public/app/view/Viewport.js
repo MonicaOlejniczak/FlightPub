@@ -2,9 +2,8 @@ Ext.define('FB.view.Viewport', {
 	extend: 'Ext.container.Viewport',
 	requires: [
 		'Ext.layout.container.Border',
-		'FB.view.Header',
-		'FB.view.Content',
-		'FB.view.Footer'
+		'FB.view.layout.Header',
+		'FB.view.layout.Content'
 	],
 	layout: {
 		header: false,

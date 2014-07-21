@@ -1,7 +1,7 @@
-Ext.define('FB.view.FooterController', {
+Ext.define('FB.view.layout.FooterController', {
 	extend: 'Ext.app.ViewController',
 	alias: 'controller.Footer',
 	requires: [
-		'Ext.container.Container',
+		'Ext.container.Container'
 	]
 });

@@ -1,15 +1,17 @@
-Ext.define('FB.view.Register', {
+Ext.define('FB.view.authentication.Register', {
 	extend: 'Ext.form.Panel',
 	requires: [
-		'FB.view.RegisterController'
+		'FB.view.authentication.RegisterController',
+		'FB.controller.Pages'
 	],
-	xtype: 'Register',
-	controller: 'Register',
+	xtype: FB.controller.Pages.getXtype(FB.controller.Pages.Page.REGISTER),
+	controller: FB.controller.Pages.getXtype(FB.controller.Pages.Page.REGISTER),
+	itemId: FB.controller.Pages.getItemId(FB.controller.Pages.Page.REGISTER),
 	standardSubmit: true,
 	layout: {
 		type: 'anchor'
 	},
-	cls: 'x-plain',
+	cls: 'smallerContent',
 	baseCls: 'x-plain',
 	defaults: {
 		anchor: '100%',

@@ -1,11 +1,11 @@
-Ext.define('FB.view.LoginController', {
+Ext.define('FB.view.authentication.LoginController', {
 	extend: 'Ext.app.ViewController',
 	alias: 'controller.Login',
 	requires: [
 		'Ext.form.Panel'
 	],
 	control: {
-		'Login button[action=cancel]': {
+		/*'Login button[action=cancel]': {
 			click: {
 				fn: this.cancelEvent,
 				scope: this
@@ -16,7 +16,7 @@ Ext.define('FB.view.LoginController', {
 				fn: this.submitEvent,
 				scope: this
 			}
-		}
+		}*/
 	},
 	/**
 	 * The event fired when cancelling the login process
@@ -41,7 +41,8 @@ Ext.define('FB.view.LoginController', {
 	 */
 	submitEvent: function () {
 		// client side validation
-		if (this.getForm().isValid()) {
+		var form = this.getView();
+		if (form.isValid()) {
 			// server side validation
 			Ext.Ajax.request({
 				url: '/login/process',

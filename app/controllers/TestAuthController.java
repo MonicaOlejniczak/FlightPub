@@ -19,7 +19,7 @@ public class TestAuthController extends Controller {
 
 	public static Result index() {
         if (AuthenticatedUser.isLoggedIn()) {
-            return ok(views.html.accountSettings.render());
+            return ok();
         } else {
             return forbidden();
         }

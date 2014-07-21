@@ -27,10 +27,6 @@
 @footerBoxShadow: 5em;
 
 /* Header */
-.header, .logo, nav, nav a, .active {
-	float: left;
-}
-
 .header, .logo, .logo a, nav, nav a, .active {
 	height: 100%;
 }
@@ -55,10 +51,7 @@
 }
 
 nav {
-	max-width: @maxWidth;
 	font: @navFontSize 'Ubuntu', 'Helvetica', @nextFont;
-	float: right;
-	display: block;
 }
 
 nav a, .active {
@@ -82,6 +75,7 @@ nav a:hover {
 	background-color: lighten(@activeBackgroundColor, 10%);
 	color: @activeColor;
 	text-decoration: none;
+	cursor: pointer;
 }
 
 a.active {

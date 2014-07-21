@@ -25,7 +25,8 @@ public class AuthenticatedUser extends Security.Authenticator {
 	@Override
 	public Result onUnauthorized(Http.Context context) {
 		context.flash().put("destination", context.request().uri());
-		return redirect(controllers.routes.AuthenticationController.login());
+		return ok();
+		//return redirect(controllers.routes.AuthenticationController.login());
 	}
 
 	public static Boolean isLoggedIn() {

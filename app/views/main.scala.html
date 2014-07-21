@@ -1,11 +1,9 @@
 @(title: String, styles: Html = Html(""), scripts: Html = Html(""), controller: String = "", postParams: String = "")(content: Html)
-@activeLink(currentPath:String) = @{
-	if(request.path.equals(currentPath)) "active"
-}
+
 <!DOCTYPE html>
 <html>
     <head>
-        <title>@title</title>
+        <title>FlightPub</title>
         <link rel='shortcut icon' type='image/png' href='@routes.Assets.at("images/favicon.png")'>
 	    <link rel='stylesheet' type='text/css' href='@routes.Assets.at("extjs/build/packages/ext-theme-neptune/build/resources/ext-theme-neptune-all-debug.css")'>
         <link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/global.css")'>
@@ -14,12 +12,11 @@
 	    <link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Roboto'>
 	    <link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Open+Sans'>
 	    <link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Ubuntu'>
-        @styles
+	    <script type='text/javascript' src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
 	    <script type="text/javascript" src='@routes.Assets.at("extjs/build/ext-all-debug.js")'></script>
 	    <script type="text/javascript" src='@routes.Assets.at("extjs/packages/ext-theme-neptune/build/ext-theme-neptune-debug.js")'></script>
 	    <script type='text/javascript' src='@routes.Assets.at("loader.js")'></script>
 	    <script type='text/javascript' src='@routes.Assets.at("app.js")'></script>
-        @scripts
     </head>
     <body></body>
 </html>
