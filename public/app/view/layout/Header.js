@@ -1,7 +1,8 @@
 Ext.define('FB.view.layout.Header', {
 	extend: 'Ext.container.Container',
 	requires: [
-		'FB.view.layout.HeaderController'
+		'FB.view.layout.HeaderController',
+		'FB.view.layout.Navigation'
 	],
 	xtype: 'Header',
 	controller: 'Header',
@@ -11,34 +12,7 @@ Ext.define('FB.view.layout.Header', {
 		xtype: 'container',
 		cls: 'header',
 		items: [{
-			xtype: 'container',
-			cls: 'navigation',
-			items: [{
-				xtype: 'container',
-				itemId: 'navigation',
-				layout: {
-					type: 'hbox',
-					pack: 'end'
-				},
-				autoEl: {
-					tag: 'nav',
-					role: 'navigation'
-				},
-				defaults: {
-					xtype: 'button',
-					baseCls: 'x-btn-plain'
-				},
-				items: [{
-					itemId: 'home',
-					text: 'Home'
-				},  {
-					itemId: 'about',
-					text: 'About'
-				},  {
-					itemId: 'contact',
-					text: 'Contact'
-				}]
-			}]
+			xtype: 'Navigation'
 		},  {
 			xtype: 'container',
 			cls: 'bannerContainer',
