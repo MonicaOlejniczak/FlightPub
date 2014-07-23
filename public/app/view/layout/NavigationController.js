@@ -88,31 +88,44 @@ Ext.define('FB.view.layout.NavigationController', {
 		Ext.Ajax.request({
 			url: '/authentication/is-logged-in',
 			success: function (response) {
-				// the user is logged in
-				navigation.add(Ext.create('widget.NavigationLink', {
-					itemId: 'accountSettings',
-					text: 'Account'
-				}));
-				navigation.add(Ext.create('widget.NavigationLink', {
-					itemId: 'logout',
-					text: 'Logout'
-				}));
-				console.log("The user is logged in.");
+				var status = Ext.decode(response.responseText).status;
+				if (status === 1) {
+					// the user is logged in
+					navigation.add(Ext.create('widget.NavigationLink', {
+						itemId: 'account',
+						text: 'Account'
+					}));
+					navigation.add(Ext.create('widget.NavigationLink', {
+						itemId: 'logout',
+						text: 'Logout'
+					}));
+					console.log("The user is logged in.");
+				} else {
+					// the user is not logged in
+					this.addDefaultLinks(navigation);
+					console.log("The user is not logged in.");
+				}
 				// todo add bookings
 			},
 			failure: function (response) {
-				// the user is not logged in
-				navigation.add(Ext.create('widget.NavigationLink', {
-					itemId: 'register',
-					text: 'Register'
-				}));
-				navigation.add(Ext.create('widget.NavigationLink', {
-					itemId: 'login',
-					text: 'Login'
-				}));
-				console.log("The user is logged out.");
-			}
+				this.addDefaultLinks(navigation);
+			}, scope: this
 		}, this);
+	},
+	/**
+	 * This method adds the default links for a user that is not logged in
+	 *
+	 * @param navigation the navigation to add the links to
+	 */
+	addDefaultLinks: function (navigation) {
+		navigation.add(Ext.create('widget.NavigationLink', {
+			itemId: 'register',
+			text: 'Register'
+		}));
+		navigation.add(Ext.create('widget.NavigationLink', {
+			itemId: 'login',
+			text: 'Login'
+		}));
 	}
 });
 

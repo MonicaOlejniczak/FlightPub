@@ -24,11 +24,11 @@ Ext.define('FB.view.authentication.RegisterController', {
 	addValidation: function (form) {
 		Ext.apply(form.down('#password'), {
 			vtype: 'confirmedPassword',
-			vtypeText: 'Error: You must confirm your password.'
+			vtypeText: 'You must confirm your password.'
 		});
 		Ext.apply(form.down('#confirmPassword'), {
 			vtype: 'equalPassword',
-			vtypeText: 'Error: Your new password and confirmed password do not match.'
+			vtypeText: 'Your new password and confirmed password do not match.'
 		});
 		Ext.apply(Ext.form.field.VTypes, {
 			confirmedPassword: function() {
@@ -83,7 +83,7 @@ Ext.define('FB.view.authentication.RegisterController', {
 				params: form.getValues(),
 				success: function(response) {
 					// server side validation was successful and the user is redirected to the home page
-					Ext.create('controller.Authentication').process()
+					Ext.create('controller.Authentication').process();
 					console.log(response.responseText);
 				},
 				failure: function(response) {

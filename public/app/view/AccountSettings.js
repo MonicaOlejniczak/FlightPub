@@ -1,15 +1,19 @@
 Ext.define('FB.view.AccountSettings', {
 	extend: 'Ext.form.Panel',
 	requires: [
+		'Ext.form.Panel',
+		'Ext.form.field.Number',
+		'Ext.form.field.ComboBox',
 		'FB.view.AccountSettingsController'
 	],
 	xtype: 'AccountSettings',
 	controller: 'AccountSettings',
+	itemId: 'AccountSettings',
 	standardSubmit: true,
 	layout: {
 		type: 'anchor'
 	},
-	cls: 'x-plain',
+	cls: 'smallerContent',
 	baseCls: 'x-plain',
 	defaults: {
 		anchor: '100%',
@@ -25,12 +29,12 @@ Ext.define('FB.view.AccountSettings', {
 	items: [{
 		xtype: 'header',
 		html: 'Account settings',
-		cls: 'formHeading'
+		cls: 'accountSettingsHeading'
 	},  {
 		itemId: 'email',
 		name: 'email',
 		fieldLabel: 'Email',
-		inputType: 'email',
+		vtype: 'email',
 		emptyText: 'please enter your email address',
 		allowBlank: false
 	},  {
@@ -55,7 +59,7 @@ Ext.define('FB.view.AccountSettings', {
 	},  {
 		xtype: 'header',
 		html: 'Personal details',
-		cls: 'formHeading'
+		cls: 'accountSettingsHeading'
 	},  {
 		itemId: 'firstName',
 		name: 'firstName',
@@ -78,7 +82,7 @@ Ext.define('FB.view.AccountSettings', {
 	},  {
 		xtype: 'header',
 		html: 'Billing information',
-		cls: 'formHeading'
+		cls: 'accountSettingsHeading'
 	},  {
 		itemId: 'address',
 		name: 'streetAddress',
@@ -109,7 +113,7 @@ Ext.define('FB.view.AccountSettings', {
 	},  {
 		xtype: 'header',
 		html: 'Payment details',
-		cls: 'formHeading'
+		cls: 'accountSettingsHeading'
 	},  {
 		itemId: 'paymentMethod',
 		xtype: 'combobox',
@@ -151,12 +155,12 @@ Ext.define('FB.view.AccountSettings', {
 			scale: 'large'
 		},
 		items: [{
-			action: 'cancel',
+			itemId: 'cancel',
 			text: 'Cancel',
 			cls: 'cancelButton',
 			margin: '0 5px 0 0'
 		},  {
-			action: 'submit',
+			itemId: 'updateDetails',
 			text: 'Update Details',
 			cls: 'button'
 		}]

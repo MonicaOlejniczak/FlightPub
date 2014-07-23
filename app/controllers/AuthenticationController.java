@@ -3,8 +3,12 @@ package controllers;
 import models.User;
 import play.data.Form;
 import play.data.validation.Constraints;
+import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Controller responsible for all authentication in the FlightPub system.
@@ -150,7 +154,13 @@ public class AuthenticationController extends Controller {
 	 * @return whether the user is logged in or not
 	 */
 	public static Result isLoggedIn() {
-		return authentication.AuthenticatedUser.isLoggedIn() ? ok() : null;
+		Map<String, Object> status = new HashMap<>();
+	       if (authentication.AuthenticatedUser.isLoggedIn()) {
+		       status.put("status", 1);
+	       } else {
+		       status.put("status", 0);
+	       }
+		return ok(Json.toJson(status));
 	}
 
 }

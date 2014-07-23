@@ -3,6 +3,7 @@ Ext.define('FB.view.layout.ContentController', {
 	alias: 'controller.Content',
 	requires: [
 		'Ext.container.Container',
+		'FB.view.AccountSettings',
 		'FB.view.authentication.Login',
 		'FB.view.authentication.Register'
 	],

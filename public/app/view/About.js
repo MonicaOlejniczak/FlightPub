@@ -1,6 +1,7 @@
 Ext.define('FB.view.About', {
 	extend: 'Ext.container.Container',
 	requires: [
+		'Ext.container.Container',
 		'FB.view.AboutController'
 	],
 	xtype: 'About',
