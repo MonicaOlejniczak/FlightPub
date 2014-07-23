@@ -1,12 +1,13 @@
 Ext.define('FB.view.authentication.Register', {
 	extend: 'Ext.form.Panel',
 	requires: [
-		'FB.view.authentication.RegisterController',
-		'FB.controller.Pages'
+		'Ext.form.Panel',
+		'Ext.form.field.ComboBox',
+		'FB.view.authentication.RegisterController'
 	],
-	xtype: FB.controller.Pages.getXtype(FB.controller.Pages.Page.REGISTER),
-	controller: FB.controller.Pages.getXtype(FB.controller.Pages.Page.REGISTER),
-	itemId: FB.controller.Pages.getItemId(FB.controller.Pages.Page.REGISTER),
+	xtype: 'Register',
+	controller: 'Register',
+	itemId: 'Register',
 	standardSubmit: true,
 	layout: {
 		type: 'anchor'
@@ -51,7 +52,7 @@ Ext.define('FB.view.authentication.Register', {
 		itemId: 'email',
 		name: 'email',
 		fieldLabel: 'Email',
-		inputType: 'email',
+		vtype: 'email',
 		emptyText: 'please enter your email address'
 	},  {
 		itemId: 'password',
@@ -73,17 +74,15 @@ Ext.define('FB.view.authentication.Register', {
 			pack: 'end'
 		},
 		margin: '5px 0 0 0',
-		defaults: {
-			xtype: 'button',
-			scale: 'large'
-		},
 		items: [{
-			action: 'cancel',
+			xtype: 'button',
+			itemId: 'cancel',
 			text: 'Cancel',
 			cls: 'cancelButton',
 			margin: '0 5px 0 0'
 		},  {
-			action: 'submit',
+			xtype: 'button',
+			itemId: 'register',
 			text: 'Register',
 			cls: 'button'
 		}]

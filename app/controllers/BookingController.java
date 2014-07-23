@@ -545,6 +545,6 @@ public class BookingController extends Controller {
 	        booking.save();
 	        user.save();
         }
-        return ok(views.html.home.render());
+        return ok();
     }
 }

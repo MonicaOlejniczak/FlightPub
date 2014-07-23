@@ -3,7 +3,6 @@ Ext.define('FB.view.layout.ContentController', {
 	alias: 'controller.Content',
 	requires: [
 		'Ext.container.Container',
-		'FB.controller.Pages',
 		'FB.view.authentication.Login',
 		'FB.view.authentication.Register'
 	],
@@ -19,10 +18,9 @@ Ext.define('FB.view.layout.ContentController', {
 	/**
 	 * This method adds a page to the content
 	 *
-	 * @param page the page being added to the view
+	 * @param xtype the page being added to the view
 	 */
-	addPage: function (page) {
-		var xtype = FB.controller.Pages.getXtype(page);
+	addPage: function (xtype) {
 		this.getContent().add({
 			xtype: xtype
 		});
@@ -30,40 +28,41 @@ Ext.define('FB.view.layout.ContentController', {
 	/**
 	 * This method removes a particular page from the content by its item identification
 	 *
-	 * @param page the page to be removed
+	 * @param page the itemId of the page to be removed
 	 */
 	removePage: function (page) {
 		var content = this.getContent();
-		var itemId = FB.controller.Pages.getItemId(page);
 		// check if the child exists before removing
-		if (content.getComponent(itemId)) {
-			content.remove(itemId);
+		if (content.getComponent(page)) {
+			content.remove(page);
 		}
 	},
 	/**
 	 * This method removes all the non-default pages from the content
 	 */
 	removeAllPages: function () {
-		// todo fix
 		var content = this.getContent();
-		Ext.each(content.items.keys, function (key) {
-			Ext.Object.eachValue(FB.controller.Pages.DefaultPage, function (value) {
-				// check if the page should be removed
-				if (value.itemId !== key) {
-					this.removePage(key);
-				}
-			}, this);
+		var pages = [];
+		Ext.each(content.items.items, function (page) {
+			// check it is not a default page and then add the page to the array
+			if (!page.controller.getDefault()) {
+				pages.push(page);
+			}
+		}, this);
+		// remove the pages from the content
+		Ext.each(pages, function (page) {
+			this.removePage(page)
 		}, this);
 	},
 	/**
 	 * This method sets which page is currently being displayed
 	 *
-	 * @param page the page to be displayed
+	 * @param page the itemId of the page to be displayed
 	 */
 	setPage: function (page) {
-		var controller = FB.controller.Pages;
-		this.getContent().setActiveItem(controller.getItemId(page));
-		this.updateHeading(controller.getHeading(page));
+		var content = this.getContent().getLayout();
+		content.setActiveItem(page);
+		this.updateHeading(content.getActiveItem().controller.getHeading());
 	},
 	/**
 	 * This method updates the text in the h1

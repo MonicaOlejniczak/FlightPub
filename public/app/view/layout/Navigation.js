@@ -1,6 +1,7 @@
 Ext.define('FB.view.layout.Navigation', {
 	extend: 'Ext.container.Container',
 	requires: [
+		'FB.view.layout.NavigationLink',
 		'FB.view.layout.NavigationController'
 	],
 	xtype: 'Navigation',
@@ -15,8 +16,8 @@ Ext.define('FB.view.layout.Navigation', {
 	},
 	cls: 'navigation',
 	defaults: {
-		xtype: 'button',
-		baseCls: 'x-btn-plain'
+		xtype: 'NavigationLink',
+		default: true
 	},
 	items: [{
 		itemId: 'home',

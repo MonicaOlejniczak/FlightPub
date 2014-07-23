@@ -1,32 +1,32 @@
 Ext.define('FB.view.authentication.Login', {
 	extend: 'Ext.form.Panel',
 	requires: [
-		'FB.view.authentication.LoginController',
-		'FB.controller.Pages'
+		'Ext.form.Panel',
+		'FB.view.authentication.LoginController'
 	],
-	xtype: FB.controller.Pages.getXtype(FB.controller.Pages.Page.LOGIN),
-	controller: FB.controller.Pages.getXtype(FB.controller.Pages.Page.LOGIN),
-	itemId: FB.controller.Pages.getItemId(FB.controller.Pages.Page.LOGIN),
+	xtype: 'Login',
+	controller: 'Login',
+	itemId: 'Login',
 	standardSubmit: true,
 	layout: {
 		type: 'anchor'
 	},
-	cls: 'x-plain',
+	cls: 'smallerContent',
 	baseCls: 'x-plain',
 	defaults: {
 		anchor: '100%',
 		xtype: 'textfield',
-		span: 1,
 		labelWidth: 200,
 		maxLength: 50,
 		msgTarget: 'under',
-		allowBlank: false
+		allowBlank: false,
+		span: 1
 	},
 	items: [{
 		itemId: 'email',
 		name: 'email',
 		fieldLabel: 'Email',
-		inputType: 'email',
+		vtype: 'email',
 		emptyText: 'please enter the email address associated with your account'
 	},  {
 		itemId: 'password',
@@ -37,22 +37,21 @@ Ext.define('FB.view.authentication.Login', {
 		minLength: 8
 	},  {
 		xtype: 'container',
+		itemId: 'buttons',
 		layout: {
 			type: 'hbox',
 			pack: 'end'
 		},
 		margin: '5px 0 0 0',
-		defaults: {
-			xtype: 'button',
-			scale: 'large'
-		},
 		items: [{
-			action: 'cancel',
+			xtype: 'button',
+			itemId: 'cancel',
 			text: 'Cancel',
 			cls: 'cancelButton',
 			margin: '0 5px 0 0'
 		},  {
-			action: 'submit',
+			xtype: 'button',
+			itemId: 'login',
 			text: 'Login',
 			cls: 'button'
 		}]

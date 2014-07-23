@@ -1,50 +1,59 @@
 Ext.define('FB.view.authentication.RegisterController', {
-	extend: 'Ext.app.ViewController',
+	extend: 'FB.view.PageController',
 	alias: 'controller.Register',
 	requires: [
-		'Ext.form.Panel',
-		'Ext.form.field.ComboBox'
+		'FB.controller.AuthenticationController'
 	],
-	control: {
-		/*'Register button[action=cancel]': {
-			click: {
-				fn: this.cancelEvent,
-				scope: this
-			}
-		},
-		'Register button[action=submit]': {
-			click: {
-				fn: this.submitEvent,
-				scope: this
-			}
-		} */
+	constructor: function () {
+		this.setConfig({
+			default: false,
+			heading: 'Register'
+		});
 	},
-	init: function() {
-		// todo apply vtype to email
+	init: function () {
 		var form = this.getView();
+		// add client side validation and event handling
+		this.addValidation(form);
+		this.addEvents(form);
+	},
+	/**
+	 * Adds the client side validation to the form
+	 *
+	 *  @param form the form to apply the validation to
+	 */
+	addValidation: function (form) {
 		Ext.apply(form.down('#password'), {
-			vtype: 'confirmedPassword'
+			vtype: 'confirmedPassword',
+			vtypeText: 'Error: You must confirm your password.'
+		});
+		Ext.apply(form.down('#confirmPassword'), {
+			vtype: 'equalPassword',
+			vtypeText: 'Error: Your new password and confirmed password do not match.'
 		});
 		Ext.apply(Ext.form.field.VTypes, {
 			confirmedPassword: function() {
 				return form.down('#confirmPassword').getValue() !== "";
-			},
-			confirmedPasswordText: 'Error: You must confirm your password.'
+			}
 		}, this);
-		Ext.apply(form.down('#confirmPassword'), {
-			vtype: 'equalPassword'
-		});
 		Ext.apply(Ext.form.field.VTypes, {
 			equalPassword: function() {
 				return form.down('#password').getValue() == form.down('#confirmPassword').getValue();
-			},
-			equalPasswordText: 'Error: Your new password and confirmed password do not match.'
+			}
 		});
+	},
+	/**
+	 * Adds the click events to the form
+	 *
+	 * @param form the form to apply events to
+	 */
+	addEvents: function (form) {
+		form.down('#cancel').on('click', this.cancel, this);
+		form.down('#register').on('click', this.register, this);
 	},
 	/**
 	 * The event fired when cancelling the registration process
 	 */
-	cancelEvent: function () {
+	cancel: function () {
 		Ext.create('Ext.window.MessageBox').show({
 			title: 'Cancel',
 			msg: 'Do you wish to cancel registration?',
@@ -54,7 +63,7 @@ Ext.define('FB.view.authentication.RegisterController', {
 			},
 			fn: function (buttonId, text, opt) {
 				if (buttonId == "yes") {
-					window.location.href = '/';
+					this.redirect('Home');
 				}
 			}, scope: this
 		});
@@ -62,19 +71,20 @@ Ext.define('FB.view.authentication.RegisterController', {
 	/**
 	 * The event fired when processing registration
 	 */
-	submitEvent: function () {
+	register: function () {
+		var form = this.getView();
 		// client side validation
-		if (this.getView().isValid()) {
+		if (form.isValid()) {
 			// server side validation
 			Ext.Ajax.request({
 				url: '/register/process',
 				method: 'POST',
 				submitEmptyText: false,
-				params: this.getForm().getValues(),
+				params: form.getValues(),
 				success: function(response) {
 					// server side validation was successful and the user is redirected to the home page
+					Ext.create('controller.Authentication').process()
 					console.log(response.responseText);
-					window.location.href = '/';
 				},
 				failure: function(response) {
 					Ext.Msg.alert('Error', response.responseText);

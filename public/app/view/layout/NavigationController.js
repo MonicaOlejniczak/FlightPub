@@ -1,142 +1,117 @@
 Ext.define('FB.view.layout.NavigationController', {
 	extend: 'Ext.app.ViewController',
 	alias: 'controller.Navigation',
+	requires: [
+		'FB.controller.AuthenticationController'
+	],
 	control: {
-		'#home': {
+		'Navigation #home': {
 			click: function () {
-				this.displayPage({
-					page: FB.controller.Pages.Page.HOME
-				});
+				FB.app.content.setPage('Home');
 			}
 		},
-		'#about': {
+		'Navigation #about': {
 			click: function () {
-				this.displayPage({
-					page: FB.controller.Pages.Page.ABOUT
-				});
+				FB.app.content.setPage('About');
 			}
 		},
-		'#contact': {
+		'Navigation #contact': {
 			click: function () {
-				this.displayPage({
-					page: FB.controller.Pages.Page.CONTACT
-				});
+				FB.app.content.setPage('Contact');
 			}
 		},
-		'#register': {
+		'Navigation #register': {
 			click: function () {
-				this.addPage(FB.controller.Pages.Page.REGISTER);
+				var content = FB.app.content;
+				var page = 'Register';
+				content.addPage(page);
+				content.setPage(page);
 			}
 		},
-		'#login': {
+		'Navigation #login': {
 			click: function () {
-				this.addPage(FB.controller.Pages.Page.LOGIN);
+				var content = FB.app.content;
+				var page = 'Login';
+				content.addPage(page);
+				content.setPage(page);
+			}
+		},
+		'Navigation #account': {
+			click: function () {
+				var content = FB.app.content;
+				var page = 'AccountSettings';
+				content.addPage(page);
+				content.setPage(page);
+			}
+		},
+		'Navigation #logout': {
+			click: function () {
+				Ext.create('controller.Authentication').logout();
 			}
 		}
 	},
 	init: function () {
-		this.updateNavigation();
-	},
-	/**
-	 * Adds and displays the specified page
-	 *
-	 * @param page the page being added then displayed
-	 */
-	addPage: function (page) {
-		var content = FB.app.content;
-		content.addPage(page);
-		this.displayPage({
-			content: content,
-			page: page
-		});
-	},
-	/**
-	 * This displays the specified page
-	 */
-	displayPage: function (parameters) {
-		var content = parameters.content || FB.app.content;
-		var page = parameters.page || FB.controller.Pages.Page.HOME;
-		content.setPage(page);
+		this.addLinks(this.getView());
 	},
 	/**
 	 * Updates the navigation
 	 */
 	updateNavigation: function () {
-		debugger;
-		var content = FB.app.content;
 		var navigation = this.getView();
-		var controller = FB.controller.Pages;
-		this.removeLinks(content, navigation);
-		this.addLinks(navigation, controller);
+		this.removeLinks(navigation);
+		this.addLinks(navigation);
 	},
 	/**
-	 * Removes any non-default page links
+	 * Removes all the non-default navigation links
 	 *
-	 * @param content the controller that holds the content
 	 * @param navigation the container where the links are being added to
 	 */
-	removeLinks: function (content, navigation) {
-		// check if the content has loaded
-		if (content !== undefined) {
-			// get the actual content
-			content = content.getContent();
-			// remove the non-default links
-			Ext.each(content.items.keys, function (key) {
-				Ext.Object.eachValue(FB.controller.Pages.DefaultPage, function (value) {
-					// check if the link should be removed
-					if (value.linkItemId !== key) {
-						// an anonymous function that checks if the link exists in the navigation and then removes it
-						(function (itemId) {
-							if (navigation.getComponent(itemId)) {
-								navigation.remove(itemId);
-							}
-						}(key));
-					}
-				}, this);
-			}, this);
-		}
+	removeLinks: function (navigation) {
+		var links = [];
+		Ext.each(navigation.items.items, function (link) {
+			// check if the link is not default and add it to the array
+			if (!link.getDefault()) {
+				links.push(link);
+			}
+		}, this);
+		// remove the navigation items from the navigation
+		Ext.each(links, function (link) {
+			navigation.remove(link);
+		});
 	},
 	/**
-	 * Adds the extra links to the navigation through a ajax request
+	 * Adds the extra navigation links to the navigation through an ajax request
 	 *
 	 * @param navigation the container where the links are being added to
-	 * @param controller the pages controller
 	 */
-	addLinks: function (navigation, controller) {
-		var page;
+	addLinks: function (navigation) {
 		Ext.Ajax.request({
 			url: '/authentication/is-logged-in',
 			success: function (response) {
 				// the user is logged in
-				page = controller.Page.ACCOUNT;
-				navigation.add(Ext.create('Ext.button.Button', {
-					itemId: controller.getLinkItemId(page),
-					text: controller.getLinkText(page),
-					baseCls: 'x-btn-plain'
+				navigation.add(Ext.create('widget.NavigationLink', {
+					itemId: 'accountSettings',
+					text: 'Account'
 				}));
-				page = controller.Page.LOGOUT;
-				navigation.add(Ext.create('Ext.button.Button', {
-					itemId: controller.getLinkItemId(page),
-					text: controller.getLinkText(page),
-					baseCls: 'x-btn-plain'
+				navigation.add(Ext.create('widget.NavigationLink', {
+					itemId: 'logout',
+					text: 'Logout'
 				}));
+				console.log("The user is logged in.");
 				// todo add bookings
 			},
 			failure: function (response) {
 				// the user is not logged in
-				page = controller.Page.REGISTER;
-				navigation.add(Ext.create('Ext.button.Button', {
-					itemId: controller.getLinkItemId(page),
-					text: controller.getLinkText(page),
-					baseCls: 'x-btn-plain'
+				navigation.add(Ext.create('widget.NavigationLink', {
+					itemId: 'register',
+					text: 'Register'
 				}));
-				page = controller.Page.LOGIN;
-				navigation.add(Ext.create('Ext.button.Button', {
-					itemId: controller.getLinkItemId(page),
-					text: controller.getLinkText(page),
-					baseCls: 'x-btn-plain'
+				navigation.add(Ext.create('widget.NavigationLink', {
+					itemId: 'login',
+					text: 'Login'
 				}));
-			}, scope: this
+				console.log("The user is logged out.");
+			}
 		}, this);
 	}
 });

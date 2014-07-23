@@ -141,7 +141,7 @@ public class AuthenticationController extends Controller {
 	 */
 	public static Result logout() {
 		session().clear();
-		return redirect(controllers.routes.MainController.home());
+		return ok();
 	}
 
 	/**
@@ -150,7 +150,7 @@ public class AuthenticationController extends Controller {
 	 * @return whether the user is logged in or not
 	 */
 	public static Result isLoggedIn() {
-		return authentication.AuthenticatedUser.isLoggedIn() ? status(1) : status(0);
+		return authentication.AuthenticatedUser.isLoggedIn() ? ok() : null;
 	}
 
 }

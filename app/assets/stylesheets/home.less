@@ -1,59 +1,25 @@
 @import 'globalMethods';
 @import 'globalVariables';
 
-@informationPath: '@{imageFolder}/grid.png';
-
 @labelWidth: 25%;
-@flightRowInputWidth: 96.6 - @labelWidth;
-@selectWidth: 20%;
-
-@flightsWrapperBackgroundColor: @secondaryBackgroundColor;
-@flightsWrapperDarkerBackgroundColor: darken(@flightsWrapperBackgroundColor, 5%);
-@informationBackgroundColor: #fff;
-@informationDarkerBackgroundColor: darken(@informationBackgroundColor, 10%);
-
-@flightsWrapperColor: #fff;
-@findFlightsColor: #fff;
-
-@flightsWrapperFontSize: 1em;
-@findFlightsFontSize: 2em;
-@textFontSize: 1em;
-@titleFontSize: 3em;
-
-@flightsWrapperFont: @flightsWrapperFontSize 'Roboto', @nextFont;
-@findFlightsFont: @findFlightsFontSize 'Roboto', @nextFont;
-@textFont: @textFontSize 'Open sans', @nextFont;
-@titleFont: @titleFontSize 'Open sans', @nextFont;
-
-@destinationsBoxShadow: 0.05em;
-@animationBoxShadow: 0.1em;
-
-@flightRowLabelLineHeight: @formFontSize - @inputFontSize;
-
-@mapBorderWidth: 0.2em;
-@mapBorderColor: #000;
-
-@imageCount: 3;
-@maskWidth: @imageCount * 100%;
-@maskHeight: 1000px;
-@animationWidth: 100% / @imageCount;
-@moveAmount: 100%;
 
 input {
 	border-radius: @borderWidth 0 0 @borderWidth;
 }
 
 .passengers {
-	font: 1.2em 'Ubuntu' @nextFont;
-	text-align: right;
-	padding: 0 1em 0 0;
+	margin: 0 5px 0 0;
+}
+
+.passengers:last-child {
+	margin: 0;
 }
 
 .map {
 	width: 100%;
 	height: 500px;
 	clear: both;
-	.boxShadow(0, 0, 0.05em, 0.05em, darken(@informationBackgroundColor, 10%));
+	.boxShadow(0, 0, 0.05em, 0.05em, darken(#000, 10%));
 }
 
 .map a, .map span {
@@ -66,110 +32,3 @@ a.buttons {
 	margin: @buttonMargin 0 0 0;
 	float: right;
 }
-
-#informationWrapper, #destinations, .animation img {
-	width: 100%;
-	height: 100%;
-	min-height: 100%;
-}
-
-/* Flights */
-#information {
-	width: @width;
-	min-width: @minWidth;
-	max-width: @maxWidth;
-	margin: 0 auto;
-}
-
-.informationGradient (@start: transparent, @second: transparent, @third: transparent, @stop: transparent) {
-	@origin: right;
-	@startPercent: 0%;
-	@secondPercent: 25%;
-	@thirdPercent: 75%;
-	@stopPercent: 100%;
-	background-image: url(@informationPath), -webkit-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
-	background-image: url(@informationPath), -moz-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
-	background-image: url(@informationPath), -o-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
-	background-image: url(@informationPath), -ms-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
-	background-image: url(@informationPath), linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
-}
-
-#informationWrapper {
-	background: @informationBackgroundColor url(@informationPath);
-	color: @fontColor;
-	.informationGradient(@informationDarkerBackgroundColor, transparent, transparent, @informationDarkerBackgroundColor);
-}
-
-.text {
-	font: @textFont;
-	text-align: justify;
-	clear: both;
-}
-
-/* Destinations */
-#destinations {
-	.boxShadow(0, -@destinationsBoxShadow, @destinationsBoxShadow, 0, darken(@informationBackgroundColor, 25%));
-	overflow: hidden;
-}
-
-#mask {
-	width: @maskWidth;
-	height: @maskHeight;
-}
-
-.animate (@time: 1s, @type: linear, @repeat: infinite, @loopType: alternate) {
-	animation: move @time @type @repeat @loopType;
-	-moz-animation: move @time @type @repeat @loopType;
-	-webkit-animation: move @time @type @repeat @loopType;
-}
-
-.animation {
-	width: @animationWidth;
-	height: 100%;
-	float: left;
-	.animate(15s, linear, infinite, alternate);
-}
-
-.animation img {
-	.boxShadow(0, -@animationBoxShadow, @animationBoxShadow, @animationBoxShadow, #000);
-}
-
-@keyframes move {
-	0%   {transform: translateX(0);}
-	10%  {transform: translateX(0);}
-	40%  {transform: translateX(-@moveAmount);}
-	60%  {transform: translateX(-@moveAmount);}
-	90%  {transform: translateX(-@moveAmount * 2);}
-	100% {transform: translateX(-@moveAmount * 2);}
-}
-
-@-moz-keyframes move {
-	0%   {-moz-transform: translateX(0);}
-	10%  {-moz-transform: translateX(0);}
-	40%  {-moz-transform: translateX(-@moveAmount);}
-	60%  {-moz-transform: translateX(-@moveAmount);}
-	90%  {-moz-transform: translateX(-@moveAmount * 2);}
-	100% {-moz-transform: translateX(-@moveAmount * 2);}
-}
-
-@-webkit-keyframes move {
-	0%   {-webkit-transform: translateX(0);}
-	10%  {-webkit-transform: translateX(0);}
-	40%  {-webkit-transform: translateX(-@moveAmount);}
-	60%  {-webkit-transform: translateX(-@moveAmount);}
-	90%  {-webkit-transform: translateX(-@moveAmount * 2);}
-	100% {-webkit-transform: translateX(-@moveAmount * 2);}
-}
-
-.title {
-	left: 0;
-	bottom: 10%;
-	width: 100%;
-	color: #fff;
-	font: @titleFont;
-	padding: 0.5em;
-	.gradient(left, #000, 0, transparent, 50%);
-	display: block;
-	position: absolute;
-}
-

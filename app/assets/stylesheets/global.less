@@ -15,15 +15,6 @@ html, body, .x-body {
 	font: @bodyFont;
 }
 
-.h1Gradient (@path: "", @repeatType: no-repeat, @positionX: 100%, @positionY: 100%, @origin: right, @start: transparent, @stop: transparent) {
-	background-image: -webkit-linear-gradient(@origin, @start, @stop);
-	/*background-image: url(@path) @repeatType @positionX @positionY, -webkit-linear-gradient(@origin, @start, @stop);
-	background-image: url(@path) @repeatType @positionX @positionY, -moz-linear-gradient(@origin, @start, @stop);
-	background-image: url(@path) @repeatType @positionX @positionY, -o-linear-gradient(@origin, @start, @stop);
-	background-image: url(@path) @repeatType @positionX @positionY, -ms-linear-gradient(@origin, @start, @stop);
-	background-image: url(@path) @repeatType @positionX @positionY, linear-gradient(@origin, @start, @stop);*/
-}
-
 h1, h1:hover {
 	.transition(background-color, @time, linear);
 }
@@ -104,26 +95,8 @@ a:hover {
 	filter:alpha(opacity=7);
 }
 
-.panel-body {
-	background-color: lighten(@secondaryBackgroundColor, 10%);
-}
-
 input {
 	border-radius: @borderWidth;
-}
-
-.x-form-trigger-wrap {
-	border: 0;
-}
-
-.x-form-item-label {
-	font: 1.2em 'Ubuntu' @nextFont;
-	text-align: right;
-	padding: 0 1em 0 0;
-}
-
-.x-toolbar {
-	background: none;
 }
 
 .button, .selectedButton, .cancelButton {
@@ -132,7 +105,8 @@ input {
 }
 
 .button .x-btn-inner, .selected .x-btn-inner, .cancelButton .x-btn-inner {
-	margin: 0.3em 0 0 0;
+	margin: -0.1em 0 0 0;
+	padding: 0.1em 0;
 }
 
 .button {
@@ -170,30 +144,6 @@ input {
 
 .button, .button:hover, .selectedButton, .selectedButton:hover, .cancelButton, .cancelButton:hover {
 	.transition(background, @time, linear);
-}
-
-.x-boundlist-item, .x-boundlist-selected, .x-boundlist-item-over, .x-form-field {
-	font: 0.9em 'Ubuntu' @nextFont;
-	text-indent: 1em;
-	border: 0;
-	padding: 0.3em 0;
-}
-
-.x-boundlist-item {
-	color: #000;
-}
-
-.x-boundlist-selected, .x-boundlist-item-over {
-	background: @buttonBackgroundColor;
-	color: #fff;
-}
-
-.x-tool-img {
-	height: 25px;
-}
-
-.x-form-invalid-under {
-	margin: 0.2em 0 0 0;
 }
 
 ::selection {

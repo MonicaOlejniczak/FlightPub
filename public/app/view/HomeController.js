@@ -1,18 +1,6 @@
 Ext.define('FB.view.HomeController', {
-	extend: 'Ext.app.ViewController',
+	extend: 'FB.view.PageController',
 	alias: 'controller.Home',
-	requires: [
-		'FB.model.Airport',
-		'FB.store.Airport',
-		'Ext.container.Container',
-		'Ext.form.Panel',
-		'Ext.form.Label',
-		'Ext.form.field.ComboBox',
-		'Ext.form.field.Date'
-	],
-	/**
-	 * Initial configuration
-	 */
 	config: {
 		googleMap: null,
 		polyline: null,
@@ -47,9 +35,12 @@ Ext.define('FB.view.HomeController', {
 			}*/
 		}
 	},
-	/**
-	 * Initialising function
-	 */
+	constructor: function () {
+		this.setConfig({
+			default: true,
+			heading: 'Home'
+		});
+	},
 	init: function () {
 		Ext.onReady(function () {
 			this.renderMap();

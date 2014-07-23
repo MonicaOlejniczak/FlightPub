@@ -1,12 +1,11 @@
 Ext.define('FB.view.About', {
 	extend: 'Ext.container.Container',
 	requires: [
-		'FB.view.AboutController',
-		'FB.controller.Pages'
+		'FB.view.AboutController'
 	],
-	xtype: FB.controller.Pages.getXtype(FB.controller.Pages.Page.ABOUT),
-	controller: FB.controller.Pages.getXtype(FB.controller.Pages.Page.ABOUT),
-	itemId: FB.controller.Pages.getItemId(FB.controller.Pages.Page.ABOUT),
+	xtype: 'About',
+	controller: 'About',
+	itemId: 'About',
 	cls: 'smallerContent',
 	tpl: '{content}',
 	data: {

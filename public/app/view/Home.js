@@ -1,14 +1,19 @@
 Ext.define('FB.view.Home', {
 	extend: 'Ext.form.Panel',
 	requires: [
+		'Ext.container.Container',
+		'Ext.form.Panel',
+		'Ext.form.Label',
+		'Ext.form.field.ComboBox',
+		'Ext.form.field.Date',
 		'FB.view.HomeController',
-		'FB.controller.Pages'
+		'FB.model.Airport',
+		'FB.store.Airport'
 	],
-	xtype: FB.controller.Pages.getXtype(FB.controller.Pages.Page.HOME),
-	controller: FB.controller.Pages.getXtype(FB.controller.Pages.Page.HOME),
-	itemId: FB.controller.Pages.getItemId(FB.controller.Pages.Page.HOME),
+	xtype: 'Home',
+	controller: 'Home',
+	itemId: 'Home',
 	standardSubmit: true,
-	cls: 'x-plain',
 	baseCls: 'x-plain',
 	items: [{
 		xtype: 'container',
@@ -29,6 +34,7 @@ Ext.define('FB.view.Home', {
 				displayField: 'name',
 				valueField: 'name',
 				emptyText: 'none',
+				margin: '0 0 5px 0',
 				flex: 1
 			},
 			items: [{
@@ -45,7 +51,7 @@ Ext.define('FB.view.Home', {
 				xtype: 'datefield',
 				minDate: new Date(),
 		        submitFormat: 'U000',
-				margin: '0 0 2px 0',
+				margin: '0 0 5px 0',
 				flex: 1
 			},
 			items: [{
@@ -63,7 +69,7 @@ Ext.define('FB.view.Home', {
 				queryMode: 'local',
 				displayField: 'name',
 				valueField: 'value',
-				labelCls: 'passengers',
+				cls: 'passengers',
 				flex: 1
 			},
 			items: [{
@@ -71,14 +77,13 @@ Ext.define('FB.view.Home', {
 				store: 'Adult',
 				name: 'adults',
 				fieldLabel: 'Passengers',
-				value: 1,
-				margin: '0 10px 0 0'
+				//labelCls: 'passengers',
+				value: 1
 			},  {
 				itemId: 'child',
 				store: 'Child',
 				name: 'children',
-				value: 0,
-				margin: '0 10px 0 0'
+				value: 0
 			},  {
 				itemId: 'infant',
 				store: 'Infant',
@@ -98,8 +103,7 @@ Ext.define('FB.view.Home', {
 				action: 'submit',
 				text: 'Find Flights',
 				cls: 'button',
-				scale: 'large',
-				margin: '0 0 10px 0'
+				margin: '0 0 5px 0'
 			}]
 		}]
 	},  {

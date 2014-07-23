@@ -29,8 +29,9 @@ Ext.define('FB.view.layout.Header', {
 						header: false
 					},
 					items: [{
+						itemId: 'logo',
 						cls: 'logo',
-						html: '<a href="/">FlightPub</a>'
+						html: 'FlightPub'
 					},  {
 						cls: 'subtext',
 						html: 'Flights, simplified.'

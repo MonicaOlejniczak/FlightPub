@@ -139,24 +139,21 @@ a.active:hover {
 	padding: 4em 0 0 5em;
 }
 
-.logo {
-	background: none;
-}
-
-.logo a, .logo a:hover {
+.logo, .logo:hover {
 	.transition(color, @time, linear);
 }
 
-.logo a {
+.logo {
 	height: 1em;
 	color: @buttonBackgroundColorHover;
 	font: 7em 'Ubuntu' @nextFont;
 	margin: 0 0 0.2em 0;
 }
 
-.logo a:hover {
+.logo:hover {
 	color: @buttonBackgroundColor;
 	text-decoration: none;
+	cursor: pointer;
 }
 
 .subtext {
