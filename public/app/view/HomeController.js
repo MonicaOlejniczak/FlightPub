@@ -5,35 +5,7 @@ Ext.define('FB.view.HomeController', {
 		googleMap: null,
 		polyline: null,
 		source: null,
-		target: null,
-		control: {
-			'#flightFrom': {
-				select: {
-					fn: function (combo, newValue) {
-						this.setSource(newValue[0]);
-						if (this.getTarget() != null) {
-							this.updateMap(this.getSource(), this.getTarget());
-						}
-					},
-					scope: this
-				}
-			},
-			'#flightTo': {
-				select: {
-					fn: function (combo, newValue) {
-						this.setTarget(newValue[0]);
-						this.updateMap(this.getSource(), this.getTarget());
-					},
-					scope: this
-				}
-			}/*,
-			'Home button[action=submit]': {
-				click: {
-					fn: this.submitEvent,
-					scope: this
-				}
-			}*/
-		}
+		target: null
 	},
 	constructor: function () {
 		this.setConfig({
@@ -42,14 +14,41 @@ Ext.define('FB.view.HomeController', {
 		});
 	},
 	init: function () {
+		var form = this.getView();
+		// add the event listeners to the form
+		this.addEvents(form);
+		// render the map when the dom has loaded
 		Ext.onReady(function () {
 			this.renderMap();
 		}, this);
     },
 	/**
+	 * This method adds event handlers to the form
+	 *
+	 * @param form the form to add the events to
+	 */
+	addEvents: function (form) {
+		// the function called when a departure from the 'flight from' combobox is selected
+		function flightFrom (combo, records) {
+			this.setSource(records[0]);
+			if (this.getTarget() != null) {
+				this.updateMap(this.getSource(), this.getTarget());
+			}
+		}
+		// the function called when an arrival from the 'flight to' combobox is selected
+		function flightTo(combo, records) {
+			this.setTarget(records[0]);
+			this.updateMap(this.getSource(), this.getTarget());
+		}
+		// add the listeners
+		form.down('#flightFrom').on('select', flightFrom, this);
+		form.down('#flightTo').on('select', flightTo, this);
+		form.down('#submit').on('click', this.submit, this);
+	},
+	/**
 	 * Submits the home controller form
 	 */
-	submitEvent: function () {
+	submit: function () {
 		var form = this.getView();
 		form.submit({
 			url: '/flights',
@@ -93,8 +92,8 @@ Ext.define('FB.view.HomeController', {
 			new google.maps.LatLng(-50, -127.50),
 			new google.maps.LatLng(65, 55.90)
 		);
-		var googleMap = this.googleMap = new google.maps.Map(map_canvas, map_options);
-		googleMap.set('styles', [{
+		this.setGoogleMap(new google.maps.Map(map_canvas, map_options));
+		this.getGoogleMap().set('styles', [{
 			elementType: 'labels',
 			stylers: [{
 				visibility: 'off'
@@ -142,21 +141,23 @@ Ext.define('FB.view.HomeController', {
             new google.maps.LatLng(this.parseLatLng(source.get('latitude')), this.parseLatLng(source.get('longitude'))),
             new google.maps.LatLng(this.parseLatLng(target.get('latitude')), this.parseLatLng(target.get('longitude')))
         ];
-        if (this.polyline !== null) {
-            this.polyline.setMap(null);
+		var polyline = this.getPolyline();
+		var map = this.getGoogleMap();
+        if (polyline !== null) {
+            polyline.setMap(null);
         }
-        this.polyline = new google.maps.Polyline({
+        this.setPolyline(new google.maps.Polyline({
             path: coords,
             strokeColor: '#FF0000',
             strokeOpacity: 1.0,
             strokeWeight: 2,
-            map: this.googleMap
-        });
+            map: map
+        }));
         var bounds = new google.maps.LatLngBounds();
         for (var i = 0; i < coords.length; i++) {
             bounds.extend(coords[i]);
         }
-        this.googleMap.fitBounds(bounds);
+        map.fitBounds(bounds);
     },
 	/**
 	 * Parses the co-ordinates

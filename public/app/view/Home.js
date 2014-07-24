@@ -77,7 +77,6 @@ Ext.define('FB.view.Home', {
 				store: 'Adult',
 				name: 'adults',
 				fieldLabel: 'Passengers',
-				//labelCls: 'passengers',
 				value: 1
 			},  {
 				itemId: 'child',
@@ -100,7 +99,6 @@ Ext.define('FB.view.Home', {
 			items: [{
 				itemId: 'submit',
 				xtype: 'button',
-				action: 'submit',
 				text: 'Find Flights',
 				cls: 'button',
 				margin: '0 0 5px 0'
