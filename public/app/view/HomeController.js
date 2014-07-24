@@ -49,27 +49,8 @@ Ext.define('FB.view.HomeController', {
 	 * Submits the home controller form
 	 */
 	submit: function () {
-		var form = this.getView();
-		form.submit({
-			url: '/flights',
-			method: 'get',
-			submitEmptyText: false,
-			success: function (form, action) {
-				Ext.Msg.alert('Success', action.result.msg);
-			},
-			failure: function (form, action) {
-				switch (action.failureType) {
-					case Ext.form.action.Action.CLIENT_INVALID:
-						Ext.Msg.alert('Failure', 'Form fields may not be submitted with invalid values');
-						break;
-					case Ext.form.action.Action.CONNECT_FAILURE:
-						Ext.Msg.alert('Failure', 'Ajax communication failed');
-						break;
-					case Ext.form.action.Action.SERVER_INVALID:
-						Ext.Msg.alert('Failure', action.result.msg);
-				}
-			}
-		});
+		FB.app.content.addPage('Booking');
+		this.redirect('Booking');
 	},
 	/**
 	 * Renders the google map to the form

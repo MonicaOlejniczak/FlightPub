@@ -383,26 +383,6 @@ public class BookingController extends Controller {
 		}
 	}
 
-	public static Result flights() {
-		return ok(views.html.flights.render());
-	}
-
-    public static Result seatSelection() {
-	    List<Seat> seats = Seat.find.all();
-        String params = request().body().asFormUrlEncoded().get("params")[0];
-        return ok();
-        //return ok(views.html.seatSelection.render(seats, params));
-    }
-
-    public static Result tickets() {
-        String params = request().body().asFormUrlEncoded().get("params")[0];
-        return ok(views.html.tickets.render(params));
-    }
-
-    public static Result submitLuggage() {
-        return seatSelection();
-    }
-
     /**
      * Inner static class to specify and validate the fields used in the payment form.
      */
