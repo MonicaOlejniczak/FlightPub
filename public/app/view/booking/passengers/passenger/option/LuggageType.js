@@ -12,7 +12,7 @@ Ext.define('FB.view.booking.passengers.passenger.option.LuggageType', {
 	queryMode: 'local',
 	displayField: 'name',
 	valueField: 'value',
-	value: 'Only Carry-On Luggage',
+	value: 'CARRY_ON',
 	editable: false,
 	name: 'luggageType'
 });

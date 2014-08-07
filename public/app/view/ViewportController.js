@@ -8,14 +8,16 @@ Ext.define('FB.view.ViewportController', {
 		'Navigation': {
 			redirect: function (parameters) {
 				// check if we are currently on a booking and pass in the redirect function as a callback
-				// todo fix this before i die on the inside
 				this.checkOnBooking(Ext.Function.pass(this.redirect, [parameters], this));
 			},
 			logout: function () {
 				// check if we are currently on a booking and pass in the logout process function as a callback
-				this.checkOnBooking(Ext.Function.pass(this.process, this));
+				this.checkOnBooking(this.process);
 			}
 		},
+        'Home': {
+            redirect: 'redirect'
+        },
 		'Register': {
 			register: 'process'
 		},
@@ -25,9 +27,9 @@ Ext.define('FB.view.ViewportController', {
 		'Booking': {
 			removebooking: 'removeBooking'
 		},
-		'container': {
-			redirect: 'redirect'
-		}
+        'Payment': {
+            redirect: 'redirect'
+        }
 	},
 	/**
 	 * This method redirects the current page to a new one
@@ -65,7 +67,7 @@ Ext.define('FB.view.ViewportController', {
 			var booking = activePage.controller;
 			booking.cancel(activePage, callback);
 		} else {
-			callback(); // not on a booking, execute callback
+			callback.call(this); // not on a booking, execute callback
 		}
 	},
 	/**
