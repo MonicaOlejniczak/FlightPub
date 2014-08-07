@@ -1,4 +1,4 @@
-name := """CodeRed FlightPub"""
+name := """BatJam FlightPub"""
 
 version := "1.0-SNAPSHOT"
 
