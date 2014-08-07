@@ -1,0 +1,189 @@
+@import 'globalMethods';
+@import 'globalVariables';
+
+@navigationHeight: 2.2em;
+@bannerContainerHeight: 350px;
+
+@navLineHeight: @navigationHeight;
+
+@navigationBackgroundColor: #000;
+@activeBackgroundColor: lighten(@navigationBackgroundColor, 10%);
+@footerBackgroundColor: #000;
+
+@navColor: darken(@activeColor, 10%);
+@activeColor: #fff;
+@footerColor: #ccc;
+@headerSelectionColour: #bbb;
+@footerSelectionColour: #bbb;
+
+@navBorderWeight: 0.05em;
+@navSpanBorderWeight: 0.15em;
+
+@headerBorderWidth: 0.3em;
+
+@headerBoxShadow: 0.5em;
+@footerBoxShadow: 5em;
+
+/* Header */
+.header, .logo, .logo a, nav, nav a, .active {
+	height: 100%;
+}
+
+.header {
+	font: 1em 'Ubuntu', @nextFont;
+	overflow: hidden;
+	.boxShadow(0, -@headerBoxShadow, @headerBoxShadow, @headerBoxShadow, @navigationBackgroundColor);
+}
+
+.header::selection {
+	background-color: @headerSelectionColour;
+}
+
+.header::-moz-selection {
+	background-color: @headerSelectionColour;
+}
+
+.navigation {
+	height: @navigationHeight;
+	background-color: @navigationBackgroundColor;
+}
+
+nav {
+	font: 1em 'Ubuntu', 'Helvetica', @nextFont;
+}
+
+nav a, .active {
+	height: @navigationHeight;
+	text-align: center;
+	line-height: @navLineHeight;
+	padding: 0 0.5em;
+}
+
+nav a, nav a:hover {
+	.transition(background-color, @time, linear);
+}
+
+nav a {
+	background-color: transparent;
+	color: @navColor;
+	.textShadow(@navColor);
+}
+
+nav a:hover {
+	background-color: lighten(@activeBackgroundColor, 10%);
+	color: @activeColor;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+a.active {
+	background-color: @activeBackgroundColor;
+	color: @activeColor;
+	.textShadow(@activeColor);
+}
+
+a.active:hover {
+	color: ligthen(@activeColor, 10%);
+}
+
+.bannerContainer, .bannerContainer:before, .bannerGradient {
+	height: @bannerContainerHeight;
+}
+
+.bannerContainer, .bannerGradient {
+	position: relative;
+}
+
+.bannerContainer {
+	background-color: #000;
+	.multiGradient(@bannerStart, @bannerSecond, @bannerThird, @bannerFourth, @bannerStop);
+}
+
+.bannerContainer:before {
+	content: '';
+	top: 0;
+	left: 0;
+	width: 100%;
+	background: #555 url('@{imageFolder}/banner.png');
+	position: absolute;
+	opacity:0.30;
+	filter:alpha(opacity=30);
+}
+
+.bannerGradient () {
+	@origin: left;
+	@start: @bannerStart;
+	@startPercent: 0;
+	@second: transparent;
+	@secondPercent: 10%;
+	@third: transparent;
+	@thirdPercent: 100%;
+	@stop: transparent;
+	@stopPercent: 100%;
+	background-image: -webkit-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+	background-image: -moz-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+	background-image: -o-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+	background-image: -ms-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+	background-image: linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+}
+
+.bannerGradient {
+	width: 100%;
+	.bannerGradient();
+}
+
+.banner {
+	height: @bannerContainerHeight - 3em;
+	padding: 4em 0 0 5em;
+}
+
+.logo, .logo:hover {
+	.transition(color, @time, linear);
+}
+
+.logo {
+	height: 1em;
+	color: @buttonBackgroundColorHover;
+	font: 7em 'Ubuntu' @nextFont;
+}
+
+.logo:hover {
+	color: @buttonBackgroundColor;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.subtext {
+	color: #fff;
+	font: 3em 'Ubuntu' @nextFont;
+	.textShadow(#fff);
+}
+
+/* Content */
+.contentContainer {
+	height: auto !important;
+	height: 100%;
+	background-color: @secondaryBackgroundColor;
+}
+
+.smallerContent, .booking {
+	width: @contentWidth;
+	margin: 0 auto;
+}
+
+/* Footer */
+.footer {
+	background-color: @footerBackgroundColor;
+	color: @footerColor;
+	font: 1em 'Ubuntu', @nextFont;
+	text-align: center;
+	padding: 1em 0;
+}
+
+.footer::selection {
+	background-color: @footerSelectionColour;
+}
+
+.footer::-moz-selection {
+	background-color: @footerSelectionColour;
+}

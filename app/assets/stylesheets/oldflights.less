@@ -1,0 +1,321 @@
+@import 'globalMethods';
+@import 'globalVariables';
+
+@filterStyleInputWidth: 50% - @filterStyleMargin;
+@flightsWidth: calc(~'100% - @{sourceWidth} * 3');
+@nodeWidth: @flightBarHeight - 0.3em;
+@sourceWidth: 75px;
+
+@sortHeight: 3em;
+@flightHeight: 2em;
+@nodeHeight: @nodeWidth;
+@flightBarHeight: 1.2em;
+
+@sortBackgroundColor: darken(@buttonBackgroundColor, 20%);
+@filterStyleBackgroundColor: @sortBackgroundColor;
+@resultsBackgroundColor: @secondaryBackgroundColor;
+@flightBackgroundColor: @themeBackgroundColor;
+@flightHoverBackgroundColor: lighten(@flightBackgroundColor, 20%);
+@flightBarBackgroundColor: #fff;
+
+@filterStyleColor: @filterStyleBackgroundColor;
+@flightBarBoxShadowColor: #555;
+
+@tabBorderWidth: 0.3em;
+@sortBorderWidth: 0.3em;
+@sortLinkBorderWidth: 0.15em;
+@filterStyleBorderWidth: 0.3em;
+@flightBorderWidth: 0.3em;
+@airportBorderWidth: 0.3em;
+@arrowBorderWidth:  @arrowBorderWidthTransparent * 2;
+@arrowBorderWidthTransparent: 0.64em;
+
+@tabPadding: 0.5em;
+@flightOptionsPadding: @tabPadding;
+@sortPadding: @tabPadding;
+@filterStylePadding: 0.5em;
+@flightsPadding: 1em;
+
+@tabMargin: @tabPadding;
+@sortFilterMargin: 1em;
+@filterStyleMargin: @filterStylePadding;
+@flightMargin: @nodeWidth / 2;
+
+@sortBoxShadow: 0.03em;
+@filterStyleBoxShadow: 0.05em;
+@flightBoxShadow: 0.05em;
+@flightBarBoxShadow: 0.05em;
+
+@sortLineHeight: @sortHeight;
+
+.hidden, .filter {
+	display: none;
+}
+
+#sort span, #filterContent span, .flightBar, .waitBar {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-khtml-user-select: none;
+	-ms-user-select: none;
+}
+
+#flightOptions, #sort, #results, #flights, .flight, #buttons {
+	clear: both;
+}
+
+#flightOptions {
+	width: 100%;
+	height: 4em;
+	background-color: @secondaryBackgroundColor;//url('@{imageFolder}/stripes.png');
+	padding: @flightOptionsPadding;
+	.gradient(right, #000, 0, transparent, 100%);
+}
+
+/* Sorting and filtering */
+#sort, #filterContainer, #sortText, #sort span, .source, .destination {
+	color: @themeColor;
+}
+
+#sort, #filterContainer {
+	float: right;
+	position: relative;
+}
+
+#filterContainer {
+	height: @sortHeight;
+}
+
+#sort, #filter, .filterContainer {
+	border-radois: @sortBorderWidth;
+}
+
+#sort, #filter {
+	background-color: @sortBackgroundColor;
+	font: 1em 'Ubuntu', @nextFont;
+	line-height: @sortLineHeight;
+	border-radius: @sortBorderWidth;
+	.boxShadow(0, 0, @sortBoxShadow, 0, darken(@sortBackgroundColor, 10%));
+}
+
+#sort {
+	height: @sortHeight;
+}
+
+#filter {
+	height: 100%;
+}
+
+#sort {
+	margin: 0 0 0 @sortPadding;
+}
+
+#sortText, #filterText, #filterContent {
+	float: left;
+}
+
+#sortText, #filterText {
+	font-weight: bold;
+	text-transform: uppercase;
+	margin: 0 @sortFilterMargin;
+}
+
+#sort span, #sort span:hover, #filterContent span, #filterContent span:hover {
+	.transition(border-bottom, @time, linear);
+}
+
+#sort span, #filterContent span, {
+	border-bottom: @sortLinkBorderWidth transparent solid;
+	margin: 0 @sortFilterMargin 0 0;
+}
+
+#sort span:hover, #filterContent span:hover, .flightBar, .node, .source, .destination, .waitBar {
+	cursor: pointer;
+}
+
+#sort span:hover, #sort span.sortSelected, #filterContent span:hover, #filterContent span.filterSelected {
+	border-bottom: @sortLinkBorderWidth @themeColor solid;
+}
+
+#filterContent span.filterActive {
+	border-bottom: @sortLinkBorderWidth @secondaryColor solid;
+}
+
+.filterContainer {
+	background-color: @filterStyleBackgroundColor;
+	padding: @filterStylePadding;
+	margin: -(@sortHeight * 2 + 0.5em) 0 0 0;
+	.boxShadow(0, 0, @filterStyleBoxShadow, 0, darken(@filterStyleBackgroundColor, 10%));
+	.transition(background, @time, linear);
+}
+
+.filterContainer table, .filterContainer td, .filterContainer tr {
+	border: 0;
+}
+
+.filterContainer input, .filterStyleButton input {
+	color: @filterStyleColor;
+	font: 1em 'Ubuntu' @nextFont;
+}
+
+.filterContainer span:hover {
+	border: 0;
+}
+
+/* Search Results */
+.flight, .flightBar {
+	max-width: @maxWidth;
+}
+
+#flights {
+	max-width: @flightsWidth;
+	margin: 0 auto;
+	overflow-x: scroll;
+	position: relative;
+}
+
+.itinerary {
+	white-space: nowrap;
+}
+
+.flight, .flightBar, .waitBar {
+	display: inline-block;
+}
+
+.flight {
+	height: @flightHeight;
+	margin-bottom: @flightMargin;
+	width: 450px;
+	vertical-align: top;
+}
+
+.filter, .source, .flightBarTextHidden, .destination, .flight:hover .source, .flight:hover .flightBarTextHidden, .flight:hover .destination {
+	.transition(opacity, @time, linear);
+}
+
+.filter, .source, .flightBarTextHidden, .destination {
+	opacity: 1;
+	filter:alpha(opacity=100);
+	display: none;
+}
+
+.flight:hover .source, .flight:hover .flightBarTextHidden, .flight:hover .destination {
+	opacity: 1;
+	filter:alpha(opacity=100);
+	display: block;
+	cursor: pointer;
+}
+
+.flight:hover .departure .node, .flight:hover .arrival .node {
+	background-color: @flightHoverBackgroundColor;
+}
+
+.node, .flightBar {
+	border-radius: @flightBorderWidth;
+}
+
+.node, .source, .destination {
+	.boxShadow(0, 0, @flightBoxShadow, @flightBoxShadow, darken(@flightBackgroundColor, 10%));
+	.transition(background-color, @time, linear);
+}
+
+.node {
+	top: 0.35em;
+	width: @nodeWidth;
+	height: @nodeHeight;
+	background-color: @flightBackgroundColor;
+	margin: 0 auto;
+	position: relative;
+}
+
+.departure .node, .arrival .node {
+	margin-top: -0.2em;
+}
+
+.departure .node {
+	margin-left: 0.3em;
+	float: left;
+}
+
+.arrival .node {
+	margin-right: 0.3em;
+	float: right;
+}
+
+.source, .destination {
+	width: @sourceWidth;
+	height: @flightBarHeight;
+	background-color: @flightHoverBackgroundColor;
+	font: 1em 'Ubuntu' @nextFont;
+	text-align: center;
+	position: relative;
+}
+
+.source, .source:before, .destination, .destination:before {
+	border-radius: @airportBorderWidth;
+}
+
+.source {
+	margin: 0 auto 0 0.3em;
+}
+
+.destination {
+	margin: 0 0.3em 0 auto;
+}
+
+.source:before, .destination:before {
+	content: "";
+	top: 0;
+	width: 0;
+	height: 0;
+	border-top: @arrowBorderWidthTransparent transparent solid;
+	border-bottom: @arrowBorderWidthTransparent transparent solid;
+	position: absolute;
+}
+
+.source:before {
+	left: 96%;
+	border-left: @arrowBorderWidth @flightHoverBackgroundColor solid;
+}
+
+.destination:before {
+	right: 95.5%;
+	border-right: @arrowBorderWidth @flightHoverBackgroundColor solid;
+}
+
+.flightBar {
+	width: 100%;
+	height: @flightBarHeight;
+	//min-width: 200px;
+	background: @flightBarBackgroundColor;
+	.boxShadow(0, 0, @flightBarBoxShadow, @flightBarBoxShadow, @flightBarBoxShadowColor);
+}
+
+.flightBarTextVisible, .flightBarTextHidden {
+	float: left;
+}
+
+.flightBarText, .waitBar {
+	font: 1em 'Ubuntu' @nextFont;
+}
+
+.flightBarText {
+	color: @secondaryBackgroundColor;
+	margin-left: @nodeWidth + 0.5em;
+}
+
+.flightBarTextVisible {
+	color: @themeBackgroundColor;
+	font-weight: bold;
+	margin: 0 0.5em;
+}
+
+.waitBar {
+	min-width: 3em;
+	background: #000;
+	color: #fff;
+	text-align: center;
+}
+
+.itinerary.selectFlight .flightBar {
+	background: @secondaryColor;
+}

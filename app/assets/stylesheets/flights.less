@@ -1,0 +1,143 @@
+@import 'globalMethods';
+@import 'globalVariables';
+
+@itineraryHeight: 1.2em;
+
+@flightBackgroundColor: #fff;
+@flightBarBoxShadowColor: #555;
+@flightBorderWidth: 0.3em;
+@flightMargin: @nodeWidth / 2;
+@flightBoxShadow: 0.05em;
+
+@nodeWidth: @itineraryHeight - 0.3em;
+@nodeHeight: @nodeWidth;
+@nodeBorderWidth: @flightBorderWidth;
+
+@waitBarBackgroundColor: #000;
+@waitBarColor: @secondaryColor;
+
+.sort, .itinerary {
+    font: 1em 'Ubuntu' @nextFont;
+}
+
+.sort {
+    background-color: darken(@buttonBackgroundColor, 20%);
+    color: @themeColor;
+    border-radius: 0.5em;
+    padding: 1em;
+}
+
+.sortText {
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.sortButton, .sortButton:hover {
+    .transition(border-bottom, @time, linear);
+}
+
+.sortButton {
+    margin-left: 10px;
+    border-bottom: 0.2em transparent solid;
+}
+
+.sortButton:hover {
+    cursor: pointer;
+    border-bottom: 0.2em @themeColor solid;
+}
+
+.itinerary {
+    width: 100%;
+	color: @secondaryBackgroundColor;
+	margin-bottom: 5px;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-khtml-user-select: none;
+	-ms-user-select: none;
+}
+
+.itinerary, .itinerary .x-box-inner {
+	height: @itineraryHeight !important;
+}
+
+.itinerary:hover {
+	cursor: pointer
+}
+
+.itinerary .flight, .itinerary:hover .flight, .itinerary .waitBar, .itinerary:hover .waitBar {
+	.transition(background-color, @time, linear);
+	.transition(color, @time, linear);
+}
+
+.itinerary:hover .flight {
+	background-color: darken(@flightBackgroundColor, 10%);
+}
+
+.itinerary:hover .waitBar {
+	background-color: lighten(@waitBarBackgroundColor, 10%);
+	color: lighten(@waitBarColor, 10%);
+}
+
+.flight {
+	height: @itineraryHeight;
+	background-color: @flightBackgroundColor;
+	border-radius: @flightBorderWidth;
+	margin-bottom: @flightMargin;
+	float: left;
+	.boxShadow(0, 0, @flightBoxShadow, @flightBoxShadow, @flightBarBoxShadowColor);
+}
+
+.hidden {
+	color: @themeBackgroundColor;
+}
+
+.node {
+	width: @nodeWidth;
+	height: @nodeHeight;
+	background-color: @themeBackgroundColor;
+	margin-top: 0.2em;
+	border-radius: @nodeBorderWidth;
+}
+
+.flight .node:first-child {
+	margin-left: 0.3em;
+}
+
+.flight .node:last-child {
+	margin-right: 0.3em;
+}
+
+.itinerary .flight .hidden, .itinerary:hover .flight .hidden {
+	.transition(opacity, @time, linear);
+}
+
+.itinerary .flight .hidden {
+	display: none;
+	opacity: 0;
+	filter:alpha(opacity=0);
+}
+
+.itinerary:hover .flight .hidden {
+	display: block;
+	opacity: 1;
+	filter:alpha(opacity=100);
+}
+
+.waitBar {
+	background-color: @waitBarBackgroundColor;
+	color: @waitBarColor;
+	text-align: center;
+}
+
+.itinerary.selectFlight .flight {
+	background: @secondaryColor;
+}
+
+.itinerary.selectFlight .node {
+	background-color: lighten(@themeBackgroundColor, 10%);
+}
+
+.itinerary.selectFlight .waitBar {
+	background-color: darken(@buttonBackgroundColor, 25%);
+	color: lighten(@buttonBackgroundColor, 10%);
+}
