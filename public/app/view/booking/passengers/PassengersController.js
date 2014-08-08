@@ -69,12 +69,10 @@ Ext.define('FB.view.booking.passengers.PassengersController', {
                         }));
                     }
                 }
-
                 // a function that create the payment form
                 function createPayment() {
-                    view.fireEvent('addpage', Ext.create('FB.view.booking.payment.Payment'));
+                    form.fireEvent('addpage', Ext.create('FB.view.booking.payment.Payment'));
                 }
-
                 // create the seat selection pages and the payment form
                 createSeats.call(this, parameters.itinerary, parameters.passengers);
                 createPayment.call(this);
