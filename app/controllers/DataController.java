@@ -35,6 +35,19 @@ public class DataController extends Controller {
 
             HashMap<String, Object> jItinerary = new HashMap<>();
             Itinerary itinerary = booking.itinerary;
+            // okay
+            Collections.sort(itinerary.flights, new Comparator<Flight>() {
+                @Override
+                public int compare(Flight flight, Flight flight2) {
+                    return flight.departureTime.compareTo(flight2.departureTime);
+                }
+            });
+
+            long jDepartureTime = itinerary.flights.get(0).departureTime.getMillis();
+            long jArrivalTime = itinerary.flights.get(itinerary.flights.size() - 1).arrivalTime.getMillis();
+            double jDuration = jArrivalTime - jDepartureTime;
+            double jStopOvers = itinerary.flights.size() - 1;
+            double jItineraryPrice = 0;
 
             List<Map<String, Object>> jFlights = new ArrayList<>();
             for (Flight flight : itinerary.flights) {
@@ -63,10 +76,16 @@ public class DataController extends Controller {
                 Map<String, Object> jPrice = new HashMap<>();
                 jPrice.put("price", price);
                 jFlight.put("price", jPrice);
+                jItineraryPrice += price;
 
                 jFlights.add(jFlight);
             }
             jItinerary.put("flights", jFlights);
+            jItinerary.put("price", jItineraryPrice);
+            jItinerary.put("duration", jDuration);
+            jItinerary.put("stopOvers", jStopOvers);
+            jItinerary.put("departureTime", jDepartureTime);
+            jItinerary.put("arrivalTime", jArrivalTime);
 
             jBooking.put("itinerary", jItinerary);
             jBookings.add(jBooking);
@@ -118,6 +137,12 @@ public class DataController extends Controller {
             double jItineraryPrice = 0;
 
 	        List<Flight> iFlights = itinerary.flights;
+            Collections.sort(iFlights, new Comparator<Flight>() {
+                @Override
+                public int compare(Flight flight, Flight flight2) {
+                    return flight.departureTime.compareTo(flight2.departureTime);
+                }
+            });
             for (Flight flight : iFlights) {
                 Map<String, Object> jFlight = new HashMap<>();
                 jFlight.put("id", flight.id);

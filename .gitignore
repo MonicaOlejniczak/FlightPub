@@ -13,3 +13,4 @@
 /server.pid
 /activator-sbt-echo-play-shim.sbt
 *.sql
+FlightPub.sublime-workspace

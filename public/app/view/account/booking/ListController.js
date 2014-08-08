@@ -25,7 +25,6 @@ Ext.define('FB.view.account.booking.ListController', {
         var list = view.down('#list');
         bookings.each(function (booking) {
             list.add(Ext.widget('Booking', {
-                title: 'testing',
                 booking: booking
             }));
         });
