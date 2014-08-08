@@ -7,5 +7,6 @@ Ext.define('FB.view.layout.header.navigation.NavigationLink', {
 	config: {
 		default: false
 	},
-	baseCls: 'x-btn-plain'
+	baseCls: 'x-btn-plain',
+    cls: 'navigationLink'
 });

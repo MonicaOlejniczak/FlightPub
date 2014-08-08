@@ -18,8 +18,9 @@ Ext.define('FB.view.booking.passengers.Passengers', {
 	},
 	items: [{
 		xtype: 'component',
-		html: 'For each passenger, please select what class of ticket and whether you wish to include only carry-on ' +
-				'luggage with your booking, or if you wish to also include checked luggage.',
+		html: 'For each passenger, please enter their first and last name, then select what class of ticket and ' +
+                'whether you wish to include only carry-on luggage with your booking, or if you wish to also ' +
+                'include checked luggage.',
 		margin: '0 0 10px 0'
 	}]
 });

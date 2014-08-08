@@ -15,7 +15,6 @@ Ext.define('FB.view.booking.flights.display.Flight', {
 	},
 	items: [{
 		xtype: 'component',
-		itemId: 'departure',
 		cls: 'node'
 	},  {
 		xtype: 'component',
@@ -31,7 +30,6 @@ Ext.define('FB.view.booking.flights.display.Flight', {
 		cls: 'hidden'
 	},  {
 		xtype: 'component',
-		itemId: 'arrival',
 		cls: 'node',
 		style: {
 			float: 'right'

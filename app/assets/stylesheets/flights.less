@@ -20,7 +20,7 @@
     display: none;
 }
 
-.sort, .itinerary {
+.sort span, .departure, .arrival, .itinerary {
     font: 1em 'Ubuntu' @nextFont;
 }
 
@@ -41,13 +41,27 @@
 }
 
 .sortButton {
-    margin-left: 10px;
+    margin: -0.2em 0 0 10px;
     border-bottom: 0.2em transparent solid;
 }
 
 .sortButton:hover, .sortSelected {
     cursor: pointer;
     border-bottom: 0.2em @themeColor solid;
+}
+
+.departure, .arrival {
+    width: 200px;
+    color: @themeColor;
+    text-transform: uppercase;
+}
+
+.departure strong, .arrival strong {
+    color: @buttonBackgroundColor;
+}
+
+.arrival {
+    margin-left: 10px
 }
 
 .itinerary {
@@ -87,7 +101,6 @@
 	background-color: @flightBackgroundColor;
 	border-radius: @flightBorderWidth;
 	margin-bottom: @flightMargin;
-	float: left;
 	.boxShadow(0, 0, @flightBoxShadow, @flightBoxShadow, @flightBarBoxShadowColor);
 }
 

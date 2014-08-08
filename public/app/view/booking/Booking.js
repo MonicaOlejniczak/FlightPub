@@ -29,18 +29,21 @@ Ext.define('FB.view.booking.Booking', {
 			xtype: 'button',
 			itemId: 'cancel',
 			text: 'Cancel',
+            baseCls: 'x-btn-plain',
 			cls: 'button-red',
 			margin: '0 5px 0 0'
 		},  {
 			xtype: 'button',
 			itemId: 'back',
 			text: 'Back',
+            baseCls: 'x-btn-plain',
 			cls: 'button-blue',
 			margin: '0 5px 0 0'
 		},  {
 			xtype: 'button',
 			itemId: 'next',
 			text: 'Next',
+            baseCls: 'x-btn-plain',
 			cls: 'button-blue'
 		}]
 	}]

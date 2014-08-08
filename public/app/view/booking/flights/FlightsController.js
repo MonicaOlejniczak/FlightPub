@@ -72,16 +72,12 @@ Ext.define('FB.view.booking.flights.FlightsController', {
 		// check if the records are empty
 		if (Object.keys(records).length === 0) {
 			// display no flights have been found in the information
-            view.down('#information').update({
-                information: 'No flights found.'
-            });
+            this.renderInformation(view, 'No flights found.');
 		} else {
 			// update the flight selection text to select an option
-            view.down('#information').update({
-                information: 'Please select a flight from the options below.'
-            });
+            this.renderInformation(view, 'Please select a flight from the options below.');
 			// specify the width for each hour (in px)
-			var hourWidth = 100;
+			var hourWidth = 30;
 			var itineraries = {};
 			// loop through the data store
 			records.each(function (record, i) {
@@ -96,19 +92,33 @@ Ext.define('FB.view.booking.flights.FlightsController', {
 						}, scope: this
 					}
 				});
+                // get the flights from the record and render the views
 				var flights = record.get('flights');
-				this.renderFlights(flights, itinerary, i, hourWidth);
+				this.renderFlights(flights, itinerary.down('#flights'), i, hourWidth);
+                // add the departure and arrival times to the itinerary
+                this.renderTimes(itinerary, flights);
 				// add the itinerary to the itineraries object
 				itineraries[record.id] = itinerary;
                 if (i <= this.self.RESULTS) {
                     // add the itinerary to the array
-                    view.down('#flights').add(itinerary);
+                    view.down('#itineraries').add(itinerary);
                 }
 			}, this);
 			// set the config itineraries variable
 			this.setItineraries(itineraries);
 		}
 	},
+    /**
+     * Renders the information to display to the user on the flights page
+     *
+     * @param view the view to display the information on
+     * @param information the information to display to the user
+     */
+    renderInformation: function (view, information) {
+        view.down('#information').update({
+            information: information
+        });
+    },
 	/**
 	 * Selects the itinerary record
 	 *
@@ -137,7 +147,7 @@ Ext.define('FB.view.booking.flights.FlightsController', {
 		// loop through each flight in the itinerary
 		flights.forEach(function (flight, j) {
 			// create the flight and add it to the itinerary
-			var width = Math.max(hourWidth, (flight.duration / 60) * hourWidth);
+			var width = Math.max(110, (flight.duration / 60) * hourWidth);
 			var price = flight.price.price.toFixed(2);
 			var airline = flight.airline.name;
 			var component = Ext.widget('Flight', {
@@ -149,6 +159,7 @@ Ext.define('FB.view.booking.flights.FlightsController', {
 					}
 				}
 			});
+            // update the data in the flight
 			component.down('#content').update({
 				price: price
 			});
@@ -178,7 +189,8 @@ Ext.define('FB.view.booking.flights.FlightsController', {
 		var nextFlightArrival = new Date(nextFlight.departureTime);
 		var startTime = arrivalTime.getTime() / hours;
 		var endTime = nextFlightArrival.getTime() / hours;
-		var width = Math.max(hourWidth, (endTime - startTime) * hourWidth);
+        var scalingFactor = 0.1;
+		var width = Math.max(hourWidth, (endTime - startTime) * hourWidth * scalingFactor);
 		var destination = currentFlight.destination;
 		var html = destination.code;
 		var title = destination.name;
@@ -193,6 +205,34 @@ Ext.define('FB.view.booking.flights.FlightsController', {
 		}));
 	},
     /**
+     * Renders the departure and arrival time of the itinerary
+     *
+     * @param itinerary the itinerary to render the times to
+     * @param flights the flight information from the itinerary
+     */
+    renderTimes: function (itinerary, flights) {
+        // a function that formats the date object that is passed in into a date
+        function date (date) {
+            return Ext.Date.format(date, 'Y-m-d'); // 2000-01-01
+        }
+        // a function that formats the date object that is passed in into a time
+        function time (date) {
+            return Ext.Date.format(date, 'D H:i'); // MON 23:10
+        }
+        // get the departure and arrival time from the flights
+        var departure = new Date(flights[0].departureTime);
+        var arrival = new Date(flights[flights.length - 1].arrivalTime);
+        // update the itinerary view with the new information
+        itinerary.down('#departure').update({
+            date: date(departure),
+            time: time(departure)
+        });
+        itinerary.down('#arrival').update({
+            date: date(arrival),
+            time: time(arrival)
+        });
+    },
+    /**
      * Applies the specified sort to the itineraries and displays the results
      *
      * @param sorter the sort specified by the user to sort by
@@ -201,7 +241,7 @@ Ext.define('FB.view.booking.flights.FlightsController', {
         // get the data store, itinerary view data and all of the current displays
         var dataStore = this.getDataStore();
         var itineraries = this.getItineraries();
-        var flights = this.getView().down('#flights');
+        var flights = this.getView().down('#itineraries');
         // remove all of the current itinerary views
         flights.removeAll(false);
         // apply the sorting to the data store

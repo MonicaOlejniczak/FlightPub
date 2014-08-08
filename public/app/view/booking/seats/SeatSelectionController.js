@@ -22,7 +22,6 @@ Ext.define('FB.view.booking.seats.SeatSelectionController', {
 	},
 	init: function () {
         this.setSelected([]);
-
 		var view = this.getView();
 		// add the next request event to the view
 		view.on('nextRequest', this.onNextRequest, this);

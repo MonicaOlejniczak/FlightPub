@@ -175,7 +175,7 @@ Ext.define('FB.view.booking.BookingController', {
 		var payment = this.getPayment();
         var passengers = [];
         // loop through each passenger
-        for (var i = 0; i < s.length; i++) {
+        for (var i = 0; i < p.length; i++) {
             var flights = [];
             // get the flight id and seat number for the current flight in the itinerary
             Ext.each(s[i], function (seat) {
@@ -187,8 +187,10 @@ Ext.define('FB.view.booking.BookingController', {
             // add the passenger information into the passengers array
             passengers.push({
                 flights: flights,
-                ticketType: p.ticketType, // TODO: per passenger?
-                luggageType: p.luggageType // TODO: per passenger?
+                firstName: p[i].firstName,
+                lastName: p[i].lastName, // todo add to booking
+                ticketType: p[i].ticketType,
+                luggageType: p[i].luggageType
             });
         }
         // submit the booking to the server via ajax

@@ -21,9 +21,7 @@ Ext.define('FB.view.booking.flights.Flights', {
         },
         items: [{
             xtype: 'FlightsSort',
-            itemId: 'sort',
-            span: 1,
-            margin: '0 10px 0 0'
+            itemId: 'sort'
         }]
     },  {
         xtype: 'component',
@@ -32,7 +30,7 @@ Ext.define('FB.view.booking.flights.Flights', {
         margin: '10px 0 10px 0'
     },  {
         xtype: 'container',
-        itemId: 'flights',
+        itemId: 'itineraries',
         layout: {
             type: 'vbox'
         },

@@ -13,6 +13,7 @@ Ext.define('FB.view.booking.seats.row.seat.Seat', {
         row: null,
         column: null
 	},
+    baseCls: 'x-btn-plain',
 	flex: 1,
 	margin: '0 0 0 5px'
 });
