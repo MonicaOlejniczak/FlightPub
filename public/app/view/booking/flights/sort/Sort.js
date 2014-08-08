@@ -20,7 +20,8 @@ Ext.define('FB.view.booking.flights.sort.Sort', {
         xtype: 'container',
         layout: 'hbox',
         defaults: {
-            xtype: 'component',
+            xtype: 'button',
+            baseCls: 'x-btn-plain',
             cls: 'sortButton'
         },
         items: [{

@@ -16,6 +16,10 @@
 @waitBarBackgroundColor: #000;
 @waitBarColor: @secondaryColor;
 
+.hidden {
+    display: none;
+}
+
 .sort, .itinerary {
     font: 1em 'Ubuntu' @nextFont;
 }
@@ -41,7 +45,7 @@
     border-bottom: 0.2em transparent solid;
 }
 
-.sortButton:hover {
+.sortButton:hover, .sortSelected {
     cursor: pointer;
     border-bottom: 0.2em @themeColor solid;
 }

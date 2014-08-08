@@ -11,9 +11,6 @@
         <option name="uncheckedWarnings" value="true" />
       </configuration>
     </facet>
-    <facet type="Python" name="Python">
-      <configuration sdkName="" />
-    </facet>
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/../target/scala-2.10/classes" />
@@ -26,7 +23,6 @@
       <sourceFolder url="file://$MODULE_DIR$/../conf" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../test" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/../test/resources" isTestSource="true" />
-      <excludeFolder url="file://$MODULE_DIR$/../target/native_libraries" />
       <excludeFolder url="file://$MODULE_DIR$/../target/resolution-cache" />
       <excludeFolder url="file://$MODULE_DIR$/../target/scala-2.10/cache" />
       <excludeFolder url="file://$MODULE_DIR$/../target/scala-2.10/classes" />
@@ -154,7 +150,6 @@
     <orderEntry type="library" scope="TEST" name="SBT: org.seleniumhq.selenium:selenium-support:2.32.0:test" level="project" />
     <orderEntry type="library" scope="TEST" name="SBT: org.easytesting:fest-assert:1.4:test" level="project" />
     <orderEntry type="library" scope="TEST" name="SBT: org.easytesting:fest-util:1.1.6:test" level="project" />
-    <orderEntry type="library" name="sass-stdlib" level="application" />
   </component>
 </module>
 

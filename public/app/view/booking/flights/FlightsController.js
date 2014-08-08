@@ -24,6 +24,9 @@ Ext.define('FB.view.booking.flights.FlightsController', {
 		itineraries: null,
 		itinerary: null
 	},
+    statics: {
+        RESULTS: 10
+    },
 	constructor: function () {
 		this.setConfig({
 			default: false,
@@ -32,8 +35,9 @@ Ext.define('FB.view.booking.flights.FlightsController', {
 	},
 	init: function () {
 		var view = this.getView();
-		// add the next request event to the view
+		// add the sort and next request event to the view
 		view.on('nextRequest', this.onNextRequest, this);
+        view.down('#sort').on('sort', this.sort, this);
 		// set the config values of the flight
 		var flightDetails = view.getFlightDetails();
 		this.setSource(flightDetails.source);
@@ -78,13 +82,13 @@ Ext.define('FB.view.booking.flights.FlightsController', {
             });
 			// specify the width for each hour (in px)
 			var hourWidth = 100;
-			// get the itineraries member variable
-			var itineraries = [];
+			var itineraries = {};
 			// loop through the data store
-			records.each(function (record) {
+			records.each(function (record, i) {
 				// create the itinerary and its flights
 				var itinerary = Ext.widget('Itinerary', {
-					listeners: {
+					itemId: Ext.String.format('itinerary_{0}', record.id),
+                    listeners: {
 						render: function (component) {
 							component.getEl().on({
 								click: Ext.bind(this.selectItinerary, this, [record], true)
@@ -94,14 +98,13 @@ Ext.define('FB.view.booking.flights.FlightsController', {
 				});
 				var flights = record.get('flights');
 				this.renderFlights(flights, itinerary, i, hourWidth);
-				// add the itinerary to the list of itineraries
-				itineraries.push(itinerary);
+				// add the itinerary to the itineraries object
+				itineraries[record.id] = itinerary;
+                if (i <= this.self.RESULTS) {
+                    // add the itinerary to the array
+                    view.down('#flights').add(itinerary);
+                }
 			}, this);
-			// display the first ten itineraries
-			for (var i = 0; i < 10; i++) {
-				// add the itinerary to the view
-				view.add(itineraries[i]);
-			}
 			// set the config itineraries variable
 			this.setItineraries(itineraries);
 		}
@@ -189,6 +192,28 @@ Ext.define('FB.view.booking.flights.FlightsController', {
 			}
 		}));
 	},
+    /**
+     * Applies the specified sort to the itineraries and displays the results
+     *
+     * @param sorter the sort specified by the user to sort by
+     */
+    sort: function (sorter) {
+        // get the data store, itinerary view data and all of the current displays
+        var dataStore = this.getDataStore();
+        var itineraries = this.getItineraries();
+        var flights = this.getView().down('#flights');
+        // remove all of the current itinerary views
+        flights.removeAll(false);
+        // apply the sorting to the data store
+        dataStore.sort(sorter);
+        // display the new results
+        var components = [];
+        for (var i = 0; i < this.self.RESULTS; i++) {
+            // add the itinerary to the view
+            components.push(itineraries[dataStore.getAt(i).id]);
+        }
+        flights.add(components);
+    },
 	/**
 	 * This method is called when the next button is pressed on the booking view
 	 *

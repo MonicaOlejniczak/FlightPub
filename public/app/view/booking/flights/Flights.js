@@ -21,11 +21,9 @@ Ext.define('FB.view.booking.flights.Flights', {
         },
         items: [{
             xtype: 'FlightsSort',
+            itemId: 'sort',
             span: 1,
             margin: '0 10px 0 0'
-        },  {
-            xtype: 'FlightsSort',
-            span: 1
         }]
     },  {
         xtype: 'component',
