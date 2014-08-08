@@ -523,7 +523,9 @@ public class BookingController extends Controller {
                 jPayment.get("ppUsername").asText(),
                 null);
 
+        itinerary.save();
         Booking booking = new Booking(user, itinerary, payment);
+        booking.save();
 
         for (JsonNode passenger : jData.get("passengers")) {
             Luggage.LuggageType luggageType = Luggage.getLuggageType(passenger.get("luggageType").asText());
@@ -532,11 +534,13 @@ public class BookingController extends Controller {
             double weight = 0; // TODO: =(
             Luggage luggage = new Luggage(luggageType, weight);
 
-           for (JsonNode flightInfo : passenger.get("flights")) {
-               Flight flight = Flight.find.byId(flightInfo.get("flightId").asLong());
-               String seatId = flightInfo.get("seat").asText();
-               Seat seat = new Seat(0, 0); // TODO
-               Ticket ticket = new Ticket(
+            for (JsonNode flightInfo : passenger.get("flights")) {
+                Flight flight = Flight.find.byId(flightInfo.get("flightId").asLong());
+                JsonNode seatNode = flightInfo.get("seat");
+                int row = seatNode.get("row").asInt();
+                int column = seatNode.get("column").asInt();
+                Seat seat = new Seat(row, column);
+                Ticket ticket = new Ticket(
                        user, // TODO: need name of passenger
                        PassengerType.find.where().eq("typeOfPassenger", PassengerType.TypeOfPassenger.ADULT).findUnique(), // TODO: fix?
                        DateTime.now(),
@@ -547,14 +551,13 @@ public class BookingController extends Controller {
                        luggage,
                        seat
                        );
-           }
+                ticket.save();
+            }
         }
 
         user.lastPayment = payment;
         user.bookings.add(booking);
-//        itinerary.save();
-//        booking.save();
-//        user.save();
+        user.save();
         return ok();
     }
 }

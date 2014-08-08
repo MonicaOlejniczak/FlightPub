@@ -168,7 +168,7 @@ public class AuthenticationController extends Controller {
 
 	public static Result getAccountType() {
 		Map<String, Object> account = new HashMap<>();
-		User user = User.find.where(Expr.eq("email", new AuthenticatedUser().getUsername(Http.Context.current()))).findUnique();
+		User user = getAuthenticatedUser();
 		if (user == null) {
 			account.put("account", "GUEST");
 		} else {
@@ -187,5 +187,10 @@ public class AuthenticationController extends Controller {
 		}
 		return ok(Json.toJson(account));
 	}
+
+    // TODO: put this somewhere
+    public static User getAuthenticatedUser() {
+        return User.find.where(Expr.eq("email", new AuthenticatedUser().getUsername(Http.Context.current()))).findUnique();
+    }
 
 }

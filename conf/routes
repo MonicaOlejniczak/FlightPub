@@ -25,6 +25,7 @@ GET         /                                           controllers.MainControll
 GET         /data/genEdges                              controllers.DataController.genEdges()
 GET         /data/airlines                              controllers.DataController.airlines()
 GET         /data/airports                              controllers.DataController.airports()
+GET         /data/bookings                              controllers.DataController.bookings()
 GET         /data/selectedFlights                       controllers.DataController.selectedFlights()
 GET         /data/account-details                       controllers.DataController.accountDetails()
 

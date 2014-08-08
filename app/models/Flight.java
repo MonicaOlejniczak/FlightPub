@@ -40,6 +40,7 @@ public class Flight extends Model implements BaseEdge {
 	/**
 	 * The List of Itineraries that this Flight is apart of.
 	 */
+    @JsonIgnore
 	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "flights")
 	public List<Itinerary> itineraries;
 

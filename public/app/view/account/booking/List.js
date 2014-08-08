@@ -4,6 +4,7 @@
 Ext.define('FB.view.account.booking.List', {
     extend: 'Ext.container.Container',
     requires: [
+        'Ext.layout.container.Accordion',
         'FB.view.account.booking.ListController'
     ],
     xtype: 'BookingList',
@@ -19,17 +20,11 @@ Ext.define('FB.view.account.booking.List', {
         cls: 'heading',
         html: 'Bookings'
     }, {
+        itemId: 'list',
         layout: {
             type: 'accordion',
             animate: true
-        }/*,
-        items: [{
-            title: 'Booking 1',
-            html: 'bookingz 1111'
-        }, {
-            title: 'Booking 2',
-            html: 'bookingz 2222'
-        }]*/
+        }
     }]
 });
 

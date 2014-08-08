@@ -175,21 +175,21 @@ Ext.define('FB.view.booking.BookingController', {
 		var payment = this.getPayment();
         var passengers = [];
         // loop through each passenger
-        for (var i = 0; i < p.ticketType.length; i++) {
+        for (var i = 0; i < s.length; i++) {
             var flights = [];
             // get the flight id and seat number for the current flight in the itinerary
-            Ext.each(s, function (seat) {
+            Ext.each(s[i], function (seat) {
                 flights.push({
                     flightId: itinerary[i],
-                    seat: seat[i]
+                    seat: seat
                 });
             }, this);
             // add the passenger information into the passengers array
             passengers.push({
                 flights: flights,
-                ticketType: p.ticketType[i],
-                luggageType: p.luggageType
-            })
+                ticketType: p.ticketType, // TODO: per passenger?
+                luggageType: p.luggageType // TODO: per passenger?
+            });
         }
         // submit the booking to the server via ajax
 		Ext.Ajax.request({

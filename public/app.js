@@ -14,13 +14,14 @@ Ext.application({
 		'Adult',
 		'Airline',
 		'Airport',
+        'Booking',
 		'Child',
 		'Flight',
 		'Infant',
 		'Itinerary',
-		'LuggageTypes',
+		'LuggageType',
 		'PaymentType',
-		'TicketTypes'
+		'TicketType'
 	],
 	/**
 	 * This method is called when the application boots

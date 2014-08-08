@@ -1,5 +1,6 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import play.data.format.Formats;
 import play.data.validation.Constraints;
 import play.db.ebean.Model;
@@ -89,6 +90,7 @@ public class Booking extends Model {
 	 * A reverse mapping of the list of tickets requested by the user
 	 * This enables the user to book for others
 	 */
+    @JsonIgnore
 	@Constraints.Required
 	@OneToMany(mappedBy = "booking", fetch = FetchType.LAZY)
 	public List<Ticket> tickets = new ArrayList<>();

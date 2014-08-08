@@ -25,6 +25,55 @@ public class DataController extends Controller {
         return ok(Json.toJson(flights));
 	}
 
+    public static Result bookings() {
+        List<Booking> bookings = Booking.find.where().eq("user", AuthenticationController.getAuthenticatedUser()).findList();
+        List<Map<String, Object>> jBookings = new ArrayList<>();
+        for (Booking booking : bookings) {
+            HashMap<String, Object> jBooking = new HashMap<>();
+            jBooking.put("id", booking.id);
+            jBooking.put("status", booking.status);
+
+            HashMap<String, Object> jItinerary = new HashMap<>();
+            Itinerary itinerary = booking.itinerary;
+
+            List<Map<String, Object>> jFlights = new ArrayList<>();
+            for (Flight flight : itinerary.flights) {
+                Map<String, Object> jFlight = new HashMap<>();
+                jFlight.put("id", flight.id);
+                jFlight.put("flightNumber", flight.flightNumber);
+                jFlight.put("duration", flight.duration);
+                jFlight.put("departureTime", flight.departureTime.getMillis());
+                jFlight.put("arrivalTime", flight.arrivalTime.getMillis());
+
+                Map<String, Object> jSource = new HashMap<>();
+                jSource.put("name", flight.source.name);
+                jFlight.put("source", jSource);
+
+                Map<String, Object> jDestination = new HashMap<>();
+                jDestination.put("name", flight.destination.name);
+                jDestination.put("code", flight.destination.code);
+                jFlight.put("destination", jDestination);
+
+                Map<String, Object> jAirline = new HashMap<>();
+                jAirline.put("name", flight.airline.name);
+                jFlight.put("airline", jAirline);
+
+                // todo fix price table: double price = flight.getPrice().price;
+                double price = Math.random() * 500;
+                Map<String, Object> jPrice = new HashMap<>();
+                jPrice.put("price", price);
+                jFlight.put("price", jPrice);
+
+                jFlights.add(jFlight);
+            }
+            jItinerary.put("flights", jFlights);
+
+            jBooking.put("itinerary", jItinerary);
+            jBookings.add(jBooking);
+        }
+        return ok(Json.toJson(jBookings));
+    }
+
 	public static Result selectedFlights() {
 
 		String sourceName = request().getQueryString("source");
