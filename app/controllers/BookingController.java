@@ -533,6 +533,8 @@ public class BookingController extends Controller {
 
             double weight = 0; // TODO: =(
             Luggage luggage = new Luggage(luggageType, weight);
+            Person person = new Person(passenger.get("firstName").asText(), passenger.get("lastName").asText());
+            person.save();
 
             for (JsonNode flightInfo : passenger.get("flights")) {
                 Flight flight = Flight.find.byId(flightInfo.get("flightId").asLong());
@@ -541,7 +543,7 @@ public class BookingController extends Controller {
                 int column = seatNode.get("column").asInt();
                 Seat seat = new Seat(row, column);
                 Ticket ticket = new Ticket(
-                       user, // TODO: need name of passenger
+                       person,
                        PassengerType.find.where().eq("typeOfPassenger", PassengerType.TypeOfPassenger.ADULT).findUnique(), // TODO: fix?
                        DateTime.now(),
                        flight,
