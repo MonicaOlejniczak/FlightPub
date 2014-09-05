@@ -35,6 +35,7 @@ Ext.define('FB.view.Home', {
 		defaults: {
 			xtype: 'datefield',
 			minDate: new Date(),
+            submitFormat: 'U000',
 			margin: '0 0 2px 0',
 			flex: 1
 		},

@@ -71,20 +71,12 @@ public class User extends Person {
     @Constraints.MaxLength(50)
     public String state;
 
-    @Constraints.MaxLength(8)
-    public String paymentMethod;
-
     public Integer postcode;
 
     public Integer phoneNumber;
 
-    @Constraints.MaxLength(30)
-	public String cardName;
-
-    public Integer cardNumber;
-
-    @Constraints.MaxLength(130)
-    public String ppUsername;
+	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	public Payment lastPayment;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     public List<Booking> bookings = new ArrayList<>();
@@ -94,9 +86,6 @@ public class User extends Person {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     public List<Notification> notifications = new ArrayList<>();
-
-    @OneToMany(mappedBy = "pUser", fetch = FetchType.LAZY)
-    public List<Payment> paymentDetails = new ArrayList<>();
 
     /**
      * Class constructor setting the required variables of the class
@@ -109,6 +98,7 @@ public class User extends Person {
         this.registrationDate = new Date();
         this.theme = Theme.LIGHT;
         this.unit= Units.METRIC;
+	    this.lastPayment = new Payment();
     }
 
 	/**
@@ -173,14 +163,6 @@ public class User extends Person {
         } catch (NoSuchAlgorithmException e) {
             return Crypt.sha1(passwordAndSalt);
         }
-    }
-
-    /**
-     * Function for adding payment details to the user.
-     * @param payment  The set of payment details being added to the payment details list.
-     */
-    public void addPayDetails(Payment payment) {
-        paymentDetails.add(payment);
     }
 
     /**
