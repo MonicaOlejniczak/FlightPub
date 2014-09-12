@@ -14,10 +14,6 @@ module.exports = function(config) {
           , 'karma-chrome-launcher'
           , 'karma-firefox-launcher'],
 
-//      frameworks: [
-//          'ng-extjs-scenario'
-//      ]
-//      ,
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
@@ -30,12 +26,6 @@ module.exports = function(config) {
     files: [
       '*.js',
       'test/js/*.spec.js',
-      '/test/js/*.spec.js',
-      '/test/js/jasmine/*.spec.js',
-      '/test/js/jasmine/specs/*.spec.js',
-      '/test/js/jasmine/specs/*spec.js',
-      '/test/js/jasmine/specs/*Spec.js',
-      '/test/js/jasmine/specs/*.spec.js',
       'test/js/jasmine/specs/*.spec.js',
         'test/*.spec.js'
     ],

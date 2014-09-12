@@ -11,7 +11,10 @@ libraryDependencies ++= Seq(
 	//javaJpa,		// Java JPA plugin
 	//filters,		// A set of built-in filters
 	javaCore,			// The core Java API
+
+// this was for the jasmine sbt plugin. not needed if not going through sbt.
 //  jasmineSettings,  // Jasmine Framework/Plugin Settings
+
 	// WebJars pull in client-side web libraries
 	"org.webjars" %% "webjars-play" % "2.2.1-2",
 	"org.webjars" % "bootstrap" % "3.1.1-1",
@@ -20,9 +23,16 @@ libraryDependencies ++= Seq(
 	// "group" % "artifact" % "version"
 )
 
+play.Project.playJavaSettings
+
+
+// the reason i abandoned the sbt plugin is because i wasn't sure
+// exactly how to set it up with these settings.
+// then stumbled onto karma, which was simple through npm.
 
 //seq(jasmineSettings : _*)
-jasmineSettings
+//jasmineSettings
+
 // Jasmine Config Paths
 
 // directory to app.js and javascript files.
@@ -41,10 +51,8 @@ jasmineSettings
 // jasmineRequireConfFile - the require.conf.js configuration file for require.js
 
 
-play.Project.playJavaSettings
-
-
 // link jasmine to the standard 'sbt test' action.
 // Now when running 'test' jasmine tests will be run
 // and after that other Play tests will be executed.
-(test in Test) <<= (test in Test) dependsOn (jasmine)
+//(test in Test) <<= (test in Test) dependsOn (jasmine)
+// ^ possibly can link the karma run to the sbt run like this ^
