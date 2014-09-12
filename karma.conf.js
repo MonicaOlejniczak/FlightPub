@@ -1,5 +1,5 @@
 // Karma configuration
-// Generated on Fri Sep 12 2014 15:17:40 GMT+1000 (EST)
+// Generated on Fri Sep 12 2014 22:17:49 GMT+1000 (EST)
 
 module.exports = function(config) {
   config.set({
@@ -8,26 +8,15 @@ module.exports = function(config) {
     basePath: '',
 
 
-      plugins: [
-          'karma-ng-extjs-scenario'
-          , 'karma-jasmine'
-          , 'karma-chrome-launcher'
-          , 'karma-firefox-launcher'],
-
-
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-      frameworks: ['jasmine'],
-//    frameworks: ['jasmine', 'ng-extjs-scenario'],
-//    frameworks: ['ng-extjs-scenario'],
+    frameworks: ['jasmine'],
 
 
     // list of files / patterns to load in the browser
     files: [
-      '*.js',
-      'test/js/*.spec.js',
-      'test/js/jasmine/specs/*.spec.js',
-        'test/*.spec.js'
+      'public/',
+      'test/js/jasmine/specs/'
     ],
 
 
@@ -67,8 +56,22 @@ module.exports = function(config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['Chrome', 'Firefox', 'Safari', 'Opera', 'IE'],
+    // phantom allows to test on html/js without a browser
 
+      // phantom only mode
+    browsers: ['PhantomJS'],
+
+    // browser and phantom mode
+//    browsers: ['Chrome', 'Firefox', 'Safari', 'Opera', 'IE', 'PhantomJS'],
+
+      // browser only mode mac (no IE)
+//    browsers: ['Chrome', 'Firefox', 'Safari', 'Opera'],
+
+      // browser only mode windows (no Safari)
+//    browsers: ['Chrome', 'Firefox', 'Opera', 'IE'],
+
+      // browser only mode windows + safari
+//    browsers: ['Chrome', 'Firefox', 'Safari', 'Opera', 'IE'],
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
