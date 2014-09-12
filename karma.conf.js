@@ -10,13 +10,28 @@ module.exports = function(config) {
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ['jasmine'],
+//    frameworks: ['jasmine'],
+//    frameworks: ['jasmine', 'ng-extjs-scenario'],
+    frameworks: ['ng-extjs-scenario'],
 
+    plugins: [
+          'karma-ng-extjs-scenario'
+          , 'karma-jasmine'
+          , 'karma-chrome-launcher'
+          , 'karma-firefox-launcher'
+          , 'karma-safari-launcher'
+          , 'karma-opera-launcher'
+          , 'karma-ie-launcher'
+          , 'karma-phantomjs-launcher'
+          , 'karma-js-coverage'
+
+
+    ],
 
     // list of files / patterns to load in the browser
     files: [
-      'public/',
-      'test/js/jasmine/specs/'
+      'public/**/*.js',
+      'test/js/jasmine/**/*.js'
     ],
 
 
@@ -27,15 +42,26 @@ module.exports = function(config) {
 
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-    preprocessors: {
-    },
+//    preprocessors: {
+//    },
+      preprocessors: { '*.js': ['coverage'] },
 
 
-    // test results reporter to use
+
+      // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress'],
+        // js.jasmine.coverage reporter generates the js.jasmine.coverage
+    reporters: ['progress', 'coverage'],
 
+
+      // optionally, configure the reporter
+      coverageReporter: {
+          type : 'html',
+//          dir : 'test/js/jasmine/coverage/'
+          dir : 'test/js.jasmine.coverage/'
+
+      },
 
     // web server port
     port: 9876,
@@ -75,6 +101,6 @@ module.exports = function(config) {
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
-    singleRun: false
+    singleRun: true
   });
 };

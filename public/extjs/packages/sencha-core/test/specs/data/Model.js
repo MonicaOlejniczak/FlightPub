@@ -2996,7 +2996,7 @@ describe("Ext.data.Model", function() {
     });
 
     describe('calculated fields', function () {
-        // We have coverage of "convert" so here we just focus on the conversion of the
+        // We have js.jasmine.coverage of "convert" so here we just focus on the conversion of the
         // "calculate" config to its proper "convert" equivalent.
         var Type,
             field,
