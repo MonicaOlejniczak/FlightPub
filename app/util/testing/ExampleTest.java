@@ -1,5 +1,9 @@
 package util.testing;
 
+import models.Airline;
+
+import java.util.List;
+
 public class ExampleTest {
 
     public int testOne() {
@@ -11,4 +15,7 @@ public class ExampleTest {
 
     }
 
+    public List<Airline> testDatabaseConnection() {
+        return Airline.find.findList();
+    }
 }
