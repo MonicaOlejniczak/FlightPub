@@ -7,9 +7,12 @@ module.exports = function (config) {
         frameworks: ['jasmine', 'requirejs'],
         // list of files / patterns to load in the browser
         files: [
-            {pattern: 'test/test-main.js', included: true},
-            {pattern: 'public/test/*.js', included: true},
-            {pattern: 'test/js/jasmine/**/*.js', included: false}
+            {pattern: 'public/test/**/*.js', included: false},
+            {pattern: 'public/extjs/build/ext-all-debug.js', included: true},
+            {pattern: 'public/extjs/**/*.js', included: false},
+            {pattern: 'public/extjs/packages/sencha-core/.sencha/package/Boot.js', included: false},
+            {pattern: 'test/js/jasmine/**/*.js', included: false},
+            {pattern: 'test/test-main.js', included: true}
         ],
         exclude: [ ],
         // preprocess matching files before serving them to the browser

@@ -17,18 +17,32 @@ require.config({
     baseUrl: '/base',
 
     paths: {
-        'extjs': 'public/extjs/ext-debug.js'
+        'extjs': 'public/extjs/ext-debug'
     },
 
-    /*shim: {
+    shim: {
         'extjs': {
             exports: 'Ext'
         }
-    },*/
+    },
 
     // dynamically load all test files
     deps: allTestFiles,
 
     // we have to kickoff jasmine, as it is asynchronous
     callback: window.__karma__.start
+});
+
+var karmaLoadedFunction = window.__karma__.loaded;
+window.__karma__.loaded = function() {};
+
+Ext.Loader.setConfig({
+    paths: {
+        'Test': 'base/public/test'
+    }
+});
+
+Ext.onReady(function() {
+    window.__karma__.loaded =  karmaLoadedFunction;
+    window.__karma__.loaded();
 });
