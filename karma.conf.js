@@ -10,9 +10,9 @@ module.exports = function(config) {
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-//    frameworks: ['jasmine'],
+    frameworks: ['jasmine'],
 //    frameworks: ['jasmine', 'ng-extjs-scenario'],
-    frameworks: ['ng-extjs-scenario'],
+//    frameworks: ['ng-extjs-scenario'],
 
     plugins: [
           'karma-ng-extjs-scenario'
