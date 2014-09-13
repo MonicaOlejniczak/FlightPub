@@ -20,6 +20,12 @@ require.config({
         'extjs': 'public/extjs/ext-debug.js'
     },
 
+    /*shim: {
+        'extjs': {
+            exports: 'Ext'
+        }
+    },*/
+
     // dynamically load all test files
     deps: allTestFiles,
 

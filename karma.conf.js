@@ -8,8 +8,8 @@ module.exports = function (config) {
         // list of files / patterns to load in the browser
         files: [
             {pattern: 'test/test-main.js', included: true},
-            {pattern: 'test/js/jasmine/**/*.js', included: true},
-            {pattern: 'public/test/*.js', included: true}
+            {pattern: 'public/test/*.js', included: true},
+            {pattern: 'test/js/jasmine/**/*.js', included: false}
         ],
         exclude: [ ],
         // preprocess matching files before serving them to the browser
