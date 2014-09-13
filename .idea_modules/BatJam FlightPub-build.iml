@@ -5,8 +5,6 @@
     <output-test url="file://$MODULE_DIR$/../project/target/idea-test-classes" />
     <exclude-output />
     <content url="file://$MODULE_DIR$/../project">
-      <sourceFolder url="file://$MODULE_DIR$/../project" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/../project/project" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/../project/boot" />
       <excludeFolder url="file://$MODULE_DIR$/../project/project/project/target" />
       <excludeFolder url="file://$MODULE_DIR$/../project/project/target" />
@@ -100,6 +98,7 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="SBT: scala:2.10.2" level="project" />
+    <orderEntry type="library" name="SBT: junit:junit:4.11:test" level="project" />
   </component>
 </module>
 
