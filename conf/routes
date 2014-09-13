@@ -22,7 +22,7 @@ POST        /account/process                            controllers.TestAuthCont
 GET         /data/selected-flights                      controllers.DataController.selectedFlights()
 GET         /account                                    controllers.TestAuthController.index()
 GET         /                                           controllers.MainController.home()
-GET         /data/genEdges                              controllers.DataController.genEdges()
+#GET         /data/genEdges                              controllers.DataController.genEdges()
 GET         /data/airlines                              controllers.DataController.airlines()
 GET         /data/airports                              controllers.DataController.airports()
 GET         /data/bookings                              controllers.DataController.bookings()

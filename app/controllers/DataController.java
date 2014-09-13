@@ -11,20 +11,6 @@ import java.util.*;
 
 public class DataController extends Controller {
 
-	public static Result flights() {
-        List<Flight> flights = Flight.find.select("flightNumber").setMaxRows(10).findList();
-//        Json..newObject();
-//        JsArray result = new JsArray();
-//        for (Flight flight : flights) {
-//            HashMap<String, JsValue> map = new HashMap<>();
-//            Seq<>
-//            map.put("test", new JsString("WHAT"));
-//            JsObject flightObj = new JsObject(map);
-//            flightObj
-//        }
-        return ok(Json.toJson(flights));
-	}
-
     public static Result bookings() {
         List<Booking> bookings = Booking.find.where().eq("user", AuthenticationController.getAuthenticatedUser()).findList();
         List<Map<String, Object>> jBookings = new ArrayList<>();
@@ -196,10 +182,10 @@ public class DataController extends Controller {
         return ok(Json.toJson(airports));
     }
 
-    public static Result genEdges() {
+    /*public static Result genEdges() {
         FlightFinder.genEdges();
         return ok("done");
-    }
+    }*/
 
 	public static Result accountDetails() {
 		Map<String, Object> details = new HashMap<>();
