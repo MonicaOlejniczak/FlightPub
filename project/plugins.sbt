@@ -16,4 +16,3 @@ libraryDependencies += "org.hamcrest" % "hamcrest-core" % "1.3"
 // EasyMock dependency
 libraryDependencies += "org.easymock" % "easymock" % "3.2"
 
-
