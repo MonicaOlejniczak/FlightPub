@@ -106,24 +106,6 @@ public class TestAuthController extends Controller {
          * Preferred payment method
          */
         public String paymentMethod;
-
-        /**
-         * Name on card
-         */
-        @Constraints.MaxLength(value = 30, message = "Name too long!")
-        @Constraints.Pattern(value = "\\D*", message = "Name cannot contain numbers!")
-        public String cardName;
-
-        /**
-         * Card number
-         */
-        public Integer cardNumber;
-
-        /**
-         * PayPal username
-         */
-        @Constraints.MaxLength(value = 130, message = "Name too long!")
-        public String ppUsername;
     }
 
 	/**
@@ -199,27 +181,6 @@ public class TestAuthController extends Controller {
 			    }
 		    } else {
 			    user.lastPayment.paymentMethod = null;
-		    }
-		    if (!details.cardName.isEmpty()) {
-			    if (!details.cardName.equals(user.lastPayment.cardName)) {
-				    user.lastPayment.cardName = details.cardName;
-			    }
-		    } else {
-			    user.lastPayment.cardName = null;
-		    }
-		    if (details.cardNumber != null) {
-			    if (!details.cardNumber.equals(user.lastPayment.cardNumber)) {
-				    user.lastPayment.cardNumber = details.cardNumber;
-			    }
-		    } else {
-			    user.lastPayment.cardNumber = null;
-		    }
-		    if (!details.ppUsername.isEmpty()) {
-			    if (!details.ppUsername.equals(user.lastPayment.ppUsername)) {
-				    user.lastPayment.ppUsername = details.ppUsername;
-			    }
-		    } else {
-			    user.lastPayment.ppUsername = null;
 		    }
 		    user.save();
         }

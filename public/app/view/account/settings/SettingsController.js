@@ -66,9 +66,6 @@ Ext.define('FB.view.account.settings.SettingsController', {
 		if (details.paymentMethod != null) {
 			form.down("#paymentMethod").setValue(details.paymentMethod);
 		}
-		form.down("#cardName").setValue(details.cardName);
-		form.down("#cardNumber").setValue(details.cardNumber);
-		form.down("#ppUsername").setValue(details.ppUsername);
 	},
 	/**
 	 * The event fired when cancelling any setting updates
