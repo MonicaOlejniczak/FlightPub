@@ -83,7 +83,8 @@ Ext.define('FB.view.authentication.register.RegisterController', {
 				params: form.getValues(),
 				success: function (response) {
 					// server side validation was successful and the user is redirected to the home page
-					form.fireEvent('register');
+                    Ext.Msg.alert('Success', 'You have successfully registered.');
+                    form.fireEvent('register');
 					console.log(response.responseText);
 				},
 				failure: function (response) {
