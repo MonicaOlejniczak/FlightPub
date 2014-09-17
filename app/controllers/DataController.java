@@ -201,9 +201,6 @@ public class DataController extends Controller {
 		details.put("postcode", user.postcode);
 		if (user.lastPayment != null) {
 			details.put("paymentMethod", user.lastPayment.paymentMethod);
-			details.put("cardName", user.lastPayment.cardName);
-			details.put("cardNumber", user.lastPayment.cardNumber);
-			details.put("ppUsername", user.lastPayment.ppUsername);
 		}
 		return ok(Json.toJson(details));
 	}

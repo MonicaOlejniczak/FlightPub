@@ -79,11 +79,10 @@ Ext.define('FB.view.home.HomeController', {
 		var form = this.getView();
 		// check the flight details have been filled out
 		if (form.isValid()) {
-			var component = Ext.create('FB.view.booking.Booking', {
-				flightDetails: form.getValues()
-			});
 			this.getView().fireEvent('redirect', {
-				component: component,
+				component: Ext.create('FB.view.booking.BookingProcess', {
+                    flightDetails: form.getValues()
+                }),
 				add: true
 			});
 		} else {
