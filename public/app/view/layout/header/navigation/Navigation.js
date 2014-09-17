@@ -28,8 +28,5 @@ Ext.define('FB.view.layout.header.navigation.Navigation', {
 	},  {
 		itemId: 'about',
 		text: 'About'
-	},  {
-		itemId: 'contact',
-		text: 'Contact'
 	}]
 });

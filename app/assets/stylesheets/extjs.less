@@ -8,8 +8,15 @@
 	border: 0;
 }
 
+.x-panel-body-default, .x-form-item-label {
+	color: @mainFontColor;
+}
+
+.x-panel-body-default, .x-form-item-label, .x-list-plain{
+    font: 1em 'Ubuntu' @nextFont;
+}
+
 .x-form-item-label {
-	font: 1em 'Ubuntu' @nextFont;
 	text-align: right;
 	padding: 0 1em 0 0;
 }
@@ -30,7 +37,7 @@
 
 .x-boundlist-selected, .x-boundlist-item-over {
 	background: @buttonBackgroundColor;
-	color: #fff;
+	color: @mainFontColor;
 }
 
 .x-form-invalid-under {

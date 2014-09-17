@@ -16,10 +16,6 @@ Ext.define('FB.view.account.booking.List', {
         align: 'stretch'
     },
     items: [{
-        xtype: 'header',
-        cls: 'heading',
-        html: 'Bookings'
-    }, {
         itemId: 'list',
         layout: {
             type: 'accordion',

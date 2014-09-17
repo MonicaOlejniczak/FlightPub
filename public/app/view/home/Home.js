@@ -58,15 +58,11 @@ Ext.define('FB.view.home.Home', {
 				flex: 1
 			},
 			items: [{
-				xtype: 'Adults',
-				fieldLabel: 'Passengers',
-				value: 1
+				xtype: 'Adults'
 			},  {
-				xtype: 'Children',
-				value: 0
+				xtype: 'Children'
 			},  {
-				xtype: 'Infants',
-				value: 0
+				xtype: 'Infants'
 			}]
 		},  {
 			xtype: 'container',
