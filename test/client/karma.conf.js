@@ -10,6 +10,7 @@ module.exports = function (config) {
             {pattern: 'public/extjs/build/ext-all-debug.js', included: true},
             {pattern: 'public/app/**/*.js', included: false},
             {pattern: 'test/client/test-main.js', included: true},
+            {pattern: 'test/client/mock/**/*.js', included: false},
             {pattern: 'test/client/app/**/*.js', included: false}
         ],
         exclude: [ ],

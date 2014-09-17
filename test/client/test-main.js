@@ -28,7 +28,8 @@ window.__karma__.loaded = function() {};
 
 Ext.Loader.setConfig({
     paths: {
-        'FB': 'base/public/app'
+        'FB': 'base/public/app',
+        'Mock': 'base/test/client/mock'
     }
 });
 
