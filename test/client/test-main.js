@@ -16,16 +16,6 @@ require.config({
     // Karma serves files under /base, which is the basePath from your config file
     baseUrl: '/base',
 
-    paths: {
-        'extjs': 'public/extjs/ext-debug'
-    },
-
-    shim: {
-        'extjs': {
-            exports: 'Ext'
-        }
-    },
-
     // dynamically load all test files
     deps: allTestFiles,
 
@@ -38,7 +28,7 @@ window.__karma__.loaded = function() {};
 
 Ext.Loader.setConfig({
     paths: {
-        'Test': 'base/public/test'
+        'FB': 'base/public/app'
     }
 });
 

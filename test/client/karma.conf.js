@@ -1,18 +1,16 @@
 module.exports = function (config) {
     config.set({
         // base path that will be used to resolve all patterns (eg. files, exclude)
-        basePath: '',
+        basePath: '../../',
         // frameworks to use
         // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
         frameworks: ['jasmine', 'requirejs'],
         // list of files / patterns to load in the browser
         files: [
-            {pattern: 'public/test/**/*.js', included: false},
             {pattern: 'public/extjs/build/ext-all-debug.js', included: true},
-            {pattern: 'public/extjs/**/*.js', included: false},
-            {pattern: 'public/extjs/packages/sencha-core/.sencha/package/Boot.js', included: false},
-            {pattern: 'test/js/jasmine/**/*.js', included: false},
-            {pattern: 'test/test-main.js', included: true}
+            {pattern: 'public/app/**/*.js', included: false},
+            {pattern: 'test/client/test-main.js', included: true},
+            {pattern: 'test/client/app/**/*.js', included: false}
         ],
         exclude: [ ],
         // preprocess matching files before serving them to the browser
