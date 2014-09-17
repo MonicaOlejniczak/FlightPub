@@ -4,7 +4,7 @@ module.exports = function (config) {
         basePath: '../../',
         // frameworks to use
         // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-        frameworks: ['jasmine', 'requirejs'],
+        frameworks: ['jasmine', 'jasmine-matchers', 'requirejs'],
         // list of files / patterns to load in the browser
         files: [
             {pattern: 'public/extjs/build/ext-all-debug.js', included: true},

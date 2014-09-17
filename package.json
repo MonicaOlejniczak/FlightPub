@@ -3,11 +3,13 @@
   "version": "1.0.1",
   "repository": "https://bitbucket.org/batjam/flightpub",
   "devDependencies": {
+    "jasmine-expect": "^1.22.2",
     "karma-chrome-launcher": "^0.1.4",
     "karma-extjs": "^0.1.8",
     "karma-firefox-launcher": "^0.1.3",
     "karma-ie-launcher": "^0.1.5",
     "karma-jasmine": "^0.2.2",
+    "karma-jasmine-matchers": "^0.1.3",
     "karma-js-coverage": "^0.4.0",
     "karma-ng-extjs-scenario": "^0.1.0",
     "karma-opera-launcher": "^0.1.0",
