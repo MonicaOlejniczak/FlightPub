@@ -45,5 +45,39 @@ describe("The home page", function () {
             expect(minDate).toBeBefore(afterTomorrowEnd);
         });
 
-    })
+    });
+
+    describe("has a form submission", function () {
+        it("does not submit when there is no data", function () {
+
+        });
+
+        it("does not submit when there is no flight from", function () {
+
+        });
+
+        it("does not submit when there is no flight to", function () {
+
+        });
+
+        it("does not submit when the flight from and flight to are the same", function () {
+
+        });
+
+        it("does not submit when there is no departing", function () {
+
+        });
+
+        it("does not submit when there is no returning", function () {
+
+        });
+
+        it("does not submit when there are no passengers", function () {
+
+        });
+
+        it("submits with valid data", function () {
+
+        });
+    });
 });
