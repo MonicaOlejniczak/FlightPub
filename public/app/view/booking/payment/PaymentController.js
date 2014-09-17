@@ -42,9 +42,6 @@ Ext.define('FB.view.booking.payment.PaymentController', {
 		if (details.paymentMethod != null) {
 			form.down("#paymentMethod").setValue(details.paymentMethod);
 		}
-		form.down("#cardName").setValue(details.cardName);
-		form.down("#cardNumber").setValue(details.cardNumber);
-		form.down("#ppUsername").setValue(details.ppUsername);
 	},
 	/**
 	 * This method is called when the next button is pressed on the booking view

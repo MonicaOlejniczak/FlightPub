@@ -19,6 +19,10 @@ Ext.define('FB.view.home.HomeController', {
 	},
 	init: function () {
 		var form = this.getView();
+        // set the dates for the departure and returning
+        var currentDate = new Date();
+        form.down('#departing').setMinValue(currentDate);
+        form.down('#returning').setMinValue(currentDate);
 		// add the event listeners to the form
 		this.addEvents(form);
     },
@@ -44,8 +48,30 @@ Ext.define('FB.view.home.HomeController', {
 		form.on('afterrender', this.render, this);
 		form.down('#flightFrom').on('select', flightFrom, this);
 		form.down('#flightTo').on('select', flightTo, this);
+        form.down('#departing').on('select', this.departing, this);
 		form.down('#submit').on('click', this.submit, this);
 	},
+    /**
+     * An event that is fired when the user chooses a departure date to ensure that the returning date is after that
+     * day that they specified.
+     *
+     * @param departing the component that had the event fired
+     * @param date the date that was selected by the user
+     */
+    departing: function (departing, date) {
+        // get the returning date component
+        // get the date for tomorrow
+        // set the minimum value of the returning date component
+        var returning = this.getView().down('#returning');
+        var tomorrow = new Date(date.getTime() + (1000 * 60 * 60 * 24));
+        returning.setMinValue(tomorrow);
+        // check if the returning date needs to be updated
+        if (returning.getValue() === null || returning.getValue().getTime() < date.getTime()) {
+            // set the value to tomorrow
+            returning.setValue(tomorrow);
+        }
+
+    },
 	/**
 	 * Submits the home controller form
 	 */
@@ -53,11 +79,10 @@ Ext.define('FB.view.home.HomeController', {
 		var form = this.getView();
 		// check the flight details have been filled out
 		if (form.isValid()) {
-			var component = Ext.create('FB.view.booking.Booking', {
-				flightDetails: form.getValues()
-			});
 			this.getView().fireEvent('redirect', {
-				component: component,
+				component: Ext.create('FB.view.booking.BookingProcess', {
+                    flightDetails: form.getValues()
+                }),
 				add: true
 			});
 		} else {

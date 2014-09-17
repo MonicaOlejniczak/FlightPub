@@ -23,10 +23,19 @@ Ext.define('FB.view.account.booking.ListController', {
     renderBookings: function (bookings) {
         var view = this.getView();
         var list = view.down('#list');
-        bookings.each(function (booking) {
-            list.add(Ext.widget('Booking', {
-                booking: booking
-            }));
-        });
+        // check if there are no bookings
+        if (bookings.data.items.length === 0) {
+            view.add(Ext.create('Ext.Component'), {
+                html: 'You have not made any bookings.',
+                cls: 'text'
+            })
+        } else {
+            // display all bookings
+            bookings.each(function (booking) {
+                list.add(Ext.widget('Booking', {
+                    booking: booking
+                }));
+            });
+        }
     }
 });

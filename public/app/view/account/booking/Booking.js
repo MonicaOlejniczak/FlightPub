@@ -11,14 +11,22 @@ Ext.define('FB.view.account.booking.Booking', {
     config: {
         booking: null
     },
-    style: {
-        backgroundColor: '#fff'
-    },
+    cls: 'bookingItem',
     // horrors
-    tpl: '<div class="bookingItem">'
-        +'<div>Status: {status}</div>'
-        +'<div>Departing from {source} on {departureTime}</div>'
-        +'<div>Arriving at {destination} on {arrivalTime}</div>'
-        +'</div>'
+    tpl: '<div class="bookingContent">'
+            + '<div><strong>Status:</strong> {status}</div>'
+            + '<div><strong>Departing:</strong>'
+            + '<div class="departing">'
+                + '<div><strong>Location: </strong> {source}</div>'
+                + '<div><strong>Date: </strong> {departureDate}</div>'
+                + '<div><strong>Time: </strong> {departureTime}</div>'
+            + '</div>'
+            + '<div><strong>Arriving:</strong>'
+            + '<div class="arriving">'
+                + '<div><strong>Location: </strong> {destination}</div>'
+                + '<div><strong>Date: </strong> {arrivalDate}</div>'
+                + '<div><strong>Time: </strong> {arrivalTime}</div>'
+            + '</div>'
+        + '</div>'
 });
 

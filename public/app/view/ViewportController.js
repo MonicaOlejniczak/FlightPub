@@ -24,7 +24,8 @@ Ext.define('FB.view.ViewportController', {
 		'Login': {
 			login: 'process'
 		},
-		'Booking': {
+		'BookingProcess': {
+            redirect: 'redirect',
 			removebooking: 'removeBooking'
 		},
         'Payment': {

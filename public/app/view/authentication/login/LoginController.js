@@ -49,6 +49,7 @@ Ext.define('FB.view.authentication.login.LoginController', {
 				submitEmptyText: false,
 				success: function (response) {
 					// server side validation was successful and the user is redirected to the home page
+                    Ext.Msg.alert('Success', 'You have successfully logged in.');
 					form.fireEvent('login');
 					console.log(response.responseText);
 				},

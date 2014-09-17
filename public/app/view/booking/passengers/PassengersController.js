@@ -37,13 +37,22 @@ Ext.define('FB.view.booking.passengers.PassengersController', {
     getPassengers: function (values) {
         var passengers = [];
         var j = this.getView().getPassengers();
-        for (var i = 0; i < j; i++) {
+        if (j === 1) {
             passengers.push({
-                firstName: values.firstName[i],
-                lastName: values.lastName[i],
-                ticketType: values.ticketType[i],
-                luggageType: values.luggageType[i]
-            });
+                firstName: values.firstName,
+                lastName: values.lastName,
+                ticketType: values.ticketType,
+                luggageType: values.luggageType
+            })
+        } else {
+            for (var i = 0; i < j; i++) {
+                passengers.push({
+                    firstName: values.firstName[i],
+                    lastName: values.lastName[i],
+                    ticketType: values.ticketType[i],
+                    luggageType: values.luggageType[i]
+                });
+            }
         }
         return passengers;
     },

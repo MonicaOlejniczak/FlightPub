@@ -17,13 +17,6 @@ Ext.define('FB.view.layout.header.navigation.NavigationController', {
 				});
 			}
 		},
-		'#contact': {
-			click: function () {
-				this.getView().fireEvent('redirect', {
-					page: 'Contact'
-				});
-			}
-		},
 		'#register': {
 			click: function () {
 				this.getView().fireEvent('redirect', {
