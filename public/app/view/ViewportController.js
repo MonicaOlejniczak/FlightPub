@@ -30,6 +30,9 @@ Ext.define('FB.view.ViewportController', {
 		},
         'Payment': {
             redirect: 'redirect'
+        },
+        'AccountSettings': {
+            redirect: 'redirect'
         }
 	},
 	/**
@@ -38,11 +41,7 @@ Ext.define('FB.view.ViewportController', {
 	 * @param parameters the page to redirect to and if it it to be added to the content
 	 */
 	redirect: function (parameters) {
-		parameters = parameters || {};
 		var content = this.getView().down('Content').controller;
-		if (parameters.add === true) {
-			content.addPage(parameters);
-		}
 		content.setPage(parameters);
 	},
 	/**

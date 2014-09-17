@@ -4,6 +4,7 @@
 Ext.define('FB.view.account.booking.BookingController', {
     extend: 'Ext.app.ViewController',
     alias: 'controller.Booking',
+    scrollPosition: null,
     init: function () {
         var view = this.getView();
         var booking = view.getBooking();
@@ -22,7 +23,7 @@ Ext.define('FB.view.account.booking.BookingController', {
             departureDate: Ext.Date.format(departureTime, dateFormat),
             departureTime: Ext.Date.format(departureTime, timeFormat),
             arrivalDate: Ext.Date.format(arrivalTime, dateFormat),
-            arrivalTime: Ext.Date.format(arrivalTime, timeFormat),
+            arrivalTime: Ext.Date.format(arrivalTime, timeFormat)
         });
         var title = Ext.String.format("{0} to {1}", source.name ,destination.name);
         view.setTitle(title);

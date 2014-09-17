@@ -80,11 +80,9 @@ Ext.define('FB.view.home.HomeController', {
 		// check the flight details have been filled out
 		if (form.isValid()) {
 			this.getView().fireEvent('redirect', {
-				component: Ext.create('FB.view.booking.BookingProcess', {
-                    flightDetails: form.getValues()
-                }),
-				add: true
-			});
+                className: 'FB.view.booking.BookingProcess',
+                flightDetails: form.getValues()
+            });
 		} else {
 			Ext.Msg.alert('Error', 'Please ensure you have entered the flight details correctly.');
 		}

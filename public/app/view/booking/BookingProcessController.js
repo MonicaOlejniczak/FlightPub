@@ -71,8 +71,12 @@ Ext.define('FB.view.booking.BookingProcessController', {
 		view.down('#next').on('click', this.next, this);
 		view.down('#cancel').on({
 			click: {
-				fn: Ext.pass(this.cancel, [view, Ext.Function.pass(view.fireEvent, ['redirect', {page: 'Home'}], view)], this),
-				scope: this
+				fn: function () {
+                    this.cancel(view, function () {
+                        view.fireEvent('redirect');
+                    });
+                },
+                scope: this
 			}
 		});
 	},
@@ -109,9 +113,7 @@ Ext.define('FB.view.booking.BookingProcessController', {
 		if (this.getCurrentPage() === 1) {
 			var booking = this.getView();
 			booking.fireEvent('removebooking', booking, Ext.bind(function () {
-                booking.fireEvent('redirect', {
-                    page: 'Home'
-                });
+                booking.fireEvent('redirect');
             }, this)); // gone back too far
 		} else {
 			this.setPage(this.getCurrentPage() - 1); // go back one page
@@ -215,8 +217,7 @@ Ext.define('FB.view.booking.BookingProcessController', {
 				Ext.Msg.alert('Success', 'Your booking was processed successfully.');
                 booking.fireEvent('removebooking', booking, Ext.bind(function () {
                     booking.fireEvent('redirect', {
-                        component: Ext.create('FB.view.account.booking.List'),
-                        add: true
+                        className: 'FB.view.account.booking.List'
                     });
                 }, this));
 				console.log('The booking was submitted to the server successfully.');

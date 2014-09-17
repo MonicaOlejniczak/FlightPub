@@ -13,23 +13,21 @@ Ext.define('FB.view.layout.header.navigation.NavigationController', {
 		'#about': {
 			click: function () {
 				this.getView().fireEvent('redirect', {
-					page: 'About'
+                    className: 'FB.view.general.About'
 				});
 			}
 		},
 		'#register': {
 			click: function () {
 				this.getView().fireEvent('redirect', {
-					component: Ext.create('FB.view.authentication.register.Register'),
-					add: true
+                    className: 'FB.view.authentication.register.Register'
 				});
 			}
 		},
 		'#login': {
 			click: function () {
 				this.getView().fireEvent('redirect', {
-					component: Ext.create('FB.view.authentication.login.Login'),
-					add: true
+                    className: 'FB.view.authentication.login.Login'
 				});
 			}
 		},
@@ -37,15 +35,14 @@ Ext.define('FB.view.layout.header.navigation.NavigationController', {
 			click: function () {
 				// todo server side check permissions
 				this.getView().fireEvent('redirect', {
-					component: Ext.create('FB.view.account.settings.Settings'),
+                    className: 'FB.view.account.settings.Settings'
                 });
             }
         },
 		'#bookings': {
 			click: function () {
                 this.getView().fireEvent('redirect', {
-					component: Ext.create('FB.view.account.booking.List'),
-					add: true
+                    className: 'FB.view.account.booking.List'
 				});
 			}
 		},

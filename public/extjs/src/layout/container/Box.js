@@ -426,9 +426,8 @@ Ext.define('Ext.layout.container.Box', {
 
         // Don't allow sizes burned on to the innerCt to influence measurements.
         style.width = '';
-        style.height = '';
+        // todo style.height = '';
     },
-
     beginLayoutCycle: function (ownerContext, firstCycle) {
         var me = this,
             align = me.align,

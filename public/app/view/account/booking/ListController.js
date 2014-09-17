@@ -32,9 +32,10 @@ Ext.define('FB.view.account.booking.ListController', {
         } else {
             // display all bookings
             bookings.each(function (booking) {
-                list.add(Ext.widget('Booking', {
+                var panel = Ext.widget('Booking', {
                     booking: booking
-                }));
+                });
+                list.add(panel);
             });
         }
     }

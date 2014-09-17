@@ -80,9 +80,7 @@ Ext.define('FB.view.account.settings.SettingsController', {
 			},
 			fn: function (buttonId, text, opt) {
 				if (buttonId == "yes") {
-					this.getView().fireEvent('redirect', {
-						page: 'Home'
-					});
+					this.getView().fireEvent('redirect');
 				}
 			}, scope: this
 		});

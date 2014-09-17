@@ -7,9 +7,7 @@ Ext.define('FB.view.layout.header.HeaderController', {
 	control: {
 		'#logo': {
 			click: function () {
-				this.fireEvent('redirect', {
-					page: 'Home'
-				})
+				this.fireEvent('redirect');
 			}
 		}
 	}
