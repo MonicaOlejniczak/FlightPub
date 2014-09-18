@@ -14,5 +14,6 @@ Ext.define('FB.view.authentication.register.AccountType', {
 	value: 'Standard User',
 	emptyText: 'please select an account type',
 	editable: false,
-	border: false
+	border: false,
+    allowBlank: false
 });

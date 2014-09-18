@@ -13,7 +13,7 @@ describe("The login page", function () {
             expect(view.isValid()).toBe(false);
         });
 
-        it("does submits when there is a valid email and password", function () {
+        it("submits with a valid email and password", function () {
             email.setValue("a@b.com");
             password.setValue("password");
             expect(view.isValid()).toBe(true);
@@ -98,12 +98,6 @@ describe("The login page", function () {
                 expect(view.isValid()).toBe(true);
             });
 
-        });
-
-        it("submits with valid data", function () {
-            email.setValue('a@b.com');
-            password.setValue('password');
-            expect(view.isValid()).toBe(true);
         });
 
     });
