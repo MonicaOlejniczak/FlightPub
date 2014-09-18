@@ -15,6 +15,9 @@ Ext.define('FB.view.ViewportController', {
 				this.checkOnBooking(this.process);
 			}
 		},
+        'Content': {
+            'update-ad': 'updateAdvertisement'
+        },
         'Home': {
             redirect: 'redirect'
         },
@@ -35,6 +38,10 @@ Ext.define('FB.view.ViewportController', {
             redirect: 'redirect'
         }
 	},
+    init: function () {
+        // set the page to home
+        this.getView().down('Content').controller.setPage('FB.view.home.Home');
+    },
 	/**
 	 * This method redirects the current page to a new one
 	 *
@@ -79,5 +86,11 @@ Ext.define('FB.view.ViewportController', {
 	removeBooking: function (booking, callback) {
 		callback();
 		this.getView().down('Content').controller.removePage(booking);
-	}
+	},
+    /**
+     * Updates the advertisement when the page changes
+     */
+    updateAdvertisement: function () {
+        this.getView().down('Header').controller.updateAdvertisement();
+    }
 });

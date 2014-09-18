@@ -18,28 +18,28 @@ Ext.define('FB.view.layout.header.Header', {
 		},  {
 			xtype: 'container',
 			cls: 'bannerContainer',
-			items: [{
-				xtype: 'container',
-				cls: 'bannerGradient',
-				items: [{
-					xtype: 'container',
-					layout: 'fit',
-					cls: 'banner',
-					defaults: {
-						xtype: 'panel',
-						baseCls: 'x-panel-plain',
-						header: false
-					},
-					items: [{
-						itemId: 'logo',
-						cls: 'logo',
-						html: 'FlightPub'
-					},  {
-						cls: 'subtext',
-						html: 'Flights, simplified.'
-					}]
-				}]
-			}]
+            layout: {
+                type: 'hbox',
+                align: 'stretch'
+            },
+            items: [{
+                xtype: 'container',
+                cls: 'banner',
+                items: [{
+                    xtype: 'component',
+                    itemId: 'logo',
+                    cls: 'logo',
+                    html: 'FlightPub'
+                },  {
+                    xtype: 'component',
+                    cls: 'subtext',
+                    html: 'Flights, simplified.'
+                }]
+            },  {
+                xtype: 'container',
+                itemId: 'advertisement',
+                cls: 'advertisement'
+            }]
 		}]
 	}]
 });

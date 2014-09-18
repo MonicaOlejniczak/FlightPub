@@ -22,8 +22,6 @@ Ext.define('FB.view.layout.content.ContentController', {
         // add the home and about page
         this.addPage(Ext.create('FB.view.home.Home'));
         this.addPage(Ext.create('FB.view.general.About'));
-        // set the page to home
-        this.setPage('FB.view.home.Home');
     },
     /**
      * This method adds a page to the content
@@ -91,6 +89,7 @@ Ext.define('FB.view.layout.content.ContentController', {
                 content.setActiveItem(this.pages['FB.view.home.Home']);
             }
         }
+        this.getView().fireEvent('update-ad');
         this.updateHeading(content.getActiveItem().controller.getHeading());
     },
     /**

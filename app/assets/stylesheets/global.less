@@ -148,12 +148,12 @@ a.active:hover {
 	color: ligthen(@activeColor, 10%);
 }
 
-.bannerContainer, .bannerContainer:before, .bannerGradient {
-	height: @bannerContainerHeight;
+.bannerContainer, .bannerContainer:before {
 }
 
-.bannerContainer, .bannerGradient {
+.bannerContainer {
 	position: relative;
+	padding: 1em 0;
 }
 
 .bannerContainer {
@@ -166,6 +166,7 @@ a.active:hover {
 	top: 0;
 	left: 0;
 	width: 100%;
+	height: 100%;
 	background: #555 url('@{imageFolder}/banner.png');
 	position: absolute;
 	opacity:0.30;
@@ -189,14 +190,16 @@ a.active:hover {
 	background-image: linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
 }
 
-.bannerGradient {
+.bannerGradient:after {
+	content: '';
 	width: 100%;
 	.bannerGradient();
 }
 
 .banner {
-	height: @bannerContainerHeight - 3em;
-	padding: 4em 0 0 5em;
+	padding: 3em 3em 3em 5em;
+	width: 100%;
+	display: block;
 }
 
 .logo, .logo:hover {
@@ -219,6 +222,17 @@ a.active:hover {
 	color: #fff;
 	font: 3em 'Ubuntu' @nextFont;
 	.textShadow(#fff);
+}
+
+.advertisement {
+	width: 100%;
+	background-color: #000;
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center center;
+	background-attachment: fixed;
+	border-radius: @borderWidth;
+	margin-left: 2em;
 }
 
 /* Content */
