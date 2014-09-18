@@ -25,6 +25,8 @@ Ext.define('FB.view.home.HomeController', {
         form.down('#returning').setMinValue(currentDate);
 		// add the event listeners to the form
 		this.addEvents(form);
+        // add the validation types
+        this.addValidation(form);
     },
 	/**
 	 * This method adds event handlers to the form
@@ -51,6 +53,18 @@ Ext.define('FB.view.home.HomeController', {
         form.down('#departing').on('select', this.departing, this);
 		form.down('#submit').on('click', this.submit, this);
 	},
+    addValidation: function (form) {
+        var adults = form.down('#adultPassengers').down('#adults');
+        Ext.apply(adults, {
+            vtype: 'minimum',
+            vtypeText: 'You must select at least one adult.'
+        });
+        Ext.apply(Ext.form.field.VTypes, {
+            minimum: function() {
+                return adults.getValue() > 0;
+            }
+        }, this);
+    },
     /**
      * An event that is fired when the user chooses a departure date to ensure that the returning date is after that
      * day that they specified.
@@ -78,6 +92,7 @@ Ext.define('FB.view.home.HomeController', {
 	submit: function () {
 		var form = this.getView();
 		// check the flight details have been filled out
+        debugger;
 		if (form.isValid()) {
 			this.getView().fireEvent('redirect', {
                 className: 'FB.view.booking.BookingProcess',

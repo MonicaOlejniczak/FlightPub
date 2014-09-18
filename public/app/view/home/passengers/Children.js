@@ -4,7 +4,7 @@
 Ext.define('FB.view.home.passengers.Children', {
 	extend: 'Ext.container.Container',
     xtype: 'Children',
-    itemId: 'children',
+    itemId: 'childPassengers',
     requires: [
         'FB.view.home.passengers.Passengers'
     ],
@@ -14,6 +14,7 @@ Ext.define('FB.view.home.passengers.Children', {
     },
     items: [{
         xtype: 'Passenger',
+        itemId: 'children',
         store: 'Child',
         name: 'children',
         value: 0
