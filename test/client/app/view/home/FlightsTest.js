@@ -1,4 +1,4 @@
-ddescribe("The flights page", function () {
+describe("The flights page", function () {
     // create mock stores
     Ext.syncRequire('Mock.store.ItineraryMock');
     Ext.create('Mock.store.ItineraryMock');
