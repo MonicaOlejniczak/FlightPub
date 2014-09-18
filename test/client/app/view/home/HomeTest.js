@@ -1,9 +1,11 @@
 describe("The home page", function () {
+    // create mock stores
     var airports = Ext.create('Mock.store.AirportMock');
     Ext.create('Mock.store.AdultMock');
     Ext.create('Mock.store.ChildMock');
     Ext.create('Mock.store.InfantMock');
 
+    // create a home view
     var view = Ext.create('FB.view.home.Home');
 
     function setValue(component, value) {
@@ -15,6 +17,7 @@ describe("The home page", function () {
 
     describe("has a departing and returning drop-down menu", function () {
 
+        // create some dates to test with
         var todayStart = new Date();
         todayStart.setHours(0, 0, 0, 0);
 
@@ -34,6 +37,7 @@ describe("The home page", function () {
         afterTomorrowEnd.setTime(afterTomorrowEnd.getTime() + 1000 * 60 * 60 * 24 * 2);
         afterTomorrowEnd.setHours(23, 59, 59, 999);
 
+        // get the departing and returning combo boxes
         var departing = view.down("#departing");
         var returning = view.down("#returning");
 
@@ -45,9 +49,14 @@ describe("The home page", function () {
         });
 
         it("should not allow returning dates to be before the departing date", function () {
+            // simulate setting the departing date for tomorrow
             departing.setValue(tomorrow);
+            // fake firing the select event
             departing.fireEvent('select', departing, departing.getValue());
+
+            // see if the min date for the returning combobox has changed
             var minDate = returning.minValue;
+            expect(minDate).toBeDate();
             expect(minDate).toBeAfter(tomorrowEnd);
             expect(minDate).toBeBefore(afterTomorrowEnd);
         });

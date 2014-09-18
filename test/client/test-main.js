@@ -27,6 +27,7 @@ var karmaLoadedFunction = window.__karma__.loaded;
 window.__karma__.loaded = function() {};
 
 Ext.Loader.setConfig({
+    disableCaching: false,
     paths: {
         'FB': 'base/public/app',
         'Mock': 'base/test/client/mock'
