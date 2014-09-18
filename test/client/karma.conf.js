@@ -23,7 +23,11 @@ module.exports = function (config) {
         // test results reporter to use
         // possible values: 'dots', 'progress'
         // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-        reporters: ['progress'],
+        reporters: ['progress', 'html'],
+        htmlReporter: {
+            outputDir: 'coverage/results',
+            templatePath: __dirname + '/coverage/template/jasmine_template.html'
+        },
         // web server port
         port: 9876,
         // enable / disable colors in the output (reporters and logs)
@@ -37,6 +41,8 @@ module.exports = function (config) {
         // start these browsers
         // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
         browsers: ['PhantomJS'],
+//        browsers: ['Chrome'],
+//        browsers: [],
         // Continuous Integration mode
         // if true, Karma captures browsers, runs the tests and exits
         singleRun: true

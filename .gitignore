@@ -16,3 +16,4 @@
 *.sql
 FlightPub.sublime-workspace
 /node_modules/
+/test/client/coverage/results/

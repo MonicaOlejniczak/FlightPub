@@ -2,7 +2,15 @@
  * @author Brendan Annable
  * @author Monica Olejniczak
  */
-describe('The home page', function () {
+describe("The home page", function () {
+    Ext.syncRequire([
+        'Mock.store.AirportMock',
+        'Mock.store.AdultMock',
+        'Mock.store.ChildMock',
+        'Mock.store.InfantMock',
+        'FB.view.home.Home'
+    ]);
+
     // create mock stores
     var airports = Ext.create('Mock.store.AirportMock');
     Ext.create('Mock.store.AdultMock');
