@@ -1,14 +1,15 @@
-package util.algorithm;
+package server.util.algorithm;
 
 import models.Airport;
 import models.Flight;
 import models.Itinerary;
 import org.joda.time.DateTime;
 import org.junit.Test;
+import util.algorithm.FlightFinder;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 import static play.test.Helpers.fakeApplication;
 import static play.test.Helpers.running;
 

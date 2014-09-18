@@ -1,8 +1,10 @@
-import controllers.DataController;
-import controllers.DataControllerTest;
+package server;
+
+import server.controllers.DataControllerTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import util.algorithm.FlightFinderTest;
+import server.util.algorithm.FlightFinderTest;
+
 
 /**
  * Package: PACKAGE_NAME
@@ -20,4 +22,5 @@ import util.algorithm.FlightFinderTest;
         FlightFinderTest.class
 })
 public class TestSuite {
+
 }
