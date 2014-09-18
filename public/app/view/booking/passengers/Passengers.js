@@ -10,7 +10,6 @@ Ext.define('FB.view.booking.passengers.Passengers', {
 	],
 	xtype: 'Passengers',
 	controller: 'Passengers',
-	itemId: 'Passengers',
 	standardSubmit: true,
 	baseCls: 'x-plain',
 	config: {
@@ -22,5 +21,8 @@ Ext.define('FB.view.booking.passengers.Passengers', {
                 'whether you wish to include only carry-on luggage with your booking, or if you wish to also ' +
                 'include checked luggage.',
 		margin: '0 0 10px 0'
-	}]
+	},  {
+        xtype: 'container',
+        itemId: 'passengers'
+    }]
 });

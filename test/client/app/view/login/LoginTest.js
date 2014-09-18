@@ -1,3 +1,6 @@
+/**
+ * @author Monica Olejniczak
+ */
 describe("The login page", function () {
 
     var view = Ext.create('FB.view.authentication.login.Login');

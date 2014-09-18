@@ -14,5 +14,6 @@ Ext.define('FB.view.booking.passengers.passenger.option.TicketType', {
 	valueField: 'name',
 	value: 'Economy',
 	editable: false,
-	name: 'ticketType'
+	name: 'ticketType',
+    allowBlank: false
 });

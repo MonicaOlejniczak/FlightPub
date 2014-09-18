@@ -14,5 +14,6 @@ Ext.define('FB.view.booking.passengers.passenger.option.LuggageType', {
 	valueField: 'value',
 	value: 'CARRY_ON',
 	editable: false,
-	name: 'luggageType'
+	name: 'luggageType',
+    allowBlank: false
 });

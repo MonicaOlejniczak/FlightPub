@@ -1,3 +1,7 @@
+/**
+ * @author Brendan Annable
+ * @author Monica Olejniczak
+ */
 describe("The home page", function () {
     // create mock stores
     var airports = Ext.create('Mock.store.AirportMock');

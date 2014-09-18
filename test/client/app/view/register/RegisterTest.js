@@ -1,3 +1,6 @@
+/**
+ * @author Monica Olejniczak
+ */
 describe("The register page", function () {
 
     Ext.create('Mock.store.AccountTypeMock');
@@ -12,13 +15,6 @@ describe("The register page", function () {
         var email = view.down('#email');
         var password = view.down('#password');
         var confirmPassword = view.down('#confirmPassword');
-
-        function setValue(component, value) {
-            component.setValue(value);
-            if (value !== "" && value !== null) {
-                component.fireEvent('select', component, component.getValue());
-            }
-        }
 
         it("does not submit when there is no data", function () {
             firstName.setValue("");

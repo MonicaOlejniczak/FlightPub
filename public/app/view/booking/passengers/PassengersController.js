@@ -21,7 +21,7 @@ Ext.define('FB.view.booking.passengers.PassengersController', {
 	 * @params passengers the amount of passengers to render the options for
 	 */
 	render: function (passengers) {
-		var view = this.getView();
+		var view = this.getView().down('#passengers');
 		for (var i = 0; i < passengers; i++) {
 			var passenger = i + 1;
 			view.add(Ext.widget('Passenger', {
