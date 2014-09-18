@@ -5,8 +5,8 @@ Ext.define('FB.view.booking.passengers.passenger.Passenger', {
 	extend: 'Ext.container.Container',
 	requires: [
 		'Ext.Component',
-        'FB.view.booking.passengers.passenger.option.FirstName',
-        'FB.view.booking.passengers.passenger.option.LastName',
+        'FB.view.account.details.personal.FirstName',
+        'FB.view.account.details.personal.LastName',
 		'FB.view.booking.passengers.passenger.option.TicketType',
 		'FB.view.booking.passengers.passenger.option.LuggageType',
 		'FB.view.booking.passengers.passenger.PassengerController'

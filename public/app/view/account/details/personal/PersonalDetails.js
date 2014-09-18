@@ -15,9 +15,13 @@ Ext.define('FB.view.account.details.personal.PersonalDetails', {
 		align: 'stretch'
 	},
 	items: [{
-		xtype: 'FirstName'
+		xtype: 'FirstName',
+        itemId: 'firstName',
+        fieldLabel: 'First name'
 	},  {
-		xtype: 'LastName'
+		xtype: 'LastName',
+        itemId: 'lastName',
+        fieldLabel: 'Last name'
 	},  {
 		xtype: 'PhoneNumber'
 	}]

@@ -7,7 +7,7 @@ Ext.define('FB.view.booking.payment.PaymentController', {
 	init: function() {
 		var view = this.getView();
 		// update the details of the form via an ajax request
-		this.getDetails(view);
+		//this.getDetails(view);
 		// add the next request event to the view
 		view.on('nextRequest', this.onNextRequest, this);
 	},

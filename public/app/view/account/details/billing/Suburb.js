@@ -7,5 +7,7 @@ Ext.define('FB.view.account.details.billing.Suburb', {
 	itemId: 'suburb',
 	name: 'suburb',
 	fieldLabel: 'Suburb',
-	emptyText: 'please enter your postal suburb'
+	emptyText: 'please enter your postal suburb',
+    minLength: 2,
+    maxLength: 30
 });

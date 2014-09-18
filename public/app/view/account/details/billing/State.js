@@ -7,5 +7,7 @@ Ext.define('FB.view.account.details.billing.State', {
 	itemId: 'state',
 	name: 'state',
 	fieldLabel: 'State',
-	emptyText: 'please enter the state you live in'
+	emptyText: 'please enter the state you live in',
+    minLength: 3,
+    maxLength: 30
 });

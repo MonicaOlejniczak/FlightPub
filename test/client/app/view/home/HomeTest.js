@@ -2,7 +2,7 @@
  * @author Brendan Annable
  * @author Monica Olejniczak
  */
-describe("The home page", function () {
+describe('The home page', function () {
     // create mock stores
     var airports = Ext.create('Mock.store.AirportMock');
     Ext.create('Mock.store.AdultMock');
@@ -14,16 +14,15 @@ describe("The home page", function () {
 
     function setValue(component, value) {
         component.setValue(value);
-        if (value !== "" && value !== null) {
+        if (value !== '' && value !== null) {
             component.fireEvent('select', component, component.getValue());
         }
     }
 
-    describe("has a departing and returning drop-down menu", function () {
+    describe('has a departing and returning drop-down menu', function () {
 
-        beforeEach(function() {
+        beforeEach(function () {
             this.view = Ext.create('FB.view.home.Home');
-
             // create some dates to test with
             this.todayStart = new Date();
             this.todayStart.setHours(0, 0, 0, 0);
@@ -45,18 +44,18 @@ describe("The home page", function () {
             this.afterTomorrowEnd.setHours(23, 59, 59, 999);
 
             // get the departing and returning combo boxes
-            this.departing = this.view.down("#departing");
-            this.returning = this.view.down("#returning");
+            this.departing = this.view.down('#departing');
+            this.returning = this.view.down('#returning');
         });
 
-        it("should not allow dates before today", function () {
+        it('should not allow dates before today', function () {
             var minDate = this.departing.minValue;
             expect(minDate).toBeDate();
             expect(minDate).toBeAfter(this.todayStart);
             expect(minDate).toBeBefore(this.todayEnd);
         });
 
-        it("should not allow returning dates to be before the departing date", function () {
+        it('should not allow returning dates to be before the departing date', function () {
             // simulate setting the departing date for tomorrow
             this.departing.setValue(this.tomorrow);
             // fake firing the select event
@@ -71,15 +70,15 @@ describe("The home page", function () {
 
     });
 
-    describe("has a form submission", function () {
+    describe('has a form submission', function () {
 
         beforeEach(function() {
-            this.view = Ext.create('FB.view.home.Home');
 
-            this.flightFrom = this.view.down("#flightFrom");
-            this.flightTo = this.view.down("#flightTo");
-            this.departing = this.view.down("#departing");
-            this.returning = this.view.down("#returning");
+            this.view = Ext.create('FB.view.home.Home');
+            this.flightFrom = this.view.down('#flightFrom');
+            this.flightTo = this.view.down('#flightTo');
+            this.departing = this.view.down('#departing');
+            this.returning = this.view.down('#returning');
             this.adults = this.view.down('#adultPassengers').down('#adults');
             this.children = this.view.down('#childPassengers').down('#children');
             this.infants = this.view.down('#infantPassengers').down('#infants');
@@ -94,9 +93,10 @@ describe("The home page", function () {
             setValue(this.adults, 1);
             setValue(this.children, 0);
             setValue(this.infants, 0);
+
         });
 
-        it("does not submit when there is no data", function () {
+        it('does not submit when there is no data', function () {
             setValue(this.flightFrom, '');
             setValue(this.flightTo, '');
             setValue(this.departing, '');
@@ -107,40 +107,40 @@ describe("The home page", function () {
             expect(this.view.isValid()).toBeFalse();
         });
 
-        it("does not submit when there is no flight from", function () {
+        it('does not submit when there is no flight from', function () {
             setValue(this.flightFrom, '');
             expect(this.view.isValid()).toBeFalse();
         });
 
-        it("does not submit when there is no flight to", function () {
+        it('does not submit when there is no flight to', function () {
             setValue(this.flightTo, '');
             expect(this.view.isValid()).toBeFalse();
         });
 
-        it("does not submit when the flight from and flight to are the same", function () {
+        it('does not submit when the flight from and flight to are the same', function () {
             setValue(this.flightFrom, airports.findRecord('name', 'Sydney').get('name'));
             setValue(this.flightTo, airports.findRecord('name', 'Sydney').get('name'));
             expect(this.view.isValid()).toBeFalse();
         });
 
-        it("does not submit when there is no departing", function () {
+        it('does not submit when there is no departing', function () {
             setValue(this.departing, '');
             expect(this.view.isValid()).toBeFalse();
         });
 
-        it("does not submit when there is no returning", function () {
+        it('does not submit when there is no returning', function () {
             setValue(this.returning, '');
             expect(this.view.isValid()).toBeFalse();
         });
 
-        it("does not submit when there are no passengers", function () {
+        it('does not submit when there are no passengers', function () {
             setValue(this.adults, 0);
             setValue(this.children, 0);
             setValue(this.infants, 0);
             expect(this.view.isValid()).toBeFalse();
         });
 
-        it("submits with valid data", function () {
+        it('submits with valid data', function () {
             expect(this.view.isValid()).toBeTrue();
         });
     });

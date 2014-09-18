@@ -28,9 +28,13 @@ Ext.define('FB.view.authentication.register.Register', {
 		msgTarget: 'under'
 	},
 	items: [{
-		xtype: 'FirstName'
+		xtype: 'FirstName',
+        itemId: 'firstName',
+        fieldLabel: 'First name'
 	},  {
-		xtype: 'LastName'
+		xtype: 'LastName',
+        itemId: 'lastName',
+        fieldLabel: 'Last name'
 	},  {
 		xtype: 'AccountType'
 	},  {

@@ -47,7 +47,7 @@ Ext.define('FB.view.home.HomeController', {
 			this.updateMap(this.getSource(), this.getTarget());
 		}
 		// add the listeners
-		form.on('afterrender', this.render, this);
+	    form.on('afterrender', this.render, this);
 		form.down('#flightFrom').on('select', flightFrom, this);
 		form.down('#flightTo').on('select', flightTo, this);
         form.down('#departing').on('select', this.departing, this);

@@ -16,6 +16,9 @@ Ext.define('FB.view.account.details.billing.BillingDetails', {
 		type: 'vbox',
 		align: 'stretch'
 	},
+    defaults: {
+        maxLength: 30
+    },
 	items: [{
 		xtype: 'Address'
 	},  {

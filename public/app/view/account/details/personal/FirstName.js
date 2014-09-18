@@ -6,7 +6,6 @@ Ext.define('FB.view.account.details.personal.FirstName', {
 	xtype: 'FirstName',
 	itemId: 'firstName',
 	name: 'firstName',
-	fieldLabel: 'First name',
 	emptyText: 'please enter your first name',
 	allowBlank: false,
 	maxLength: 30

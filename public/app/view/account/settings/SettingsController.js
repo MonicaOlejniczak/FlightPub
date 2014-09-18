@@ -54,18 +54,20 @@ Ext.define('FB.view.account.settings.SettingsController', {
 	 * @param details the user account details
 	 */
 	renderDetails: function (form, details) {
-		form.down("#email").setValue(details.email);
-		form.down('#firstName').setValue(details.firstName);
-		form.down("#lastName").setValue(details.lastName);
-		form.down("#phoneNumber").setValue(details.phoneNumber);
-		form.down("#address").setValue(details.address);
-		form.down("#suburb").setValue(details.suburb);
-		//todo form.down("#country").setValue(details.country);
-		form.down("#state").setValue(details.state);
-		form.down("#postcode").setValue(details.postcode);
-		if (details.paymentMethod != null) {
-			form.down("#paymentMethod").setValue(details.paymentMethod);
-		}
+        if (details !== null) {
+            form.down("#email").setValue(details.email);
+            form.down('#firstName').setValue(details.firstName);
+            form.down("#lastName").setValue(details.lastName);
+            form.down("#phoneNumber").setValue(details.phoneNumber);
+            form.down("#address").setValue(details.address);
+            form.down("#suburb").setValue(details.suburb);
+            //todo form.down("#country").setValue(details.country);
+            form.down("#state").setValue(details.state);
+            form.down("#postcode").setValue(details.postcode);
+            if (details.paymentMethod != null) {
+                form.down("#paymentMethod").setValue(details.paymentMethod);
+            }
+        }
 	},
 	/**
 	 * The event fired when cancelling any setting updates
