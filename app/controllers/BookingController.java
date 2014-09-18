@@ -183,7 +183,7 @@ public class BookingController extends Controller {
 				booking.update();
 
 				// Once done, redirect to the booking requests page
-				return redirect(routes.BookingController.bookings());
+				return redirect(controllers.routes.BookingController.bookings());
 			}
 		} else {
 			return forbidden();
