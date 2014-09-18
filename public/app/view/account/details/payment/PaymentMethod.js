@@ -13,5 +13,6 @@ Ext.define('FB.view.account.details.payment.PaymentMethod', {
 	valueField: 'option',
 	emptyText: 'please select a payment option',
 	editable: false,
-	hideTrigger: false
+	hideTrigger: false,
+    allowBlank: false
 });

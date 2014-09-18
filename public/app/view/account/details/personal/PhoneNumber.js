@@ -8,5 +8,7 @@ Ext.define('FB.view.account.details.personal.PhoneNumber', {
 	name: 'phoneNumber',
 	fieldLabel: 'Phone number',
 	emptyText: 'please enter your phone number',
-	minValue: 0
+	minValue: 0,
+    minLength: 7,
+    maxLength: 15
 });

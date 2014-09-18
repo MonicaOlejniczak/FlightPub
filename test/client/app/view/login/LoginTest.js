@@ -3,44 +3,52 @@
  */
 describe("The login page", function () {
 
-    var view = Ext.create('FB.view.authentication.login.Login');
-
     describe("has a form submission", function () {
 
-        var email = view.down('#email');
-        var password = view.down('#password');
+        beforeEach(function () {
+            this.view = Ext.create('FB.view.authentication.login.Login');
+            this.email = this.view.down('#email');
+            this.password = this.view.down('#password');
+        });
 
         it("does not submit when there is no data", function () {
-            email.setValue("");
-            password.setValue("");
-            expect(view.isValid()).toBe(false);
+            this.email.setValue('');
+            this.password.setValue('');
+            expect(this.view.isValid()).toBeFalse();
         });
 
         it("submits with a valid email and password", function () {
-            email.setValue("a@b.com");
-            password.setValue("password");
-            expect(view.isValid()).toBe(true);
+            this.email.setValue('a@b.com');
+            this.password.setValue('password');
+            expect(this.view.isValid()).toBeTrue();
         });
 
         describe("has an email", function () {
 
             beforeEach(function () {
-                password.setValue("password");
+                this.view = Ext.create('FB.view.authentication.login.Login');
+                this.email = this.view.down('#email');
+                this.password = this.view.down('#password');
+                this.password.setValue('password');
             });
 
-            it("does not submit when the email is empty", function () {
-                email.setValue("");
-                expect(view.isValid()).toBe(false);
+            it("does not submit when its value is empty", function () {
+                this.email.setValue('');
+                expect(this.view.isValid()).toBeFalse();
             });
 
-            it("does not submit when the email is not of the form a@b.com", function () {
-                email.setValue("a.com");
-                expect(view.isValid()).toBe(false);
+            it("does not submit when its value is not of the form a@b.com", function () {
+                this.email.setValue("a.com");
+                expect(this.view.isValid()).toBeFalse();
+                this.email.setValue("a.com@");
+                expect(this.view.isValid()).toBeFalse();
+                this.email.setValue('@a.com');
+                expect(this.view.isValid()).toBeFalse();
             });
 
-            it("does submit when the email is of the form a@b.com", function () {
-                email.setValue("a@b.com");
-                expect(view.isValid()).toBe(true);
+            it("does submit when its value is of the form a@b.com", function () {
+                this.email.setValue('a@b.com');
+                expect(this.view.isValid()).toBeTrue();
             });
 
         });
@@ -48,57 +56,60 @@ describe("The login page", function () {
         describe("has a password", function () {
 
             beforeEach(function () {
-                email.setValue("a@b.com");
+                this.view = Ext.create('FB.view.authentication.login.Login');
+                this.email = this.view.down('#email');
+                this.password = this.view.down('#password');
+                this.email.setValue('a@b.com');
             });
 
-            it("does not submit when the password is empty", function () {
-                password.setValue("");
-                expect(view.isValid()).toBe(false);
+            it("does not submit when its value is empty", function () {
+                this.password.setValue('');
+                expect(this.view.isValid()).toBeFalse();
             });
 
-            it("does not submit when the password is 1 character", function () {
-                password.setValue("1");
-                expect(view.isValid()).toBe(false);
+            it("does not submit when its value is 1 character", function () {
+                this.password.setValue('1');
+                expect(this.view.isValid()).toBeFalse();
             });
 
-            it("does not submit when the password is less than 7 characters", function () {
-                password.setValue("1234567");
-                expect(view.isValid()).toBe(false);
+            it("does not submit when its value is less than 7 characters", function () {
+                this.password.setValue('1234567');
+                expect(this.view.isValid()).toBeFalse();
             });
 
-            it("submits when the password is 8 characters", function () {
-                password.setValue("12345678");
-                expect(view.isValid()).toBe(true);
+            it("submits when its value is 8 characters", function () {
+                this.password.setValue('12345678');
+                expect(this.view.isValid()).toBeTrue();
             });
 
-            it("submits when the password is more than 8 characters", function () {
-                password.setValue("123456789");
-                expect(view.isValid()).toBe(true);
+            it("submits when its value is more than 8 characters", function () {
+                this.password.setValue('123456789');
+                expect(this.view.isValid()).toBeTrue();
             });
 
-            it("submits when the password is of minimum length and only consists of numeric values", function () {
-                password.setValue("12345678");
-                expect(view.isValid()).toBe(true);
+            it("submits when its value is of minimum length and only consists of numeric values", function () {
+                this.password.setValue('12345678');
+                expect(this.view.isValid()).toBeTrue();
             });
 
-            it("submits when the password is of minimum length and only consists of symbols", function () {
-                password.setValue("!@#$%^&*");
-                expect(view.isValid()).toBe(true);
+            it("submits when its value is of minimum length and only consists of symbols", function () {
+                this.password.setValue('!@#$%^&*');
+                expect(this.view.isValid()).toBeTrue();
             });
 
-            it("submits when the password is of minimum length and only consists of lower case letters", function () {
-                password.setValue("abcdefgh");
-                expect(view.isValid()).toBe(true);
+            it("submits when its value is of minimum length and only consists of lower case letters", function () {
+                this.password.setValue('abcdefgh');
+                expect(this.view.isValid()).toBeTrue();
             });
 
-            it("submits when the password is of minimum length and only consists of upper case letters", function () {
-                password.setValue("ABCDEFGH");
-                expect(view.isValid()).toBe(true);
+            it("submits when its value is of minimum length and only consists of upper case letters", function () {
+                this.password.setValue('ABCDEFGH');
+                expect(this.view.isValid()).toBeTrue();
             });
 
-            it("submits when the password is of minimum length and consists of a mixture of numbers, symbols, lower and upper case letters", function () {
-                password.setValue("pa@s5Wo$d4YoU!?");
-                expect(view.isValid()).toBe(true);
+            it("submits when its value is of minimum length and consists of a mixture of numbers, symbols, lower and upper case letters", function () {
+                this.password.setValue('pa@s5Wo$d4YoU!?');
+                expect(this.view.isValid()).toBeTrue();
             });
 
         });
