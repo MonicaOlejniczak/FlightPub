@@ -67,6 +67,7 @@ Ext.define('FB.view.layout.header.navigation.NavigationController', {
 						Ext.Msg.alert('Error', 'An error occurred upon logout and your attempt was unsuccessful.');
 					}, scope: this
 				}, this);
+                this.getView().fireEvent('add-ads');
 			}
 		}
 	},
@@ -107,6 +108,7 @@ Ext.define('FB.view.layout.header.navigation.NavigationController', {
 	addLinks: function (navigation) {
 		Ext.Ajax.request({
 			url: '/authentication/account-type',
+            scope: this,
 			success: function (response) {
 				var account = Ext.decode(response.responseText).account;
 				switch (account) {
@@ -116,6 +118,7 @@ Ext.define('FB.view.layout.header.navigation.NavigationController', {
 							text: 'Administration Panel'
 						}));
 						this.addAccountLinks(navigation);
+                        this.getView().fireEvent('remove-ads');
 						break;
 					case 'TRAVEL_AGENT':
 						navigation.add(Ext.widget('NavigationLink', {
@@ -123,6 +126,7 @@ Ext.define('FB.view.layout.header.navigation.NavigationController', {
 							text: 'Booking Requests'
 						}));
 						this.addAccountLinks(navigation);
+                        this.getView().fireEvent('remove-ads');
 						break;
 					case 'STANDARD_USER':
 						navigation.add(Ext.widget('NavigationLink', {
@@ -130,15 +134,17 @@ Ext.define('FB.view.layout.header.navigation.NavigationController', {
 							text: 'Bookings'
 						}));
 						this.addAccountLinks(navigation);
+                        this.getView().fireEvent('add-ads');
 						break;
 					case 'GUEST':
 						this.addDefaultLinks(navigation);
+                        this.getView().fireEvent('add-ads');
 						break;
 				}
 			},
 			failure: function (response) {
 				this.addDefaultLinks(navigation);
-			}, scope: this
+			}
 		}, this);
 	},
 	/**

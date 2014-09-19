@@ -8,6 +8,7 @@ Ext.define('FB.view.layout.header.navigation.Navigation', {
 		'FB.view.layout.header.navigation.NavigationController'
 	],
 	xtype: 'Navigation',
+    itemId: 'navigation',
 	controller: 'Navigation',
 	layout: {
 		type: 'hbox',

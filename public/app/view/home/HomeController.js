@@ -84,7 +84,6 @@ Ext.define('FB.view.home.HomeController', {
             // set the value to tomorrow
             returning.setValue(tomorrow);
         }
-
     },
 	/**
 	 * Submits the home controller form
