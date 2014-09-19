@@ -14,5 +14,10 @@ libraryDependencies += "junit" % "junit" % "4.11"
 libraryDependencies += "org.hamcrest" % "hamcrest-core" % "1.3"
 
 // EasyMock dependency
-libraryDependencies += "org.easymock" % "easymock" % "3.2"
+//libraryDependencies += "org.easymock" % "easymock" % "3.2"
 
+//Scala test
+libraryDependencies += "org.scalatest" % "scalatest_2.10" % "2.0" % "test"
+
+// Mockito
+//libraryDependencies +="org.mockito" % "mockito-core" % "1.9.5" % "test"

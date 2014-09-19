@@ -101,28 +101,51 @@ public class AuthenticationController extends Controller {
 	 * failure.
 	 */
 	public static Result registerUser() {
-		// get the form
-		Form<RegistrationForm> registrationForm = Form.form(RegistrationForm.class).bindFromRequest();
-		// retrieve the registration details
-		RegistrationForm details = registrationForm.get();
-		// return validity
-		if (registrationForm.hasErrors()) {
-			// the form is invalid and a bad request must be sent
-			return badRequest("There was an error processing your registration.");
-		} else if (AuthenticationController.isUsernameTaken(details.email)) {
-			// the username is invalid and a bad request must be sent
-			return badRequest("The email you have supplied is already in use.");
-		} else {
-			// register the user
-			User.register(details.firstName, details.lastName, details.email, details.accountType, details.password);
-			// log the user in and return a success
-			session().clear();
-			session("email", details.email);
-			return ok("Registration was successful.");
-		}
-	}
+        // get the form
+        Form<RegistrationForm> registrationForm = Form.form(RegistrationForm.class).bindFromRequest();
 
-	/**
+        RegistrationForm details = registrationForm.get();
+
+        // calculate and return validation
+        int result = registerUser2(registrationForm);
+        if (result == 1) // invalid form
+            return badRequest("There was an error processing your registration.");
+        else if (result == 2) // username is taken
+            return badRequest("The email you have supplied is already in use.");
+
+        // register the user
+        User.register(details.firstName, details.lastName, details.email, details.accountType, details.password);
+        // log the user in and return a success
+        session().clear();
+        session("email", details.email);
+        return ok("Registration was successful.");
+    }
+
+    /**
+     * Process-Registration calculation action - processes the registration details supplied by the user, storing them if they are
+     * valid. Allows functionality to be tested.
+     * @param registrationForm the form containing user registration details
+     * @return An integer representing the Result to be sent
+     *         1 - Invalid form
+     *         2 - Username already taken
+     *         3 - Successful Registration
+     */
+    public static int registerUser2(Form<RegistrationForm> registrationForm) {
+        // retrieve the registration details
+        RegistrationForm details = registrationForm.get();
+        if (registrationForm.hasErrors()) {
+            // the form is invalid and a bad request must be sent
+            return 1;
+        } else if (AuthenticationController.isUsernameTaken(details.email)) {
+            // the username is invalid and a bad request must be sent
+            return 2;
+        } else {
+            // form is correct and username is not taken; user can register and login
+            return 3;
+        }
+    }
+
+    /**
 	 * Process-Login action - processes the login credentials supplied by the user, authenticating them if the details
 	 * are valid.
 	 * @param destination The destination page to redirect to upon a successful login.
@@ -132,7 +155,8 @@ public class AuthenticationController extends Controller {
 	public static Result loginUser(String destination) {
 		// get the form
 		Form<LoginCredentials> loginForm = Form.form(LoginCredentials.class).bindFromRequest();
-		if (loginForm.hasErrors()) {
+        int result = loginUser2(loginForm);
+		if (result == 1) { // form has errors
 			return badRequest("The login details provided are incorrect.");
 		} else {
 			// log the user in and redirect to the previous page (if one exists) or the homepage
@@ -141,6 +165,22 @@ public class AuthenticationController extends Controller {
 			return ok("Login was successful.");
 		}
 	}
+
+    /**
+     * Process-Login action - processes the login credentials supplied by the user, authenticating them if the details
+     * are valid. Allows functionality to be tested.
+     * @param loginForm form containing user details
+     * @return An integer representing the Result to be sent.
+     *          1 - Errors found
+     *          2 - Login allowed
+     */
+    public static int loginUser2(Form<LoginCredentials> loginForm) {
+        if (loginForm.hasErrors()) {
+            return 1;
+        } else {
+            return 2;
+        }
+    }
 
 	/**
 	 * Logout action - invalidates the current user's session, logging them out of the FlightPub system.
