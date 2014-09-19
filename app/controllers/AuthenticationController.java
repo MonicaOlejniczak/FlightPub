@@ -108,8 +108,10 @@ public class AuthenticationController extends Controller {
 
         // calculate and return validation
         int result = registerUser2(registrationForm);
-        if (result == 1) return badRequest("There was an error processing your registration.");
-        else if (result == 2) return badRequest("The email you have supplied is already in use.");
+        if (result == 1) // invalid form
+            return badRequest("There was an error processing your registration.");
+        else if (result == 2) // username is taken
+            return badRequest("The email you have supplied is already in use.");
 
         // register the user
         User.register(details.firstName, details.lastName, details.email, details.accountType, details.password);
@@ -119,6 +121,15 @@ public class AuthenticationController extends Controller {
         return ok("Registration was successful.");
     }
 
+    /**
+     * Process-Registration calculation action - processes the registration details supplied by the user, storing them if they are
+     * valid. Allows functionality to be tested.
+     * @param registrationForm the form containing user registration details
+     * @return An integer representing the Result to be sent
+     *         1 - Invalid form
+     *         2 - Username already taken
+     *         3 - Successful Registration
+     */
     public static int registerUser2(Form<RegistrationForm> registrationForm) {
         // retrieve the registration details
         RegistrationForm details = registrationForm.get();
@@ -145,7 +156,7 @@ public class AuthenticationController extends Controller {
 		// get the form
 		Form<LoginCredentials> loginForm = Form.form(LoginCredentials.class).bindFromRequest();
         int result = loginUser2(loginForm);
-		if (result == 1) {
+		if (result == 1) { // form has errors
 			return badRequest("The login details provided are incorrect.");
 		} else {
 			// log the user in and redirect to the previous page (if one exists) or the homepage
@@ -155,6 +166,14 @@ public class AuthenticationController extends Controller {
 		}
 	}
 
+    /**
+     * Process-Login action - processes the login credentials supplied by the user, authenticating them if the details
+     * are valid. Allows functionality to be tested.
+     * @param loginForm form containing user details
+     * @return An integer representing the Result to be sent.
+     *          1 - Errors found
+     *          2 - Login allowed
+     */
     public static int loginUser2(Form<LoginCredentials> loginForm) {
         if (loginForm.hasErrors()) {
             return 1;

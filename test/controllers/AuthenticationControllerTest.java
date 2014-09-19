@@ -100,18 +100,18 @@ public class AuthenticationControllerTest {
         });
     }
 
-    @Test
-    public void testIsLoggedIn() throws Exception {
-
-    }
-
-    @Test
-    public void testGetAccountType() throws Exception {
-
-    }
-
-    @Test
-    public void testGetAuthenticatedUser() throws Exception {
-
+    @Test(expected=IllegalStateException.class) // Attempting to register a user with incorrectly formatted details will throw this exception
+                                                // If it is caught, then this test can be considered passed
+    public void testLoginUserFailsIFLoginDetailsAreFormattedIncorrectly() throws Exception {
+        running(fakeApplication(), new Runnable() {
+            public void run() {
+                Map<String, String> testMap = new HashMap<>();
+                testMap.put("email", "user"); // incorrect username format
+                testMap.put("password", "1234"); // incorrect password length
+                Form<AuthenticationController.LoginCredentials> testForm = new Form(AuthenticationController.LoginCredentials.class);
+                testForm = testForm.bind(testMap);
+                assertEquals(1, test.loginUser2(testForm));
+            }
+        });
     }
 }
