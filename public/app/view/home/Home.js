@@ -9,8 +9,8 @@ Ext.define('FB.view.home.Home', {
 		'Ext.form.field.Date',
 		'FB.model.Airport',
 		'FB.store.Airport',
-		'FB.view.home.flight.From',
-		'FB.view.home.flight.To',
+		'FB.view.home.flight.Source',
+		'FB.view.home.flight.Destination',
 		'FB.view.home.date.Departing',
 		'FB.view.home.date.Returning',
 		'FB.view.home.passengers.Adults',
@@ -39,9 +39,13 @@ Ext.define('FB.view.home.Home', {
 				flex: 1
 			},
 			items: [{
-				xtype: 'From'
+				xtype: 'Source',
+                itemId: 'flightFrom',
+                fieldLabel: 'Flight from'
 			},  {
-				xtype: 'To'
+				xtype: 'Destination',
+                itemId: 'flightTo',
+                fieldLabel: 'Flight to'
 			}]
 		},  {
 			defaults: {

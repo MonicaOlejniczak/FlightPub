@@ -4,7 +4,7 @@
     <facet type="scala" name="Scala">
       <configuration>
         <option name="compilerLibraryLevel" value="Project" />
-        <option name="compilerLibraryName" value="SBT:: scala-compiler-bundle:2.10.3" />
+        <option name="compilerLibraryName" value="SBT: scala:2.10.3" />
         <option name="compilerOptions" value="-encoding utf8" />
         <option name="deprecationWarnings" value="true" />
         <option name="fsc" value="true" />
@@ -20,6 +20,7 @@
       <sourceFolder url="file://$MODULE_DIR$/../app" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../target/scala-2.10/src_managed/main/controllers" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../target/scala-2.10/src_managed/main/views" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../conf" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../test" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/../test/resources" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/../target/native_libraries" />
@@ -150,7 +151,7 @@
     <orderEntry type="library" scope="TEST" name="SBT: org.seleniumhq.selenium:selenium-support:2.32.0:test" level="project" />
     <orderEntry type="library" scope="TEST" name="SBT: org.easytesting:fest-assert:1.4:test" level="project" />
     <orderEntry type="library" scope="TEST" name="SBT: org.easytesting:fest-util:1.1.6:test" level="project" />
-    <orderEntry type="library" name="FlightPub node_modules" level="project" />
+    <orderEntry type="library" name="flightpub node_modules" level="project" />
   </component>
 </module>
 

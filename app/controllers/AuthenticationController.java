@@ -173,14 +173,13 @@ public class AuthenticationController extends Controller {
 			account.put("account", "GUEST");
 		} else {
 			switch (user.userType.toLowerCase()) {
-				case "site":
+				case "site manager":
 					account.put("account", "SITE_MANAGER");
 					break;
-				case "travel":
+				case "travel agent":
 					account.put("account", "TRAVEL_AGENT");
 					break;
 				case "standard user":
-                case "standard":
 					account.put("account", "STANDARD_USER");
 					break;
 			}

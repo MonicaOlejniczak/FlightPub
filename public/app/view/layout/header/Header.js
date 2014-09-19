@@ -34,6 +34,10 @@ Ext.define('FB.view.layout.header.Header', {
                     xtype: 'component',
                     cls: 'subtext',
                     html: 'Flights, simplified.'
+            },  {
+                    xtype: 'component',
+                    cls: 'kiwi',
+                    html: 'Brought to you by Kiwi Airlines.'
                 }]
             },  {
                 xtype: 'container',

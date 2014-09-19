@@ -6,10 +6,10 @@ Ext.define('FB.view.layout.header.navigation.NavigationController', {
 	alias: 'controller.Navigation',
 	control: {
 		'#home': {
-			click: function () {
-				this.getView().fireEvent('redirect');
-			}
-		},
+            click: function () {
+                this.getView().fireEvent('redirect');
+            }
+        },
 		'#about': {
 			click: function () {
 				this.getView().fireEvent('redirect', {
@@ -31,6 +31,13 @@ Ext.define('FB.view.layout.header.navigation.NavigationController', {
 				});
 			}
 		},
+        '#administration': {
+            click: function () {
+                this.getView().fireEvent('redirect', {
+                    className: 'FB.view.administration.Administration'
+                });
+            }
+        },
 		'#account': {
 			click: function () {
 				// todo server side check permissions
@@ -105,8 +112,8 @@ Ext.define('FB.view.layout.header.navigation.NavigationController', {
 				switch (account) {
 					case 'SITE_MANAGER':
 						navigation.add(Ext.widget('NavigationLink', {
-							itemId: 'travelAgents',
-							text: 'Travel Agents'
+							itemId: 'administration',
+							text: 'Administration Panel'
 						}));
 						this.addAccountLinks(navigation);
 						break;

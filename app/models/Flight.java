@@ -93,14 +93,14 @@ public class Flight extends Model implements BaseEdge {
 	 * A reverse mapping of the list of seat availabilities for a particular flight
 	 */
     @JsonIgnore
-	@OneToMany(mappedBy = "flight", fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "flight", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 	public List<Availability> availabilities = new ArrayList<>();
 
 	/**
 	 * A reverse mapping of the list of tickets made for a particular flight
 	 */
     @JsonIgnore
-	@OneToMany(mappedBy = "flight", fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "flight", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 	public List<Ticket> tickets = new ArrayList<>();
 
 	/**

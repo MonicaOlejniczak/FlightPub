@@ -15,7 +15,7 @@ public class Availability extends Model {
 	public Long id;
 
 	@Constraints.Required
-	@ManyToOne(cascade = CascadeType.ALL)
+	@ManyToOne(cascade = CascadeType.REMOVE)
 	public Flight flight;
 
 	@Constraints.Required

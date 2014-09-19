@@ -21,7 +21,8 @@ Ext.application({
 		'Itinerary',
 		'LuggageType',
 		'PaymentType',
-		'TicketType'
+		'TicketType',
+        'Route'
 	],
 	/**
 	 * This method is called when the application boots
