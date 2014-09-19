@@ -24,16 +24,16 @@ Ext.define('FB.view.administration.add.AddPanelController', {
     },
     onAdd: function () {
         var view = this.getView();
-        var flightDetails = {
-            airline: view.down('#airline').getValue(),
-            flightNumber: view.down('#flightNumber').getValue(),
-            source: view.down('#source').getValue(),
-            destination: view.down('#destination').getValue(),
-            departureTime: view.down('#departureTime').getValue().getTime(),
-            arrivalTime: view.down('#arrivalTime').getValue().getTime(),
-            plane: view.down('#plane').getValue()
-        };
         if (view.isValid()) {
+            var flightDetails = {
+                airline: view.down('#airline').getValue(),
+                flightNumber: view.down('#flightNumber').getValue(),
+                source: view.down('#source').getValue(),
+                destination: view.down('#destination').getValue(),
+                departureTime: view.down('#departureTime').getValue().getTime(),
+                arrivalTime: view.down('#arrivalTime').getValue().getTime(),
+                plane: view.down('#plane').getValue()
+            };
             Ext.Ajax.request({
                 url: '/admin/data/routes/add',
                 method: 'POST',

@@ -106,7 +106,8 @@ Ext.define('FB.view.administration.Administration', {
                         store: 'Route',
                         displayInfo: true,
                         displayMsg: 'Displaying topics {0} - {1} of {2}',
-                        emptyMsg: "No topics to display"
+                        emptyMsg: "No topics to display",
+                        border: 0
                     })
                 }]
             }]

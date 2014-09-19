@@ -58,6 +58,8 @@ Ext.define('FB.view.ViewportController', {
 		var navigation = this.getView().down('Navigation').controller;
 		var content = this.getView().down('Content').controller;
 		content.removeAllPages();
+        content.addPage(Ext.create('FB.view.home.Home'));
+        content.addPage(Ext.create('FB.view.general.About'));
 		navigation.updateNavigation();
 		this.redirect();
 	},
