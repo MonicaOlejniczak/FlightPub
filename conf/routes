@@ -27,7 +27,8 @@ GET         /data/account-details               controllers.DataController.accou
 
 # Admin
 GET         /admin/data/routes                  controllers.AdminController.routes()
-POST         /admin/data/routes/delete          controllers.AdminController.deleteFlight()
+POST        /admin/data/routes/delete           controllers.AdminController.deleteFlight()
+POST        /admin/data/routes/edit             controllers.AdminController.editFlight()
 
 
 # Map static resources from the /public folder to the /assets URL path

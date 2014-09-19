@@ -2,6 +2,7 @@ package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import models.*;
+import org.joda.time.DateTime;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -9,6 +10,12 @@ import play.mvc.Result;
 import java.util.*;
 
 public class AdminController extends Controller {
+
+    /**
+     * Retrieves the route information from the server and sends it back to the client.
+     *
+     * @return An ok result
+     */
     public static Result routes() {
         int page = Integer.parseInt(request().getQueryString("page"));
         int start = Integer.parseInt(request().getQueryString("start"));
@@ -39,11 +46,36 @@ public class AdminController extends Controller {
         return ok(Json.toJson(result));
     }
 
+    /**
+     * Deletes a specific flight from the database.
+     *
+     * @return An ok result
+     */
     public static Result deleteFlight() {
         JsonNode data = request().body().asJson();
         JsonNode flightId = data.get("flightId");
         Flight flight = Flight.find.byId(flightId.asLong());
         flight.delete(); // todo fix
+        return ok();
+    }
+
+    /**
+     * Edits the flight data and saves the new information to the database.
+     *
+     * @return An ok result
+     */
+    public static Result editFlight() {
+        JsonNode data = request().body().asJson();
+        JsonNode flightId = data.get("flightId");
+        Flight flight = Flight.find.byId(flightId.asLong());
+        JsonNode flightDetails = data.get("flightDetails");
+        flight.airline = Airline.find.where().eq("name", flightDetails.get("airline").asText()).findUnique();
+        flight.flightNumber = flightDetails.get("flightNumber").asText();
+        flight.source = Airport.find.where().eq("name", flightDetails.get("source").asText()).findUnique();
+        flight.destination = Airport.find.where().eq("name", flightDetails.get("destination").asText()).findUnique();
+        flight.departureTime = new DateTime(flightDetails.get("departureTime").asLong());
+        flight.arrivalTime = new DateTime(flightDetails.get("arrivalTime").asLong());
+        flight.save();
         return ok();
     }
 }
