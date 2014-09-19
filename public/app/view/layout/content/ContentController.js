@@ -50,18 +50,12 @@ Ext.define('FB.view.layout.content.ContentController', {
      */
     removeAllPages: function () {
         var content = this.getContent();
-        var pages = [];
-        // todo add back in
-        /*Ext.each(content.items.items, function (page) {
-         // check it is not a default page and then add the page to the array
-         if (!page.controller.getDefault()) {
-         pages.push(page);
-         }
-         }, this);
-         // remove the pages from the content
-         Ext.each(pages, function (page) {
-         this.removePage(page)
-         }, this);*/
+        Ext.each(content.items.items, function (page) {
+            this.removePage(page);
+            delete this.pages[Ext.getClassName(page)];
+        }, this);
+        this.addPage(Ext.create('FB.view.home.Home'));
+        this.addPage(Ext.create('FB.view.general.About'));
     },
     /**
      * This method sets which page is currently being displayed

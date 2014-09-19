@@ -92,14 +92,7 @@ Ext.define('FB.view.administration.Administration', {
                         store: 'Route',
                         displayInfo: true,
                         displayMsg: 'Displaying topics {0} - {1} of {2}',
-                        emptyMsg: "No topics to display",
-                        items:[
-                            '-', {
-                                text: 'Show Preview',
-                                pressed: Ext.emptyFn,
-                                enableToggle: true,
-                                toggleHandler: Ext.emptyFn
-                            }]
+                        emptyMsg: "No topics to display"
                     })
                 }, {
                     xtype: 'button',
