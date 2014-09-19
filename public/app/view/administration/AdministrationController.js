@@ -4,19 +4,34 @@
 Ext.define('FB.view.administration.AdministrationController', {
     extend: 'FB.view.PageController',
     alias: 'controller.Administration',
+    panels: null,
+    store: null,
     init: function () {
-        this.getView().down('#adminPanel').on({
-            edit: this.onEdit,
-            delete: this.onDelete
-        })
+        var view = this.getView();
+        view.down('#adminPanel').on({
+            edit: 'onEdit',
+            delete: 'onDelete'
+        });
+        view.down('#addRoute').on({
+            click: 'onAddRoute',
+            back: 'onBack'
+        });
+        this.panels = view.down('#panels');
     },
     constructor: function () {
         this.setConfig({
             heading: 'Administration Panel'
         });
     },
+    /**
+     * The event fired when the user chooses to add a new route.
+     */
     onAddRoute: function () {
-        // TODO: everything
+        var addPanel = Ext.create('FB.view.administration.add.AddPanel');
+        addPanel.on({
+            back: 'onBack'
+        });
+        this.addPanel(addPanel);
     },
     /**
      * Creates the edit panel for a particular flight.
@@ -24,16 +39,14 @@ Ext.define('FB.view.administration.AdministrationController', {
      * @param flightId The id of the flight being deleted
      */
     onEdit: function (flightId) {
-        var panels = this.getView().up('#panels');
+        var store = this.getView().down('#adminPanel').getStore();
         var editPanel = Ext.create('FB.view.administration.edit.EditPanel', {
-            flight: this.store.getById(flightId).data
+            flight: store.getById(flightId).data
         });
-        panels.add(editPanel);
-        editPanel.on('back', function (panel) {
-            panels.getLayout().prev();
-            panels.remove(panel);
+        editPanel.on({
+            back: 'onBack'
         });
-        panels.getLayout().next();
+        this.addPanel(editPanel);
     },
     /**
      * Removes the flight from the database when the user confirms deletion.
@@ -67,5 +80,23 @@ Ext.define('FB.view.administration.AdministrationController', {
                 }
             }, scope: this
         });
+    },
+    /**
+     * The event that is fired when a back button is pressed inside the admin panel.
+     *
+     * @param panel The panel to remove.
+     */
+    onBack: function (panel) {
+        this.panels.getLayout().prev();
+        this.panels.remove(panel);
+    },
+    /**
+     * Adds a panel to the layout and displays it.
+     *
+     * @param panel The panel to add
+     */
+    addPanel: function (panel) {
+        this.panels.add(panel);
+        this.panels.getLayout().next();
     }
 });

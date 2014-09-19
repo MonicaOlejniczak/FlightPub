@@ -182,6 +182,11 @@ public class DataController extends Controller {
         return ok(Json.toJson(airports));
     }
 
+    public static Result planes() {
+        List<Plane> planes = Plane.find.findList();
+        return ok(Json.toJson(planes));
+    }
+
     /*public static Result genEdges() {
         FlightFinder.genEdges();
         return ok("done");

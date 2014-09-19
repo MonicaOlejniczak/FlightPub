@@ -22,13 +22,15 @@ GET         /                                   controllers.MainController.home(
 GET         /data/airlines                      controllers.DataController.airlines()
 GET         /data/airports                      controllers.DataController.airports()
 GET         /data/bookings                      controllers.DataController.bookings()
+GET         /data/planes                        controllers.DataController.planes()
 GET         /data/selectedFlights               controllers.DataController.selectedFlights()
 GET         /data/account-details               controllers.DataController.accountDetails()
 
 # Admin
 GET         /admin/data/routes                  controllers.AdminController.routes()
-POST        /admin/data/routes/delete           controllers.AdminController.deleteFlight()
 POST        /admin/data/routes/edit             controllers.AdminController.editFlight()
+POST        /admin/data/routes/add              controllers.AdminController.addFlight()
+POST        /admin/data/routes/delete           controllers.AdminController.deleteFlight()
 
 
 # Map static resources from the /public folder to the /assets URL path

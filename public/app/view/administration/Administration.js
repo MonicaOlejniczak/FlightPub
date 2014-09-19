@@ -20,6 +20,20 @@ Ext.define('FB.view.administration.Administration', {
             items: [{
                 xtype: 'container',
                 items: [{
+                    xtype: 'container',
+                    layout: {
+                        type: 'hbox',
+                        align: 'stretch',
+                        pack: 'end'
+                    },
+                    items: [{
+                        xtype: 'button',
+                        itemId: 'addRoute',
+                        text: 'Add Route',
+                        cls: 'button-blue',
+                        margin: '0 0 5px 0'
+                    }]
+                }, {
                     xtype: 'grid',
                     title: 'Flights',
                     store: 'Route',
@@ -94,13 +108,6 @@ Ext.define('FB.view.administration.Administration', {
                         displayMsg: 'Displaying topics {0} - {1} of {2}',
                         emptyMsg: "No topics to display"
                     })
-                }, {
-                    xtype: 'button',
-                    text: 'Add Route',
-                    cls: 'button-blue',
-                    listeners: {
-                        click: 'onAddRoute'
-                    }
                 }]
             }]
         }]

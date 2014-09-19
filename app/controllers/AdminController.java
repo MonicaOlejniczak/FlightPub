@@ -46,16 +46,20 @@ public class AdminController extends Controller {
         return ok(Json.toJson(result));
     }
 
-    /**
-     * Deletes a specific flight from the database.
-     *
-     * @return An ok result
-     */
-    public static Result deleteFlight() {
+    public static Result addFlight() {
         JsonNode data = request().body().asJson();
-        JsonNode flightId = data.get("flightId");
-        Flight flight = Flight.find.byId(flightId.asLong());
-        flight.delete(); // todo fix
+        JsonNode flightDetails = data.get("flightDetails");
+        Airline airline = Airline.find.where().eq("name", flightDetails.get("airline").asText()).findUnique();
+        String flightNumber = flightDetails.get("flightNumber").asText();
+        Airport source = Airport.find.where().eq("name", flightDetails.get("source").asText()).findUnique();
+        Airport destination = Airport.find.where().eq("name", flightDetails.get("destination").asText()).findUnique();
+        DateTime departureTime = new DateTime(flightDetails.get("departureTime").asLong());
+        DateTime arrivalTime = new DateTime(flightDetails.get("arrivalTime").asLong());
+        Plane plane = Plane.find.where().eq("details", flightDetails.get("plane").asText()).findUnique();
+        Integer duration = 0; // todo
+        Flight flight = new Flight(airline, flightNumber, source, destination, departureTime, arrivalTime, plane, duration);
+        flight.save();
+        Flight.find.all().add(flight);
         return ok();
     }
 
@@ -76,6 +80,19 @@ public class AdminController extends Controller {
         flight.departureTime = new DateTime(flightDetails.get("departureTime").asLong());
         flight.arrivalTime = new DateTime(flightDetails.get("arrivalTime").asLong());
         flight.save();
+        return ok();
+    }
+
+    /**
+     * Deletes a specific flight from the database.
+     *
+     * @return An ok result
+     */
+    public static Result deleteFlight() {
+        JsonNode data = request().body().asJson();
+        JsonNode flightId = data.get("flightId");
+        Flight flight = Flight.find.byId(flightId.asLong());
+        flight.delete(); // todo fix
         return ok();
     }
 }

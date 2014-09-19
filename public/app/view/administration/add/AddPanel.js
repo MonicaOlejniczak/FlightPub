@@ -1,33 +1,34 @@
 /**
  * @author Monica Olejniczak
  */
-Ext.define('FB.view.administration.edit.EditPanel', {
-    extend: 'Ext.container.Container',
-    xtype: 'EditPanel',
+Ext.define('FB.view.administration.add.AddPanel', {
+    extend: 'Ext.form.Panel',
+    xtype: 'AddPanel',
     requires: [
         'FB.view.home.flight.Source',
         'FB.view.home.flight.Destination',
         'FB.view.home.date.Departing',
         'FB.view.home.date.Returning',
-        'FB.view.administration.edit.EditPanelController'
+        'FB.view.administration.add.AddPanelController'
     ],
-    controller: 'EditPanel',
-    config: {
-        flight: null
-    },
-    itemId: 'editPanel',
+    controller: 'AddPanel',
+    itemId: 'addPanel',
     layout: {
         type: 'vbox',
         align: 'stretch'
     },
+    standardSubmit: true,
+    baseCls: 'x-plain',
     defaults: {
         flex: 1,
-        labelWidth: 200
+        labelWidth: 200,
+        allowBlank: false,
+        msgTarget: 'under'
     },
     items: [{
         xtype: 'header',
         cls: 'heading',
-        html: 'Edit Panel',
+        html: 'Add Route',
         margin: '0 0 0 205px'
     },  {
         xtype: 'combo',
@@ -59,11 +60,18 @@ Ext.define('FB.view.administration.edit.EditPanel', {
         itemId: 'arrivalTime',
         fieldLabel: 'Arrival Time'
     },  {
-        xtype: 'numberfield',
-        itemId: 'price',
-        fieldLabel: 'Price',
-        minValue: 0,
-        maxValue: 10000
+        xtype: 'combo',
+        itemId: 'plane',
+        fieldLabel: 'Plane',
+        store: 'Plane',
+        queryMode: 'local',
+        valueField: 'details',
+        displayField: 'details',
+        autoSelect: false,
+        selectOnFocus: true,
+        typeAhead: true,
+        minChars: 1,
+        emptyText: 'none'
     },  {
         xtype: 'container',
         layout: {
@@ -78,8 +86,8 @@ Ext.define('FB.view.administration.edit.EditPanel', {
             margin: '0 5px 0 0'
         },  {
             xtype: 'button',
-            itemId: 'edit',
-            text: 'Edit Flight',
+            itemId: 'add',
+            text: 'Add Flight',
             cls: 'button-green'
         }]
     }]
