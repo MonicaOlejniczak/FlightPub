@@ -2,7 +2,7 @@
  * Created by juliusskye on 19/09/2014.
  */
 
-describe("The Flights Admin Panel", function () {
+/*describe("The Flights Admin Panel", function () {
     // create mock stores
     Ext.syncRequire('Mock.store.ItineraryMock');
     Ext.create('Mock.store.ItineraryMock');
@@ -71,4 +71,4 @@ describe("The Flights Admin Panel", function () {
 
 
     });
-
+*/
