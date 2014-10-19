@@ -3,6 +3,7 @@
  */
 Ext.define('FB.view.authentication.login.LoginController', {
 	extend: 'FB.view.PageController',
+    require: 'FB.CryptoJS_v3.1.2',
 	alias: 'controller.Login',
 	constructor: function () {
 		this.setConfig({
@@ -41,8 +42,15 @@ Ext.define('FB.view.authentication.login.LoginController', {
 		// client side validation
 		var form = this.getView();
 		if (form.isValid()) {
+
+            // hash password before sending form
+            // SHA-512 is used for it is well tested.
+            // SHA-3 (Keccak) is also available.  CryptoJS.SHA3("Message");
+            password = form.down().getValue("#password").getValue();
+            form.down().setValue(CryptoJS.SHA512(password));
+
 			// server side validation
-			Ext.Ajax.request({
+			var request = Ext.Ajax.request({
 				url: '/login/process',
 				method: 'POST',
 				params: form.getValues(),
@@ -60,6 +68,8 @@ Ext.define('FB.view.authentication.login.LoginController', {
 		} else {
 			Ext.Msg.alert('Error', 'Form fields may not be submitted with invalid values.');
 		}
+
+        console.log('The request was: ',request)
 	}
 
 });
