@@ -75,13 +75,40 @@ Ext.define('FB.view.authentication.register.RegisterController', {
 		var form = this.getView();
 		// client side validation
 		if (form.isValid()) {
-			// server side validation
+
+            // hash password before sending form
+            // SHA-512 is used for it is well tested.
+            // SHA-3 (Keccak) is also available.  CryptoJS.SHA3("Message");
+            password = form.down('#password').getValue();
+            var hashedPassword = CryptoJS.SHA512(password);
+
+//            var params = form.getValues();
+//            params.password = hashedPassword;
+//            debugger;
+
+            var params={
+
+                firstName:form.getValues().firstName,
+                LastName: form.getValues().lastName,
+                AccountType:form.getValues().AccountType,
+                email: form.getValues().email,
+                password: hashedPassword,
+                ConfirmPassword: form.getValues().ConfirmPassword
+
+            }
+
+            console.log("params: " + params);
+            console.log("values: " + form);
+
+
+            // server side validation
 			Ext.Ajax.request({
 				url: '/register/process',
 				method: 'POST',
 				submitEmptyText: false,
-				params: form.getValues(),
-				success: function (response) {
+//				params: form.getValues(),
+                params: params,
+                success: function (response) {
 					// server side validation was successful and the user is redirected to the home page
                     Ext.Msg.alert('Success', 'You have successfully registered.');
                     form.fireEvent('register');
