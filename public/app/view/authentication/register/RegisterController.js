@@ -86,19 +86,17 @@ Ext.define('FB.view.authentication.register.RegisterController', {
 //            params.password = hashedPassword;
 //            debugger;
 
+            var values = form.getValues();
             var params={
 
-                firstName:form.getValues().firstName,
-                LastName: form.getValues().lastName,
-                AccountType:form.getValues().AccountType,
-                email: form.getValues().email,
+                firstName: values.firstName,
+                lastName: values.lastName,
+                accountType: values.accountType,
+                email: values.email,
                 password: hashedPassword,
-                ConfirmPassword: form.getValues().ConfirmPassword
+                confirmPassword: values.confirmPassword
 
             }
-
-            console.log("params: " + params);
-            console.log("values: " + form);
 
 
             // server side validation

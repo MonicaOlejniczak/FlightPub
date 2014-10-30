@@ -149,6 +149,7 @@
     <orderEntry type="library" scope="TEST" name="SBT: org.easytesting:fest-assert:1.4:test" level="project" />
     <orderEntry type="library" scope="TEST" name="SBT: org.easytesting:fest-util:1.1.6:test" level="project" />
     <orderEntry type="library" name="FlightPub node_modules" level="project" />
+    <orderEntry type="library" name="flightpub node_modules" level="project" />
   </component>
 </module>
 
