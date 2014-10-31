@@ -82,6 +82,8 @@ Ext.define('FB.view.authentication.register.RegisterController', {
             password = form.down('#password').getValue();
             var hashedPassword = CryptoJS.SHA512(password);
 
+            var hashedConfirmPassword = hashedPassword;   //TODO: this is a quick fix. dont need to send this.
+
 //            var params = form.getValues();
 //            params.password = hashedPassword;
 //            debugger;
@@ -95,9 +97,13 @@ Ext.define('FB.view.authentication.register.RegisterController', {
                 email: values.email,
                 password: hashedPassword,
 //                confirmPassword: values.confirmPassword
-                confirmPassword: hashedPassword
+                confirmPassword: hashedConfirmPassword
 
             }
+
+            console.log(params)
+
+            debugger;
 
 
             // server side validation
