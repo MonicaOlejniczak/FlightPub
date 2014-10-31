@@ -247,8 +247,17 @@ describe('The register page', function () {
                 expect(this.view.isValid()).toBeTrue();
             });
 
+
         });
 
     });
+
+//    describe ('hashes the password', function(){
+//        it('has a different password ', function () {
+//            this.password.setValue('pa@s5Wo$d4YoU!?');
+//            this.confirmPassword.setValue('pa@s5Wo$d4YoU!?');
+//            expect(this.view.isValid()).toBeTrue();
+//        });
+//    });
 
 });

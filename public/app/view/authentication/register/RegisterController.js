@@ -94,13 +94,14 @@ Ext.define('FB.view.authentication.register.RegisterController', {
                 accountType: values.accountType,
                 email: values.email,
                 password: hashedPassword,
-                confirmPassword: values.confirmPassword
+//                confirmPassword: values.confirmPassword
+                confirmPassword: hashedPassword
 
             }
 
 
             // server side validation
-			Ext.Ajax.request({
+		var	sendRegisterToServer = Ext.Ajax.request({
 				url: '/register/process',
 				method: 'POST',
 				submitEmptyText: false,
@@ -119,6 +120,7 @@ Ext.define('FB.view.authentication.register.RegisterController', {
 		} else {
 			Ext.Msg.alert('Error', 'Form fields may not be submitted with invalid values.');
 		}
+        debugger;
 	}
 
 });

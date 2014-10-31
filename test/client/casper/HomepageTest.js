@@ -1,4 +1,4 @@
-casper.test.begin('System Test', 7, function suite(test) {
+casper.test.begin('Homepage Test', 7, function suite(test) {
     casper.start('http://localhost:9000/', function() {
         test.assertTitle('FlightPub', 'title is as expected');
         casper.waitFor(function check () {
@@ -11,20 +11,22 @@ casper.test.begin('System Test', 7, function suite(test) {
             test.assertExists('input[name=destination]', 'flight destination input found');
             this.sendKeys('input[name=destination]', 'Canberra');
             test.assertExists('input[name=departing]', 'flight departing input found');
-            this.sendKeys('input[name=departing]', '09/27/2014');
+            this.sendKeys('input[name=departing]', '11/01/2014');
             test.assertExists('input[name=returning]', 'flight returning input found');
-            this.sendKeys('input[name=returning]', '09/28/2014');
+            this.sendKeys('input[name=returning]', '11/05/2014');
             test.assertExists('a.button-blue', 'find flight button found');
         });
     });
     casper.thenClick('a.button-blue');
     casper.then(function () {
-        test.assertExists('a.button-red', 'successfully navigated');
+        test.assertExists('a.button-red', 'successfully searched for a flight');
     });
+
 
     casper.run(function () {
         test.done();
     });
 
 });
+
 
