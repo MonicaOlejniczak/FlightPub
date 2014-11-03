@@ -1,0 +1,7 @@
+Run a casper system test from command prompt in casper directory like:
+
+    casperjs test ClientSideHashTest.js --verbose  --xunit=ClientSideHashTestResults.xml
+
+    --verbose outputs all errors/warnings
+    --xunit=file.xml prints results to file
+
