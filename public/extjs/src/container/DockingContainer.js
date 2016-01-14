@@ -1,23 +1,3 @@
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-GNU General Public License Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as
-published by the Free Software Foundation and appearing in the file LICENSE included in the
-packaging of this file.
-
-Please review the following information to ensure the GNU General Public License version 3.0
-requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
-*/
 /**
  *
  */
@@ -54,7 +34,7 @@ Ext.define('Ext.container.DockingContainer', {
      *
      * To make default docking order match border layout, do this:
      *
-     *      Ext.panel.AbstractPanel.prototype.defaultDockWeights = { top: 1, bottom: 3, left: 5, right: 7 };
+     *      Ext.panel.Panel.prototype.defaultDockWeights = { top: 1, bottom: 3, left: 5, right: 7 };
      *
      * Changing these defaults as above or individually on this object will effect all Panels.
      * To change the defaults on a single panel, you should replace the entire object:
@@ -111,6 +91,7 @@ Ext.define('Ext.container.DockingContainer', {
     addDocked : function(items, pos) {
         var me = this,
             i = 0,
+            instanced,
             item, length;
 
         items = me.prepareItems(items);
@@ -130,7 +111,10 @@ Ext.define('Ext.container.DockingContainer', {
                 me.dockedItems.add(item);
             }
             
-            item.onAdded(me, i);
+            instanced = !!item.instancedCmp;
+            delete item.instancedCmp;
+            item.onAdded(me, i, instanced);
+            delete item.initOwnerCt;
             if (me.hasListeners.dockedadd) {
                 me.fireEvent('dockedadd', me, item, i);
             }
@@ -236,9 +220,11 @@ Ext.define('Ext.container.DockingContainer', {
         var me = this,
             items = me.dockedItems;
 
-        me.dockedItems = new Ext.util.AbstractMixedCollection(false, me.getComponentId);
-        if (items) {
-            me.addDocked(items);
+        if (!items || !items.isMixedCollection) {
+            me.dockedItems = new Ext.util.AbstractMixedCollection(false, me.getComponentId);
+            if (items) {
+                me.addDocked(items);
+            }
         }
     },
 

@@ -25,11 +25,13 @@ public class AuthenticatedUser extends Security.Authenticator {
 	@Override
 	public Result onUnauthorized(Http.Context context) {
 		context.flash().put("destination", context.request().uri());
-		return redirect(controllers.routes.AuthenticationController.login());
+		return ok();
+		//return redirect(controllers.routes.AuthenticationController.login());
 	}
 
 	public static Boolean isLoggedIn() {
-		return !("".equals(Http.Context.current().request().username()));
+		Http.Session session = Http.Context.current().session();
+		return session.get("email") != null && !session.get("email").equals("");
 	}
 
 }

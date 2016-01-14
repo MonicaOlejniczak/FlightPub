@@ -1,16 +1,8 @@
 import models.Airport;
 import models.Flight;
 import org.joda.time.DateTime;
-import org.junit.Test;
-import util.algorithm.KShortestPath;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-
-import static org.fest.assertions.Assertions.assertThat;
 
 
 public class AlgorithmTest {

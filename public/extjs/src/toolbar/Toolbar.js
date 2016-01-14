@@ -1,23 +1,3 @@
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-GNU General Public License Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as
-published by the Free Software Foundation and appearing in the file LICENSE included in the
-packaging of this file.
-
-Please review the following information to ensure the GNU General Public License version 3.0
-requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
-*/
 /**
  * Basic Toolbar class. Although the {@link Ext.container.Container#defaultType defaultType} for
  * Toolbar is {@link Ext.button.Button button}, Toolbar elements (child items for the Toolbar container)
@@ -228,6 +208,7 @@ Ext.define('Ext.toolbar.Toolbar', {
     ariaRole : 'toolbar',
 
     defaultType: 'button',
+    layout: undefined,
 
     /**
      * @cfg {Boolean} vertical
@@ -259,13 +240,67 @@ Ext.define('Ext.toolbar.Toolbar', {
 
     /**
      * @cfg {String} defaultButtonUI
-     * A default {@link Ext.Component#ui ui} to use for {@link Ext.button.Button Button} items
+     * A default {@link Ext.Component#ui ui} to use for {@link Ext.button.Button Button} items. This is a quick and simple
+     * way to change the look of all child {@link Ext.button.Button Buttons}.
+     *
+     * If there is no value for defaultButtonUI, the button's {@link Ext.Component#ui ui} value will get `-toolbar`
+     * appended so the {@link Ext.button.Button Button} has a different look when it's a child of a {@link Ext.toolbar.Toolbar Toolbar}.
+     * To prevent this and have the same look as buttons outside of a toolbar, you can provide a string value to the defaultButtonUI:
+     *
+     *     Ext.create('Ext.panel.Panel', {
+     *         renderTo    : document.body,
+     *         width       : 300,
+     *         title       : 'Panel',
+     *         html        : 'Some Body',
+     *         dockedItems : [
+     *             {
+     *                 xtype           : 'toolbar',
+     *                 dock            : 'top',
+     *                 defaultButtonUI : 'default',
+     *                 items           : [
+     *                     {
+     *                         text : 'Save'
+     *                     },
+     *                     {
+     *                         text : 'Remove'
+     *                     }
+     *                 ]
+     *             }
+     *         ]
+     *     });
      */
-    
+    defaultButtonUI: 'default-toolbar',
+
+    /**
+     * @cfg {String}
+     * Default UI for form field items.
+     */
+    defaultFieldUI: 'default',
+
+    /**
+     * @cfg {String}
+     * Default UI for Buttons if the toolbar has a UI of 'footer'
+     */
+    defaultFooterButtonUI: 'default',
+
+    /**
+     * @cfg {String}
+     * Default UI for Form Fields if the toolbar has a UI of 'footer'
+     */
+    defaultFooterFieldUI: 'default',
+
     // @private
     trackMenus: true,
 
     itemCls: Ext.baseCSSPrefix + 'toolbar-item',
+
+    /**
+     * @event overflowchange
+     * Fires after the overflow state has changed.
+     * @param {Number} lastHiddenCount The number of overflowing items that used to be hidden.
+     * @param {Number} hiddenCount The number of overflowing items that are hidden now.
+     * @param {Array} The hidden items
+     */
 
     statics: {
         shortcuts: {
@@ -314,15 +349,6 @@ Ext.define('Ext.toolbar.Toolbar', {
         }
 
         me.callParent();
-
-        /**
-         * @event overflowchange
-         * Fires after the overflow state has changed.
-         * @param {Number} lastHiddenCount The number of overflowing items that used to be hidden.
-         * @param {Number} hiddenCount The number of overflowing items that are hidden now.
-         * @param {Array} The hidden items
-         */
-        me.addEvents('overflowchange');
     },
 
     getRefItems: function(deep) {
@@ -364,7 +390,7 @@ Ext.define('Ext.toolbar.Toolbar', {
      *
      * @method add
      */
-    
+
     /**
      * Inserts a Component into this Container at a specified index.
      *
@@ -378,11 +404,11 @@ Ext.define('Ext.toolbar.Toolbar', {
     // @private
     lookupComponent: function(c) {
         var args = arguments;
-        if (typeof c == 'string') {
+        if (typeof c === 'string') {
             var T = Ext.toolbar.Toolbar,
                 shortcut = T.shortcutsHV[this.vertical ? 1 : 0][c] || T.shortcuts[c];
 
-            if (typeof shortcut == 'string') {
+            if (typeof shortcut === 'string') {
                 c = {
                     xtype: shortcut
                 };
@@ -396,7 +422,7 @@ Ext.define('Ext.toolbar.Toolbar', {
             }
 
             this.applyDefaults(c);
-            
+
             // See: EXTJSIV-7578
             args = [c];
         }
@@ -427,14 +453,14 @@ Ext.define('Ext.toolbar.Toolbar', {
     // @private
     onBeforeAdd: function(component) {
         var me = this,
-            isButton = component.isButton;
+            isFooter = me.ui === 'footer';
 
-        if (isButton && me.defaultButtonUI && component.ui === 'default' &&
-            !component.hasOwnProperty('ui')) {
-            component.ui = me.defaultButtonUI;
-        } else if ((isButton || component.isFormField) && me.ui !== 'footer') {
-            component.ui = component.ui + '-toolbar';
-            component.addCls(component.baseCls + '-toolbar');
+        if (component.ui === 'default' && !component.hasOwnProperty('ui')) {
+            if (component.isButton) {
+                component.ui = isFooter? me.defaultFooterButtonUI : me.defaultButtonUI;
+            } else if (component.isFormField) {
+                component.ui = isFooter ? me.defaultFooterFieldUI : me.defaultFieldUI;
+            }
         }
 
         // Any separators needs to know if is vertical or not
@@ -450,20 +476,20 @@ Ext.define('Ext.toolbar.Toolbar', {
         this.callParent(arguments);
         this.trackMenu(component);
     },
-    
+
     // @private
     onRemove: function(c) {
         this.callParent(arguments);
         this.trackMenu(c, true);
     },
-    
+
     getChildItemsToDisable: function() {
-        return this.items.getRange();   
+        return this.items.getRange();
     },
 
     // @private
     onButtonOver: function(btn){
-        if (this.activeMenuBtn && this.activeMenuBtn != btn) {
+        if (this.activeMenuBtn && this.activeMenuBtn !== btn) {
             this.activeMenuBtn.hideMenu();
             btn.showMenu();
             this.activeMenuBtn = btn;

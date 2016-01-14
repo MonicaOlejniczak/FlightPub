@@ -1,23 +1,3 @@
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-GNU General Public License Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as
-published by the Free Software Foundation and appearing in the file LICENSE included in the
-packaging of this file.
-
-Please review the following information to ensure the GNU General Public License version 3.0
-requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
-*/
 /**
  * @author Ed Spencer
  * TabBar is used internally by a {@link Ext.tab.Panel TabPanel} and typically should not need to be created manually.
@@ -25,7 +5,8 @@ Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
  */
 Ext.define('Ext.tab.Bar', {
     extend: 'Ext.panel.Header',
-    alias: 'widget.tabbar',
+    xtype: 'tabbar',
+
     baseCls: Ext.baseCSSPrefix + 'tab-bar',
 
     requires: [
@@ -45,6 +26,8 @@ Ext.define('Ext.tab.Bar', {
     
     /**
      * @cfg {String} iconCls @hide
+     *
+     * There are no default icon classes that come with Ext JS.
      */
 
     // @private
@@ -55,6 +38,8 @@ Ext.define('Ext.tab.Bar', {
      * True to not show the full background on the tabbar
      */
     plain: false,
+    
+    ariaRole: 'tablist',
 
     childEls: [
         'body', 'strip'
@@ -62,10 +47,13 @@ Ext.define('Ext.tab.Bar', {
 
     // @private
     renderTpl: [
-        '<div id="{id}-body" class="{baseCls}-body {bodyCls} {bodyTargetCls}{childElCls}<tpl if="ui"> {baseCls}-body-{ui}<tpl for="uiCls"> {parent.baseCls}-body-{parent.ui}-{.}</tpl></tpl>"<tpl if="bodyStyle"> style="{bodyStyle}"</tpl>>',
+        '<div id="{id}-body" role="presentation" class="{baseCls}-body {bodyCls} {bodyTargetCls}{childElCls}',
+            '<tpl if="ui"> {baseCls}-body-{ui}',
+                '<tpl for="uiCls"> {parent.baseCls}-body-{parent.ui}-{.}</tpl>',
+            '</tpl>"<tpl if="bodyStyle"> style="{bodyStyle}"</tpl>>',
             '{%this.renderContainer(out,values)%}',
         '</div>',
-        '<div id="{id}-strip" class="{baseCls}-strip {baseCls}-strip-{dock}{childElCls}',
+        '<div id="{id}-strip" role="presentation" class="{baseCls}-strip {baseCls}-strip-{dock}{childElCls}',
             '<tpl if="ui"> {baseCls}-strip-{ui}',
                 '<tpl for="uiCls"> {parent.baseCls}-strip-{parent.ui}-{.}</tpl>',
             '</tpl>">',
@@ -89,6 +77,14 @@ Ext.define('Ext.tab.Bar', {
         right: 'left'
     },
 
+    /**
+     * @event change
+     * Fired when the currently-active tab has changed
+     * @param {Ext.tab.Bar} tabBar The TabBar
+     * @param {Ext.tab.Tab} tab The new Tab
+     * @param {Ext.Component} card The card that was just shown in the TabPanel
+     */
+
     // @private
     initComponent: function() {
         var me = this;
@@ -98,17 +94,6 @@ Ext.define('Ext.tab.Bar', {
         }
 
         me.addClsWithUI(me.orientation);
-
-        me.addEvents(
-            /**
-             * @event change
-             * Fired when the currently-active tab has changed
-             * @param {Ext.tab.Bar} tabBar The TabBar
-             * @param {Ext.tab.Tab} tab The new Tab
-             * @param {Ext.Component} card The card that was just shown in the TabPanel
-             */
-            'change'
-        );
 
         // Element onClick listener added by Header base class
         me.callParent(arguments);
@@ -132,7 +117,7 @@ Ext.define('Ext.tab.Bar', {
 
         me.callParent();
 
-        if (me.orientation === 'vertical' && (Ext.isIE8 || Ext.isIE9) && Ext.isStrict) {
+        if (Ext.isIE9m && me.orientation === 'vertical') {
             me.el.on({
                 mousemove: me.onMouseMove, 
                 scope: me
@@ -144,8 +129,8 @@ Ext.define('Ext.tab.Bar', {
         var layout = this.layout;
 
         this.callParent();
-        if (Ext.isIE9 && Ext.isStrict && this.orientation === 'vertical') {
-            // EXTJSIV-8765: focusing a vertically-oriented tab in IE9 strict can cause
+        if (Ext.isIE9 && this.orientation === 'vertical') {
+            // EXTJSIV-8765: focusing a vertically-oriented tab in IE9 can cause
             // the innerCt to scroll if the tabs have bordering.  
             layout.innerCt.on('scroll', function() {
                 layout.innerCt.dom.scrollLeft = 0;
@@ -218,7 +203,7 @@ Ext.define('Ext.tab.Bar', {
         
         me.callParent(arguments);
             
-        if (needsScroll) {
+        if (needsScroll && me.tooNarrow) {
             me.layout.overflowHandler.scrollToItem(me.activeTab);
         }    
         delete me.needsScroll;
@@ -234,7 +219,7 @@ Ext.define('Ext.tab.Bar', {
             return;
         }
 
-        if (me.orientation === 'vertical' && (Ext.isIE8 || Ext.isIE9) && Ext.isStrict) {
+        if (Ext.isIE9m && me.orientation === 'vertical') {
             tabInfo = me.getTabInfoFromPoint(e.getXY());
             tab = tabInfo.tab;
             isCloseClick = tabInfo.close;
@@ -258,8 +243,9 @@ Ext.define('Ext.tab.Bar', {
                 } else {
                     me.setActiveTab(tab);
                 }
-                tab.focus();
             }
+            
+            tab.afterClick(isCloseClick);
         }
     },
 
@@ -335,9 +321,6 @@ Ext.define('Ext.tab.Bar', {
                 tab = tabs[i];
                 closeEl = tab.closeEl;
                 if (closeEl) {
-                    closeXY = closeEl.getXY();
-                    closeWidth = closeEl.getWidth();
-                    closeHeight = closeEl.getHeight();
                     // Read the dom to determine if the contents of the tab are reversed
                     // (rotated 180 degrees).  If so, we can cache the result becuase
                     // it's safe to assume all tabs in the tabbar will be the same
@@ -349,15 +332,14 @@ Ext.define('Ext.tab.Bar', {
                     }
 
                     direction = isTabReversed ? this._reverseDockNames[me.dock] : me.dock;
+                    
+                    closeWidth = closeEl.getWidth();
+                    closeHeight = closeEl.getHeight();
+                    closeXY = me.getCloseXY(closeEl, tabX, tabY, tabWidth, tabHeight,
+                        closeWidth, closeHeight, direction);
+                    closeX = closeXY[0];
+                    closeY = closeXY[1];
 
-                    if (direction === 'right') {
-                        closeX = tabX + tabWidth - ((closeXY[1] - tabY) + closeEl.getHeight()); 
-                        closeY = tabY + (closeXY[0] - tabX); 
-                    } else {
-                        closeX = tabX + (closeXY[1] - tabY);
-                        closeY = tabY + tabX + tabHeight - closeXY[0] - closeEl.getWidth();
-                    }
-                        
                     closeRegion = new Ext.util.Region(
                         closeY,
                         closeX + closeWidth,
@@ -375,6 +357,22 @@ Ext.define('Ext.tab.Bar', {
             tab: tab,
             close: close
         };
+    },
+
+    // @private
+    getCloseXY: function(closeEl, tabX, tabY, tabWidth, tabHeight, closeWidth, closeHeight, direction) {
+        var closeXY = closeEl.getXY(),
+            closeX, closeY;
+
+        if (direction === 'right') {
+            closeX = tabX + tabWidth - ((closeXY[1] - tabY) + closeHeight); 
+            closeY = tabY + (closeXY[0] - tabX); 
+        } else {
+            closeX = tabX + (closeXY[1] - tabY);
+            closeY = tabY + tabX + tabHeight - closeXY[0] - closeWidth;
+        }
+
+        return [closeX, closeY];
     },
 
     /**

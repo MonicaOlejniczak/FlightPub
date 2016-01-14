@@ -47,7 +47,7 @@ public class DataController extends Controller {
         flights.sort(new Comparator<Itinerary>() {
             @Override
             public int compare(Itinerary o1, Itinerary o2) {
-                return Integer.compare(o1.flights.size(), o2.flights.size());
+            return Integer.compare(o1.flights.size(), o2.flights.size());
             }
         });
         flights = flights.subList(0, Math.min(flights.size(), MAX_RESULTS));

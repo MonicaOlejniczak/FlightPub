@@ -1,23 +1,3 @@
-/*
-This file is part of Ext JS 4.2
-
-Copyright (c) 2011-2013 Sencha Inc
-
-Contact:  http://www.sencha.com/contact
-
-GNU General Public License Usage
-This file may be used under the terms of the GNU General Public License version 3.0 as
-published by the Free Software Foundation and appearing in the file LICENSE included in the
-packaging of this file.
-
-Please review the following information to ensure the GNU General Public License version 3.0
-requirements will be met: http://www.gnu.org/copyleft/gpl.html.
-
-If you are unsure which license is appropriate for your use, please contact the sales department
-at http://www.sencha.com/contact.
-
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
-*/
 /**
  * This class is intended to be extended or created via the {@link Ext.container.Container#layout layout}
  * configuration property.  See {@link Ext.container.Container#layout} for additional details.
@@ -79,6 +59,12 @@ Ext.define('Ext.layout.container.Container', {
      */
     animatePolicy: null,
 
+    /**
+     * @private
+     * tracks the number of child items that do not use "liquid" CSS layout
+     */
+    activeItemCount: 0,
+
     childEls: [
         /**
          * @property {Ext.Element} overflowPadderEl
@@ -138,17 +124,20 @@ Ext.define('Ext.layout.container.Container', {
     },
 
     cacheChildItems: function (ownerContext) {
-        var context = ownerContext.context,
-            childItems = [],
-            items = this.getVisibleItems(),
-            length = items.length,
-            i;
+        var me = this,
+            context, childItems, items, length, i;
 
-        ownerContext.childItems = childItems;
-        ownerContext.visibleItems = items;
+        // if we neither read nor set the size of our items, we can skip creation of
+        // the childItems array
+        if (me.needsItemSize || me.setsItemSize) {
+            context = ownerContext.context,
+            childItems = ownerContext.childItems = [];
+            items = ownerContext.visibleItems = me.getVisibleItems();
+            length = items.length;
 
-        for (i = 0; i < length; ++i) {
-            childItems.push(context.getCmp(items[i]));
+            for (i = 0; i < length; ++i) {
+                childItems.push(context.getCmp(items[i]));
+            }
         }
     },
 
@@ -156,6 +145,19 @@ Ext.define('Ext.layout.container.Container', {
         var owner = this.owner;
 
         this.applyChildEls(owner.el, owner.id); // from ElementContainer mixin
+    },
+
+    calculate: function(ownerContext) {
+        var props = ownerContext.props,
+            el = ownerContext.el;
+
+        if (ownerContext.widthModel.shrinkWrap && isNaN(props.width)) {
+            ownerContext.setContentWidth(el.getWidth());
+        }
+
+        if (ownerContext.heightModel.shrinkWrap && isNaN(props.height)) {
+            ownerContext.setContentHeight(el.getHeight());
+        }
     },
 
     /**
@@ -166,17 +168,27 @@ Ext.define('Ext.layout.container.Container', {
         var me = this,
             itemCls = me.itemCls,
             ownerItemCls = me.owner.itemCls,
+            needsCopy,
             addClasses;
 
         // Effectively callParent but without the function overhead
         item.ownerLayout = me;
 
         if (itemCls) {
-            // itemCls can be a single clas or an array
-            addClasses = typeof itemCls === 'string' ? [itemCls] : itemCls;
+            // itemCls can be a single class or an array
+            if (typeof itemCls === 'string') {
+                addClasses = [itemCls];
+            } else {
+                addClasses = itemCls;
+                needsCopy = !!addClasses;
+            }
         }
         if (ownerItemCls) {
-            addClasses = Ext.Array.push(addClasses||[], ownerItemCls);
+            // Add some extra logic so we don't clone the array unnecessarily
+            if (needsCopy) {
+                addClasses = Ext.Array.clone(addClasses);
+            }
+            addClasses = Ext.Array.push(addClasses || [], ownerItemCls);
         }
         if (addClasses) {
             item.addCls(addClasses);
@@ -492,12 +504,42 @@ Ext.define('Ext.layout.container.Container', {
 
         for (i = 0; i < ln; i++) {
             item = items[i];
-            if (item.rendered && this.isValidParent(item, target, i) && item.hidden !== true) {
+            if (item.rendered && this.isValidParent(item, target, i) && item.hidden !== true && !item.floated) {
                 visibleItems.push(item);
             }
         }
 
         return visibleItems;
+    },
+        
+    getMoveAfterIndex: function (after) {
+        var owner = this.owner,
+            items = owner.items;
+        
+        return items.indexOf(after) + 1;
+    },
+        
+    moveItemBefore: function (item, before) {
+        var owner = this.owner,
+            prevOwner = item.ownerCt,
+            items = owner.items,
+            toIndex;
+        
+        if (item === before) {
+            return;
+        }
+
+        if (prevOwner) {
+            prevOwner.remove(item, false);
+        }
+        
+        if (before) {            
+            toIndex = items.indexOf(before);
+        } else {            
+            toIndex = items.length;
+        }
+        
+        owner.insert(toIndex, item);
     },
 
     setupRenderTpl: function (renderTpl) {
@@ -510,6 +552,19 @@ Ext.define('Ext.layout.container.Container', {
     
     getContentTarget: function(){
         return this.owner.getDefaultContentTarget();
-    }
+    },
 
+    onAdd: function (item) {
+        if (!item.liquidLayout) {
+            ++this.activeItemCount;
+        }
+        this.callParent([item]);
+    },
+
+    onRemove: function(item) {
+        if (!item.liquidLayout) {
+            --this.activeItemCount;
+        }
+        this.callParent([item]);
+    }
 });

@@ -27,44 +27,35 @@
 @footerBoxShadow: 5em;
 
 /* Header */
-header, #logo, nav, nav a, .active, #headerOptions {
-	float: left;
-}
-
-#header, #logo, #logo a, nav, nav a, .active {
+.header, .logo, .logo a, nav, nav a, .active {
 	height: 100%;
 }
 
-header {
-	width: 100%;
+.header {
 	font: 1em 'Ubuntu', @nextFont;
 	overflow: hidden;
 	.boxShadow(0, -@headerBoxShadow, @headerBoxShadow, @headerBoxShadow, @navigationBackgroundColor);
 }
 
-header::selection {
+.header::selection {
 	background-color: @headerSelectionColour;
 }
 
-header::-moz-selection {
+.header::-moz-selection {
 	background-color: @headerSelectionColour;
 }
 
-#navigation {
-	width: 100%;
+.navigation {
 	height: @navigationHeight;
 	background-color: @navigationBackgroundColor;
 }
 
 nav {
-	max-width: @maxWidth;
-	height: @navigationHeight;
 	font: @navFontSize 'Ubuntu', 'Helvetica', @nextFont;
-	float: right;
-	display: block;
 }
 
 nav a, .active {
+	height: @navigationHeight;
 	text-align: center;
 	line-height: @navLineHeight;
 	padding: 0 0.5em;
@@ -84,32 +75,33 @@ nav a:hover {
 	background-color: lighten(@activeBackgroundColor, 10%);
 	color: @activeColor;
 	text-decoration: none;
+	cursor: pointer;
 }
 
-.active {
+a.active {
 	background-color: @activeBackgroundColor;
 	color: @activeColor;
 	.textShadow(@activeColor);
 }
 
-.active:hover {
+a.active:hover {
 	color: ligthen(@activeColor, 10%);
 }
 
-#bannerContainer, #bannerContainer:before, #bannerGradient {
+.bannerContainer, .bannerContainer:before, .bannerGradient {
 	height: @bannerContainerHeight;
 }
 
-#bannerContainer, #bannerGradient {
+.bannerContainer, .bannerGradient {
 	position: relative;
 }
 
-#bannerContainer {
+.bannerContainer {
 	background-color: #000;
 	.multiGradient(@bannerStart, @bannerSecond, @bannerThird, @bannerFourth, @bannerStop);
 }
 
-#bannerContainer:before {
+.bannerContainer:before {
 	content: '';
 	top: 0;
 	left: 0;
@@ -137,52 +129,53 @@ nav a:hover {
 	background-image: linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
 }
 
-#bannerGradient {
+.bannerGradient {
 	width: 100%;
 	.bannerGradient();
 }
 
-#banner {
+.banner {
 	height: @bannerContainerHeight - 3em;
 	padding: 4em 0 0 5em;
 }
 
-#logo {
-	width: 100%;
-	height: 1em;
-	font: 7em 'Ubuntu' @nextFont;
-	margin: 0 0 0.2em 0;
-	display: block;
-}
-
-#logo a, #logo a:hover {
+.logo, .logo:hover {
 	.transition(color, @time, linear);
 }
 
-#logo a {
+.logo {
+	height: 1em;
 	color: @buttonBackgroundColorHover;
+	font: 7em 'Ubuntu' @nextFont;
+	margin: 0 0 0.2em 0;
 }
 
-#logo a:hover {
+.logo:hover {
 	color: @buttonBackgroundColor;
 	text-decoration: none;
+	cursor: pointer;
 }
 
-#subtext {
+.subtext {
 	color: #fff;
 	font: 3em 'Ubuntu' @nextFont;
 	.textShadow(#fff);
 }
 
 /* Content */
-#content {
+.contentContainer {
 	height: auto !important;
 	height: 100%;
 	background-color: @secondaryBackgroundColor;
 }
 
+.smallerContent {
+	width: @contentWidth;
+	margin: 0 auto;
+}
+
 /* Footer */
-footer {
+.footer {
 	background-color: @footerBackgroundColor;
 	color: @footerColor;
 	font: 1em 'Ubuntu', @nextFont;
@@ -190,10 +183,10 @@ footer {
 	padding: 1em 0;
 }
 
-footer::selection {
+.footer::selection {
 	background-color: @footerSelectionColour;
 }
 
-footer::-moz-selection {
+.footer::-moz-selection {
 	background-color: @footerSelectionColour;
 }

@@ -1,16 +1,24 @@
 Ext.define('FB.view.AccountSettings', {
 	extend: 'Ext.form.Panel',
-	alias: 'widget.AccountSettings',
+	requires: [
+		'Ext.form.Panel',
+		'Ext.form.field.Number',
+		'Ext.form.field.ComboBox',
+		'FB.view.AccountSettingsController'
+	],
+	xtype: 'AccountSettings',
+	controller: 'AccountSettings',
+	itemId: 'AccountSettings',
 	standardSubmit: true,
 	layout: {
 		type: 'anchor'
 	},
-	cls: 'x-plain',
+	cls: 'smallerContent',
 	baseCls: 'x-plain',
 	defaults: {
 		anchor: '100%',
 		xtype: 'textfield',
-		labelWidth: 200,
+		labelWidth: 250,
 		maxLength: 50,
 		msgTarget: 'under',
 		border: false,
@@ -21,17 +29,17 @@ Ext.define('FB.view.AccountSettings', {
 	items: [{
 		xtype: 'header',
 		html: 'Account settings',
-		cls: 'formHeading'
+		cls: 'accountSettingsHeading'
 	},  {
 		itemId: 'email',
 		name: 'email',
 		fieldLabel: 'Email',
-		inputType: 'email',
+		vtype: 'email',
 		emptyText: 'please enter your email address',
 		allowBlank: false
 	},  {
-		itemId: 'currentPassword',
-		name: 'currentPassword',
+		itemId: 'password',
+		name: 'password',
 		fieldLabel: '* Current password',
 		inputType: 'password',
 		emptyText: 'please enter your current password',
@@ -44,13 +52,14 @@ Ext.define('FB.view.AccountSettings', {
 		emptyText: 'please enter your new password'
 	},  {
 		itemId: 'confirmPassword',
+		name: 'confirmPassword',
 		fieldLabel: 'Confirm new password',
 		inputType: 'password',
 		emptyText: 'please enter your new password again'
 	},  {
 		xtype: 'header',
 		html: 'Personal details',
-		cls: 'formHeading'
+		cls: 'accountSettingsHeading'
 	},  {
 		itemId: 'firstName',
 		name: 'firstName',
@@ -73,7 +82,7 @@ Ext.define('FB.view.AccountSettings', {
 	},  {
 		xtype: 'header',
 		html: 'Billing information',
-		cls: 'formHeading'
+		cls: 'accountSettingsHeading'
 	},  {
 		itemId: 'address',
 		name: 'streetAddress',
@@ -104,23 +113,14 @@ Ext.define('FB.view.AccountSettings', {
 	},  {
 		xtype: 'header',
 		html: 'Payment details',
-		cls: 'formHeading'
+		cls: 'accountSettingsHeading'
 	},  {
 		itemId: 'paymentMethod',
 		xtype: 'combobox',
 		cls: 'paymentMethod',
 		name: 'paymentMethod',
 		fieldLabel: 'Preferred payment method',
-		store: Ext.create('Ext.data.Store', {
-			fields: [
-				'option'
-			],
-			data : [
-				{'option': 'Visa'},
-				{'option': 'Mastercard'},
-				{'option': 'PayPal'}
-			]
-		}),
+		store: 'PaymentType',
 		displayField: 'option',
 		valueField: 'option',
 		emptyText: 'please select a payment option',
@@ -155,12 +155,12 @@ Ext.define('FB.view.AccountSettings', {
 			scale: 'large'
 		},
 		items: [{
-			action: 'cancel',
+			itemId: 'cancel',
 			text: 'Cancel',
 			cls: 'cancelButton',
 			margin: '0 5px 0 0'
 		},  {
-			action: 'submit',
+			itemId: 'updateDetails',
 			text: 'Update Details',
 			cls: 'button'
 		}]
