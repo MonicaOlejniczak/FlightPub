@@ -294,7 +294,7 @@ Ext.define('Ext.chart.series.ItemPublisher', {
             var chartEventName = match[1];
             if (subscribers.hasOwnProperty(eventName)) {
                 seriesArray = subscribers[eventName];
-                index = seriesArray.indexOf(series);
+                index = Ext.Array.indexOf(seriesArray, series);
                 if (index > -1) {
                     seriesArray.splice(index, 1);
                 }

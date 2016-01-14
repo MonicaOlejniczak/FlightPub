@@ -1,3 +1,6 @@
+/**
+ * @class Ext.chart.overrides.AbstractChart
+ */
 Ext.define('Ext.chart.overrides.AbstractChart', {
     override: 'Ext.chart.AbstractChart',
 

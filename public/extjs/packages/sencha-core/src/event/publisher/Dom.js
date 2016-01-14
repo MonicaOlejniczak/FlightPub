@@ -38,33 +38,61 @@ Ext.define('Ext.event.publisher.Dom', {
     directEvents: {
         mouseenter: 1,
         mouseleave: 1,
-        load : 1,
-        unload : 1,
-        beforeunload : 1,
-        error : 1,
-        DOMContentLoaded : 1,
-        DOMFrameContentLoaded : 1
+        pointerenter: 1,
+        pointerleave: 1,
+        MSPointerEnter: 1,
+        MSPointerLeave: 1,
+        load: 1,
+        unload: 1,
+        beforeunload: 1,
+        error: 1,
+        DOMContentLoaded: 1,
+        DOMFrameContentLoaded: 1
     },
 
-    // In browsers that implement pointerevents when a pointerdown is triggered by touching
-    // the screen, pointerover and pointerenter events will be fired immmediately before
-    // the pointerdown. Also pointerout and pointerleave will be fired immediately after
-    // pointerup when triggered using touch input.  For a consistent cross-browser
-    // experience on touch-screens we block pointerover, pointerout, pointerenter, and
-    // pointerleave when triggered by touch input, since in most cases pointerover/pointerenter
-    // behavior is not desired when touching the screen.  Note: this should only affect
-    // events with pointerType === 'touch', we do NOT want to block these events when
-    // triggered using a mouse.
-    // See also:
-    //     http://www.w3.org/TR/pointerevents/#the-pointerdown-event
-    //     http://www.w3.org/TR/pointerevents/#the-pointerenter-event
+    /**
+     * In browsers that implement pointerevents when a pointerdown is triggered by touching
+     * the screen, pointerover and pointerenter events will be fired immmediately before
+     * the pointerdown. Also pointerout and pointerleave will be fired immediately after
+     * pointerup when triggered using touch input.  For a consistent cross-browser
+     * experience on touch-screens we block pointerover, pointerout, pointerenter, and
+     * pointerleave when triggered by touch input, since in most cases pointerover/pointerenter
+     * behavior is not desired when touching the screen.  Note: this should only affect
+     * events with pointerType === 'touch' or pointerType === 'pen', we do NOT want to
+     * block these events when triggered using a mouse.
+     * See also:
+     *     http://www.w3.org/TR/pointerevents/#the-pointerdown-event
+     *     http://www.w3.org/TR/pointerevents/#the-pointerenter-event
+     * @private
+     */
     blockedPointerEvents: {
         pointerover: 1,
         pointerout: 1,
         pointerenter: 1,
         pointerleave: 1,
         MSPointerOver: 1,
-        MSPointerOut: 1
+        MSPointerOut: 1,
+        MSPointerEnter: 1,
+        MSPointerLeave: 1
+    },
+
+    /**
+     * Browsers with pointer events may implement "compatibility" mouse events:
+     * http://www.w3.org/TR/pointerevents/#compatibility-mapping-with-mouse-events
+     * The behavior implemented in handlers for mouse over/out/enter/leave is not typically
+     * desired when touching the screen, so we map all of these events to their pointer
+     * counterparts in Ext.Element event translation code, so that they can be blocked
+     * via "blockedPointerEvents".  The only scenario where this breaks down is in IE10
+     * with mouseenter/mouseleave, since MSPointerEnter/MSPointerLeave were not implemented
+     * in IE10.  For these 2 events we have to resort to a different method - capturing
+     * the timestamp of the last pointer event that has pointerType == 'touch', and if the
+     * mouse event occurred within a certain threshold we can reasonably assume it occurred
+     * because of a touch on the screen (see isEventBlocked)
+     * @private
+     */
+    blockedCompatibilityMouseEvents: {
+        mouseenter: 1,
+        mouseleave: 1
     },
 
     constructor: function() {
@@ -347,7 +375,7 @@ Ext.define('Ext.event.publisher.Dom', {
             } else if (!idOrClassSelectorMatch) {
                 Ext.Array.remove(directSubscribers.selector, target);
             }
- 
+
             // we don't add direct subscribers to the global subscriber maps (see subscribe())
             return;
         }
@@ -454,7 +482,7 @@ Ext.define('Ext.event.publisher.Dom', {
                 this.doPublish(wildcardCaptureSubscribers, eventName, targets, event, true);
             }
         }
-        
+
         // initiate bubble phase. (stopPropagation during the capture phase cancels the entire bubble phase)
         if (!event.isStopped && (!bubbleLen || !this.doPublish(bubbleSubscribers, eventName, targets, event))) {
             if (wildcardBubbleLen) {
@@ -571,19 +599,18 @@ Ext.define('Ext.event.publisher.Dom', {
         return hasDispatched;
     },
 
-    onDelegatedEvent: function(e) {
+    onDelegatedEvent: function(e, invokeAfter) {
         var me = this,
             type = e.type,
-            event,
-            GlobalEvents = Ext.GlobalEvents;
+            event;
 
         event = new Ext.event.Event(e);
 
-        // prevent emulated pointerover, pointerout, pointerenter, and pointerleave events
-        // from firing when triggered by touching the screen.
-        if (me.blockedPointerEvents[e.type] && event.isTouch()) {
+        if (me.isEventBlocked(event)) {
             return false;
         }
+
+        me.beforeEvent(event);
 
         // if a vendor-specific event was fired, convert the name back to the "real" one
         type = event.type = me.vendorToEventMap[type] || type;
@@ -592,10 +619,10 @@ Ext.define('Ext.event.publisher.Dom', {
 
         me.publish(type, event.target, event);
 
-        // skip mousemove and touchmove because they are too numerous
-        if (GlobalEvents.hasListeners.idle  && !GlobalEvents.idleEventMask[event.type]) {
-            GlobalEvents.fireEvent('idle');
+        if (invokeAfter !== false) {
+            me.afterEvent(event);
         }
+
         return event;
     },
 
@@ -609,14 +636,13 @@ Ext.define('Ext.event.publisher.Dom', {
             type = e.type,
             event = new Ext.event.Event(e),
             eventName, currentTarget, id, selectors, dispatcher, targetType,
-            target, el, i, len, selector,
-            GlobalEvents = Ext.GlobalEvents;
+            target, el, i, len, selector;
 
-        // prevent emulated pointerover, pointerout, pointerenter, and pointerleave events
-        // from firing when triggered by touching the screen.
-        if (me.blockedPointerEvents[type] && event.isTouch()) {
+        if (me.isEventBlocked(event)) {
             return;
         }
+
+        me.beforeEvent(event);
 
         // if a vendor-specific event was fired, convert it back to the "real" one
         eventName = event.type = this.vendorToEventMap[type] || type;
@@ -666,10 +692,124 @@ Ext.define('Ext.event.publisher.Dom', {
             [event, target]
         );
 
-        // skip mousemove and touchmove because they are too numerous
-        if (GlobalEvents.hasListeners.idle  && !GlobalEvents.idleEventMask[event.type]) {
+        me.afterEvent(event);
+    },
+
+    beforeEvent: function(e) {
+        var browserEvent = e.browserEvent,
+            // use full class name, not me.self, so that Dom and Gesture publishers will
+            // both place flags on the same object.
+            self = Ext.event.publisher.Dom,
+            touches, touch;
+
+        if (browserEvent.type === 'touchstart') {
+            touches = browserEvent.touches;
+
+            if (touches.length === 1) {
+                // capture the coordinates of the first touchstart event so we can use
+                // them to eliminate duplicate mouse events if needed, (see isEventBlocked).
+                touch = touches[0];
+                self.lastTouchStartX = touch.pageX;
+                self.lastTouchStartY = touch.pageY;
+            }
+        }
+    },
+
+    afterEvent: function(e) {
+        var browserEvent = e.browserEvent,
+            type = browserEvent.type,
+            // use full class name, not me.self, so that Dom and Gesture publishers will
+            // both place flags on the same object.
+            self = Ext.event.publisher.Dom,
+            GlobalEvents = Ext.GlobalEvents;
+
+        if (GlobalEvents.hasListeners.idle && !GlobalEvents.idleEventMask[type]) {
             GlobalEvents.fireEvent('idle');
         }
+
+        // It is important that the following time stamps are captured after the handlers
+        // have been invoked because they need to represent the "exit" time, so that they
+        // can be compared against the next "entry" time into onDelegatedEvent or
+        // onDirectEvent to detect the time lapse in between the firing of the 2 events.
+        // We set these flags on "this.self" so that they can be shared between Dom
+        // publisher and subclasses
+
+        if (e.self.pointerEvents[type] && e.pointerType !== 'mouse') {
+            // track the last time a pointer event was fired as a result of interaction
+            // with the screen, pointerType === 'touch' most likely but could also be
+            // pointerType === 'pen' hence the reason we use !== 'mouse', This is used
+            // to eliminate potential duplicate "compatibility" mouse events
+            // (see isEventBlocked)
+            self.lastScreenPointerEventTime = Ext.now();
+        }
+
+        if (type === 'touchend') {
+            // Capture a time stamp so we can use it to eliminate potential duplicate
+            // emulated mouse events on multi-input devices that have touch events,
+            // e.g. Chrome on Window8 with touch-screen (see isEventBlocked).
+            self.lastTouchEndTime = Ext.now();
+        }
+    },
+
+    /**
+     * Detects if the given event should be blocked from firing because it is an emulated
+     * "compatibility" mouse event triggered by a touch on the screen.
+     * @param {Ext.event.Event} e
+     * @return {Boolean}
+     * @private
+     */
+    isEventBlocked: function(e) {
+        var me = this,
+            type = e.type,
+            // use full class name, not me.self, so that Dom and Gesture publishers will
+            // both look for flags on the same object.
+            self = Ext.event.publisher.Dom,
+            now = Ext.now();
+
+        // prevent emulated pointerover, pointerout, pointerenter, and pointerleave
+        // events from firing when triggered by touching the screen.
+        return (me.blockedPointerEvents[type] && e.pointerType !== 'mouse')
+        ||
+            // prevent compatibility mouse events from firing on devices with pointer
+            // events - see comment on blockedCompatibilityMouseEvents for more details
+            // The time from when the last pointer event fired until when compatibility
+            // events are received varies depending on the browser, device, and application
+            // so we use 1 second to be safe
+            (me.blockedCompatibilityMouseEvents[type] &&
+                (now - self.lastScreenPointerEventTime < 1000))
+        ||
+            (Ext.supports.TouchEvents && e.self.mouseEvents[e.type] &&
+            // some browsers (e.g. webkit on Windows 8 with touch screen) emulate mouse
+            // events after touch events have fired.  This only seems to happen when there
+            // is no movement present, so, for example, a touchstart followed immediately
+            // by a touchend would result in the following sequence of events:
+            // "touchstart, touchend, mousemove, mousedown, mouseup"
+            // yes, you read that right, the emulated mousemove fires before mousedown.
+            // However, touch events with movement (touchstart, touchmove, then touchend)
+            // do not trigger the emulated mouse events.
+            // The side effect of this behavior is that single-touch gestures that expect
+            // no movement (e.g. tap) can double-fire - once when the touchstart/touchend
+            // occurs, and then again when the emulated mousedown/up occurs.
+            // We cannot solve the problem by only listening for touch events and ignoring
+            // mouse events, since we may be on a multi-input device that supports both
+            // touch and mouse events and we want gestures to respond to both kinds of
+            // events.  Instead we have to detect if the mouse event is a "dupe" by
+            // checking if its coordinates are near the last touchstart's coordinates,
+            // and if it's timestamp is within a certain threshold of the last touchend
+            // event's timestamp.  This is because when dealing with multi-touch events,
+            // the emulated mousedown event (when it does fire) will fire with approximately
+            // the same coordinates as the first touchstart, but within a short time after
+            // the last touchend.  We use 15px as the distance threshold, to be on the safe
+            // side because the difference in coordinates can sometimes be up to 6px.
+            Math.abs(e.pageX - self.lastTouchStartX) < 15 &&
+            Math.abs(e.pageY - self.lastTouchStartY) < 15 &&
+            // in the majority of cases, the emulated mousedown is observed within
+            // 5ms of touchend, however, to be certain we avoid a situation where a
+            // gesture handler gets executed twice we use a threshold of 1000ms.  The
+            // side effect of this is that if a user touches the screen and then quickly
+            // clicks screen in the same spot, the mousedown/mouseup sequence that
+            // ensues will not trigger any gesture recognizers.
+            (Ext.now() - self.lastTouchEndTime) < 1000);
     },
 
     //<debug>

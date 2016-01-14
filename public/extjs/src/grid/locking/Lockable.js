@@ -118,7 +118,11 @@ Ext.define('Ext.grid.locking.Lockable', {
         'multiColumnSort',
         'columnLines',
         'rowLines',
-        'deferRowRender'
+        'variableRowHeight',
+        'numFromEdge',
+        'trailingBufferZone',
+        'leadingBufferZone',
+        'scrollToLoadBuffer'
     ],
     normalCfgCopy: [
         'verticalScroller',
@@ -217,9 +221,7 @@ Ext.define('Ext.grid.locking.Lockable', {
         allFeatures = me.constructLockableFeatures();
 
         // This is just a "shell" Panel which acts as a Container for the two grids and must not use the features
-        if (me.features) {
-            me.features = null;
-        }
+        me.features = null;
 
         // Distribute plugins to whichever Component needs them
         allPlugins = me.constructLockablePlugins();
@@ -697,18 +699,20 @@ Ext.define('Ext.grid.locking.Lockable', {
             normalView = me.normalGrid.getView(),
             lockedScrollTop = lockedView.getScrollY(),
             normalScrollTop = normalView.getScrollY(),
-            normalTable,
-            lockedTable;
+            lockedRowContainer;
 
         if (normalScrollTop !== lockedScrollTop) {
             lockedView.setScrollY(normalScrollTop);
 
             // For buffered views, the absolute position is important as well as scrollTop
             if (normalView.bufferedRenderer) {
-                lockedTable = lockedView.body.dom;
-                normalTable = normalView.body.dom;
-                lockedTable.style.position = 'absolute';
-                lockedTable.style.top = normalTable.style.top;
+                lockedRowContainer = lockedView.body;
+
+                // If we have attached the Fly to a DOM (will not have happened if all locked columns are hidden)
+                if (lockedRowContainer.dom) {
+                    lockedRowContainer.dom.style.position = 'absolute';
+                    lockedRowContainer.translate(null, normalView.bufferedRenderer.bodyTop);
+                }
             }
         }
     },
@@ -1044,10 +1048,13 @@ Ext.define('Ext.grid.locking.Lockable', {
         var me = this,
             oldStore = me.store,
             lockedGrid = me.lockedGrid,
-            normalGrid = me.normalGrid;
+            normalGrid = me.normalGrid,
+            view;
 
         Ext.suspendLayouts();
         if (columns) {
+            // Both grids must not react to the headers being changed (See panel/Table#onHeadersChanged)
+            lockedGrid.reconfiguring = normalGrid.reconfiguring = true;
             lockedGrid.headerCt.removeAll();
             normalGrid.headerCt.removeAll();
 
@@ -1059,6 +1066,8 @@ Ext.define('Ext.grid.locking.Lockable', {
             me.ignoreAddLockedColumn = false;
             normalGrid.headerCt.add(columns.normal.items);
 
+            lockedGrid.reconfiguring = normalGrid.reconfiguring = false;
+
             // Ensure locked grid is set up correctly with correct width and bottom border,
             // and that both grids' visibility and scrollability status is correct
             me.syncLockedWidth();
@@ -1068,10 +1077,39 @@ Ext.define('Ext.grid.locking.Lockable', {
             store = Ext.data.StoreManager.lookup(store);
             me.store = store;
             lockedGrid.bindStore(store);
+            
+            // Subsidiary views have their bindStore changed because they must not
+            // bind listeners themselves. This view listens and relays calls to each view.
+            // BUT the dataSource and store properties must be set
+            view = lockedGrid.view;
+            view.store = store;
+
+            // If the dataSource being used by the View is *not* a FeatureStore
+            // (a modified view of the base Store injected by a Feature)
+            // Then we promote the store to be the dataSource.
+            // If it was a FeatureStore, then it must not be changed. A FeatureStore is mutated
+            // by the Feature to respond to changes in the underlying Store.
+            if (!view.dataSource.isFeatureStore) {
+                view.dataSource = store;
+            }
+
             normalGrid.bindStore(store);
+            view = normalGrid.view;
+            view.store = store;
+
+            // If the dataSource being used by the View is *not* a FeatureStore
+            // (a modified view of the base Store injected by a Feature)
+            // Then we promote the store to be the dataSource.
+            // If it was a FeatureStore, then it must not be changed. A FeatureStore is mutated
+            // by the Feature to respond to changes in the underlying Store.
+            if (!view.dataSource.isFeatureStore) {
+                view.dataSource = store;
+            }
+            me.view.store = store;
+            me.view.bindStore(store, false, 'dataSource');
         } else {
-            lockedGrid.getView().refresh();
-            normalGrid.getView().refresh();
+            lockedGrid.getView().refreshView();
+            normalGrid.getView().refreshView();
         }
         Ext.resumeLayouts(true);
     },

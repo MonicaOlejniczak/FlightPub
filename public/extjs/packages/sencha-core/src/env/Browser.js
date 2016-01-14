@@ -38,6 +38,12 @@ Ext.env.Browser = function (userAgent, publish) {
 
     if (browserMatch) {
         browserName = browserNames[Ext.Object.getKey(browserPrefixes, browserMatch[1])];
+        //<feature legacyBrowser>
+        if (browserName === 'Safari' && /^Opera/.test(userAgent)) {
+            // Prevent Opera 12 and earlier from being incorrectly reported as Safari
+            browserName = 'Opera';
+        }
+        //</feature>
         browserVersion = new Ext.Version(browserMatch[2]);
     }
 
@@ -126,6 +132,10 @@ Ext.env.Browser = function (userAgent, publish) {
             if (majorVer >= 10) {
                 Ext.isIE10p = true;
             }
+        }
+
+        if (me.is.Opera && parseInt(majorVer, 10) <= 12) {
+            Ext.isOpera12m = true;
         }
         //</feature>
 

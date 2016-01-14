@@ -5,6 +5,11 @@
  * submits an AJAX request to load a SOAP response from the server.
  * 
  * For help getting started please refer to the [Soap Guide](#/guide/soap).
+ *
+ * **Note: **  _This functionality is only available with the purchase of
+ * Sencha Complete.  For more information about using this class, please visit
+ * our [Sencha Complete](https://www.sencha.com/products/complete/) product page._
+ *
  * @class Ext.data.soap.Proxy
  */
 Ext.define('Ext.data.soap.Proxy', {

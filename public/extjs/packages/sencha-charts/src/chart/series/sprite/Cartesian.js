@@ -9,8 +9,6 @@ Ext.define('Ext.chart.series.sprite.Cartesian', {
     mixins: {
         markerHolder: 'Ext.chart.MarkerHolder'
     },
-    homogeneous: true,
-    ascending: true,
     inheritableStatics: {
         def: {
             processors: {
@@ -35,11 +33,11 @@ Ext.define('Ext.chart.series.sprite.Cartesian', {
                 dataMaxY: 'number',
 
                 /**
-                 * @cfg {Array} Data range derived from all the series bound to the x-axis.
+                 * @cfg {Array} [rangeX='data'] Data range derived from all the series bound to the x-axis.
                  */
                 rangeX: 'data',
                 /**
-                 * @cfg {Array} Data range derived from all the series bound to the y-axis.
+                 * @cfg {Array} [rangeY='data'] Data range derived from all the series bound to the y-axis.
                  */
                 rangeY: 'data',
 
@@ -136,10 +134,17 @@ Ext.define('Ext.chart.series.sprite.Cartesian', {
                     var dx = attrs.visibleMaxX - attrs.visibleMinX,
                         dy = attrs.visibleMaxY - attrs.visibleMinY,
                         innerWidth = attrs.flipXY ? attrs.innerHeight : attrs.innerWidth,
-                        innerHeight = !attrs.flipXY ? attrs.innerHeight : attrs.innerWidth;
-                    attrs.translationX = -attrs.visibleMinX * innerWidth / dx;
+                        innerHeight = !attrs.flipXY ? attrs.innerHeight : attrs.innerWidth,
+                        surface = this.getSurface(),
+                        isRtl = surface ? surface.getInherited().rtl : false;
+
+                    if (isRtl && !attrs.flipXY) {
+                        attrs.translationX = innerWidth + attrs.visibleMinX * innerWidth / dx;
+                    } else {
+                        attrs.translationX = -attrs.visibleMinX * innerWidth / dx;
+                    }
                     attrs.translationY = -attrs.visibleMinY * innerHeight / dy;
-                    attrs.scalingX = innerWidth / dx;
+                    attrs.scalingX = (isRtl && !attrs.flipXY ? -1 : 1) * innerWidth / dx;
                     attrs.scalingY = innerHeight / dy;
                     attrs.scalingCenterX = 0;
                     attrs.scalingCenterY = 0;
@@ -206,7 +211,6 @@ Ext.define('Ext.chart.series.sprite.Cartesian', {
     render: function (surface, ctx, rect) {
         var me = this,
             attr = me.attr,
-            flipXY = attr.flipXY,
             inverseMatrix = attr.inverseMatrix.clone();
 
         inverseMatrix.appendMatrix(surface.inverseMatrix);
@@ -230,11 +234,6 @@ Ext.define('Ext.chart.series.sprite.Cartesian', {
 
         clip = clip[0].concat(clip[1]);
 
-        if (clip[2] < clip[0]) {
-            console.log('Cartesian Series sprite does not supports flipped X.');
-            // TODO: support it
-            return;
-        }
         me.renderClipped(surface, ctx, clip, rect);
     },
 
@@ -254,26 +253,29 @@ Ext.define('Ext.chart.series.sprite.Cartesian', {
      * @return {Number} The index
      */
     getIndexNearPoint: function (x, y) {
-        var sprite = this,
-            mat = sprite.attr.matrix,
-            dataX = sprite.attr.dataX,
-            dataY = sprite.attr.dataY,
-            selectionTolerance = sprite.attr.selectionTolerance,
+        var me = this,
+            mat = me.attr.matrix,
+            dataX = me.attr.dataX,
+            dataY = me.attr.dataY,
+            selectionTolerance = me.attr.selectionTolerance,
             minX, minY, index = -1,
-            imat = mat.clone().prependMatrix(this.surfaceMatrix).inverse(),
+            imat = mat.clone().prependMatrix(me.surfaceMatrix).inverse(),
             center = imat.transformPoint([x, y]),
             positionLB = imat.transformPoint([x - selectionTolerance, y - selectionTolerance]),
             positionTR = imat.transformPoint([x + selectionTolerance, y + selectionTolerance]),
             left = Math.min(positionLB[0], positionTR[0]),
             right = Math.max(positionLB[0], positionTR[0]),
             top = Math.min(positionLB[1], positionTR[1]),
-            bottom = Math.max(positionLB[1], positionTR[1]);
+            bottom = Math.max(positionLB[1], positionTR[1]),
+            xi, yi, i, len;
 
-        for (var i = 0; i < dataX.length; i++) {
-            if (left < dataX[i] && dataX[i] < right && top < dataY[i] && dataY[i] < bottom) {
-                if (index === -1 || (Math.abs(dataX[i] - center[0]) < minX) && (Math.abs(dataY[i] - center[1]) < minY)) {
-                    minX = Math.abs(dataX[i] - center[0]);
-                    minY = Math.abs(dataY[i] - center[1]);
+        for (i = 0, len = dataX.length; i < len; i++) {
+            xi = dataX[i];
+            yi = dataY[i];
+            if (xi > left && xi < right && yi > top && yi < bottom) {
+                if (index === -1 || (Math.abs(xi - center[0]) < minX) && (Math.abs(yi - center[1]) < minY)) {
+                    minX = Math.abs(xi - center[0]);
+                    minY = Math.abs(yi - center[1]);
                     index = i;
                 }
             }

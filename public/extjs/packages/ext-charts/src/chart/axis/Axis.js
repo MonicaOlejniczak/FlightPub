@@ -10,6 +10,7 @@
  *     axes: [{
  *         type: 'Numeric',
  *         position: 'left',
+ *         titleAlign: 'end', // or 'start', or 'center' (default)
  *         fields: ['data1', 'data2', 'data3'],
  *         title: 'Number of Hits',
  *         grid: {
@@ -986,6 +987,7 @@ Ext.define('Ext.chart.axis.Axis', {
     drawTitle: function (maxWidth, maxHeight) {
         var me = this,
             position = me.position,
+            titleAlign = me.titleAlign,
             surface = me.chart.surface,
             displaySprite = me.displaySprite,
             title = me.title,
@@ -1010,7 +1012,13 @@ Ext.define('Ext.chart.axis.Axis', {
         pad = me.dashSize + me.label.padding;
 
         if (rotate) {
-            y -= ((me.length / 2) - (bbox.height / 2));
+            if (titleAlign === 'end') {
+                y -= me.length - bbox.height;
+            }
+            else if (!titleAlign || titleAlign === 'center') {
+                y -= ((me.length / 2) - (bbox.height / 2));
+            }
+            
             if (position == 'left') {
                 x -= (maxWidth + pad + (bbox.width / 2));
             }
@@ -1020,7 +1028,13 @@ Ext.define('Ext.chart.axis.Axis', {
             me.bbox.width += bbox.width + 10;
         }
         else {
-            x += (me.length / 2) - (bbox.width * 0.5);
+            if (titleAlign === 'end' || (me.reverse && titleAlign === 'start')) {
+                x += me.length - bbox.width;
+            }
+            else if (!titleAlign || titleAlign === 'center') {
+                x += (me.length / 2) - (bbox.width * 0.5);
+            }
+            
             if (position == 'top') {
                 y -= (maxHeight + pad + (bbox.height * 0.3));
             }

@@ -62,6 +62,8 @@ Ext.define('Ext.grid.column.Check', {
 
     clickTargetName: 'el',
 
+    defaultFilterType: 'boolean',
+
     /**
      * @event beforecheckchange
      * Fires when before checked state of a row changes.

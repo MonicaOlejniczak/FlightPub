@@ -11,9 +11,9 @@ Ext.define('Ext.view.AbstractView', {
         'Ext.CompositeElementLite',
         'Ext.selection.DataViewModel'
     ],
-    mixins: {
-        bindable: 'Ext.util.Bindable'
-    },
+    mixins: [
+        'Ext.util.StoreHolder'
+    ],
 
     inheritableStatics: {
         getRecord: function(node) {
@@ -30,13 +30,13 @@ Ext.define('Ext.view.AbstractView', {
     statics: {
 
         /**
-         * @cfg {Number} [updateFPS=5] Global config for use when using {@link #throttledUpdate throttled view updating} if the data in the backing {@link Ext.data.Store store}
+         * @cfg {Number} [updateDelay=200] Global config for use when using {@link #throttledUpdate throttled view updating} if the data in the backing {@link Ext.data.Store store}
          * is being changed rapidly, for example receiving changes from the server through a WebSocket connection.
          *
-         * To avoid too-frequent view updates overloading the browser with style recalculation, layout and paint requests, updates can be {@link #throttledUpdate throttled} to a maximum
-         * frames per second.
+         * To avoid too-frequent view updates overloading the browser with style recalculation, layout and paint requests, updates can be {@link #throttledUpdate throttled} to 
+         * coalesced, and applied at the interval specified in milliseconds.
          */
-        updateFPS: 5,
+        updateDelay: 200,
 
         // @private
         queueRecordChange: function(view, store, record, operation, modifiedFieldNames) {
@@ -96,12 +96,12 @@ Ext.define('Ext.view.AbstractView', {
                 Ext.apply(updated, record.data);
             }
 
-            // Create a task which will call on to the onFlushTick method updateFPS times per second.
+            // Create a task which will call on to the onFlushTick every updateDelay milliseconds.
             if (!me.flushQueueTask) {
                 me.flushQueueTask = Ext.util.TaskManager.newTask({
-                    run: me.onFlushTick,
-                    scope: me,
-                    interval: 1000 / Ext.view.AbstractView.updateFPS,
+                    // Queue the actual render flush on the next animation frame if available.
+                    run: Ext.global.requestAnimationFrame ? Ext.Function.createAnimationFrame(me.onFlushTick, me) : Ext.Function.bind(me.onFlushTick, me),
+                    interval: Ext.view.AbstractView.updateDelay,
                     repeat: 1
                 });
             }
@@ -109,7 +109,7 @@ Ext.define('Ext.view.AbstractView', {
         },
 
         // @private
-        // On every flush (determined by updateFPS setting), ask the animation system to schedule a call to flushChangeQueue at the next animation frame.
+        // On every flush (determined by updateDelay setting), ask the animation system to schedule a call to flushChangeQueue at the next animation frame.
         onFlushTick: function() {
             Ext.AnimationQueue.start(this.flushChangeQueue, this);
         },
@@ -164,8 +164,8 @@ Ext.define('Ext.view.AbstractView', {
 
     /**
      * @cfg {Boolean} [throttledUpdate=false]
-     * Configure as `true` to have this view participate in the global throttled update queue which flushes store changes to the UI at a maximum frame rate
-     * determined by the {@link #updateFPS} setting.
+     * Configure as `true` to have this view participate in the global throttled update queue which flushes store changes to the UI at a maximum rate
+     * determined by the {@link #updateDelay} setting.
      */
     throttledUpdate: false,
 
@@ -182,15 +182,13 @@ Ext.define('Ext.view.AbstractView', {
      */
 
     /**
-     * @cfg {Boolean} deferInitialRefresh
-     * <p>Defaults to <code>true</code> to defer the initial refresh of the view.</p>
-     * <p>This allows the View to execute its render and initial layout more quickly because the process will not be encumbered
-     * by the expensive update of the view structure.</p>
-     * <p><b>Important: </b>Be aware that this will mean that the View's item elements will not be available immediately upon render, so
-     * <i>selection</i> may not take place at render time. To access a View's item elements as soon as possible, use the {@link #viewready} event.
-     * Or set <code>deferInitialrefresh</code> to false, but this will be at the cost of slower rendering.</p>
+     * @cfg {Boolean} [deferInitialRefresh=false]
+     * Configure as 'true` to defer the initial refresh of the view.
+     *
+     * This allows the View to execute its render and initial layout more quickly because the process will not be encumbered
+     * by the update of the view structure.
      */
-    deferInitialRefresh: true,
+    deferInitialRefresh: false,
 
     /**
      * @cfg {String} itemSelector (required)
@@ -368,8 +366,7 @@ Ext.define('Ext.view.AbstractView', {
 
     /**
      * @event viewready
-     * Fires when the View's item elements representing Store items has been rendered. If the {@link #deferInitialRefresh} flag
-     * was set (and it is <code>true</code> by default), this will be <b>after</b> initial render, and no items will be available
+     * Fires when the View's item elements representing Store items has been rendered. No items will be available
      * for selection until this event fires.
      * @param {Ext.view.View} this
      */
@@ -395,7 +392,7 @@ Ext.define('Ext.view.AbstractView', {
      * Fires when the node associated with an individual record is removed
      * @param {Ext.data.Model} record The model instance
      * @param {Number} index The index from which the record was removed
-     * @param {HtmlElement} item The view item removed
+     * @param {HTMLElement} item The view item removed
      * @param {Ext.view.View} view The view removing the item
      */
 
@@ -545,7 +542,6 @@ Ext.define('Ext.view.AbstractView', {
             if (me.refreshCounter) {
                 me.refresh();
             }
-            // If it is the first refresh, then we must honour the deferInitialRefresh setting which is done in doFirstRefresh
             else {
                 me.doFirstRefresh(me.dataSource);
             }
@@ -647,6 +643,7 @@ Ext.define('Ext.view.AbstractView', {
     refresh: function() {
         var me = this,
             rows = me.all,
+            prevRowCount = rows.getCount(),
             refreshCounter = me.refreshCounter,
             targetEl,
             overflowEl,
@@ -681,18 +678,16 @@ Ext.define('Ext.view.AbstractView', {
                 me.clearViewEl();
                 me.refreshCounter++;
             } else {
-                me.fixedNodes = targetEl.dom.childNodes.length;
                 me.refreshCounter = 1;
             }
 
-            // Always attempt to create the required markup after the fixedNodes.
             // Usually, for an empty record set, this would be blank, but when the Template
             // Creates markup outside of the record loop, this must still be honoured even if there are no
             // records.
             me.tpl.append(targetEl, me.collectData(records, rows.startIndex || 0));
 
             // The emptyText is now appended to the View's element
-            // after any fixedNodes.
+            // after nodes outside the tpl block.
             if (records.length < 1) {
                 // Process empty text unless the store is being cleared.
                 if (me.emptyText && !me.getStore().isLoading() && (!me.deferEmptyText || hasFirstRefresh)) {
@@ -717,8 +712,9 @@ Ext.define('Ext.view.AbstractView', {
 
             me.refreshNeeded = false;
 
-            // Ensure layout system knows about new content size
-            me.refreshSize();
+            // Ensure layout system knows about new content size.
+            // If number of rows have changed, force a layout.
+            me.refreshSize(rows.getCount() !== prevRowCount);
 
             me.fireEvent('refresh', me, records);
 
@@ -731,7 +727,6 @@ Ext.define('Ext.view.AbstractView', {
             // Reconfiguring the grid "renews" this event.
             if (!me.viewReady) {
                 // Fire an event when deferred content becomes available.
-                // This supports grid Panel's deferRowRender capability
                 me.viewReady = true;
                 me.fireEvent('viewready', me);
             }
@@ -758,12 +753,12 @@ Ext.define('Ext.view.AbstractView', {
      * These operations may cause the view's dimensions to change, and if the owning container
      * is shrinkwrapping this view, then the layout must be updated to accommodate these new dimensions.
      */
-    refreshSize: function() {
+    refreshSize: function(forceLayout) {
         var me = this,
             sizeModel = me.getSizeModel(),
             scrollManager = me.scrollManager;
 
-        if (sizeModel.height.shrinkWrap || sizeModel.width.shrinkWrap) {
+        if (sizeModel.height.shrinkWrap || sizeModel.width.shrinkWrap || forceLayout) {
             me.updateLayout();
         } else if (scrollManager) {
             scrollManager.refresh();
@@ -785,24 +780,28 @@ Ext.define('Ext.view.AbstractView', {
         this.callParent(arguments);
     },
 
-    clearViewEl: function(leaveNodeContainer) {
+    clearViewEl: function() {
         var me = this,
-            emptyEl = Ext.fly(me.emptyEl),
-            nodeContainer, targetEl;
-            
-        if (emptyEl) {
-            emptyEl.destroy();
-        }
-        me.emptyEl = null;
-        me.all.clear(true);
+            nodeContainerIsEl = me.getNodeContainer() === me.getEl();
 
-        nodeContainer = Ext.fly(me.getNodeContainer());
-        if (nodeContainer && !leaveNodeContainer) {
-            targetEl = me.getTargetEl();
-            if (targetEl.dom !== nodeContainer.dom) {
-                nodeContainer.destroy();
-            }
+        me.clearEmptyEl();
+        // If nodeContainer is the el, just clear the innerHTML. Otherwise, we need
+        // to manually remove each node we know about.
+        me.all.clear(!nodeContainerIsEl);
+        if (nodeContainerIsEl) {
+            me.el.dom.innerHTML = '';
         }
+    },
+
+    clearEmptyEl: function() {
+        var emptyEl = this.emptyEl;
+
+        // emptyEl is likely to be a TextNode if emptyText is not HTML code.
+        // Use native DOM to remove it.
+        if (emptyEl) {
+            emptyEl.parentNode.removeChild(emptyEl);
+        }
+        this.emptyEl = null;
     },
 
     // This is called on animation frame
@@ -925,22 +924,11 @@ Ext.define('Ext.view.AbstractView', {
         return this.nodeContainerSelector;
     },
 
-    getOverflowEl: function() {
-        // The desired behavior here is just to inherit from the superclass.  However,
-        // the superclass method calls this.getTargetEl, which sends us into an infinte
-        // loop because our getTargetEl may call getScrollerEl(), which calls getOverflowEl()
-        return Ext.Component.prototype.getTargetEl.call(this);
-    },
-
-    getTargetEl: function() {
-        return this.touchScroll ? this.getScrollerEl() : this.callParent();
-    },
-
     // private
     onUpdate: function(store, record, operation, modifiedFieldNames) {
         var me = this;
 
-        // If we are throttling UI updates (See the updateFPS global config), ensure there's a change entry
+        // If we are throttling UI updates (See the updateDelay global config), ensure there's a change entry
         // queued for the record in the global queue.
         if (me.throttledUpdate) {
             me.statics().queueRecordChange(me, store, record, operation, modifiedFieldNames);
@@ -1013,7 +1001,7 @@ Ext.define('Ext.view.AbstractView', {
             me.updateIndexes(startIndex);
 
             // Ensure layout system knows about new content size
-            me.refreshSize();
+            me.refreshSizePending = true;
 
             // Fire the itemremove event for each removed item
             if (me.hasListeners.itemremove) {
@@ -1047,6 +1035,7 @@ Ext.define('Ext.view.AbstractView', {
                 }
                 me.updateIndexes(index);
 
+                // Ensure layout system knows about new content size
                 me.refreshSizePending = true;
             }
 
@@ -1129,12 +1118,14 @@ Ext.define('Ext.view.AbstractView', {
                         me.doRemove(record, currIdx);
                     }
                 }
+
                 if (fireItemRemove) {
                     me.fireEvent('itemremove', records, index, nodes, me);
                 }
                 me.updateIndexes(index);
             }
 
+            // Ensure layout system knows about new content size
             me.refreshSizePending = true;
         }
     },
@@ -1146,11 +1137,14 @@ Ext.define('Ext.view.AbstractView', {
 
     /**
      * Refreshes an individual node's data from the store.
-     * @param {Number} index The item's data index in the store
+     * @param {Ext.data.Model/Number} record The record or index of the record to update.
      * @since 2.3.0
      */
-    refreshNode : function(index) {
-        this.onUpdate(this.dataSource, this.store.getAt(index));
+    refreshNode : function(record) {
+        if (Ext.isNumber(record)) {
+            record = this.store.getAt(record);
+        }
+        this.onUpdate(this.dataSource, record);
     },
 
     // private
@@ -1185,7 +1179,7 @@ Ext.define('Ext.view.AbstractView', {
      */
     bindStore: function(store, initial, propName) {
         var me = this;
-        me.mixins.bindable.bindStore.apply(me, arguments);
+        me.mixins.storeholder.bindStore.apply(me, arguments);
 
         // Bind the store to our selection model unless it's the initial bind.
         // Initial bind takes place afterRender
@@ -1207,47 +1201,22 @@ Ext.define('Ext.view.AbstractView', {
      *
      * This is called when this View has been sized for the first time.
      */
-    doFirstRefresh: function(store) {
+    doFirstRefresh: function(store, noDefer) {
         var me = this;
 
-        // 4.1.0: If we have a store, and the Store is *NOT* already loading (a refresh is on the way), then
-        // on first layout, refresh regardless of record count.
-        // Template may contain boilerplate HTML outside of record iteration loop.
-        // Also, emptyText is appended by the refresh method.
-        // We call refresh on a defer if this is the initial call, and we are configured to defer the initial refresh.
-        if (store && !store.loading) {
-            if (me.deferInitialRefresh) {
-                me.applyFirstRefresh();
-            } else {
+        // If we are configured to defer, and *NOT* called from the defer call below
+        if (me.deferInitialRefresh && !noDefer) {
+            Ext.defer(me.doFirstRefresh, 1, me, [store, true]);
+        }
+
+        else {
+            // 4.1.0: If we have a store, and the Store is *NOT* already loading (a refresh is on the way), then
+            // on first layout, refresh regardless of record count.
+            // Template may contain boilerplate HTML outside of record iteration loop.
+            // Also, emptyText is appended by the refresh method.
+            if (store && !store.loading) {
                 me.refresh();
             }
-        }
-    },
-
-    applyFirstRefresh: function(){
-        var me = this;
-        if (me.isDestroyed) {
-            return;
-        }
-        me.pendingRefresh = 0;
-
-        // In the case of an animated collapse/expand, the layout will
-        // be marked as though it's complete, yet the element itself may
-        // still be animating, which means we could trigger a layout while
-        // everything is not in the correct place. As such, wait until the
-        // animation has finished before kicking off the refresh. The problem
-        // occurs because both the refresh and the animation are running on
-        // a timer which makes it impossible to control the order of when
-        // the refresh is fired.
-        if (me.up('[isCollapsingOrExpanding]')) {
-            me.pendingRefresh = Ext.Function.defer(me.applyFirstRefresh, 100, me);
-        } else {
-            me.pendingRefresh = Ext.Function.defer(function () {
-                me.pendingRefresh = 0;
-                if (!me.isDestroyed) {
-                    me.refresh();
-                }
-            }, 1);
         }
     },
 
@@ -1297,7 +1266,7 @@ Ext.define('Ext.view.AbstractView', {
     
     onEndUpdate: function() {
         if (this.refreshSizePending) {
-            this.refreshSize();
+            this.refreshSize(true);
             this.refreshSizePending = false;
         }
     },
@@ -1321,7 +1290,6 @@ Ext.define('Ext.view.AbstractView', {
         // the next refresh attempt at the upcoming layout must not defer.
         if (blocked) {
             me.refreshNeeded = true;
-            me.deferInitialRefresh = false;
         } else {
             if (me.bufferedRenderer && me.all.getCount()) {
                 me.bufferedRenderer.refreshView();
@@ -1388,7 +1356,7 @@ Ext.define('Ext.view.AbstractView', {
 
     /**
      * Gets a record from a node
-     * @param {Ext.Element/HTMLElement} node The node to evaluate
+     * @param {Ext.dom.Element/HTMLElement} node The node to evaluate
      *
      * @return {Ext.data.Model} record The {@link Ext.data.Model} object
      * @since 2.3.0
@@ -1490,12 +1458,10 @@ Ext.define('Ext.view.AbstractView', {
     getNodes: function(start, end) {
         var all = this.all;
 
-        if (end === undefined) {
-            end = all.getCount();
-        } else {
+        if (end !== undefined) {
             end++;
         }
-        return all.slice(start||0, end);
+        return all.slice(start, end);
     },
 
     /**
@@ -1571,6 +1537,19 @@ Ext.define('Ext.view.AbstractView', {
         var item = this.getNode(itemInfo);
         if (item) {
             Ext.fly(item).removeCls(cls);
+        }
+    },
+
+    privates: {
+        getOverflowEl: function() {
+            // The desired behavior here is just to inherit from the superclass.  However,
+            // the superclass method calls this.getTargetEl, which sends us into an infinte
+            // loop because our getTargetEl may call getScrollerEl(), which calls getOverflowEl()
+            return Ext.Component.prototype.getTargetEl.call(this);
+        },
+
+        getTargetEl: function() {
+            return this.touchScroll ? this.getScrollerEl() : this.callParent();
         }
     }
 }, function() {

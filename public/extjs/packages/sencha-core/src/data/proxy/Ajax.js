@@ -66,7 +66,7 @@
  *         model: 'User',
  *         reader: {
  *             type: 'xml',
- *             root: 'users'
+ *             rootProperty: 'users'
  *         }
  *     });
  *
@@ -304,7 +304,8 @@ Ext.define('Ext.data.proxy.Ajax', {
         var me = this,
             writer  = me.getWriter(),
             request = me.buildRequest(operation),
-            method  = me.getMethod(request);
+            method  = me.getMethod(request),
+            jsonData, params;
             
         if (writer && operation.allowWrite()) {
             request = writer.write(request);
@@ -322,11 +323,18 @@ Ext.define('Ext.data.proxy.Ajax', {
         });
         
         if (method.toUpperCase() !== 'GET' && me.getParamsAsJson()) {
-            // We need to copy the request here, because the params object is attached to
-            // the request and may be accessed by other callers, since it doesn't really care how the
-            // information is encoded, so we can't mutate it here.
-            request.setJsonData(request.getParams());
-            request.setParams(undefined);
+            params = request.getParams();
+
+            if (params) {
+                jsonData = request.getJsonData();
+                if (jsonData) {
+                    jsonData = Ext.Object.merge({}, jsonData, params);
+                } else {
+                    jsonData = params;
+                }
+                request.setJsonData(jsonData);
+                request.setParams(undefined);
+            }
         }
         
         if (me.getWithCredentials()) {

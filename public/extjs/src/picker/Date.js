@@ -46,13 +46,13 @@ Ext.define('Ext.picker.Date', {
     border: true,
 
     renderTpl: [
-        '<div id="{id}-innerEl" role="grid">',
+        '<div id="{id}-innerEl" data-ref="innerEl" role="grid">',
             '<div role="presentation" class="{baseCls}-header">',
-                '<a id="{id}-prevEl" class="{baseCls}-prev {baseCls}-arrow" role="button" title="{prevText}" hidefocus="on" ></a>',
-                '<div class="{baseCls}-month" id="{id}-middleBtnEl">{%this.renderMonthBtn(values, out)%}</div>',
-                '<a id="{id}-nextEl" class="{baseCls}-next {baseCls}-arrow" role="button" title="{nextText}" hidefocus="on" ></a>',
+                '<a id="{id}-prevEl" data-ref="prevEl" class="{baseCls}-prev {baseCls}-arrow" role="button" title="{prevText}" hidefocus="on" ></a>',
+                '<div id="{id}-middleBtnEl" data-ref="middleBtnEl" class="{baseCls}-month">{%this.renderMonthBtn(values, out)%}</div>',
+                '<a id="{id}-nextEl" data-ref="nextEl" class="{baseCls}-next {baseCls}-arrow" role="button" title="{nextText}" hidefocus="on" ></a>',
             '</div>',
-            '<table id="{id}-eventEl" class="{baseCls}-inner" cellspacing="0" role="grid">',
+            '<table id="{id}-eventEl" data-ref="eventEl" class="{baseCls}-inner" cellspacing="0" role="grid">',
                 '<thead role="presentation"><tr role="row">',
                     '<tpl for="dayNames">',
                         '<th role="columnheader" class="{parent.baseCls}-column-header" title="{.}">',
@@ -71,7 +71,7 @@ Ext.define('Ext.picker.Date', {
                 '</tr></tbody>',
             '</table>',
             '<tpl if="showToday">',
-                '<div id="{id}-footerEl" role="presentation" class="{baseCls}-footer">{%this.renderTodayBtn(values, out)%}</div>',
+                '<div id="{id}-footerEl" data-ref="footerEl" role="presentation" class="{baseCls}-footer">{%this.renderTodayBtn(values, out)%}</div>',
             '</tpl>',
         '</div>',
         {
@@ -456,18 +456,6 @@ Ext.define('Ext.picker.Date', {
         widthEl.destroy();
     },
 
-    // Do the job of a container layout at this point even though we are not a Container.
-    // TODO: Refactor as a Container.
-    finishRenderChildren: function () {
-        var me = this;
-        
-        me.callParent();
-        me.monthBtn.finishRender();
-        if (me.showToday) {
-            me.todayBtn.finishRender();
-        }
-    },
-
     // @private
     // @inheritdoc
     onRender : function(container, position){
@@ -728,7 +716,8 @@ Ext.define('Ext.picker.Date', {
      * @return {Ext.picker.Date} this
      */
     setValue : function(value){
-        this.value = Ext.Date.clearTime(value, true);
+        // If passed a null value just pass in a new date object.
+        this.value = Ext.Date.clearTime(value || new Date(), true);
         return this.update(this.value);
     },
 
@@ -1263,6 +1252,20 @@ Ext.define('Ext.picker.Date', {
         this.callParent(arguments);
         if (this.focusOnShow) {
             this.focus();
+        }
+    },
+
+    privates: {
+        // Do the job of a container layout at this point even though we are not a Container.
+        // TODO: Refactor as a Container.
+        finishRenderChildren: function () {
+            var me = this;
+
+            me.callParent();
+            me.monthBtn.finishRender();
+            if (me.showToday) {
+                me.todayBtn.finishRender();
+            }
         }
     }
 });

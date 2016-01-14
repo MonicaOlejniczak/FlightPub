@@ -51,6 +51,12 @@
  *              return view.getSelectionModel().select(records);
  *          }
  *      });
+ *
+ * **Important**: This class assumes there are two components with specific `reference`
+ * names assigned to them. These are `"searchField"` and `"searchGrid"`. These components
+ * are produced by the `makeDockedItems` and `makeItems` method, respectively. When
+ * overriding these it is important to remember to place these `reference` values on the
+ * appropriate components.
  */
 Ext.define('Ext.view.MultiSelectorSearch', {
     extend: 'Ext.panel.Panel',
@@ -65,6 +71,9 @@ Ext.define('Ext.view.MultiSelectorSearch', {
     minHeight: 200,
     border: true,
 
+    defaultListenerScope: true,
+    referenceHolder: true,
+
     /**
      * @cfg {String} searchText
      * This text is displayed as the "emptyText" of the search `textfield`.
@@ -75,7 +84,7 @@ Ext.define('Ext.view.MultiSelectorSearch', {
         var me = this,
             owner = me.owner,
             items = me.makeItems(),
-            grid, i, item, records, store;
+            i, item, records, store;
 
         me.dockedItems = me.makeDockedItems();
         me.items = items;
@@ -91,8 +100,7 @@ Ext.define('Ext.view.MultiSelectorSearch', {
                     pruneRemoved: false,
                     mode: 'SIMPLE',
                     listeners: {
-                        selectionchange: 'onSelectionChange',
-                        scope: me
+                        selectionchange: 'onSelectionChange'
                     }
                 };
 
@@ -111,30 +119,6 @@ Ext.define('Ext.view.MultiSelectorSearch', {
         }
 
         me.callParent();
-
-        /**
-         * @property {Ext.form.field.Text} searchField
-         * This component is the `textfield` that contains the user's search criteria. This
-         * component's `change` event updates a filter applied to the `getSearchStore` to
-         * filter the result.
-         *
-         * This component is produced by `makeDockedItems` but is retrieved by searching
-         * for the child with the `isSearchField` set to `true`. It is not required that
-         * this field be present.
-         * @readonly
-         */
-        me.searchField = me.down('[isSearchField]');
-
-        /**
-         * @property {Ext.grid.Panel} searchGrid
-         * This property holds the grid that displays search results. The only use for this
-         * grid is to retrieve it's `store` in the `getSearchStore` method. This component
-         * is found by its `isSearchGrid` property being true. If the view is modified such
-         * that no suitable grid exists, the `getSearchStore` method must be overridden as
-         * well.
-         * @readonly
-         */
-        me.searchGrid = me.down('[isSearchGrid]');
 
         records = me.getOwnerStore().getRange();
         if (!owner.convertSelectionRecord.$nullFn) {
@@ -159,7 +143,7 @@ Ext.define('Ext.view.MultiSelectorSearch', {
     },
 
     afterShow: function () {
-        var searchField = this.searchField;
+        var searchField = this.lookupReference('searchField');
 
         this.callParent(arguments);
 
@@ -176,19 +160,26 @@ Ext.define('Ext.view.MultiSelectorSearch', {
      * @return {Ext.data.Store}
      */
     getSearchStore: function () {
-        return this.searchGrid.getStore();
+        var searchGrid = this.lookupReference('searchGrid');
+        return searchGrid.getStore();
     },
 
     makeDockedItems: function () {
         return [{
             xtype: 'textfield',
+            reference: 'searchField',
             dock: 'top',
             hideFieldLabel: true,
-            isSearchField: true,
             emptyText: this.searchText,
+            triggers: {
+                clear: {
+                    cls: 'x-form-clear-trigger',
+                    handler: 'onClearSearch',
+                    hidden: true
+                }
+            },
             listeners: {
                 change: 'onSearchChange',
-                scope: this,
                 buffer: 300
             }
         }];
@@ -197,11 +188,9 @@ Ext.define('Ext.view.MultiSelectorSearch', {
     makeItems: function () {
         return [{
             xtype: 'grid',
-            plugins: {
-                ptype: 'bufferedrenderer',
-                trailingBufferZone: 2,
-                leadingBufferZone: 2
-            },
+            reference: 'searchGrid',
+            trailingBufferZone: 2,
+            leadingBufferZone: 2,
             viewConfig: {
                 deferEmptyText: false,
                 emptyText: 'No results.'
@@ -210,7 +199,13 @@ Ext.define('Ext.view.MultiSelectorSearch', {
     },
 
     selectRecords: function (records) {
-        return this.searchGrid.getSelectionModel().select(records);
+        var searchGrid = this.lookupReference('searchGrid');
+        return searchGrid.getSelectionModel().select(records);
+    },
+
+    deselectRecords: function(records) {
+        var searchGrid = this.lookupReference('searchGrid');
+        return searchGrid.getSelectionModel().deselect(records);
     },
 
     search: function (text) {
@@ -240,8 +235,18 @@ Ext.define('Ext.view.MultiSelectorSearch', {
     },
 
     privates: {
+        onClearSearch: function () {
+            var searchField = this.lookupReference('searchField');
+            searchField.setValue(null);
+            searchField.focus();
+        },
+
         onSearchChange: function (searchField) {
-            this.search(searchField.getValue());
+            var value = searchField.getValue(),
+                trigger = searchField.getTrigger('clear');
+
+            trigger.setHidden(!value);
+            this.search(value);
         },
 
         onSelectionChange: function (selModel, selection) {

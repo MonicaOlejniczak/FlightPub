@@ -25,7 +25,7 @@ Ext.define('Ext.layout.container.CheckboxGroup', {
     ],
 
     renderTpl: [
-        '<table id="{ownerId}-innerCt" class="' + Ext.plainTableCls + '" cellpadding="0"',
+        '<table id="{ownerId}-innerCt" data-ref="innerCt" class="' + Ext.plainTableCls + '" cellpadding="0"',
             'role="presentation" style="{tableStyle}"><tr role="presentation">',
             '<tpl for="columns">',
                 '<td class="{parent.colCls}" valign="top" style="{style}" role="presentation">',
@@ -438,8 +438,8 @@ Ext.define('Ext.layout.container.CheckboxGroup', {
         var me = this;
 
         me.configureItem(item);
+
         item.render(Ext.get(me.columnNodes[columnIndex]), rowIndex);
-        me.afterRenderItem(item);
     },
 
     /**

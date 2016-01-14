@@ -3,7 +3,7 @@
  * @private
  */
 Ext.define('Ext.app.bind.RootStub', {
-    extend: 'Ext.data.session.AbstractStub',
+    extend: 'Ext.app.bind.AbstractStub',
     requires: [
         'Ext.app.bind.LinkStub',
         'Ext.app.bind.Stub'
@@ -120,7 +120,7 @@ Ext.define('Ext.app.bind.RootStub', {
                     stub = me.createRootChild(key);
                 }
 
-                stub.scheduleDeep();
+                stub.invalidate(true);
             }
         }
     },

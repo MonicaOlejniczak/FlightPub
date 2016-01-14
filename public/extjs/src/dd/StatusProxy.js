@@ -12,7 +12,7 @@ Ext.define('Ext.dd.StatusProxy', {
 
     renderTpl: [
         '<div class="' + Ext.baseCSSPrefix + 'dd-drop-icon" role="presentation"></div>' +
-        '<div id="{id}-ghost" class="' + Ext.baseCSSPrefix + 'dd-drag-ghost" role="presentation"></div>'
+        '<div id="{id}-ghost" data-ref="ghost" class="' + Ext.baseCSSPrefix + 'dd-drag-ghost" role="presentation"></div>'
     ],
     
     repairCls: Ext.baseCSSPrefix + 'dd-drag-repair',
@@ -102,7 +102,7 @@ Ext.define('Ext.dd.StatusProxy', {
 
     /**
      * Returns the ghost element
-     * @return {Ext.Element} el
+     * @return {Ext.dom.Element} el
      */
     getGhost : function(){
         return this.ghost;

@@ -19,21 +19,21 @@ Ext.define('Ext.picker.Month', {
     ],
 
     renderTpl: [
-        '<div id="{id}-bodyEl" class="{baseCls}-body">',
-          '<div id="{id}-monthEl" class="{baseCls}-months">',
+        '<div id="{id}-bodyEl" data-ref="bodyEl" class="{baseCls}-body">',
+          '<div id="{id}-monthEl" data-ref="monthEl" class="{baseCls}-months">',
               '<tpl for="months">',
                   '<div class="{parent.baseCls}-item {parent.baseCls}-month">',
                       '<a style="{parent.monthStyle}" role="button" hidefocus="on" class="{parent.baseCls}-item-inner">{.}</a>',
                   '</div>',
               '</tpl>',
           '</div>',
-          '<div id="{id}-yearEl" class="{baseCls}-years">',
+          '<div id="{id}-yearEl" data-ref="yearEl" class="{baseCls}-years">',
               '<div class="{baseCls}-yearnav">',
                   '<div class="{baseCls}-yearnav-button-ct">',
-                      '<a id="{id}-prevEl" class="{baseCls}-yearnav-button {baseCls}-yearnav-prev" hidefocus="on" role="button"></a>',
+                      '<a id="{id}-prevEl" data-ref="prevEl" class="{baseCls}-yearnav-button {baseCls}-yearnav-prev" hidefocus="on" role="button"></a>',
                   '</div>',
                   '<div class="{baseCls}-yearnav-button-ct">',
-                      '<a id="{id}-nextEl" class="{baseCls}-yearnav-button {baseCls}-yearnav-next" hidefocus="on" role="button"></a>',
+                      '<a id="{id}-nextEl" data-ref="nextEl" class="{baseCls}-yearnav-button {baseCls}-yearnav-next" hidefocus="on" role="button"></a>',
                   '</div>',
               '</div>',
               '<tpl for="years">',
@@ -512,22 +512,23 @@ Ext.define('Ext.picker.Month', {
         me.callParent();
     },
 
-    // Do the job of a container layout at this point even though we are not a Container.
-    // TODO: Refactor as a Container.
-    finishRenderChildren: function () {
-        var me = this;
-
-        this.callParent(arguments);
-
-        if (this.showButtons) {
-            me.okBtn.finishRender();
-            me.cancelBtn.finishRender();
-        }
-    },
-
     onDestroy: function() {
         Ext.destroyMembers(this, 'okBtn', 'cancelBtn');
         this.callParent();
+    },
+
+    privates: {
+        // Do the job of a container layout at this point even though we are not a Container.
+        // TODO: Refactor as a Container.
+        finishRenderChildren: function () {
+            var me = this;
+
+            this.callParent(arguments);
+
+            if (this.showButtons) {
+                me.okBtn.finishRender();
+                me.cancelBtn.finishRender();
+            }
+        }
     }
-    
 });

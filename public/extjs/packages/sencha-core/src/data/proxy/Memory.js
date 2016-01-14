@@ -1,6 +1,4 @@
 /**
- * @author Ed Spencer
- *
  * In-memory proxy. This proxy simply uses a local variable for data storage/retrieval, so its contents are lost on
  * every page refresh.
  *
@@ -44,7 +42,7 @@
  *             type: 'memory',
  *             reader: {
  *                 type: 'json',
- *                 root: 'users'
+ *                 rootProperty: 'users'
  *             }
  *         }
  *     });
@@ -122,7 +120,7 @@ Ext.define('Ext.data.proxy.Memory', {
      * @param {Ext.data.operation.Operation} operation The Operation to perform
      * @method
      */
-    destroy: function() {
+    erase: function(operation) {
         this.finishOperation(operation);
     },
 
@@ -139,7 +137,7 @@ Ext.define('Ext.data.proxy.Memory', {
             filters = operation.getFilters(),
             start = operation.getStart(),
             limit = operation.getLimit();
-            
+
         // Apply filters, sorters, and start/limit options
         if (operation.process(resultSet, null, null, false) !== false) {
             // Filter the resulting array of records

@@ -151,7 +151,7 @@ Ext.define('Ext.form.FieldContainer', {
     invalidCls: '',
 
     fieldSubTpl: [
-        '<div id="{id}-containerEl" class="{containerElCls}" role="presentation">',
+        '<div id="{id}-containerEl" data-ref="containerEl" class="{containerElCls}" role="presentation">',
             '{%this.renderContainer(out,values)%}',
         '</div>'
     ],
@@ -169,46 +169,38 @@ Ext.define('Ext.form.FieldContainer', {
     
     /**
      * @protected Called when a {@link Ext.form.Labelable} instance is added to the container's subtree.
-     * @param {Ext.form.Labelable} labelable The instance that was added
+     * @param {Ext.form.Labelable} labelItem The instance that was added
      */
-    onAdd: function(item) {
+    onAdd: function(labelItem) {
         var me = this;
         
         // Fix for https://sencha.jira.com/browse/EXTJSIV-6424
         // In FF, positioning absolutely within a TD positions relative to the TR!
         // So we must add the width of a visible, left-aligned label cell to the x coordinate.
-        if (item.isLabelable && Ext.isGecko && me.layout.type === 'absolute' && !me.hideLabel && me.labelAlign !== 'top') {
-            item.x += (me.labelWidth + me.labelPad);
+        if (labelItem.isLabelable && Ext.isGecko && me.layout.type === 'absolute' && !me.hideLabel && me.labelAlign !== 'top') {
+            labelItem.x += (me.labelWidth + me.labelPad);
         }
         me.callParent(arguments);
-        if (item.isLabelable && me.combineLabels) {
-            item.oldHideLabel = item.hideLabel;
-            item.hideLabel = true;
+        if (labelItem.isLabelable && me.combineLabels) {
+            labelItem.oldHideLabel = labelItem.hideLabel;
+            labelItem.hideLabel = true;
         }
         me.updateLabel();
     },
 
     /**
      * @protected Called when a {@link Ext.form.Labelable} instance is removed from the container's subtree.
-     * @param {Ext.form.Labelable} labelable The instance that was removed
+     * @param {Ext.form.Labelable} labelItem The instance that was removed
      */
-    onRemove: function(item, isDestroying) {
+    onRemove: function(labelItem, isDestroying) {
         var me = this;
         me.callParent(arguments);
         if (!isDestroying) {
-            if (item.isLabelable && me.combineLabels) {
-                item.hideLabel = item.oldHideLabel;
+            if (labelItem.isLabelable && me.combineLabels) {
+                labelItem.hideLabel = labelItem.oldHideLabel;
             }
             me.updateLabel();
         }   
-    },
-
-    initRenderTpl: function() {
-        var me = this;
-        if (!me.hasOwnProperty('renderTpl')) {
-            me.renderTpl = me.getTpl('labelableRenderTpl');
-        }
-        return me.callParent();
     },
 
     initRenderData: function() {
@@ -273,7 +265,7 @@ Ext.define('Ext.form.FieldContainer', {
      * @private Fired when the error message of any field within the container changes, and updates the
      * combined error message to match.
      */
-    onFieldErrorChange: function(field, activeError) {
+    onFieldErrorChange: function() {
         if (this.combineErrors) {
             var me = this,
                 oldError = me.getActiveError(),
@@ -326,13 +318,23 @@ Ext.define('Ext.form.FieldContainer', {
         return errors;
     },
 
-    getTargetEl: function() {
-        return this.containerEl;
-    },
+    privates: {
+        applyTargetCls: function(targetCls) {
+            var containerElCls = this.containerElCls;
 
-    applyTargetCls: function(targetCls) {
-        var containerElCls = this.containerElCls;
+            this.containerElCls = containerElCls ? containerElCls + ' ' + targetCls : targetCls;
+        },
 
-        this.containerElCls = containerElCls ? containerElCls + ' ' + targetCls : targetCls;
+        getTargetEl: function() {
+            return this.containerEl;
+        },
+
+        initRenderTpl: function() {
+            var me = this;
+            if (!me.hasOwnProperty('renderTpl')) {
+                me.renderTpl = me.getTpl('labelableRenderTpl');
+            }
+            return me.callParent();
+        }
     }
 });

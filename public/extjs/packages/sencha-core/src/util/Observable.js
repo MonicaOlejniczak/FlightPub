@@ -38,6 +38,7 @@ Ext.define('Ext.util.Observable', function(Observable) {
         emptyArray = [],
         arrayProto = Array.prototype,
         arraySlice = arrayProto.slice,
+        eventNameMap = Ext.$eventNameMap,
         // Private Destroyable class which removes listeners
         ListenerRemover = function(observable) {
 
@@ -97,7 +98,7 @@ Ext.define('Ext.util.Observable', function(Observable) {
                 // and will capture fireEventArgs instead.
                 var newFn = function(eventName, args) {
                     return fn.apply(scope, [eventName].concat(args));
-                }
+                };
                 
                 this.captureArgs(o, newFn, scope);
             },
@@ -143,14 +144,37 @@ Ext.define('Ext.util.Observable', function(Observable) {
             * Prepares a given class for observable instances. This method is called when a
             * class derives from this class or uses this class as a mixin.
             * @param {Function} T The class constructor to prepare.
+            * @param {Ext.util.Observable} mixin The mixin if being used as a mixin.
+            * @param {Object} data The raw class creation data if this is an extend.
             * @private
             */
-            prepareClass: function (T, mixin) {
+            prepareClass: function (T, mixin, data) {
                 // T.hasListeners is the object to track listeners on class T. This object's
                 // prototype (__proto__) is the "hasListeners" of T.superclass.
 
                 // Instances of T will create "hasListeners" that have T.hasListeners as their
                 // immediate prototype (__proto__).
+
+                var listeners = T.listeners = [],
+                    // If this function was called as a result of an "onExtended", it will
+                    // receive the class as "T", but the members will not yet have been
+                    // applied to the prototype. If this is the case, just grab listeners
+                    // off of the raw data object.
+                    targetListeners = data ? data.listeners : T.prototype.listeners,
+                    name, mixin;
+
+                // Process listeners that have been declared on the class body. These
+                // listeners must not override each other, but each must be added
+                // separately. This is accomplished by maintaining a nested array
+                // of listeners for the class and it's superclasses/mixins
+                if (mixin) {
+                    listeners.push(mixin.listeners);
+                } else {
+                    listeners.push(T.superclass.self.listeners);
+                }
+                if (targetListeners) {
+                    listeners.push(targetListeners);
+                }
 
                 if (!T.HasListeners) {
                     // We create a HasListeners "class" for this class. The "prototype" of the
@@ -240,7 +264,9 @@ Ext.define('Ext.util.Observable', function(Observable) {
         */
 
         constructor: function(config) {
-            var me = this;
+            var me = this,
+                self = me.self,
+                declaredListeners;
 
             if (config) {
                 Ext.apply(me, config);
@@ -249,6 +275,15 @@ Ext.define('Ext.util.Observable', function(Observable) {
             me.hasListeners = new me.HasListeners();
 
             me.events = me.events || {};
+
+            declaredListeners = self.listeners;
+            if (declaredListeners && !me._addDeclaredListeners(declaredListeners)) {
+                // Nulling out declared listeners allows future instances to avoid
+                // recursing into the declared listeners arrays if the first instance
+                // discovers that there are no declarative listeners in its hierarchy
+                self.listeners = null;
+            }
+
             if (me.listeners) {
                 me.on(me.listeners);
                 me.listeners = null; //Set as an instance property to pre-empt the prototype in case any are set there.
@@ -269,13 +304,32 @@ Ext.define('Ext.util.Observable', function(Observable) {
 
         // @private
         // Matches options property names within a listeners specification object  - property names which are never used as event names.
-        eventOptionsRe : /^(?:scope|delay|buffer|onFrame|single|stopEvent|preventDefault|stopPropagation|normalized|args|delegate|element|destroyable|vertical|horizontal|freezeEvent|priority)$/,
+        eventOptionsRe : /^(?:scope|delay|buffer|onFrame|single|stopEvent|preventDefault|stopPropagation|normalized|args|delegate|element|destroyable|vertical|horizontal|priority)$/,
+
+        /**
+         * Adds declarative listeners as nested arrays of listener objects.
+         * @private
+         * @param {Array} listeners
+         * @return {Boolean} `true` if any listeners were added
+         */
+        _addDeclaredListeners: function(listeners) {
+            var me = this;
+
+            if (listeners instanceof Array) {
+                Ext.each(listeners, me._addDeclaredListeners, me);
+            } else {
+                me._addedDeclaredListeners = true;
+                me.addListener(listeners);
+            }
+
+            return me._addedDeclaredListeners;
+        },
 
         /**
         * Adds listeners to any Observable object (or Ext.Element) which are automatically removed when this Component is
         * destroyed.
         *
-        * @param {Ext.util.Observable/Ext.Element} item The item to which to add a listener/listeners.
+        * @param {Ext.util.Observable/Ext.dom.Element} item The item to which to add a listener/listeners.
         * @param {Object/String} ename The event name, or an object containing event name properties.
         * @param {Function} fn (optional) If the `ename` parameter was an event name, this is the handler function.
         * @param {Object} scope (optional) If the `ename` parameter was an event name, this is the scope (`this` reference)
@@ -362,7 +416,7 @@ Ext.define('Ext.util.Observable', function(Observable) {
         /**
         * Removes listeners that were added by the {@link #mon} method.
         *
-        * @param {Ext.util.Observable/Ext.Element} item The item from which to remove a listener/listeners.
+        * @param {Ext.util.Observable/Ext.dom.Element} item The item from which to remove a listener/listeners.
         * @param {Object/String} ename The event name, or an object containing event name properties.
         * @param {Function} fn (optional) If the `ename` parameter was an event name, this is the handler function.
         * @param {Object} scope (optional) If the `ename` parameter was an event name, this is the scope (`this` reference)
@@ -393,7 +447,7 @@ Ext.define('Ext.util.Observable', function(Observable) {
                 // Only call it below so we can get an error in debug mode when the method is not present.
                 // We do nothing with the result.
                 //<debug>
-                if (typeof fn === 'string' && scope && scope !== 'this' && !managedListeners.length) {
+                if (typeof fn === 'string' && scope && scope !== 'this' && scope !== 'controller' && !managedListeners.length) {
                     me.resolveMethod(fn, scope);
                 }
                 //</debug>
@@ -427,6 +481,12 @@ Ext.define('Ext.util.Observable', function(Observable) {
          * @protected
          */
         resolveListenerScope: function (defaultScope) {
+            //<debug>
+            if (defaultScope === 'controller') {
+                Ext.Error.raise('scope: "controller" can only be specified on components that derive from component');
+            }
+            //</debug>
+            
             if (defaultScope === 'this') {
                 defaultScope = null;
             }
@@ -444,7 +504,8 @@ Ext.define('Ext.util.Observable', function(Observable) {
         * @return {Boolean} returns false if any of the handlers return false otherwise it returns true.
         */
         fireEventArgs: function(eventName, args) {
-            eventName = eventName.toLowerCase();
+            // This is inlined for performance
+            eventName = eventNameMap[eventName] || (eventNameMap[eventName] = eventName.toLowerCase());
             var me = this,
                 // no need to make events since we need an Event with listeners
                 events = me.events,
@@ -666,7 +727,8 @@ Ext.define('Ext.util.Observable', function(Observable) {
             }
             // String, function passed
             else {
-                ename = ename.toLowerCase();
+                // This is inlined for performance
+                ename = eventNameMap[ename] || (eventNameMap[ename] = ename.toLowerCase());
                 // need events now...
                 event = (me.events || (me.events = {}))[ename];
                 if (event && event.isEvent) {
@@ -678,14 +740,14 @@ Ext.define('Ext.util.Observable', function(Observable) {
                 // Allow listeners: { click: 'onClick', scope: myObject }
                 // If we get passed with a scope, go and resolve it directly,
                 // otherwise we need to defer it til when the event fires.
-                if (typeof fn === 'string' && scope && scope !== 'this') {
+                if (typeof fn === 'string' && scope && scope !== 'this' && scope !== 'controller') {
                     fn = me.resolveMethod(fn, scope);
                 }
                 //<debug>
                 else {
                     // If we have a string and no scope we won't have a function yet,
                     // so don't throw any exception.
-                    if (!(typeof fn === 'string' && (!scope || scope === 'this'))) {
+                    if (!(typeof fn === 'string' && (!scope || scope === 'this' || scope === 'controller'))) {
                         Ext.Assert.isFunction(fn,
                             'No function passed for event ' + me.$className + '.' + ename);
                     }
@@ -734,10 +796,11 @@ Ext.define('Ext.util.Observable', function(Observable) {
                     }
                 }
             } else {
-                ename = ename.toLowerCase();
+                // This is inlined for performance
+                ename = eventNameMap[ename] || (eventNameMap[ename] = ename.toLowerCase());
                 event = events && events[ename];
                 if (event && event.isEvent) {
-                    if (typeof fn === 'string' && scope && scope !== 'this') {
+                    if (typeof fn === 'string' && scope && scope !== 'this' && scope !== 'controller') {
                         fn = me.resolveMethod(fn, scope);
                     }
                     
@@ -849,7 +912,9 @@ Ext.define('Ext.util.Observable', function(Observable) {
         * @return {Boolean} `true` if the event is being listened for or bubbles, else `false`
         */
         hasListener: function(ename) {
-            return !!this.hasListeners[ename.toLowerCase()];
+            // This is inlined for performance
+            ename = eventNameMap[ename] || (eventNameMap[ename] = ename.toLowerCase());
+            return !!this.hasListeners[ename];
         },
         
         /**
@@ -897,13 +962,16 @@ Ext.define('Ext.util.Observable', function(Observable) {
             var me = this,
                 events = me.events || (me.events = {}),
                 len = arguments.length,
-                i, event, name;
+                i, event, ename;
 
             for (i = 0; i < len; i++) {
-                event = events[name = arguments[i]];
+                ename = arguments[i];
+                // This is inlined for performance
+                ename = eventNameMap[ename] || (eventNameMap[ename] = ename.toLowerCase());
+                event = events[ename];
                 // we need to spin up the Event instance so it can hold the suspend count
                 if (!event || !event.isEvent) {
-                    events[name] = event = new Ext.util.Event(me, name);
+                    events[ename] = event = new Ext.util.Event(me, ename);
                 }
                 event.suspend();
             }
@@ -1073,7 +1141,9 @@ Ext.define('Ext.util.Observable', function(Observable) {
                     ename, event, i;
 
                 for (i = 0; i < length; ++i) {
-                    ename = names[i].toLowerCase();
+                    ename = names[i];
+                    // This is inlined for performance
+                    ename = eventNameMap[ename] || (eventNameMap[ename] = ename.toLowerCase());
                     event = events[ename];
 
                     if (!event || !event.isEvent) {
@@ -1110,12 +1180,12 @@ Ext.define('Ext.util.Observable', function(Observable) {
 
                 // Now that we are mixed in to class T, we need to watch T for derivations
                 // and prepare them also.
-                T.onExtended(function (U) {
+                T.onExtended(function (U, data) {
                     //<debug>
                     Ext.classSystemMonitor && Ext.classSystemMonitor('extend mixin', arguments);
                     //</debug>
-                    
-                    Observable.prepareClass(U);
+
+                    Observable.prepareClass(U, null, data);
                 });
 
                 // Also, if a class uses us as a mixin and that class is then used as

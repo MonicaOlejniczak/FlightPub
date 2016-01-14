@@ -12,6 +12,8 @@
 Ext.define('Ext.data.Validation', {
     extend: 'Ext.data.Model',
 
+    isValidation: true,
+
     /**
      * @property {Number} syncGeneration
      * This is a capture of the `{@link Ext.data.Model#generation}` value from the last

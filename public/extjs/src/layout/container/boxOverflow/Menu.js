@@ -8,13 +8,12 @@ Ext.define('Ext.layout.container.boxOverflow.Menu', {
     extend: 'Ext.layout.container.boxOverflow.None',
     requires: ['Ext.toolbar.Separator', 'Ext.button.Button'],
     alternateClassName: 'Ext.layout.boxOverflow.Menu',
-    
-    /* End Definitions */
+    alias: [
+        'box.overflow.menu',
+        'box.overflow.Menu' // capitalized for 4.x compat
+    ],
 
-    /**
-     * @cfg {String} triggerButtonCls
-     * CSS class added to the Button which shows the overflow menu.
-     */
+    /* End Definitions */
 
     /**
      * @property {String} noItemsMenuText
@@ -22,12 +21,13 @@ Ext.define('Ext.layout.container.boxOverflow.Menu', {
      */
     noItemsMenuText : '<div class="' + Ext.baseCSSPrefix + 'toolbar-no-items" role="menuitem">(None)</div>',
 
-    constructor: function(layout) {
+    menuCls: Ext.baseCSSPrefix + 'box-menu',
+
+    constructor: function(config) {
         var me = this;
 
         me.callParent(arguments);
 
-        me.triggerButtonCls = me.triggerButtonCls || Ext.baseCSSPrefix + 'box-menu-after';
         /**
          * @property {Array} menuItems
          * Array of all items that are currently hidden and should go into the dropdown menu
@@ -86,12 +86,12 @@ Ext.define('Ext.layout.container.boxOverflow.Menu', {
          */
         me.menuTrigger = new Ext.button.Button({
             id: oid + '-menu-trigger',
-            cls: Ext.layout.container.Box.prototype.innerCls + ' ' + me.triggerButtonCls + ' ' + Ext.baseCSSPrefix + 'toolbar-item',
+            cls: me.menuCls + '-after ' + Ext.baseCSSPrefix + 'toolbar-item',
             plain: owner.usePlainButtons,
             ownerCt: owner, // To enable the Menu to ascertain a valid zIndexManager owner in the same tree
             ownerLayout: layout,
             iconCls: Ext.baseCSSPrefix + me.getOwnerType(owner) + '-more-icon',
-            ui: owner instanceof Ext.toolbar.Toolbar ? 'default-toolbar' : 'default',
+            ui: owner.defaultButtonUI || 'default',
             menu: me.menu,
             // Menu will be empty when we're showing it because we populate items after
             showEmptyMenu: true,
@@ -101,24 +101,21 @@ Ext.define('Ext.layout.container.boxOverflow.Menu', {
         return me.menuTrigger.getRenderTree();
     },
     
-    getOverflowCls: function() {
-        return Ext.baseCSSPrefix + this.layout.direction + '-box-overflow-body';
+    getOverflowCls: function(direction) {
+        return this.menuCls + '-body-' + direction;
     },
 
     handleOverflow: function(ownerContext) {
         var me = this,
-            layout = me.layout,
-            names = layout.names,
-            plan = ownerContext.state.boxPlan,
-            posArgs = [null, null];
+            layout = me.layout;
 
         me.showTrigger(ownerContext);
 
         // Center the menuTrigger button only if we are not vertical.
-        // TODO: Should we emulate align: 'middle' like this, or should we 'stretchmax' the menuTrigger?
-        if (me.layout.direction !== 'vertical') {
-            posArgs[names.heightIndex] = (plan.maxSize - me.menuTrigger[names.getHeight]()) / 2;
-            me.menuTrigger.setPosition.apply(me.menuTrigger, posArgs);
+        if (layout.direction !== 'vertical') {
+            me.menuTrigger.setLocalY(
+                (ownerContext.state.boxPlan.maxSize - me.menuTrigger[layout.names.getHeight]()) / 2
+            );
         }
 
         return {

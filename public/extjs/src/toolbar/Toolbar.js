@@ -204,10 +204,18 @@ Ext.define('Ext.toolbar.Toolbar', {
      * `true` in this class to identify an object as an instantiated Toolbar, or subclass thereof.
      */
     isToolbar: true,
-    baseCls  : Ext.baseCSSPrefix + 'toolbar',
-    ariaRole : 'toolbar',
+    baseCls: Ext.baseCSSPrefix + 'toolbar',
+    ariaRole: 'toolbar',
 
     defaultType: 'button',
+
+    /**
+     * @cfg {Ext.enums.Layout/Object} layout
+     * This class assigns a default layout (`layout: 'hbox'` or `layout: 'vbox'` depending upon orientation).
+     *
+     * Developers _may_ override this configuration option if another layout is required.
+     * See {@link Ext.container.Container#layout} for additional information.
+     */
     layout: undefined,
 
     /**
@@ -217,26 +225,21 @@ Ext.define('Ext.toolbar.Toolbar', {
     vertical: false,
 
     /**
-     * @cfg {Ext.enums.Layout/Object} layout
-     * This class assigns a default layout (`layout: 'hbox'`).
-     * Developers _may_ override this configuration option if another layout
-     * is required (the constructor must be passed a configuration object in this
-     * case instead of an array).
-     * See {@link Ext.container.Container#layout} for additional information.
-     */
-
-    /**
      * @cfg {Boolean} enableOverflow
      * Configure true to make the toolbar provide a button which activates a dropdown Menu to show
-     * items which overflow the Toolbar's width.
+     * items which overflow the Toolbar's width.  Setting this too true is the equivalent
+     * of setting `{@link #overflowHandler}:'menu'`.
      */
     enableOverflow: false,
 
     /**
-     * @cfg {String} menuTriggerCls
-     * Configure the icon class of the overflow button.
+     * @cfg {String} overflowHandler
+     *
+     * - `null` - hidden overflow
+     * - `'scroller'` to render left/right scroller buttons on either side of the breadcrumb
+     * - `'menu'` to render the overflowing buttons as items of an overflow menu.
      */
-    menuTriggerCls: Ext.baseCSSPrefix + 'toolbar-more-icon',
+    overflowHandler: null,
 
     /**
      * @cfg {String} defaultButtonUI
@@ -296,7 +299,8 @@ Ext.define('Ext.toolbar.Toolbar', {
 
     /**
      * @event overflowchange
-     * Fires after the overflow state has changed.
+     * Fires after the overflow state has changed if this toolbar has been configured with
+     * an `{@link #overflowHandler}`.
      * @param {Number} lastHiddenCount The number of overflowing items that used to be hidden.
      * @param {Number} hiddenCount The number of overflowing items that are hidden now.
      * @param {Array} The hidden items
@@ -304,8 +308,8 @@ Ext.define('Ext.toolbar.Toolbar', {
 
     statics: {
         shortcuts: {
-            '-' : 'tbseparator',
-            ' ' : 'tbspacer'
+            '-': 'tbseparator',
+            ' ': 'tbspacer'
         },
 
         shortcutsHV: {
@@ -320,24 +324,26 @@ Ext.define('Ext.toolbar.Toolbar', {
         }
     },
 
-    initComponent: function() {
-        var me = this;
-
-        // check for simplified (old-style) overflow config:
-        if (!me.layout && me.enableOverflow) {
-            me.layout = { overflowHandler: 'Menu' };
-        }
+    initComponent: function () {
+        var me = this,
+            layout = me.layout;
 
         if (me.dock === 'right' || me.dock === 'left') {
             me.vertical = true;
         }
 
-        me.layout = Ext.applyIf(Ext.isString(me.layout) ? {
-            type: me.layout
-        } : me.layout || {}, {
+        me.layout = layout = Ext.applyIf(Ext.isString(layout) ? {
+            type: layout
+        } : layout || {}, {
             type: me.vertical ? 'vbox' : 'hbox',
             align: me.vertical ? 'stretchmax' : 'middle'
         });
+
+        if (me.overflowHandler) {
+            layout.overflowHandler = me.overflowHandler;
+        } else if (me.enableOverflow) {
+            layout.overflowHandler = 'menu';
+        }
 
         if (me.vertical) {
             me.addClsWithUI('vertical');
@@ -351,13 +357,13 @@ Ext.define('Ext.toolbar.Toolbar', {
         me.callParent();
     },
 
-    getRefItems: function(deep) {
+    getRefItems: function (deep) {
         var me = this,
             items = me.callParent(arguments),
             layout = me.layout,
             handler;
 
-        if (deep && me.enableOverflow) {
+        if (deep && (me.enableOverflow || (me.overflowHandler === 'menu'))) {
             handler = layout.overflowHandler;
             if (handler && handler.menu) {
                 items = items.concat(handler.menu.getRefItems(deep));
@@ -375,7 +381,7 @@ Ext.define('Ext.toolbar.Toolbar', {
      * @param {Ext.Component.../Object.../String.../HTMLElement...} args The following types of arguments are all valid:
      *
      *  - `{@link Ext.button.Button config}`: A valid button config object
-     *  - `HtmlElement`: Any standard HTML element
+     *  - `HTMLElement`: Any standard HTML element
      *  - `Field`: Any form field
      *  - `Item`: Any subclass of {@link Ext.toolbar.Item}
      *  - `String`: Any generic string (gets wrapped in a {@link Ext.toolbar.TextItem}).
@@ -402,7 +408,7 @@ Ext.define('Ext.toolbar.Toolbar', {
      */
 
     // @private
-    lookupComponent: function(c) {
+    lookupComponent: function (c) {
         var args = arguments;
         if (typeof c === 'string') {
             var T = Ext.toolbar.Toolbar,
@@ -430,34 +436,18 @@ Ext.define('Ext.toolbar.Toolbar', {
         return this.callParent(args);
     },
 
-    // @private
-    applyDefaults: function(c) {
-        if (!Ext.isString(c)) {
-            c = this.callParent(arguments);
-        }
-        return c;
-    },
-
-    // @private
-    trackMenu: function(item, remove) {
-        if (this.trackMenus && item.menu) {
-            var method = remove ? 'mun' : 'mon',
-                me = this;
-
-            me[method](item, 'mouseover', me.onButtonOver, me);
-            me[method](item, 'menushow', me.onButtonMenuShow, me);
-            me[method](item, 'menuhide', me.onButtonMenuHide, me);
-        }
-    },
-
-    // @private
-    onBeforeAdd: function(component) {
+    onBeforeAdd: function (component) {
         var me = this,
-            isFooter = me.ui === 'footer';
+            isFooter = me.ui === 'footer',
+            defaultButtonUI = isFooter ? me.defaultFooterButtonUI : me.defaultButtonUI;
 
-        if (component.ui === 'default' && !component.hasOwnProperty('ui')) {
+        if (component.isSegmentedButton) {
+            if (component.getDefaultUI() === 'default' && !component.config.hasOwnProperty('defaultUI')) {
+                component.setDefaultUI(defaultButtonUI);
+            }
+        } else if (component.ui === 'default' && !component.hasOwnProperty('ui')) {
             if (component.isButton) {
-                component.ui = isFooter? me.defaultFooterButtonUI : me.defaultButtonUI;
+                component.ui = defaultButtonUI;
             } else if (component.isFormField) {
                 component.ui = isFooter ? me.defaultFooterFieldUI : me.defaultFieldUI;
             }
@@ -471,38 +461,58 @@ Ext.define('Ext.toolbar.Toolbar', {
         me.callParent(arguments);
     },
 
-    // @private
-    onAdd: function(component) {
+    onAdd: function (component) {
         this.callParent(arguments);
         this.trackMenu(component);
     },
 
-    // @private
-    onRemove: function(c) {
+    onRemove: function (c) {
         this.callParent(arguments);
         this.trackMenu(c, true);
     },
 
-    getChildItemsToDisable: function() {
-        return this.items.getRange();
-    },
+    privates: {
+        // @private
+        applyDefaults: function (c) {
+            if (!Ext.isString(c)) {
+                c = this.callParent(arguments);
+            }
+            return c;
+        },
 
-    // @private
-    onButtonOver: function(btn){
-        if (this.activeMenuBtn && this.activeMenuBtn !== btn) {
-            this.activeMenuBtn.hideMenu();
-            btn.showMenu();
+        // @private
+        trackMenu: function (item, remove) {
+            if (this.trackMenus && item.menu) {
+                var method = remove ? 'mun' : 'mon',
+                    me = this;
+
+                me[method](item, 'mouseover', me.onButtonOver, me);
+                me[method](item, 'menushow', me.onButtonMenuShow, me);
+                me[method](item, 'menuhide', me.onButtonMenuHide, me);
+            }
+        },
+
+        getChildItemsToDisable: function () {
+            return this.items.getRange();
+        },
+
+        // @private
+        onButtonOver: function (btn) {
+            if (this.activeMenuBtn && this.activeMenuBtn !== btn) {
+                this.activeMenuBtn.hideMenu();
+                btn.showMenu();
+                this.activeMenuBtn = btn;
+            }
+        },
+
+        // @private
+        onButtonMenuShow: function (btn) {
             this.activeMenuBtn = btn;
+        },
+
+        // @private
+        onButtonMenuHide: function (btn) {
+            delete this.activeMenuBtn;
         }
-    },
-
-    // @private
-    onButtonMenuShow: function(btn) {
-        this.activeMenuBtn = btn;
-    },
-
-    // @private
-    onButtonMenuHide: function(btn) {
-        delete this.activeMenuBtn;
     }
 });

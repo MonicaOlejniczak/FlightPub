@@ -82,11 +82,21 @@ describe("Ext.data.field.Field", function() {
             expect(field.getAllowBlank()).toBe(false);
         });
         
-        it("should configure allowNull", function() {
-            make({
-                allowNull: true
+        describe("allowNull", function() {
+            it("should configure a value", function() {
+                make({
+                    allowNull: true
+                });
+                expect(field.getAllowNull()).toBe(true);
             });
-            expect(field.getAllowNull()).toBe(true);
+
+            it("should default to true for fields with a reference (FK)", function() {
+                make({
+                    // Feign a reference here
+                    reference: {}
+                });
+                expect(field.getAllowNull()).toBe(true);
+            });
         });
         
         describe("convert", function() {

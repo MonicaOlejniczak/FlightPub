@@ -247,7 +247,7 @@ Ext.define('Ext.data.proxy.Sql', {
         );
     },
 
-    destroy: function(operation, callback, scope) {
+    erase: function(operation, callback, scope) {
         var me = this,
             records = operation.getRecords(),
             db = me.getDatabaseObject(),

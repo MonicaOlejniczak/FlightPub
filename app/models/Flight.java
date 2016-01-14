@@ -40,6 +40,7 @@ public class Flight extends Model implements BaseEdge {
 	/**
 	 * The List of Itineraries that this Flight is apart of.
 	 */
+    @JsonIgnore
 	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "flights")
 	public List<Itinerary> itineraries;
 
@@ -92,14 +93,14 @@ public class Flight extends Model implements BaseEdge {
 	 * A reverse mapping of the list of seat availabilities for a particular flight
 	 */
     @JsonIgnore
-	@OneToMany(mappedBy = "flight", fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "flight", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 	public List<Availability> availabilities = new ArrayList<>();
 
 	/**
 	 * A reverse mapping of the list of tickets made for a particular flight
 	 */
     @JsonIgnore
-	@OneToMany(mappedBy = "flight", fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "flight", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 	public List<Ticket> tickets = new ArrayList<>();
 
 	/**
@@ -145,6 +146,10 @@ public class Flight extends Model implements BaseEdge {
 	public Price getPrice() {
 		return Price.find.where().le("startDate", departureTime)
 				.eq("flightNumber", flightNumber).orderBy("startDate").setMaxRows(1).findUnique();
+	}
+
+	public Availability getAvailability() {
+		return Availability.find.where().eq("flight", this).findUnique();
 	}
 
 	/*

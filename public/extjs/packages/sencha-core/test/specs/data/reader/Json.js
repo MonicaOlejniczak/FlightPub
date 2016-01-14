@@ -3,6 +3,7 @@ describe("Ext.data.reader.Json", function() {
 
     beforeEach(function() {
         Ext.ClassManager.enableNamespaceParseCache = false;
+        Ext.data.Model.schema.setNamespace('spec');
         Ext.define('spec.JsonReader', {
             extend: 'Ext.data.Model',
             fields: [
@@ -21,8 +22,8 @@ describe("Ext.data.reader.Json", function() {
 
     afterEach(function(){
         Ext.ClassManager.enableNamespaceParseCache = true;
-        Ext.data.Model.schema.clear();
         Ext.undefine('spec.JsonReader');
+        Ext.data.Model.schema.clear(true);
     });
     
     describe("preserveRawData", function() {
@@ -925,6 +926,62 @@ describe("Ext.data.reader.Json", function() {
         });
     });
 
+    describe("calling model onLoad", function() {
+        beforeEach(function() {
+            Ext.define('spec.User', {
+                extend: 'Ext.data.Model',
+                fields: ['name'],
+                onLoad: function() {}
+            });
+        });
+
+        afterEach(function() {
+            Ext.undefine('spec.User');
+        });
+
+        it("should call the template method for each record", function() {
+            var spy = spyOn(spec.User.prototype, 'onLoad');
+            reader = new Ext.data.reader.Json({
+                model: 'spec.User'
+            });
+            reader.read([
+                {id: 1},
+                {id: 2},
+                {id: 3},
+                {id: 4},
+                {id: 5},
+                {id: 6},
+                {id: 7}
+            ]);
+            expect(spy.callCount).toBe(7);
+        });
+
+        it("should call the template method after processing associations", function() {
+            var count;
+            spyOn(spec.User.prototype, 'onLoad').andCallFake(function() {
+                count = this.orders().getCount();
+            });
+            Ext.define('spec.Order', {
+                extend: 'Ext.data.Model',
+                fields: [{
+                    name: 'userId',
+                    reference: 'User'
+                }]
+            });
+            reader = new Ext.data.reader.Json({
+                model: 'spec.User'
+            });
+            reader.read([{
+                id: 1,
+                orders: [{
+                    id: 1
+                }]
+            }]);
+            expect(count).toBe(1);
+            Ext.undefine('spec.Order');
+        });
+    });
+
     describe("loading nested data", function() {
         var data = {
             "users": [
@@ -1098,6 +1155,25 @@ describe("Ext.data.reader.Json", function() {
 
             it("should populate belongsTo associations", function() {
                 expect(product.get('name')).toBe('MacBook Pro');
+            });
+
+            it("should ignore associations where the model isn't yet loaded", function() {
+                Ext.define('spec.Employee', {
+                    extend: 'Ext.data.Model',
+                    fields: ['id', 'name', {
+                        name: 'projectId',
+                        reference: 'Project'
+                    }]
+                });
+                reader = new Ext.data.reader.Json({
+                    model: 'spec.Employee'
+                });
+                expect(function() {
+                    reader.read({
+                        id: 1,
+                        name: 'Foo'
+                    });
+                }).not.toThrow();
             });
         });
     });

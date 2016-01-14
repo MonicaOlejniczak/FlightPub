@@ -22,7 +22,8 @@ describe("Ext.data.proxy.WebStorage", function() {
             extend: 'Ext.data.Model',
             fields: [
                 {name: 'id',   type: 'int'},
-                {name: 'name', type: 'string'}
+                {name: 'name', type: 'string'},
+                {name: 'age', type: 'int'}
             ]
         });
         
@@ -145,7 +146,7 @@ describe("Ext.data.proxy.WebStorage", function() {
 
     describe("instantiation with id configuration option and methods", function() {
         config = {
-            id: 42
+            id: 'User'
         };
 
         beforeEach(function() {
@@ -154,7 +155,7 @@ describe("Ext.data.proxy.WebStorage", function() {
 
         describe("instantiation", function(){
             it("should set id", function() {
-                expect(proxy.getId()).toEqual(42);
+                expect(proxy.getId()).toEqual('User');
             });
 
             it("should extend Ext.data.proxy.Client", function() {
@@ -192,24 +193,24 @@ describe("Ext.data.proxy.WebStorage", function() {
                 });
 
                 it("should return a unique string with a string given", function() {
-                    expect(proxy.getRecordKey("33")).toEqual("42-33");
+                    expect(proxy.getRecordKey("33")).toEqual("User-33");
                 });
 
                 it("should return a unique string with a model given", function() {
-                    expect(proxy.getRecordKey(nicolas)).toEqual("42-1");
+                    expect(proxy.getRecordKey(nicolas)).toEqual("User-1");
                 });
 
             });
 
             describe("getRecordCounterKey", function() {
                 it("should return the unique key used to store the current record counter for this proxy", function () {
-                    expect(proxy.getRecordCounterKey()).toEqual("42-counter");
+                    expect(proxy.getRecordCounterKey()).toEqual("User-counter");
                 });
             });
 
             describe("getTreeKey", function() {
                 it("should return the unique key used to store the tree indicator for this proxy", function () {
-                    expect(proxy.getTreeKey()).toEqual("42-tree");
+                    expect(proxy.getTreeKey()).toEqual("User-tree");
                 });
             });
 
@@ -689,7 +690,7 @@ describe("Ext.data.proxy.WebStorage", function() {
 
         beforeEach(function() {            
             config = {
-                id: 42,
+                id: 'User',
                 model: spec.User
             };
 
@@ -756,29 +757,17 @@ describe("Ext.data.proxy.WebStorage", function() {
             });
         });
 
-        /**
-         * NOTE: In this spec we have to stub out a lot of what is going on in the underlying storage object.
-         * We're adding three fake records with ids 1, 2 and 3 - these have fake data and should be filtered
-         * correctly by the Proxy
-         */
         describe("if not passed an id", function() {
             var fakeRecords;
 
             beforeEach(function() {
-                fakeStorageObject.setItem('42', '1,2,3');
-                fakeStorageObject.setItem('42-1', '{"name":"Ed"}');
-                fakeStorageObject.setItem('42-2', '{"name":"Ed"}');
-                fakeStorageObject.setItem('42-3', '{"name":"Abe"}');
+                fakeStorageObject.setItem('User', '1,2,3,4');
+                fakeStorageObject.setItem('User-1', '{"firstName":"Bob","lastName":"Smith","age":"2"}');
+                fakeStorageObject.setItem('User-2', '{"firstName":"Joe","lastName":"Smith","age":"50"}');
+                fakeStorageObject.setItem('User-3', '{"firstName":"Tim","lastName":"Jones","age":"41"}');
+                fakeStorageObject.setItem('User-4', '{"firstName":"Jim","lastName":"Smith","age":"33"}');
 
-                // filters and sorters do not currently work with WebStorage (see EXTJSIV-4494)
-                operation = new Ext.data.operation.Read({
-                    filters: [
-                        new Ext.util.Filter({
-                            property: 'name',
-                            value   : 'Ed'
-                        })
-                    ]
-                });
+                operation = new Ext.data.operation.Read();
             });
 
             it("should mark the operation successful", function() {
@@ -807,17 +796,18 @@ describe("Ext.data.proxy.WebStorage", function() {
                 });
 
                 it("should contain the loaded records", function() {
-                    expect(resultSet.getRecords()[0].get('name')).toBe('Ed');
-                    expect(resultSet.getRecords()[1].get('name')).toBe('Ed');
-                    expect(resultSet.getRecords()[2].get('name')).toBe('Abe');
+                    expect(resultSet.getRecords()[0].get('firstName')).toBe('Bob');
+                    expect(resultSet.getRecords()[1].get('firstName')).toBe('Joe');
+                    expect(resultSet.getRecords()[2].get('firstName')).toBe('Tim');
+                    expect(resultSet.getRecords()[3].get('firstName')).toBe('Jim');
                 });
 
                 it("should contain the correct number of loaded records", function() {
-                    expect(resultSet.getRecords().length).toBe(3);
+                    expect(resultSet.getRecords().length).toBe(4);
                 });
 
                 it("should set the correct total number of records", function() {
-                    expect(resultSet.getTotal()).toEqual(3);
+                    expect(resultSet.getTotal()).toEqual(4);
                 });
 
                 it("should mark itself as loaded", function() {
@@ -825,10 +815,152 @@ describe("Ext.data.proxy.WebStorage", function() {
                 });
 
                 it("should cache the records", function() {
-                    expect(proxy.cache[1].name).toBe('Ed');
-                    expect(proxy.cache[2].name).toBe('Ed');
-                    expect(proxy.cache[3].name).toBe('Abe');
+                    expect(proxy.cache[1].firstName).toBe('Bob');
+                    expect(proxy.cache[2].firstName).toBe('Joe');
+                    expect(proxy.cache[3].firstName).toBe('Tim');
+                    expect(proxy.cache[4].firstName).toBe('Jim');
                 });
+            });
+
+            it("should respect filters on the Operation", function() {
+                var records;
+
+                operation = new Ext.data.operation.Read({
+                    filters: [
+                        new Ext.util.Filter({
+                            property: 'lastName',
+                            value: 'Smith'
+                        }),
+                        new Ext.util.Filter({
+                            filterFn: function(record) {
+                                return record.get('age') < 40;
+                            }
+                        })
+                    ],
+                    callback: function(r) {
+                        records = r;
+                    }
+                });
+
+                proxy.read(operation);
+
+                expect(records.length).toBe(2);
+                expect(records[0].get('firstName')).toBe('Bob');
+                expect(records[1].get('firstName')).toBe('Jim');
+            });
+
+            it("should respect start and limit on the Operation", function() {
+                var records;
+
+                operation = new Ext.data.operation.Read({
+                    start: 1,
+                    limit: 2,
+                    callback: function(r) {
+                        records = r;
+                    }
+                });
+
+                proxy.read(operation);
+
+                expect(records.length).toBe(2);
+                expect(records[0].get('firstName')).toBe('Joe');
+                expect(records[1].get('firstName')).toBe('Tim');
+            });
+
+            it("should respect sorters on the Operation", function() {
+                var records;
+
+                operation = new Ext.data.operation.Read({
+                    sorters: [
+                        new Ext.util.Sorter({
+                            property: 'lastName',
+                            root: 'data'
+                        }),
+                        new Ext.util.Sorter({
+                            sorterFn: function(record1, record2) {
+                                return record1.get('age') - record2.get('age');
+                            }
+                        })
+                    ],
+                    callback: function(r) {
+                        records = r;
+                    }
+                });
+
+                proxy.read(operation);
+
+                expect(records.length).toBe(4);
+                expect(records[0].get('firstName')).toBe('Tim');
+                expect(records[1].get('firstName')).toBe('Bob');
+                expect(records[2].get('firstName')).toBe('Jim');
+                expect(records[3].get('firstName')).toBe('Joe');
+            });
+
+            it("should apply sorters before filters", function() {
+                var records;
+
+                operation = new Ext.data.operation.Read({
+                    sorters: [
+                        new Ext.util.Sorter({
+                            property: 'lastName',
+                            root: 'data'
+                        }),
+                        new Ext.util.Sorter({
+                            sorterFn: function(record1, record2) {
+                                return record1.get('age') - record2.get('age');
+                            }
+                        })
+                    ],
+                    filters: [
+                        new Ext.util.Filter({
+                            property: 'lastName',
+                            value: 'Smith'
+                        }),
+                        new Ext.util.Filter({
+                            filterFn: function(record) {
+                                return record.get('age') < 40;
+                            }
+                        })
+                    ],
+                    callback: function(r) {
+                        records = r;
+                    }
+                });
+
+                proxy.read(operation);
+
+                expect(records.length).toBe(2);
+                expect(records[0].get('firstName')).toBe('Bob');
+                expect(records[1].get('firstName')).toBe('Jim');
+            });
+
+            it("should apply sorters before start and limit", function() {
+                var records;
+
+                operation = new Ext.data.operation.Read({
+                    sorters: [
+                        new Ext.util.Sorter({
+                            property: 'lastName',
+                            root: 'data'
+                        }),
+                        new Ext.util.Sorter({
+                            sorterFn: function(record1, record2) {
+                                return record1.get('age') - record2.get('age');
+                            }
+                        })
+                    ],
+                    start: 1,
+                    limit: 2,
+                    callback: function(r) {
+                        records = r;
+                    }
+                });
+
+                proxy.read(operation);
+
+                expect(records.length).toBe(2);
+                expect(records[0].get('firstName')).toBe('Bob');
+                expect(records[1].get('firstName')).toBe('Jim');
             });
         });
 
@@ -935,6 +1067,7 @@ describe("Ext.data.proxy.WebStorage", function() {
                 expect(records[1].data.children[1].children[0].loaded).toBe(true);
             });
         });
+
     });
 
     describe("clearing", function() {

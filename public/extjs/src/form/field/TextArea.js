@@ -176,7 +176,7 @@ Ext.define('Ext.form.field.TextArea', {
         return value;
     },
 
-    onPaste: function(e){
+    onPaste: function(){
         var me = this;
         if (!me.pasteTask) {
             me.pasteTask = new Ext.util.DelayedTask(me.pasteCheck, me);
@@ -222,28 +222,38 @@ Ext.define('Ext.form.field.TextArea', {
     },
 
     /**
-     * Automatically grows the field to accomodate the height of the text up to the maximum field height allowed. This
-     * only takes effect if {@link #grow} = true, and fires the {@link #autosize} event if the height changes.
+     * Automatically grows the field to accomodate the height of the text up to the maximum
+     * field height allowed. This only takes effect if {@link #grow} = true, and fires the
+     * {@link #autosize} event if the height changes.
      */
     autoSize: function() {
         var me = this,
-            height;
+            inputEl, inputHeight, height, curWidth, value;
 
         if (me.grow && me.rendered) {
+            inputEl = me.inputEl;
+            //subtract border/padding to get the available width for the text
+            curWidth = inputEl.getWidth(true);
+
+            value = Ext.util.Format.htmlEncode(inputEl.dom.value) || '&#160;';
+            value += me.growAppend;
+
+            // Translate newlines to <br> tags
+            value = value.replace(/\n/g, '<br/>');
+
+            height = Ext.util.TextMetrics.measure(inputEl, value, curWidth).height +
+                inputEl.getPadding('tb') +
+                // The element that has the border depends on theme - inputWrap (classic)
+                // or triggerWrap (neptune)
+                me.inputWrap.getBorderWidth('tb') + me.triggerWrap.getBorderWidth('tb');
+
+            height = Math.min(Math.max(height, me.growMin), me.growMax);
+
+            me.bodyEl.setHeight(height);
+
             me.updateLayout();
-            height = me.inputEl.getHeight();
-            if (height !== me.lastInputHeight) {
-                /**
-                 * @event autosize
-                 * Fires when the {@link #autoSize} function is triggered and the field is resized according to
-                 * the grow/growMin/growMax configs as a result. This event provides a hook for the developer
-                 * to apply additional logic at runtime to resize the field if needed.
-                 * @param {Ext.form.field.Text} this
-                 * @param {Number} height
-                 */
-                me.fireEvent('autosize', me, height);
-                me.lastInputHeight = height;
-            }
+
+            me.fireEvent('autosize', me, height);
         }
     },
 

@@ -13,7 +13,7 @@ Ext.define('Ext.scroll.Manager', {
     ],
 
     /**
-     * @cfg {Ext.Element} el The element that gets moved when touch-scrolling.  This should
+     * @cfg {Ext.dom.Element} el The element that gets moved when touch-scrolling.  This should
      * be an single child of an overflowing container element (an element that is styled
      * with overflow:auto), and should shrinkwrap around its contents (display: table, or
      * position: absolute)
@@ -61,7 +61,12 @@ Ext.define('Ext.scroll.Manager', {
             // If using full virtual scrolling attach a mousewheel listener for moving
             // the scroll position.  Otherwise we use native scrolling and so do not
             // want to override the native behavior
-            containerListeners.mousewheel = 'onMouseWheel'
+            containerListeners.mousewheel = 'onMouseWheel';
+            containerListeners.scroll = {
+                fn: 'onElementScroll',
+                delegated: false,
+                scope: me
+            };
         }
 
         me.callParent(arguments);
@@ -96,6 +101,10 @@ Ext.define('Ext.scroll.Manager', {
         me.owner.mon(containerEl, containerListeners);
 
         me.initIndicators();
+    },
+
+    onElementScroll: function(event, targetEl) {
+        targetEl.scrollTop = targetEl.scrollLeft = 0;
     },
 
     destroy: function() {
@@ -141,6 +150,10 @@ Ext.define('Ext.scroll.Manager', {
         if (yIndicator && me.isAxisEnabled('y')) {
             yIndicator[name].apply(yIndicator, yArgs || args);
         }
+    },
+
+    getPosition: function() {
+        return this.scroller.getPosition();
     },
 
     refresh: function(immediate) {
@@ -211,7 +224,7 @@ Ext.define('Ext.scroll.Manager', {
             delta = e.getWheelDeltas(),
             deltaX = -delta.x,
             deltaY = -delta.y,
-            position = scroller.position,
+            position = scroller.getPosition(),
             maxPosition = scroller.getMaxPosition(),
             minPosition = scroller.getMinPosition(),
             max = Math.max,
@@ -239,12 +252,12 @@ Ext.define('Ext.scroll.Manager', {
 
     setScrollX: function(x) {
         var scroller = this.scroller;
-        scroller.scrollTo(x, scroller.position.y);
+        scroller.scrollTo(x, scroller.getPosition().y);
     },
 
     setScrollY: function(y) {
         var scroller = this.scroller;
-        scroller.scrollTo(scroller.position.x, y);
+        scroller.scrollTo(scroller.getPosition().x, y);
     },
 
     scrollTo: function(x, y, animate) {
@@ -266,7 +279,7 @@ Ext.define('Ext.scroll.Manager', {
 
     /**
      * Scrolls a descendant element of the scroller into view.
-     * @param {String/HTMLElement/Ext.Element} el the descendant to scroll into view
+     * @param {String/HTMLElement/Ext.dom.Element} el the descendant to scroll into view
      * @param {Boolean} [hscroll=true] False to disable horizontal scroll.
      * @param {Boolean/Object} [animate] true for the default animation or a standard Element
      * animation config object
@@ -276,7 +289,7 @@ Ext.define('Ext.scroll.Manager', {
         var me = this,
             containerEl = me.containerEl,
             scroller = me.scroller,
-            currentPosition = scroller.position,
+            currentPosition = scroller.getPosition(),
             currentX = currentPosition.x,
             currentY = currentPosition.y,
             position = Ext.fly(el).getScrollIntoViewXY(containerEl, currentX, currentY),

@@ -192,6 +192,13 @@ Ext.define('Ext.chart.axis.Axis', {
         maximum: NaN,
 
         /**
+         * @cfg {Boolean} reconcileRange
+         * If 'true' the range of the axis will be a union of ranges
+         * of all the axes with the same direction. Defaults to 'false'.
+         */
+        reconcileRange: false,
+
+        /**
          * @cfg {Number} minZoom
          * The minimum zooming level for axis.
          */
@@ -226,9 +233,9 @@ Ext.define('Ext.chart.axis.Axis', {
 
         /**
          * @cfg {Number} majorTickSteps
-         * If `minimum` and `maximum` are specified it forces the number of major ticks to the specified value.
+         * Forces the number of major ticks to the specified value.
          */
-        majorTickSteps: false,
+        majorTickSteps: 0,
 
         /**
          * @cfg {Number} [minorTickSteps=0]
@@ -237,24 +244,19 @@ Ext.define('Ext.chart.axis.Axis', {
         minorTickSteps: 0,
 
         /**
-         * @private
-         * @cfg {Boolean} adjustMaximumByMajorUnit
-         * Will be supported soon.
+         * @cfg {Boolean} adjustByMajorUnit
+         * Whether to make the auto-calculated minimum and maximum of the axis
+         * a multiple of the interval between the major ticks of the axis.
+         * If {@link #majorTickSteps}, {@link #minimum} or {@link #maximum}
+         * configs have been set, this config will be ignored.
+         * Defaults to 'true'.
          */
-        adjustMaximumByMajorUnit: false,
-
-        /**
-         * @private
-         * @cfg {Boolean} adjustMinimumByMajorUnit
-         * Will be supported soon.
-         *
-         */
-        adjustMinimumByMajorUnit: false,
+        adjustByMajorUnit: true,
 
         /**
          * @cfg {String|Object} title
          * The title for the Axis.
-         * If given a String, the text style of the title sprite will be set,
+         * If given a String, the 'text' attribute of the title sprite will be set,
          * otherwise the style will be set.
          */
         title: {},
@@ -334,7 +336,7 @@ Ext.define('Ext.chart.axis.Axis', {
 
         /**
          * @cfg {Number|Object}
-         * If `floating` is a number, then it's a percentage displacement of the axis from its initial {@link #position)
+         * If `floating` is a number, then it's a percentage displacement of the axis from its initial {@link #position}
          * in the direction opposite to the axis' direction. For instance, '{position:"left", floating:75}' displays a vertical 
          * axis at 3/4 of the chart, starting from the left. It is equivalent to '{position:"right", floating:25}'.
          * If `floating` is an object, then `floating.value` is the position of this axis along another axis,
@@ -566,7 +568,7 @@ Ext.define('Ext.chart.axis.Axis', {
                     surface: chart.getSurface('overlay'),
                     lines: new Ext.chart.Markers(),
                     titles: new Ext.draw.sprite.Instancing()
-                }
+                };
                 me.limits.lines.setTemplate({xclass: 'grid.' + gridAlignment});
                 me.limits.lines.getTemplate().setAttributes({strokeStyle: 'black'});
                 me.limits.surface.add(me.limits.lines);
@@ -670,6 +672,7 @@ Ext.define('Ext.chart.axis.Axis', {
             newChart.on('serieschange', me.onSeriesChange, me);
             me.surface = null;
             surface = me.getSurface();
+            me.getLabel().setSurface(surface);
             surface.add(me.getSprites());
             surface.add(me.getTitle());
         }
@@ -699,14 +702,7 @@ Ext.define('Ext.chart.axis.Axis', {
     },
 
     applyFields: function (fields) {
-        return [].concat(fields);
-    },
-
-    updateFields: function (fields) {
-        this.fieldsMap = {};
-        for (var i = 0; i < fields.length; i++) {
-            this.fieldsMap[fields[i]] = true;
-        }
+        return Ext.Array.from(fields);
     },
 
     applyVisibleRange: function (visibleRange, oldVisibleRange) {
@@ -825,6 +821,10 @@ Ext.define('Ext.chart.axis.Axis', {
         var min = Infinity,
             max = -Infinity,
             boundSeries = me.boundSeries,
+            layout = me.getLayout(),
+            segmenter = me.getSegmenter(),
+            visibleRange = me.getVisibleRange(),
+            context, attr, majorTicks,
             series, i, ln;
 
         // For each series bound to this axis, ask the series for its min/max values
@@ -868,8 +868,85 @@ Ext.define('Ext.chart.axis.Axis', {
         }
 
         me.range = [min, max];
+
+        // It's important to call 'me.reconcileRange' after me.range
+        // has been assigned to avoid circular calls.
+        if (me.getReconcileRange()) {
+            me.reconcileRange();
+        }
+        // TODO: Find a better way to do this.
+        // TODO: The original design didn't take into account that the range of an axis
+        // TODO: will depend not just on the range of the data of the bound series in the
+        // TODO: direction of the axis, but also on the range of other axes with the
+        // TODO: same direction and on the segmentation of the axis (interval between
+        // TODO: major ticks).
+        // TODO: While the fist omission was possible to retrofit rather gracefully
+        // TODO: by adding the axis.reconcileRange method, the second one is harder to deal with.
+        // TODO: The issue is that the resulting axis segmentation, which is a part of
+        // TODO: the axis sprite layout has to be known before layout has begun.
+        // TODO: Example for the logic below:
+        // TODO: If we have a range of data of 0..34.5 the step will be 2 and we
+        // TODO: will round up the max to 36 based on that step, but when the range is 0..36,
+        // TODO: the step becomes 5, so we have to reconcile the range once again where max
+        // TODO: becomes 40.
+        if (me.getAdjustByMajorUnit() && segmenter.adjustByMajorUnit && !me.getMajorTickSteps()) {
+            attr = Ext.Object.chain(me.getSprites()[0].attr);
+            attr.min = me.range[0];
+            attr.max = me.range[1];
+            attr.visibleMin = visibleRange[0];
+            attr.visibleMax = visibleRange[1];
+            context = {
+                attr: attr,
+                segmenter: segmenter
+            };
+            layout.calculateLayout(context);
+            majorTicks = context.majorTicks;
+            if (majorTicks) {
+                segmenter.adjustByMajorUnit(majorTicks.step, majorTicks.unit.scale, me.range);
+
+                attr.min = me.range[0];
+                attr.max = me.range[1];
+                delete context.majorTicks;
+                layout.calculateLayout(context);
+                majorTicks = context.majorTicks;
+                segmenter.adjustByMajorUnit(majorTicks.step, majorTicks.unit.scale, me.range);
+            } else {
+                // Axis hasn't been rendered yet.
+                me.range = null;
+                me.getChart().scheduleLayout();
+            }
+        }
+
         me.fireEvent('rangechange', me.range);
         return me.range;
+    },
+
+    /**
+     * Expands the range of the axis
+     * based on the range of other axes with the same direction (if any).
+     */
+    reconcileRange: function () {
+        var me = this,
+            axes = me.getChart().getAxes(),
+            direction = me.getDirection(),
+            i, ln, axis, range;
+
+        if (!axes) {
+            return;
+        }
+        for (i = 0, ln = axes.length; i < ln; i++) {
+            axis = axes[i];
+            range = axis.getRange();
+            if (axis === me || axis.getDirection() !== direction || !range || !axis.getReconcileRange()) {
+                continue;
+            }
+            if (range[0] < me.range[0]) {
+                me.range[0] = range[0];
+            }
+            if (range[1] > me.range[1]) {
+                me.range[1] = range[1];
+            }
+        }
     },
 
     applyStyle: function (style, oldStyle) {
@@ -952,15 +1029,15 @@ Ext.define('Ext.chart.axis.Axis', {
                 });
                 baseSprite.fx.on('animationstart', 'onAnimationStart', me);
                 baseSprite.fx.on('animationend', 'onAnimationEnd', me);
+                baseSprite.setLayout(me.getLayout());
+                baseSprite.setSegmenter(me.getSegmenter());
+                baseSprite.setLabel(me.getLabel());
                 me.sprites.push(baseSprite);
                 me.updateTitleSprite();
             } else {
                 baseSprite = me.sprites[0];
                 baseSprite.fx.setConfig(animation);
                 baseSprite.setAttributes(style);
-                baseSprite.setLayout(me.getLayout());
-                baseSprite.setSegmenter(me.getSegmenter());
-                baseSprite.setLabel(me.getLabel());
             }
 
             if (me.getRenderer()) {
@@ -978,7 +1055,7 @@ Ext.define('Ext.chart.axis.Axis', {
         var me = this,
             thickness = this.sprites[0].thickness,
             surface = me.getSurface(),
-            title = this.getTitle(),
+            title = me.getTitle(),
             position = me.getPosition(),
             margin = me.getMargin(),
             titleMargin = me.getTitleMargin(),

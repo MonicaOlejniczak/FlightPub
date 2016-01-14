@@ -182,15 +182,21 @@ Ext.define('Ext.chart.interactions.PanZoom', {
         zoomOnPanGesture: false,
 
         modeToggleButton: {
-            xtype: 'button',
-            cls: [
-                Ext.baseCSSPrefix + 'panzoom-toggle',
-                Ext.baseCSSPrefix + 'zooming'
-            ]
-            //  TODO: iconCls: 'expand', // no such class in Ext,
+            xtype: 'segmentedbutton',
+            width: 200,
+            defaults: { ui: 'default-toolbar' },
+            items: [
+                {
+                    text: 'Pan'
+                },
+                {
+                    text: 'Zoom'
+                }
+            ],
+            cls: Ext.baseCSSPrefix + 'panzoom-toggle'
         },
 
-        hideLabelInGesture: false //Ext.os.is.Android
+        hideLabelInGesture: false // Ext.os.is.Android
     },
 
     stopAnimationBeforeSync: true,
@@ -208,20 +214,16 @@ Ext.define('Ext.chart.interactions.PanZoom', {
     },
 
     updateZoomOnPanGesture: function (zoomOnPanGesture) {
+        var button = this.getModeToggleButton();
         if (!this.isMultiTouch()) {
-            var button = this.getModeToggleButton(),
-                zoomModeCls = Ext.baseCSSPrefix + 'zooming';
+            button.show();
             if (zoomOnPanGesture) {
-                button.addCls(zoomModeCls);
-                if (!button.config.hideText) {
-                    button.setText('Zoom');
-                }
+                button.setValue(1);
             } else {
-                button.removeCls(zoomModeCls);
-                if (!button.config.hideText) {
-                    button.setText('Pan');
-                }
+                button.setValue(0);
             }
+        } else {
+            button.hide();
         }
     },
 
@@ -234,10 +236,10 @@ Ext.define('Ext.chart.interactions.PanZoom', {
 
     applyModeToggleButton: function (button, oldButton) {
         var me = this,
-            result = Ext.factory(button, 'Ext.Button', oldButton);
+            result = Ext.factory(button, 'Ext.button.Segmented', oldButton);
         if (result && !oldButton) {
-            result.setHandler(function () {
-                me.toggleMode();
+            result.addListener('toggle', function (segmentedButton) {
+                me.setZoomOnPanGesture(segmentedButton.getValue() === 1);
             });
         }
         return result;

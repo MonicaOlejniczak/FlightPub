@@ -28,15 +28,12 @@ Ext.define('Ext.chart.axis.layout.Layout', {
             axis = me.getAxis(),
             direction = axis.getDirection(),
             boundSeries = axis.boundSeries,
-            i, ln, item;
+            i, ln;
         if (series) {
             series['coordinate' + direction]();
         } else {
             for (i = 0, ln = boundSeries.length; i < ln; i++) {
-                item = boundSeries[i];
-                if (item['get' + direction + 'Axis']() === axis) {
-                    item['coordinate' + direction]();
-                }
+                boundSeries[i]['coordinate' + direction]()
             }
         }
     },
@@ -77,16 +74,15 @@ Ext.define('Ext.chart.axis.layout.Layout', {
      */
     calculateLayout: function (context) {
         var me = this,
-            attr = context.attr,
-            majorTicks = attr.majorTicks,
-            minorTicks = attr.minorTicks;
+            attr = context.attr;
+
         if (attr.length === 0) {
             return null;
         }
 
-        if (majorTicks) {
+        if (attr.majorTicks) {
             me.calculateMajorTicks(context);
-            if (minorTicks) {
+            if (attr.minorTicks) {
                 me.calculateMinorTicks(context);
             }
         }

@@ -453,6 +453,32 @@ describe("Ext.util.Format", function() {
         });
     });
 
+    describe('hex', function () {
+        it('should not reduce length when digits is positive', function () {
+            expect(Ext.util.Format.hex(0x12e4, 2)).toBe('12e4');
+        });
+
+        it('should reduce length when digits is negative', function () {
+            expect(Ext.util.Format.hex(0x12e4, -2)).toBe('e4');
+        });
+
+        it('should drop fractional digits', function () {
+            expect(Ext.util.Format.hex(0x12e4 + 0.123)).toBe('12e4');
+        });
+
+        it('should pad with 0 on the left to achieve length', function () {
+            expect(Ext.util.Format.hex(0x0e, 2)).toBe('0e');
+        });
+
+        it('should pad with 0 on the left if too short', function () {
+            expect(Ext.util.Format.hex(0x0e, -3)).toBe('00e');
+        });
+
+        it('should not pad when exact length', function () {
+            expect(Ext.util.Format.hex(0x1e, 2)).toBe('1e');
+        });
+    });
+
     describe('percent', function () {
         it('should format 0.5 as 50%', function () {
             var s = Ext.util.Format.percent(0.5);

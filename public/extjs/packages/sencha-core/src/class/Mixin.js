@@ -2,7 +2,7 @@
  * This class is a base class for mixins. These are classes that extend this class and are
  * designed to be used as a `mixin` by user code.
  *
- * It provide mixins with the ability to "hook" class methods of the classes in to which
+ * It provides mixins with the ability to "hook" class methods of the classes in to which
  * they are mixed. For example, consider the `destroy` method pattern. If a mixin class
  * had cleanup requirements, it would need to be called as part of `destroy`.
  * 
@@ -300,9 +300,7 @@ Ext.define('Ext.Mixin', function (Mixin) { return {
                     Ext.Object.each(afters, function (key, value) {
                         targetClass.addMember(key, function () {
                             var ret = this.callParent(arguments);
-
                             mixin[value].apply(this, arguments);
-
                             return ret;
                         });
                     });

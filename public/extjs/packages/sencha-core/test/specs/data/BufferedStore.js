@@ -71,7 +71,7 @@ describe('Ext.data.BufferedStore', function() {
     afterEach(function(){
         MockAjaxManager.removeMethods();
         if (bufferedStore) {
-            bufferedStore.destroyStore();
+            bufferedStore.destroy();
             bufferedStore = null;
         }
         Ext.data.Model.schema.clear();

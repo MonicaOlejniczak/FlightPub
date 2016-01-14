@@ -39,29 +39,31 @@ Ext.define("Ext.form.Labelable", {
         }
     },
 
-    childEls: [
-        /**
-         * @property {Ext.Element} labelEl
-         * The label Element for this component. Only available after the component has been rendered.
-         */
-        'labelEl',
+    config: {
+        childEls: [
+            /**
+             * @property {Ext.dom.Element} labelEl
+             * The label Element for this component. Only available after the component has been rendered.
+             */
+            'labelEl',
 
-        /**
-         * @property {Ext.Element} bodyEl
-         * The div Element wrapping the component's contents. Only available after the component has been rendered.
-         */
-        'bodyEl',
+            /**
+             * @property {Ext.dom.Element} bodyEl
+             * The div Element wrapping the component's contents. Only available after the component has been rendered.
+             */
+            'bodyEl',
 
-        /**
-         * @property {Ext.Element} errorEl
-         * The div Element that will contain the component's error message(s). Note that depending on the configured
-         * {@link #msgTarget}, this element may be hidden in favor of some other form of presentation, but will always
-         * be present in the DOM for use by assistive technologies.
-         */
-        'errorEl',
+            /**
+             * @property {Ext.dom.Element} errorEl
+             * The div Element that will contain the component's error message(s). Note that depending on the configured
+             * {@link #msgTarget}, this element may be hidden in favor of some other form of presentation, but will always
+             * be present in the DOM for use by assistive technologies.
+             */
+            'errorEl',
 
-        'errorWrapEl'
-    ],
+            'errorWrapEl'
+        ]
+    },
 
     /**
      * @cfg {String/String[]/Ext.XTemplate} labelableRenderTpl
@@ -72,7 +74,7 @@ Ext.define("Ext.form.Labelable", {
      */
     labelableRenderTpl: [
         '{beforeLabelTpl}',
-        '<label id="{id}-labelEl" class="{labelCls} {labelCls}-{ui} {labelClsExtra} ',
+        '<label id="{id}-labelEl" data-ref="labelEl" class="{labelCls} {labelCls}-{ui} {labelClsExtra} ',
                 '{unselectableCls}" style="{labelStyle}"<tpl if="inputId">',
                 ' for="{inputId}"</tpl> {labelAttrTpl}>',
             '<span class="{labelInnerCls} {labelInnerCls}-{ui}" style="{labelInnerStyle}">',
@@ -86,8 +88,8 @@ Ext.define("Ext.form.Labelable", {
             '</span>',
         '</label>',
         '{afterLabelTpl}',
-        '<div id="{id}-bodyEl" class="{baseBodyCls} {baseBodyCls}-{ui}<tpl if="fieldBodyCls">',
-            ' {fieldBodyCls} {fieldBodyCls}-{ui}</tpl> {extraFieldBodyCls}"',
+        '<div id="{id}-bodyEl" data-ref="bodyEl" class="{baseBodyCls} {baseBodyCls}-{ui}<tpl if="fieldBodyCls">',
+            ' {fieldBodyCls} {fieldBodyCls}-{ui}</tpl> {growCls} {extraFieldBodyCls}"',
             '<tpl if="bodyStyle"> style="{bodyStyle}"</tpl>>',
             '{beforeBodyEl}',
             '{beforeSubTpl}',
@@ -96,9 +98,9 @@ Ext.define("Ext.form.Labelable", {
             '{afterBodyEl}',
         '</div>',
         '<tpl if="renderError">',
-            '<div id="{id}-errorWrapEl" class="{errorWrapCls} {errorWrapCls}-{ui}',
+            '<div id="{id}-errorWrapEl" data-ref="errorWrapEl" class="{errorWrapCls} {errorWrapCls}-{ui}',
                 ' {errorWrapExtraCls}" style="{errorWrapStyle}">',
-                '<div role="alert" aria-live="polite" id="{id}-errorEl" ',
+                '<div role="alert" aria-live="polite" id="{id}-errorEl" data-ref="errorEl" ',
                     'class="{errorMsgCls} {invalidMsgCls} {invalidMsgCls}-{ui}" ',
                     'data-anchorTarget="{id}-inputEl">',
                 '</div>',
@@ -579,7 +581,6 @@ Ext.define("Ext.form.Labelable", {
             sideError = (me.msgTarget === 'side'),
             underError = (me.msgTarget === 'under'),
             errorMsgCls = me.errorMsgCls,
-            msgTarget = me.msgTarget,
             labelPad = me.labelPad,
             labelWidth = me.labelWidth,
             labelClsExtra = me.labelClsExtra || '',
@@ -629,6 +630,7 @@ Ext.define("Ext.form.Labelable", {
 
         data = {
             id: me.id,
+            inputId: me.getInputId(),
             labelCls: me.labelCls,
             labelClsExtra: labelClsExtra,
             labelStyle: labelStyle,
@@ -644,6 +646,7 @@ Ext.define("Ext.form.Labelable", {
             renderError: sideError || underError,
             invalidMsgCls: sideError ? me.invalidIconCls : underError ? me.invalidUnderCls : '',
             errorMsgCls: errorMsgCls,
+            growCls: me.grow ? me.growCls : '',
             errorWrapStyle: (sideError && !autoFitErrors) ?
                     'visibility:hidden' : 'display:none',
             fieldLabel: me.getFieldLabel(),
@@ -673,7 +676,7 @@ Ext.define("Ext.form.Labelable", {
             style = {},
             ExtElement = Ext.Element,
             errorWrapEl = me.errorWrapEl,
-            visibilityMode, margins, side;
+            margins, side;
 
         if (errorWrapEl) {
             errorWrapEl.setVisibilityMode((me.msgTarget === 'side' && !me.autoFitErrors) ?

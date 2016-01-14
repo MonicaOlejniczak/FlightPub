@@ -4,12 +4,15 @@
  *
  * This is a modifier to place labels and callouts by additional attributes.
  */
-Ext.define("Ext.chart.label.Callout", {
+Ext.define('Ext.chart.label.Callout', {
     extend: 'Ext.draw.modifier.Modifier',
 
     prepareAttributes: function (attr) {
         if (!attr.hasOwnProperty('calloutOriginal')) {
             attr.calloutOriginal = Ext.Object.chain(attr);
+            // No __proto__, nor getPrototypeOf in IE8,
+            // so manually saving a reference to 'attr' after chaining.
+            attr.calloutOriginal.$prototype = attr;
         }
         if (this._previous) {
             this._previous.prepareAttributes(attr.calloutOriginal);
@@ -58,32 +61,48 @@ Ext.define("Ext.chart.label.Callout", {
             changes.rotationRads = rotationRads;
 
 
-            // Placing label.
+            // Placing a label in the middle of a pie slice (x/y)
+            // if callout doesn't exists (callout=0),
+            // or outside the pie slice (calloutPlaceX/Y) if it does (callout=1).
             changes.x = x * (1 - callout) + calloutPlaceX * callout;
             changes.y = y * (1 - callout) + calloutPlaceY * callout;
 
 
-            // Placing the end of the callout line.
             dx = calloutPlaceX - x;
             dy = calloutPlaceY - y;
-            if (Math.abs(dy * width) > Math.abs(height * dx)) {
+            // Finding where the callout line intersects the bbox of the label
+            // if it were to go to the center of the label,
+            // and make that intersection point the end of the callout line.
+            // Effectively, the end of the callout line traces label's bbox when chart is rotated.
+            if (Math.abs(dy * width) > Math.abs(dx * height)) {
                 // on top/bottom
                 if (dy > 0) {
-                    changes.calloutEndX = changes.x - (height / (dy * 2) * dx) * callout;
-                    changes.calloutEndY = changes.y - height / 2 * callout;
+                    changes.calloutEndX = changes.x - (height / 2) * (dx / dy) * callout;
+                    changes.calloutEndY = changes.y - (height / 2) * callout;
                 } else {
-                    changes.calloutEndX = changes.x + (height / (dy * 2) * dx) * callout;
-                    changes.calloutEndY = changes.y + height / 2 * callout;
+                    changes.calloutEndX = changes.x + (height / 2) * (dx / dy) * callout;
+                    changes.calloutEndY = changes.y + (height / 2) * callout;
                 }
             } else {
                 // on left/right
                 if (dx > 0) {
                     changes.calloutEndX = changes.x - width / 2;
-                    changes.calloutEndY = changes.y - (width / (dx * 2) * dy) * callout;
+                    changes.calloutEndY = changes.y - (width / 2) * (dy / dx) * callout;
                 } else {
                     changes.calloutEndX = changes.x + width / 2;
-                    changes.calloutEndY = changes.y + (width / (dx * 2) * dy) * callout;
+                    changes.calloutEndY = changes.y + (width / 2) * (dy / dx) * callout;
                 }
+            }
+            // Since the length of the callout line is adjusted depending on the label's position
+            // and dimensions, we hide the callout line if the length becomes negative.
+            if (changes.calloutStartX && changes.calloutStartY) {
+                changes.calloutHasLine =
+                    (dx > 0 && changes.calloutStartX < changes.calloutEndX) ||
+                    (dx <= 0 && changes.calloutStartX > changes.calloutEndX) ||
+                    (dy > 0 && changes.calloutStartY < changes.calloutEndY) ||
+                    (dy <= 0 && changes.calloutStartY > changes.calloutEndY);
+            } else {
+                changes.calloutHasLine = true;
             }
         }
 
@@ -96,7 +115,7 @@ Ext.define("Ext.chart.label.Callout", {
     },
 
     popUp: function (attr, changes) {
-        attr = Object.getPrototypeOf(attr);
+        attr = attr.$prototype || {};
         changes = this.setAttrs(attr, changes);
         if (this._next) {
             return this._next.popUp(attr, changes);

@@ -7,20 +7,23 @@
  */
 Ext.define('Ext.chart.Markers', {
     extend: 'Ext.draw.sprite.Instancing',
-    revisions: 0,
+
+    defaultCategory: 'default',
 
     constructor: function () {
         this.callParent(arguments);
-        this.map = {};
+        // 'categories' maps category names to a map that maps instance index in category to its global index:
+        // categoryName: {instanceIndexInCategory: globalInstanceIndex}
+        this.categories = {};
         this.revisions = {};
     },
 
     /**
-     * Clear the markers in the category
+     * Clears the markers in the category.
      * @param {String} category
      */
     clear: function (category) {
-        category = category || 'default';
+        category = category || this.defaultCategory;
         if (!(category in this.revisions)) {
             this.revisions[category] = 1;
         } else {
@@ -29,28 +32,27 @@ Ext.define('Ext.chart.Markers', {
     },
 
     /**
-     * Put a marker in the category with additional
-     * attributes.
+     * Puts a marker in the category with additional attributes.
      * @param {String} category
-     * @param {Object} markerAttr
+     * @param {Object} attr
      * @param {String|Number} index
      * @param {Boolean} [canonical]
      * @param {Boolean} [keepRevision]
      */
-    putMarkerFor: function (category, markerAttr, index, canonical, keepRevision) {
-        category = category || 'default';
+    putMarkerFor: function (category, attr, index, canonical, keepRevision) {
+        category = category || this.defaultCategory;
 
         var me = this,
-            map = me.map[category] || (me.map[category] = {});
-        if (index in map) {
-            me.setAttributesFor(map[index], markerAttr, canonical);
+            categoryInstances = me.categories[category] || (me.categories[category] = {});
+        if (index in categoryInstances) {
+            me.setAttributesFor(categoryInstances[index], attr, canonical);
         } else {
-            map[index] = me.instances.length;
-            me.createInstance(markerAttr, null, canonical);
+            categoryInstances[index] = me.instances.length; // the newly created instance will go into me.instances
+            me.createInstance(attr, null, canonical);
         }
-        me.instances[map[index]].category = category;
+        me.instances[categoryInstances[index]].category = category;
         if (!keepRevision) {
-            me.instances[map[index]].revision = me.revisions[category] || (me.revisions[category] = 1);
+            me.instances[categoryInstances[index]].revision = me.revisions[category] || (me.revisions[category] = 1);
         }
     },
 
@@ -61,9 +63,10 @@ Ext.define('Ext.chart.Markers', {
      * @param {Boolean} [isWithoutTransform]
      */
     getMarkerBBoxFor: function (category, index, isWithoutTransform) {
-        if (category in this.map) {
-            if (index in this.map[category]) {
-                return this.getBBoxFor(this.map[category][index], isWithoutTransform);
+        if (category in this.categories) {
+            var categoryInstances = this.categories[category];
+            if (index in categoryInstances) {
+                return this.getBBoxFor(categoryInstances[index], isWithoutTransform);
             }
         }
         return {

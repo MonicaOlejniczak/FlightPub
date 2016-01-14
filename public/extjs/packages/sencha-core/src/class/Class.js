@@ -1,4 +1,3 @@
-// @tag class
 /**
  * @class Ext.Class
  *
@@ -14,6 +13,7 @@
  * @private
  */
 (function() {
+// @tag class
 // @define Ext.Class
 // @require Ext.Util
 // @require Ext.Base
@@ -375,7 +375,8 @@
         //</debug>
 
         var privates = data.privates,
-            statics = privates.statics;
+            statics = privates.statics,
+            privacy = privates.privacy || true;
 
         delete data.privates;
         delete privates.statics;
@@ -383,9 +384,9 @@
         // We have to add this preprocessor so that private getters/setters are picked up
         // by the config system. This also catches duplication in the public part of the
         // class since it is an error to override a private method with a public one.
-        Class.addMembers(privates, false, true);
+        Class.addMembers(privates, false, privacy);
         if (statics) {
-            Class.addMembers(statics, true, true);
+            Class.addMembers(statics, true, privacy);
         }
     });
 
@@ -689,6 +690,11 @@
             Class.prototype.$configPrefixed = data.$configPrefixed;
         }
         Class.addConfig(data.config);
+
+        // We need to remove this or it will be applied by addMembers and smash the
+        // "config" placed on the prototype by Configurator (which includes *all* configs
+        // such as cachedConfigs).
+        delete data.config;
     });
     //</feature>
     
@@ -710,7 +716,10 @@
         if (data.hasOwnProperty('$configPrefixed')) {
             Class.prototype.$configPrefixed = data.$configPrefixed;
         }
-        Class.addCachedConfig(data.cachedConfig);    
+        Class.addCachedConfig(data.cachedConfig);
+
+        // Remove this so it won't be placed on the prototype.
+        delete data.cachedConfig;
     });
     //</feature>
 

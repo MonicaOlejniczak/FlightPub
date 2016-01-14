@@ -80,10 +80,10 @@
  */
 Ext.define('Ext.form.field.Base', {
     extend: 'Ext.Component',
-    mixins: {
-        labelable: 'Ext.form.Labelable',
-        field: 'Ext.form.field.Field'
-    },
+    mixins: [
+        'Ext.form.Labelable',
+        'Ext.form.field.Field'
+    ],
     xtype: 'field',
     alternateClassName: ['Ext.form.Field', 'Ext.form.BaseField'],
     requires: [
@@ -99,7 +99,7 @@ Ext.define('Ext.form.field.Base', {
      * @private
      */
     fieldSubTpl: [ // note: {id} here is really {inputId}, but {cmpId} is available
-        '<input id="{id}" type="{type}" role="{role}" {inputAttrTpl}',
+        '<input id="{id}" data-ref="inputEl" type="{type}" role="{role}" {inputAttrTpl}',
             ' size="1"', // allows inputs to fully respect CSS widths across all browsers
             '<tpl if="name"> name="{name}"</tpl>',
             '<tpl if="value"> value="{[Ext.util.Format.htmlEncode(values.value)]}"</tpl>',
@@ -125,6 +125,14 @@ Ext.define('Ext.form.field.Base', {
          * {@link #getSubTplData subTpl data} serves as the context.
          */
         'inputAttrTpl'
+    ],
+
+    childEls: [
+        /**
+         * @property {Ext.dom.Element} inputEl
+         * The input Element for this Field. Only available after the field has been rendered.
+         */
+        'inputEl'
     ],
 
     /**
@@ -169,7 +177,7 @@ Ext.define('Ext.form.field.Base', {
     /**
      * @cfg {String} fieldStyle
      * Optional CSS style(s) to be applied to the {@link #inputEl field input element}. Should be a valid argument to
-     * {@link Ext.Element#applyStyles}. Defaults to undefined. See also the {@link #setFieldStyle} method for changing
+     * {@link Ext.dom.Element#applyStyles}. Defaults to undefined. See also the {@link #setFieldStyle} method for changing
      * the style after initialization.
      */
 
@@ -205,11 +213,10 @@ Ext.define('Ext.form.field.Base', {
      * a {@link Ext.form.Panel}, you can use the FormPanel's {@link Ext.form.Panel#pollForChanges} configuration to set up
      * such a task automatically.
      */
-
-     // While input is supported in IE9, we use attachEvent for events, so we need to fall back here
     checkChangeEvents: Ext.isIE && (!document.documentMode || document.documentMode <= 9) ?
                         ['change', 'propertychange', 'keyup'] :
                         ['change', 'input', 'textInput', 'keyup', 'dragdrop'],
+     // While input is supported in IE9, we use attachEvent for events, so we need to fall back here
                         
     ignoreChangeRe: /data\-errorqtip|style\.|className/,   
 
@@ -401,22 +408,6 @@ Ext.define('Ext.form.field.Base', {
         return data;
     },
 
-    applyRenderSelectors: function() {
-        var me = this;
-
-        me.callParent();
-
-        // This is added here rather than defined in Ext.form.Labelable since inputEl isn't related to Labelable.
-        // It's important to add inputEl to the childEls so it can be properly destroyed.
-        me.addChildEls('inputEl');
-
-        /**
-         * @property {Ext.Element} inputEl
-         * The input Element for this Field. Only available after the field has been rendered.
-         */
-        me.inputEl = me.el.getById(me.getInputId());
-    },
-
     /**
      * Gets the markup to be inserted into the outer template's bodyEl. For fields this is the actual input element.
      * @protected
@@ -441,14 +432,6 @@ Ext.define('Ext.form.field.Base', {
         return markup;
     },
 
-    initRenderTpl: function() {
-        var me = this;
-        if (!me.hasOwnProperty('renderTpl')) {
-            me.renderTpl = me.getTpl('labelableRenderTpl');
-        }
-        return me.callParent();
-    },
-
     initRenderData: function() {
         return Ext.applyIf(this.callParent(), this.getLabelableRenderData());
     },
@@ -456,7 +439,7 @@ Ext.define('Ext.form.field.Base', {
     /**
      * Set the {@link #fieldStyle CSS style} of the {@link #inputEl field input element}.
      * @param {String/Object/Function} style The style(s) to apply. Should be a valid argument to {@link
-     * Ext.Element#applyStyles}.
+     * Ext.dom.Element#applyStyles}.
      */
     setFieldStyle: function(style) {
         var me = this,
@@ -477,10 +460,6 @@ Ext.define('Ext.form.field.Base', {
         this.callParent(arguments);
         Ext.form.field.Base.initTip();
         this.renderActiveError();
-    },
-
-    getFocusEl: function() {
-        return this.inputEl;
     },
 
     isFileUpload: function() {
@@ -536,8 +515,7 @@ Ext.define('Ext.form.field.Base', {
      */
     setRawValue: function(value) {
         var me = this,
-            rawValue = me.rawValue,
-            publishes;
+            rawValue = me.rawValue;
 
         if (!me.transformRawValue.$nullFn) {
             value = me.transformRawValue(value);
@@ -872,7 +850,7 @@ Ext.define('Ext.form.field.Base', {
      * @private
      * @param {String} error The error message to set
      */
-    setError: function(active){
+    setError: function(error){
         var me = this,
             msgTarget = me.msgTarget,
             prop;
@@ -880,7 +858,7 @@ Ext.define('Ext.form.field.Base', {
         if (me.rendered) {
             if (msgTarget == 'title' || msgTarget == 'qtip') {
                 prop = msgTarget == 'qtip' ? 'data-errorqtip' : 'title';
-                me.getActionEl().dom.setAttribute(prop, active || '');
+                me.getActionEl().dom.setAttribute(prop, error || '');
             } else {
                 me.updateLayout();
             }
@@ -905,11 +883,6 @@ Ext.define('Ext.form.field.Base', {
         me.mixins.labelable.renderActiveError.call(me);
     },
 
-
-    getActionEl: function() {
-        return this.inputEl || this.el;
-    },
-    
     privates: {
         applyBind: function (bind, currentBindings) {
             var me = this,
@@ -923,6 +896,34 @@ Ext.define('Ext.form.field.Base', {
             }
 
             return bindings;
+        },
+
+        applyRenderSelectors: function() {
+            var me = this;
+
+            me.callParent();
+
+            // If the inputId config is not specified then normal childEls will pick up
+            // our inputEl. Otherwise we need to get it now.
+            if (!me.inputEl) {
+                me.inputEl = me.el.getById(me.getInputId());
+            }
+        },
+
+        getActionEl: function() {
+            return this.inputEl || this.el;
+        },
+
+        getFocusEl: function() {
+            return this.inputEl;
+        },
+
+        initRenderTpl: function() {
+            var me = this;
+            if (!me.hasOwnProperty('renderTpl')) {
+                me.renderTpl = me.getTpl('labelableRenderTpl');
+            }
+            return me.callParent();
         },
 
         updateValueBinding: function (bindings) {

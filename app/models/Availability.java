@@ -1,11 +1,9 @@
 package models;
 
-import play.data.format.Formats;
 import play.db.ebean.Model;
 import play.data.validation.Constraints;
 
 import javax.persistence.*;
-import java.util.Date;
 
 @Entity
 public class Availability extends Model {
@@ -17,7 +15,7 @@ public class Availability extends Model {
 	public Long id;
 
 	@Constraints.Required
-	@ManyToOne(cascade = CascadeType.ALL)
+	@ManyToOne(cascade = CascadeType.REMOVE)
 	public Flight flight;
 
 	@Constraints.Required

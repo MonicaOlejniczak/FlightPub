@@ -75,7 +75,6 @@ Ext.define('Ext.chart.series.StackedCartesian', {
             sprite = sprites[i];
             if (!sprite) {
                 sprite = me.createSprite();
-                //sprite.setAttributes({zIndex: (chart.getFlipXY() ? i : -i)});
                 sprite.setAttributes({zIndex: -i});
 
                 sprite.setField(fields[i]);
@@ -109,19 +108,21 @@ Ext.define('Ext.chart.series.StackedCartesian', {
                 sprites = me.getSprites(),
                 store = me.getStore(),
                 hidden = me.getHidden(),
-                item;
+                item, index, yField;
 
             for (i = 0, ln = sprites.length; i < ln; i++) {
-                if(!hidden[i]) {
+                if (!hidden[i]) {
                     sprite = sprites[i];
-                    var index = sprite.getIndexNearPoint(x, y);
+                    index = sprite.getIndexNearPoint(x, y);
                     if (index !== -1) {
+                        yField = me.getYField();
                         item = {
                             series: me,
                             index: index,
                             category: itemInstancing ? 'items' : 'markers',
                             record: store.getData().items[index],
-                            field: this.getYField()[i],
+                            // Handle the case where we're stacked but a single segment
+                            field: typeof yField === 'string' ? yField : yField[i],
                             sprite: sprite
                         };
                         return item;
@@ -133,19 +134,30 @@ Ext.define('Ext.chart.series.StackedCartesian', {
     },
 
     provideLegendInfo: function (target) {
-        var sprites = this.getSprites(),
-            title = this.getTitle(),
-            field = this.getYField(),
-            hidden = this.getHidden(),
-            style;
+        var me = this,
+            sprites = me.getSprites(),
+            title = me.getTitle(),
+            field = me.getYField(),
+            hidden = me.getHidden(),
+            single = sprites.length === 1,
+            style, name;
 
         for (var i = 0; i < sprites.length; i++) {
-            style = this.getStyleByIndex(i);
+            style = me.getStyleByIndex(i);
+            if (Ext.isArray(title)) {
+                name = title[i];
+            } else if (single) {
+                name = title;
+            } else if (Ext.isArray(field)) {
+                name = field[i];
+            } else {
+                name = me.getId();
+            }
             target.push({
-                name: Ext.isArray(title) ? title[i] : (field && field[i]) || this.getId(),
+                name: name,
                 mark: style.fillStyle || style.strokeStyle || 'black',
                 disabled: hidden[i],
-                series: this.getId(),
+                series: me.getId(),
                 index: i
             });
         }

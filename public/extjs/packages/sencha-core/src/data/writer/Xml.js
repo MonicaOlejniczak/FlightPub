@@ -56,8 +56,14 @@ Ext.define('Ext.data.writer.Xml', {
             record = me.getRecord(),
             needsRoot = data.length !== 1,
             item,
-            key;
+            key,
+            transform;
             
+        transform = this.getTransform();
+        if (transform) {
+            data = transform(data, request);
+        }
+        
         // may not exist
         xml.push(me.getHeader() || '');
         

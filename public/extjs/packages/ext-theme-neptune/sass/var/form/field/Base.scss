@@ -3,6 +3,12 @@
 
 $form-field-padding: 4px 6px 3px !default;
 
+/**
+ * @var {number} $form-field-height
+ * Height for form fields.
+ */
+$form-field-height: 24px !default;
+
 // private
 $form-field-border-accent-color: mix(#fff, $neutral-medium-dark-color, 40%);
 

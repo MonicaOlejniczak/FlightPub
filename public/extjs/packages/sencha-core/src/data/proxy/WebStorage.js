@@ -102,14 +102,13 @@ Ext.define('Ext.data.proxy.WebStorage', {
 
     //inherit docs
     read: function(operation) {
-        //TODO: respect sorters, filters, start and limit options on the Operation
-
         var me = this,
+            allRecords,
             records = [],
-            i = 0,
             success = true,
             Model = me.getModel(),
-            ids, length, record, data, id;
+            validCount = 0,
+            filters, sorters, limit, filterLen, valid, record, ids, length, data, id, i, j;
 
         operation.setStarted();
 
@@ -132,10 +131,40 @@ Ext.define('Ext.data.proxy.WebStorage', {
                     success = false;
                 }
             } else {
-                for (; i < length; i++) {
-                    id = ids[i];
-                    data = me.getRecord(id);
-                    records.push(new Model(data));
+                sorters = operation.getSorters();
+                filters = operation.getFilters();
+                limit = operation.getLimit();
+                allRecords = [];
+
+                // build an array of all records first first so we can sort them before
+                // applying filters or limit.  These are Model instances instead of raw
+                // data objects so that the sorter and filter Fn can use the Model API
+                for (i = 0; i < length; i++) {
+                    allRecords.push(new Model(me.getRecord(ids[i])));
+                }
+
+                if (sorters) {
+                    Ext.Array.sort(allRecords, Ext.util.Sorter.createComparator(sorters));
+                }
+
+                for (i = operation.getStart() || 0; i < length; i++) {
+                    record = allRecords[i];
+                    valid = true;
+
+                    if (filters) {
+                        for (j = 0, filterLen = filters.length; j < filterLen; j++) {
+                            valid = filters[j].filter(record);
+                        }
+                    }
+
+                    if (valid) {
+                        records.push(record);
+                        validCount++;
+                    }
+
+                    if (limit && validCount === limit) {
+                        break;
+                    }
                 }
             }
 
@@ -179,7 +208,7 @@ Ext.define('Ext.data.proxy.WebStorage', {
     },
 
     //inherit
-    destroy: function(operation) {
+    erase: function(operation) {
         var me = this,
             records = operation.getRecords(),
             ids = me.getIds(),

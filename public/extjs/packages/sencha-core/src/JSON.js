@@ -84,7 +84,6 @@ var me = this,
         return '"' + o + '"';
     },
 
-    //<debug>
     encodeArrayPretty = function(o, newline) {
         var len = o.length,
             cnewline = newline + '   ',
@@ -124,14 +123,11 @@ var me = this,
 
         return a.join('');
     },
-    //</debug>
 
     encodeArray = function(o, newline) {
-        //<debug>
         if (newline) {
             return encodeArrayPretty(o, newline);
         }
-        //</debug>
 
         var a = ["[", ""], // Note empty string in case there are no serializable members.
             len = o.length,
@@ -145,11 +141,9 @@ var me = this,
     },
 
     encodeObject = function(o, newline) {
-        //<debug>
         if (newline) {
             return encodeObjectPretty(o, newline);
         }
-        //</debug>
 
         var a = ["{", ""], // Note empty string in case there are no serializable members.
             i, val;

@@ -1,51 +1,54 @@
 describe("Ext.Date", function() {
-    var dateValue = 0,
-        increment = 3,
-        OriginalDate = Date,
-        originalNow = Ext.Date.now,
-        PredictableDate = function() {
-            return {
-                getTime: function() {
-                },
-                valueOf: function() {
-                    return PredictableDate.now();
-                }
+    describe('Elapsed time between dates', function () {
+        var dateValue = 0,
+            increment = 3,
+            OriginalDate = Date,
+            originalNow = Ext.Date.now,
+            PredictableDate = function() {
+                return {
+                    getTime: function() {
+                    },
+                    valueOf: function() {
+                        return PredictableDate.now();
+                    }
+                };
             };
-        };
 
-    Ext.Date.now = PredictableDate.now = function () {
-        dateValue = dateValue + increment;
-        return dateValue;
-    };
+        function mockDate() {
+            Date = PredictableDate;
+        }
 
-    function mockDate() {
-        Date = PredictableDate;
-    };
+        beforeEach(function () {
+            Ext.Date.now = PredictableDate.now = function () {
+                dateValue = dateValue + increment;
+                return dateValue;
+            };
+        });
 
-    afterEach(function() {
-        Ext.Date.now = originalNow;
-        Date = OriginalDate;
-        increment += 16;
-    });
+        afterEach(function() {
+            Ext.Date.now = originalNow;
+            Date = OriginalDate;
+            increment += 16;
+        });
 
-    it("should get time elapsed in millisecond between date instantiation", function() {
-        mockDate();
-        var dateA = new PredictableDate();
-        expect(Ext.Date.getElapsed(dateA)).toEqual(3);
-    });
+        it("should get time elapsed in millisecond between date instantiation", function () {
+            mockDate();
+            var dateA = new PredictableDate();
+            expect(Ext.Date.getElapsed(dateA)).toEqual(3);
+        });
 
-    it("should get time elapsed in millisecond between two dates", function() {
-        mockDate();
-        var dateA = new PredictableDate(),
-            dateB = new PredictableDate();
+        it("should get time elapsed in millisecond between two dates", function () {
+            mockDate();
+            var dateA = new PredictableDate(),
+                dateB = new PredictableDate();
 
-        expect(Ext.Date.getElapsed(dateA, dateB)).toEqual(19);
+            expect(Ext.Date.getElapsed(dateA, dateB)).toEqual(19);
+        });
     });
 
     describe("now", function() {
        it("should return the current timestamp", function() {
-          var
-              millisBeforeCall = +new Date(),
+          var millisBeforeCall = +new Date(),
               millisAtCall = Ext.Date.now(),
               millisAfterCall = +new Date();
 
@@ -717,7 +720,7 @@ describe("Ext.Date", function() {
         });
 
         it("should format with the MS option", function(){
-            var value = '\\/Date(' + date.getTime() + ')\\/'
+            var value = '\\/Date(' + date.getTime() + ')\\/';
             expect(format(date, 'MS')).toBe(value);
         });
 

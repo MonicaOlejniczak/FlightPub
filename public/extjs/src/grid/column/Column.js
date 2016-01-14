@@ -106,22 +106,22 @@ Ext.define('Ext.grid.column.Column', {
 
     /**
      * @private
-     * @cfg {Boolean} [noWrap=true]
+     * @cfg {Boolean} [headerWrap=false]
      * The default setting indicates that external CSS rules dictate that the title is `white-space: nowrap` and
      * therefore, width cannot affect the measured height by causing text wrapping. This is what the Sencha-supplied
-     * styles set. If you change those styles to allow text wrapping, you must set this to `false`.
+     * styles set. If you change those styles to allow text wrapping, you must set this to `true`.
      */
-    noWrap: true,
+    headerWrap: false,
 
     renderTpl: [
-        '<div id="{id}-titleEl" role="presentation" {tipMarkup}class="', Ext.baseCSSPrefix, 'column-header-inner',
+        '<div id="{id}-titleEl" data-ref="titleEl" role="presentation" {tipMarkup}class="', Ext.baseCSSPrefix, 'column-header-inner',
             '<tpl if="empty"> ', Ext.baseCSSPrefix, 'column-header-inner-empty</tpl>">',
-            '<span id="{id}-textEl" class="', Ext.baseCSSPrefix, 'column-header-text',
+            '<span id="{id}-textEl" data-ref="textEl" class="', Ext.baseCSSPrefix, 'column-header-text',
                 '{childElCls}">',
                 '{text}',
             '</span>',
             '<tpl if="!menuDisabled">',
-                '<div id="{id}-triggerEl" role="presentation" class="', Ext.baseCSSPrefix, 'column-header-trigger',
+                '<div id="{id}-triggerEl" data-ref="triggerEl" role="presentation" class="', Ext.baseCSSPrefix, 'column-header-trigger',
                 '{childElCls}" style="{triggerStyle}"></div>',
             '</tpl>',
         '</div>',
@@ -214,12 +214,21 @@ Ext.define('Ext.grid.column.Column', {
      */
 
     /**
-     * @cfg {Boolean} [wrap=false]
+     * @cfg {Boolean} [cellWrap=false]
      * True to allow whitespace in this column's cells to wrap, and cause taller column height where
      * necessary.
      *
-     * This implicitly seta the {@link Ext.grid.plugin.BufferedRenderer#variableRowHeight variableRowHeight} config to
-     * `true` if buffered rendering is being used.
+     * This implicitly sets the {@link #variableRowHeight} config to `true`
+     */
+
+    /**
+     * @cfg {Boolean} [variableRowHeight=false]
+     * True to indicate that data in this column may take on an unpredictable height, possibly differing from row to row.
+     *
+     * If this is set, then View refreshes, and removal and addition of new rows will result in an ExtJS layout of the grid
+     * in order to adjust for possible addition/removal of scrollbars in the case of data changing height.
+     *
+     * This config also tells the View's buffered renderer that row heights are unpredictable, and must be remeasured as the view is refreshed.
      */
 
     /**
@@ -255,7 +264,7 @@ Ext.define('Ext.grid.column.Column', {
      *     }
      *
      * If a string is passed it is assumed to be the name of a method defined by the
-     * `Ext.app.ViewController` or ancestor component identified as `defaultListenerScope`.
+     * {@link #method-getController ViewController} or an ancestor component configured as {@link #defaultListenerScope}.
      * Note, in previous releases a string was treated as a method on `Ext.util.Format`
      * but that is now handled by the {@link #formatter} config.
      *
@@ -270,6 +279,20 @@ Ext.define('Ext.grid.column.Column', {
      * @cfg {String} renderer.return The HTML string to be rendered.
      */
     renderer: false,
+
+    /**
+     * @cfg {Function/String} updater
+     * An updater is a method which is used when records are updated, and an *existing* grid row needs updating.
+     * The method is passed the cell element and may manipulate it in any way.
+     * 
+     * If a string is passed it is assumed to be the name of a method defined by the
+     * {@link #method-getController ViewController} or an ancestor component configured as {@link #defaultListenerScope}.
+     * @cfg {HtmlElement} updater.cell The HTML cell element to update.
+     * @cfg {Object} updater.value The data value for the current cell
+     * @cfg {Ext.data.Model} updater.record The record for the current row
+     * @cfg {Ext.view.View} updater.view The current view
+     * 
+     */
 
     /**
      * @cfg {Object} scope
@@ -350,12 +373,12 @@ Ext.define('Ext.grid.column.Column', {
      */
 
     /**
-     * @property {Ext.Element} triggerEl
+     * @property {Ext.dom.Element} triggerEl
      * Element that acts as button for column header dropdown menu.
      */
 
     /**
-     * @property {Ext.Element} textEl
+     * @property {Ext.dom.Element} textEl
      * Element that contains the text in column header.
      */
 
@@ -374,6 +397,16 @@ Ext.define('Ext.grid.column.Column', {
      * HeaderContainer base class, but are in fact simple column headers.
      */
     isColumn: true,
+    
+    /**
+     * @property {Boolean} [producesHTML=true]
+     * This flag indicates that the renderer produces HTML.
+     *
+     * If this column is going to be updated rapidly, and the {@link #renderer} or
+     * {@link #updater} only produces text, then to avoid the expense of HTML parsing
+     * and element production during the update, this property may be configured as `false`.
+     */
+    producesHTML: true,
 
     ascSortCls: Ext.baseCSSPrefix + 'column-header-sort-ASC',
     descSortCls: Ext.baseCSSPrefix + 'column-header-sort-DESC',
@@ -412,7 +445,7 @@ Ext.define('Ext.grid.column.Column', {
             me.header = null;
         }
 
-        if (me.wrap) {
+        if (me.cellWrap) {
             me.tdCls = (me.tdCls || '') + ' ' + Ext.baseCSSPrefix + 'wrap-cell';
         }
 
@@ -526,9 +559,10 @@ Ext.define('Ext.grid.column.Column', {
              *
              * When the value begins with `"this."` (for example, `"this.foo(2)"`), the
              * implied scope on which "foo" is found is the `scope` config for the column.
-             * If the `scope` is not given, then either the `ViewController` or the closest
-             * ancestor component with `defaultListenerScope` is assumed to be the object
-             * with the method.
+             *
+             * If the `scope` is not given, or implied using a prefix of `"this"`, then either the
+             * {@link #method-getController ViewController} or the closest ancestor component configured
+             * as {@link #defaultListenerScope} is assumed to be the object with the method.
              * @since 5.0.0
              */
             format = Ext.app.bind.Template.prototype.parseFormat(format);
@@ -564,7 +598,7 @@ Ext.define('Ext.grid.column.Column', {
             start;
 
         me.callParent(arguments);
-        if (oldWidth && me.wrap) {
+        if (oldWidth && me.cellWrap) {
             view = me.getView();
             if (view) {
                 store = view.store;
@@ -577,7 +611,10 @@ Ext.define('Ext.grid.column.Column', {
                     bufferedRenderer.stretchView(view, bufferedRenderer.getScrollHeight(true));
 
                     // Calculate new viewSize - number of rows to render.
-                    bufferedRenderer.viewSize = store.viewSize = Math.ceil(view.getHeight() / bufferedRenderer.rowHeight) + bufferedRenderer.trailingBufferZone + bufferedRenderer.leadingBufferZone;
+                    bufferedRenderer.viewSize = Math.ceil(view.getHeight() / bufferedRenderer.rowHeight) + bufferedRenderer.trailingBufferZone + bufferedRenderer.leadingBufferZone;
+                    if (store.isBufferedStore) {
+                        store.setViewSize(bufferedRenderer.viewSize);
+                    }
 
                     // Render the rows which now belong at this scroll position according to the average row height
                     start = Math.min((store.isBufferedStore ? store.getTotalCount() : store.getCount()) - bufferedRenderer.viewSize, Math.max(0, Math.floor(bufferedRenderer.bodyTop / bufferedRenderer.rowHeight)));
@@ -599,19 +636,20 @@ Ext.define('Ext.grid.column.Column', {
         me.callParent(arguments);
         
         if (me.isGroupHeader) {
-            if (!me.hasVisibleChildren()) {
+            if (!me.hasVisibleChildColumns()) {
                 me.hide();
             }
         }
     },
     
-    hasVisibleChildren: function() {
+    hasVisibleChildColumns: function() {
         var items = this.items.items,
             len = items.length,
-            i;
+            i, item;
             
         for (i = 0; i < len; ++i) {
-            if (!items[i].hidden) {
+            item = items[i];
+            if (item.isColumn && !item.hidden) {
                 return true;
             }
         }   
@@ -626,7 +664,7 @@ Ext.define('Ext.grid.column.Column', {
             child.addCls(this.groupSubHeaderCls);
         }
         
-        if (me.hidden) {
+        if (me.hidden && child.isColumn) {
             // Only hide automatically during construction time
             if (me.constructing) {
                 child.hide();
@@ -647,7 +685,7 @@ Ext.define('Ext.grid.column.Column', {
         me.callParent(arguments);
         
         // By this point, the component will be removed from the items collection
-        if (!(me.isDestroyed || me.destroying) && me.isGroupHeader && !me.hasVisibleChildren()) {
+        if (!(me.isDestroyed || me.destroying) && me.isGroupHeader && !me.hasVisibleChildColumns()) {
             me.hide();
         }
     },
@@ -766,9 +804,7 @@ Ext.define('Ext.grid.column.Column', {
 
     beforeRender: function() {
         var me = this,
-            bufferedRenderer,
-            grid = me.up('tablepanel'),
-            view;
+            grid = me.up('tablepanel');
 
         me.callParent();
 
@@ -780,15 +816,16 @@ Ext.define('Ext.grid.column.Column', {
                      !me.getOwnerHeaderCt().getHideableColumns().length)) {
                 me.menuDisabled = true;
             }
-
-            view = grid.getView();
-            bufferedRenderer = view.bufferedRenderer;
-
-            // Wrapping text may cause unpredictable line heights.
-            if (bufferedRenderer && me.wrap) {
-                bufferedRenderer.variableRowHeight = true;
-            }
         }
+        // Wrapping text may cause unpredictable line heights.
+        // variableRowHeight is interrogated by the View for all visible columns to determine whether
+        // addition of new rows should cause an ExtJS layout.
+        // The View's summation of the presence of visible variableRowHeight columns is also used by
+        // any buffered renderer to determine how row height should be calculated when determining scroll range.
+        if (me.cellWrap) {
+            me.variableRowHeight = true;
+        }
+
         me.protoEl.unselectable();
     },
 
@@ -952,7 +989,7 @@ Ext.define('Ext.grid.column.Column', {
      * Process UI events from the view. The owning TablePanel calls this method, relaying events from the TableView
      * @param {String} type Event type, eg 'click'
      * @param {Ext.view.Table} view TableView Component
-     * @param {HTMLElement} cell Cell HtmlElement the event took place within
+     * @param {HTMLElement} cell Cell HTMLElement the event took place within
      * @param {Number} recordIndex Index of the associated Store Model (-1 if none)
      * @param {Number} cellIndex Cell index within the row
      * @param {Ext.event.Event} e Original event

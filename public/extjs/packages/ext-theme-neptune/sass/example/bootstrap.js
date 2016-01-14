@@ -35,6 +35,7 @@ Ext.Boot = Ext.Boot || (function (emptyFn) {
              */
             disableCaching:
                 (/[?&](?:cache|disableCacheBuster)\b/i.test(location.search) ||
+                    (location.href.substring(0,5) === 'file:') ||
                     /(^|[ ;])ext-cache=1/.test(doc.cookie)) ? false :
                     true,
 
@@ -309,7 +310,7 @@ Ext.Boot = Ext.Boot || (function (emptyFn) {
                 // eval'ed code. Breakpoints work on both Firebug and Chrome's Web
                 // Inspector.
                 if (url) {
-                    content += "\n//@ sourceURL=" + key;
+                    content += "\n//# sourceURL=" + key;
                 }
                 Ext.globalEval(content);
             }
@@ -1155,32 +1156,32 @@ if (!Function.prototype.bind) {
  */
 
 Ext.Boot.loadSync([
-  "../../../../../packages/sencha-core/.sencha/package/Boot.js",
-  "../../../../../packages/sencha-core/src/Ext.js",
-  "../../../../../packages/sencha-core/src/lang/Error.js",
-  "../../../../../packages/sencha-core/src/lang/Array.js",
-  "../../../../../packages/sencha-core/src/lang/Function.js",
-  "../../../../../packages/sencha-core/src/lang/Number.js",
-  "../../../../../packages/sencha-core/src/lang/String.js",
-  "../../../../../packages/sencha-core/src/lang/Date.js",
-  "../../../../../packages/sencha-core/src/lang/Assert.js",
-  "../../../../../packages/sencha-core/src/lang/Object.js",
-  "../../../../../packages/sencha-core/src/Util.js",
-  "../../../../../packages/sencha-core/src/util/Version.js",
-  "../../../../../packages/sencha-core/src/class/Config.js",
-  "../../../../../packages/sencha-core/src/class/Configurator.js",
-  "../../../../../packages/sencha-core/src/class/Base.js",
-  "../../../../../packages/sencha-core/src/class/Class.js",
-  "../../../../../packages/sencha-core/src/class/Inventory.js",
-  "../../../../../packages/sencha-core/src/class/ClassManager.js",
-  "../../../../../packages/sencha-core/src/env/Browser.js",
-  "../../../../../packages/sencha-core/src/env/OS.js",
-  "../../../../../packages/sencha-core/src/env/Feature.js",
-  "../../../../../packages/sencha-core/src/env/Ready.js",
-  "../../../../../packages/sencha-core/src/class/Loader.js",
-  "../../../../../packages/sencha-core/src/dom/Helper.js",
-  "../../../../../packages/sencha-core/src/util/Format.js",
-  "../../../../../packages/sencha-core/src/Template.js"
+  "../../../sencha-core/.sencha/package/Boot.js",
+  "../../../sencha-core/src/Ext.js",
+  "../../../sencha-core/src/lang/Error.js",
+  "../../../sencha-core/src/lang/Array.js",
+  "../../../sencha-core/src/lang/Assert.js",
+  "../../../sencha-core/src/lang/String.js",
+  "../../../sencha-core/src/lang/Date.js",
+  "../../../sencha-core/src/lang/Function.js",
+  "../../../sencha-core/src/lang/Number.js",
+  "../../../sencha-core/src/lang/Object.js",
+  "../../../sencha-core/src/Util.js",
+  "../../../sencha-core/src/util/Version.js",
+  "../../../sencha-core/src/class/Config.js",
+  "../../../sencha-core/src/class/Configurator.js",
+  "../../../sencha-core/src/class/Base.js",
+  "../../../sencha-core/src/class/Class.js",
+  "../../../sencha-core/src/class/Inventory.js",
+  "../../../sencha-core/src/class/ClassManager.js",
+  "../../../sencha-core/src/env/Browser.js",
+  "../../../sencha-core/src/env/OS.js",
+  "../../../sencha-core/src/env/Feature.js",
+  "../../../sencha-core/src/env/Ready.js",
+  "../../../sencha-core/src/class/Loader.js",
+  "../../../sencha-core/src/dom/Helper.js",
+  "../../../sencha-core/src/util/Format.js",
+  "../../../sencha-core/src/Template.js"
 ]);
 
 
@@ -1193,70 +1194,71 @@ Ext.Boot.loadSync([
 Ext.Loader.addClassPathMappings({
   "Ext": "../../../../src",
   "Ext-more": "../../../../overrides/Ext-more.js",
-  "Ext.AbstractManager": "../../../../../packages/sencha-core/src/AbstractManager.js",
-  "Ext.Ajax": "../../../../../packages/sencha-core/src/Ajax.js",
-  "Ext.AnimationQueue": "../../../../../packages/sencha-core/src/AnimationQueue.js",
-  "Ext.Array": "../../../../../packages/sencha-core/src/lang/Array.js",
-  "Ext.Assert": "../../../../../packages/sencha-core/src/lang/Assert.js",
-  "Ext.Base": "../../../../../packages/sencha-core/src/class/Base.js",
-  "Ext.Boot": "../../../../../packages/sencha-core/.sencha/package/Boot.js",
-  "Ext.Class": "../../../../../packages/sencha-core/src/class/Class.js",
-  "Ext.ClassManager": "../../../../../packages/sencha-core/src/class/ClassManager.js",
-  "Ext.ComponentManager": "../../../../../packages/sencha-core/src/ComponentManager.js",
-  "Ext.ComponentQuery": "../../../../../packages/sencha-core/src/ComponentQuery.js",
-  "Ext.Config": "../../../../../packages/sencha-core/src/class/Config.js",
-  "Ext.Configurator": "../../../../../packages/sencha-core/src/class/Configurator.js",
-  "Ext.Date": "../../../../../packages/sencha-core/src/lang/Date.js",
-  "Ext.Error": "../../../../../packages/sencha-core/src/lang/Error.js",
-  "Ext.Evented": "../../../../../packages/sencha-core/src/Evented.js",
-  "Ext.Factory": "../../../../../packages/sencha-core/src/mixin/Factoryable.js",
-  "Ext.Function": "../../../../../packages/sencha-core/src/lang/Function.js",
-  "Ext.GlobalEvents": "../../../../../packages/sencha-core/src/GlobalEvents.js",
-  "Ext.Inventory": "../../../../../packages/sencha-core/src/class/Inventory.js",
-  "Ext.JSON": "../../../../../packages/sencha-core/src/JSON.js",
-  "Ext.Loader": "../../../../../packages/sencha-core/src/class/Loader.js",
-  "Ext.Mixin": "../../../../../packages/sencha-core/src/class/Mixin.js",
+  "Ext.AbstractManager": "../../../sencha-core/src/AbstractManager.js",
+  "Ext.Ajax": "../../../sencha-core/src/Ajax.js",
+  "Ext.AnimationQueue": "../../../sencha-core/src/AnimationQueue.js",
+  "Ext.Array": "../../../sencha-core/src/lang/Array.js",
+  "Ext.Assert": "../../../sencha-core/src/lang/Assert.js",
+  "Ext.Base": "../../../sencha-core/src/class/Base.js",
+  "Ext.Boot": "../../../sencha-core/.sencha/package/Boot.js",
+  "Ext.Class": "../../../sencha-core/src/class/Class.js",
+  "Ext.ClassManager": "../../../sencha-core/src/class/ClassManager.js",
+  "Ext.ComponentManager": "../../../sencha-core/src/ComponentManager.js",
+  "Ext.ComponentQuery": "../../../sencha-core/src/ComponentQuery.js",
+  "Ext.Config": "../../../sencha-core/src/class/Config.js",
+  "Ext.Configurator": "../../../sencha-core/src/class/Configurator.js",
+  "Ext.Date": "../../../sencha-core/src/lang/Date.js",
+  "Ext.Error": "../../../sencha-core/src/lang/Error.js",
+  "Ext.Evented": "../../../sencha-core/src/Evented.js",
+  "Ext.Factory": "../../../sencha-core/src/mixin/Factoryable.js",
+  "Ext.Function": "../../../sencha-core/src/lang/Function.js",
+  "Ext.GlobalEvents": "../../../sencha-core/src/GlobalEvents.js",
+  "Ext.Inventory": "../../../sencha-core/src/class/Inventory.js",
+  "Ext.JSON": "../../../sencha-core/src/JSON.js",
+  "Ext.Loader": "../../../sencha-core/src/class/Loader.js",
+  "Ext.Mixin": "../../../sencha-core/src/class/Mixin.js",
   "Ext.Msg": "../../../../src/window/MessageBox.js",
-  "Ext.Number": "../../../../../packages/sencha-core/src/lang/Number.js",
-  "Ext.Object": "../../../../../packages/sencha-core/src/lang/Object.js",
-  "Ext.Script": "../../../../../packages/sencha-core/src/class/Inventory.js",
-  "Ext.String": "../../../../../packages/sencha-core/src/lang/String.js",
-  "Ext.TaskQueue": "../../../../../packages/sencha-core/src/TaskQueue.js",
-  "Ext.Template": "../../../../../packages/sencha-core/src/Template.js",
-  "Ext.Util": "../../../../../packages/sencha-core/src/Util.js",
-  "Ext.Version": "../../../../../packages/sencha-core/src/util/Version.js",
-  "Ext.Widget": "../../../../../packages/sencha-core/src/Widget.js",
-  "Ext.XTemplate": "../../../../../packages/sencha-core/src/XTemplate.js",
-  "Ext.app.ViewModel": "../../../../../packages/sencha-core/src/app/ViewModel.js",
-  "Ext.app.bind": "../../../../../packages/sencha-core/src/app/bind",
-  "Ext.browser": "../../../../../packages/sencha-core/src/env/Browser.js",
-  "Ext.class": "../../../../../packages/sencha-core/src/class",
-  "Ext.data": "../../../../../packages/sencha-core/src/data",
-  "Ext.direct": "../../../../../packages/sencha-core/src/direct",
-  "Ext.dom": "../../../../../packages/sencha-core/src/dom",
+  "Ext.Number": "../../../sencha-core/src/lang/Number.js",
+  "Ext.Object": "../../../sencha-core/src/lang/Object.js",
+  "Ext.Script": "../../../sencha-core/src/class/Inventory.js",
+  "Ext.String": "../../../sencha-core/src/lang/String.js",
+  "Ext.TaskQueue": "../../../sencha-core/src/TaskQueue.js",
+  "Ext.Template": "../../../sencha-core/src/Template.js",
+  "Ext.Util": "../../../sencha-core/src/Util.js",
+  "Ext.Version": "../../../sencha-core/src/util/Version.js",
+  "Ext.Widget": "../../../sencha-core/src/Widget.js",
+  "Ext.XTemplate": "../../../sencha-core/src/XTemplate.js",
+  "Ext.app.ViewModel": "../../../sencha-core/src/app/ViewModel.js",
+  "Ext.app.bind": "../../../sencha-core/src/app/bind",
+  "Ext.browser": "../../../sencha-core/src/env/Browser.js",
+  "Ext.class": "../../../sencha-core/src/class",
+  "Ext.data": "../../../sencha-core/src/data",
+  "Ext.direct": "../../../sencha-core/src/direct",
+  "Ext.dom": "../../../sencha-core/src/dom",
+  "Ext.dom.ButtonElement": "../../../../src/dom/ButtonElement.js",
   "Ext.dom.Layer": "../../../../src/dom/Layer.js",
-  "Ext.env": "../../../../../packages/sencha-core/src/env",
-  "Ext.event": "../../../../../packages/sencha-core/src/event",
-  "Ext.feature": "../../../../../packages/sencha-core/src/env/Feature.js",
-  "Ext.fx.Animation": "../../../../../packages/sencha-core/src/fx/Animation.js",
-  "Ext.fx.Runner": "../../../../../packages/sencha-core/src/fx/Runner.js",
-  "Ext.fx.State": "../../../../../packages/sencha-core/src/fx/State.js",
-  "Ext.fx.animation": "../../../../../packages/sencha-core/src/fx/animation",
-  "Ext.fx.easing": "../../../../../packages/sencha-core/src/fx/easing",
-  "Ext.fx.layout": "../../../../../packages/sencha-core/src/fx/layout",
-  "Ext.fx.runner": "../../../../../packages/sencha-core/src/fx/runner",
-  "Ext.lang": "../../../../../packages/sencha-core/src/lang",
-  "Ext.mixin": "../../../../../packages/sencha-core/src/mixin",
-  "Ext.os": "../../../../../packages/sencha-core/src/env/OS.js",
+  "Ext.env": "../../../sencha-core/src/env",
+  "Ext.event": "../../../sencha-core/src/event",
+  "Ext.feature": "../../../sencha-core/src/env/Feature.js",
+  "Ext.fx.Animation": "../../../sencha-core/src/fx/Animation.js",
+  "Ext.fx.Runner": "../../../sencha-core/src/fx/Runner.js",
+  "Ext.fx.State": "../../../sencha-core/src/fx/State.js",
+  "Ext.fx.animation": "../../../sencha-core/src/fx/animation",
+  "Ext.fx.easing": "../../../sencha-core/src/fx/easing",
+  "Ext.fx.layout": "../../../sencha-core/src/fx/layout",
+  "Ext.fx.runner": "../../../sencha-core/src/fx/runner",
+  "Ext.lang": "../../../sencha-core/src/lang",
+  "Ext.mixin": "../../../sencha-core/src/mixin",
+  "Ext.os": "../../../sencha-core/src/env/OS.js",
   "Ext.overrides": "../../../../overrides",
-  "Ext.perf": "../../../../../packages/sencha-core/src/perf",
-  "Ext.scroll": "../../../../../packages/sencha-core/src/scroll",
+  "Ext.overrides.util.Positionable": "../../../../overrides/Positionable.js",
+  "Ext.perf": "../../../sencha-core/src/perf",
+  "Ext.scroll": "../../../sencha-core/src/scroll",
   "Ext.scroll.Indicator": "../../../../src/scroll/Indicator.js",
   "Ext.scroll.Manager": "../../../../src/scroll/Manager.js",
-  "Ext.supports": "../../../../../packages/sencha-core/src/env/Feature.js",
-  "Ext.util": "../../../../../packages/sencha-core/src/util",
+  "Ext.supports": "../../../sencha-core/src/env/Feature.js",
+  "Ext.util": "../../../sencha-core/src/util",
   "Ext.util.Animate": "../../../../src/util/Animate.js",
-  "Ext.util.Bindable": "../../../../src/util/Bindable.js",
   "Ext.util.CSS": "../../../../src/util/CSS.js",
   "Ext.util.ClickRepeater": "../../../../src/util/ClickRepeater.js",
   "Ext.util.ComponentDragger": "../../../../src/util/ComponentDragger.js",
@@ -1267,16 +1269,14 @@ Ext.Loader.addClassPathMappings({
   "Ext.util.KeyMap": "../../../../src/util/KeyMap.js",
   "Ext.util.KeyNav": "../../../../src/util/KeyNav.js",
   "Ext.util.Memento": "../../../../src/util/Memento.js",
-  "Ext.util.Positionable_ext": "../../../../src/util/Positionable_ext.js",
   "Ext.util.ProtoElement": "../../../../src/util/ProtoElement.js",
   "Ext.util.Queue": "../../../../src/util/Queue.js",
   "Ext.util.Renderable": "../../../../src/util/Renderable.js",
-  "Ext.util.TextMetrics": "../../../../src/util/TextMetrics.js",
+  "Ext.util.StoreHolder": "../../../../src/util/StoreHolder.js",
   "ExtThemeNeptune": "../../overrides"
 });
 Ext.ClassManager.addNameAlternateMappings({
   "Ext.AbstractManager": [],
-  "Ext.AbstractPlugin": [],
   "Ext.Action": [],
   "Ext.Ajax": [],
   "Ext.AnimationQueue": [],
@@ -1303,9 +1303,6 @@ Ext.ClassManager.addNameAlternateMappings({
   "Ext.Img": [],
   "Ext.LoadMask": [],
   "Ext.Mixin": [],
-  "Ext.PluginManager": [
-    "Ext.PluginMgr"
-  ],
   "Ext.ProgressBar": [],
   "Ext.ProgressBarWidget": [],
   "Ext.Shadow": [],
@@ -1324,6 +1321,9 @@ Ext.ClassManager.addNameAlternateMappings({
   "Ext.app.Util": [],
   "Ext.app.ViewController": [],
   "Ext.app.ViewModel": [],
+  "Ext.app.bind.AbstractStub": [],
+  "Ext.app.bind.BaseBinding": [],
+  "Ext.app.bind.Binding": [],
   "Ext.app.bind.Formula": [],
   "Ext.app.bind.LinkStub": [],
   "Ext.app.bind.Multi": [],
@@ -1357,6 +1357,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "Ext.button.Manager": [
     "Ext.ButtonToggleManager"
   ],
+  "Ext.button.Segmented": [],
   "Ext.button.Split": [
     "Ext.SplitButton"
   ],
@@ -1372,7 +1373,6 @@ Ext.ClassManager.addNameAlternateMappings({
   "Ext.container.Viewport": [
     "Ext.Viewport"
   ],
-  "Ext.container.plugin.Viewport": [],
   "Ext.dashboard.Column": [],
   "Ext.dashboard.Dashboard": [],
   "Ext.dashboard.DropZone": [],
@@ -1383,7 +1383,6 @@ Ext.ClassManager.addNameAlternateMappings({
     "Ext.data.SimpleStore"
   ],
   "Ext.data.Batch": [],
-  "Ext.data.BufferStore": [],
   "Ext.data.BufferedStore": [],
   "Ext.data.ChainedStore": [],
   "Ext.data.Connection": [],
@@ -1408,6 +1407,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "Ext.data.ProxyStore": [],
   "Ext.data.Request": [],
   "Ext.data.ResultSet": [],
+  "Ext.data.Session": [],
   "Ext.data.SortTypes": [],
   "Ext.data.Store": [],
   "Ext.data.StoreManager": [
@@ -1433,6 +1433,9 @@ Ext.ClassManager.addNameAlternateMappings({
   "Ext.data.identifier.Negative": [],
   "Ext.data.identifier.Sequential": [],
   "Ext.data.identifier.Uuid": [],
+  "Ext.data.matrix.Matrix": [],
+  "Ext.data.matrix.Side": [],
+  "Ext.data.matrix.Slice": [],
   "Ext.data.operation.Create": [],
   "Ext.data.operation.Destroy": [],
   "Ext.data.operation.Operation": [
@@ -1498,18 +1501,9 @@ Ext.ClassManager.addNameAlternateMappings({
   "Ext.data.schema.OneToOne": [],
   "Ext.data.schema.Role": [],
   "Ext.data.schema.Schema": [],
-  "Ext.data.session.AbstractStub": [],
-  "Ext.data.session.AssociatedEntitiesStub": [],
-  "Ext.data.session.AssociatedEntityStub": [],
-  "Ext.data.session.BaseBinding": [],
-  "Ext.data.session.Binding": [],
-  "Ext.data.session.EntityStub": [],
-  "Ext.data.session.Matrix": [],
-  "Ext.data.session.MatrixSide": [],
-  "Ext.data.session.MatrixSlice": [],
-  "Ext.data.session.MatrixStub": [],
-  "Ext.data.session.Session": [],
-  "Ext.data.session.ValidationStub": [],
+  "Ext.data.session.BatchVisitor": [],
+  "Ext.data.session.ChangesVisitor": [],
+  "Ext.data.session.ChildChangesVisitor": [],
   "Ext.data.validator.Bound": [],
   "Ext.data.validator.Email": [],
   "Ext.data.validator.Exclusion": [],
@@ -1558,12 +1552,12 @@ Ext.ClassManager.addNameAlternateMappings({
   "Ext.direct.Transaction": [
     "Ext.Direct.Transaction"
   ],
+  "Ext.dom.ButtonElement": [],
   "Ext.dom.CompositeElement": [
     "Ext.CompositeElement"
   ],
   "Ext.dom.CompositeElementLite": [
-    "Ext.CompositeElementLite",
-    "Ext.CompositeElement"
+    "Ext.CompositeElementLite"
   ],
   "Ext.dom.Element": [
     "Ext.Element"
@@ -1817,6 +1811,15 @@ Ext.ClassManager.addNameAlternateMappings({
   "Ext.grid.feature.GroupingSummary": [],
   "Ext.grid.feature.RowBody": [],
   "Ext.grid.feature.Summary": [],
+  "Ext.grid.filters.Filters": [],
+  "Ext.grid.filters.filter.Base": [],
+  "Ext.grid.filters.filter.Boolean": [],
+  "Ext.grid.filters.filter.Date": [],
+  "Ext.grid.filters.filter.List": [],
+  "Ext.grid.filters.filter.Number": [],
+  "Ext.grid.filters.filter.SingleFilter": [],
+  "Ext.grid.filters.filter.String": [],
+  "Ext.grid.filters.filter.TriFilter": [],
   "Ext.grid.header.Container": [],
   "Ext.grid.header.DragZone": [],
   "Ext.grid.header.DropZone": [],
@@ -1828,17 +1831,13 @@ Ext.ClassManager.addNameAlternateMappings({
     "Ext.grid.LockingView"
   ],
   "Ext.grid.plugin.BufferedRenderer": [],
-  "Ext.grid.plugin.BufferedRendererTableView": [],
-  "Ext.grid.plugin.BufferedRendererTreeView": [],
   "Ext.grid.plugin.CellEditing": [],
-  "Ext.grid.plugin.CellUpdating": [],
   "Ext.grid.plugin.DragDrop": [],
   "Ext.grid.plugin.Editing": [],
   "Ext.grid.plugin.HeaderReorderer": [],
   "Ext.grid.plugin.HeaderResizer": [],
   "Ext.grid.plugin.RowEditing": [],
   "Ext.grid.plugin.RowExpander": [],
-  "Ext.grid.plugin.SubTable": [],
   "Ext.grid.property.Grid": [
     "Ext.grid.PropertyGrid"
   ],
@@ -1848,6 +1847,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "Ext.grid.property.Property": [
     "Ext.PropGridProperty"
   ],
+  "Ext.grid.property.Reader": [],
   "Ext.grid.property.Store": [
     "Ext.grid.PropertyStore"
   ],
@@ -1859,7 +1859,6 @@ Ext.ClassManager.addNameAlternateMappings({
   "Ext.layout.component.Auto": [],
   "Ext.layout.component.Body": [],
   "Ext.layout.component.BoundList": [],
-  "Ext.layout.component.Button": [],
   "Ext.layout.component.Component": [],
   "Ext.layout.component.Dock": [
     "Ext.layout.component.AbstractDock"
@@ -1909,6 +1908,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "Ext.layout.container.HBox": [
     "Ext.layout.HBoxLayout"
   ],
+  "Ext.layout.container.SegmentedButton": [],
   "Ext.layout.container.SplitColumn": [],
   "Ext.layout.container.Table": [
     "Ext.layout.TableLayout"
@@ -1940,23 +1940,26 @@ Ext.ClassManager.addNameAlternateMappings({
   "Ext.menu.Separator": [],
   "Ext.mixin.Bindable": [],
   "Ext.mixin.Factoryable": [],
+  "Ext.mixin.Hookable": [],
   "Ext.mixin.Identifiable": [],
   "Ext.mixin.Inheritable": [],
   "Ext.mixin.Mashup": [],
   "Ext.mixin.Observable": [],
   "Ext.mixin.Queryable": [],
+  "Ext.mixin.Responsive": [],
   "Ext.mixin.Selectable": [],
   "Ext.mixin.Templatable": [],
   "Ext.mixin.Traversable": [],
   "Ext.overrides.GlobalEvents": [],
   "Ext.overrides.Widget": [],
   "Ext.overrides.app.Application": [],
-  "Ext.overrides.data.NodeInterface": [],
   "Ext.overrides.dom.Element": [],
   "Ext.overrides.dom.Helper": [],
   "Ext.overrides.event.Event": [],
   "Ext.overrides.event.publisher.Dom": [],
   "Ext.overrides.event.publisher.Gesture": [],
+  "Ext.overrides.util.Positionable": [],
+  "Ext.panel.Bar": [],
   "Ext.panel.DD": [],
   "Ext.panel.Header": [],
   "Ext.panel.Panel": [
@@ -1967,6 +1970,7 @@ Ext.ClassManager.addNameAlternateMappings({
     "Ext.dd.PanelProxy"
   ],
   "Ext.panel.Table": [],
+  "Ext.panel.Title": [],
   "Ext.panel.Tool": [],
   "Ext.perf.Accumulator": [],
   "Ext.perf.Monitor": [
@@ -1982,6 +1986,15 @@ Ext.ClassManager.addNameAlternateMappings({
     "Ext.MonthPicker"
   ],
   "Ext.picker.Time": [],
+  "Ext.plugin.Abstract": [
+    "Ext.AbstractPlugin"
+  ],
+  "Ext.plugin.Manager": [
+    "Ext.PluginManager",
+    "Ext.PluginMgr"
+  ],
+  "Ext.plugin.Responsive": [],
+  "Ext.plugin.Viewport": [],
   "Ext.resizer.BorderSplitter": [],
   "Ext.resizer.BorderSplitterTracker": [],
   "Ext.resizer.Handle": [],
@@ -1993,6 +2006,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "Ext.resizer.SplitterTracker": [],
   "Ext.rtl.Component": [],
   "Ext.rtl.button.Button": [],
+  "Ext.rtl.button.Segmented": [],
   "Ext.rtl.dd.DD": [],
   "Ext.rtl.dom.Element": [],
   "Ext.rtl.dom.Layer": [],
@@ -2019,8 +2033,9 @@ Ext.ClassManager.addNameAlternateMappings({
   "Ext.rtl.layout.container.VBox": [],
   "Ext.rtl.layout.container.boxOverflow.Menu": [],
   "Ext.rtl.layout.container.boxOverflow.Scroller": [],
-  "Ext.rtl.panel.Header": [],
+  "Ext.rtl.panel.Bar": [],
   "Ext.rtl.panel.Panel": [],
+  "Ext.rtl.panel.Title": [],
   "Ext.rtl.resizer.BorderSplitterTracker": [],
   "Ext.rtl.resizer.ResizeTracker": [],
   "Ext.rtl.resizer.SplitterTracker": [],
@@ -2094,6 +2109,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "Ext.tip.ToolTip": [
     "Ext.ToolTip"
   ],
+  "Ext.toolbar.Breadcrumb": [],
   "Ext.toolbar.Fill": [
     "Ext.Toolbar.Fill"
   ],
@@ -2126,7 +2142,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "Ext.tree.plugin.TreeViewDragDrop": [],
   "Ext.util.AbstractMixedCollection": [],
   "Ext.util.Animate": [],
-  "Ext.util.Bindable": [],
+  "Ext.util.Base64": [],
   "Ext.util.CSS": [],
   "Ext.util.ClickRepeater": [],
   "Ext.util.Collection": [],
@@ -2162,7 +2178,6 @@ Ext.ClassManager.addNameAlternateMappings({
   "Ext.util.PaintMonitor": [],
   "Ext.util.Point": [],
   "Ext.util.Positionable": [],
-  "Ext.util.Positionable_ext": [],
   "Ext.util.ProtoElement": [],
   "Ext.util.Queue": [],
   "Ext.util.Region": [],
@@ -2173,6 +2188,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "Ext.util.Sortable": [],
   "Ext.util.Sorter": [],
   "Ext.util.SorterCollection": [],
+  "Ext.util.StoreHolder": [],
   "Ext.util.TaskManager": [
     "Ext.TaskManager"
   ],
@@ -2231,7 +2247,6 @@ Ext.ClassManager.addNameAlternateMappings({
 });
 Ext.ClassManager.addNameAliasMappings({
   "Ext.AbstractManager": [],
-  "Ext.AbstractPlugin": [],
   "Ext.Action": [],
   "Ext.Ajax": [],
   "Ext.AnimationQueue": [],
@@ -2258,7 +2273,6 @@ Ext.ClassManager.addNameAliasMappings({
     "widget.loadmask"
   ],
   "Ext.Mixin": [],
-  "Ext.PluginManager": [],
   "Ext.ProgressBar": [
     "widget.progressbar"
   ],
@@ -2283,6 +2297,9 @@ Ext.ClassManager.addNameAliasMappings({
   "Ext.app.ViewModel": [
     "viewmodel.default"
   ],
+  "Ext.app.bind.AbstractStub": [],
+  "Ext.app.bind.BaseBinding": [],
+  "Ext.app.bind.Binding": [],
   "Ext.app.bind.Formula": [],
   "Ext.app.bind.LinkStub": [],
   "Ext.app.bind.Multi": [],
@@ -2322,6 +2339,9 @@ Ext.ClassManager.addNameAliasMappings({
     "widget.cycle"
   ],
   "Ext.button.Manager": [],
+  "Ext.button.Segmented": [
+    "widget.segmentedbutton"
+  ],
   "Ext.button.Split": [
     "widget.splitbutton"
   ],
@@ -2335,9 +2355,6 @@ Ext.ClassManager.addNameAliasMappings({
   "Ext.container.Monitor": [],
   "Ext.container.Viewport": [
     "widget.viewport"
-  ],
-  "Ext.container.plugin.Viewport": [
-    "plugin.viewport"
   ],
   "Ext.dashboard.Column": [
     "widget.dashboard-column"
@@ -2357,9 +2374,6 @@ Ext.ClassManager.addNameAliasMappings({
     "store.array"
   ],
   "Ext.data.Batch": [],
-  "Ext.data.BufferStore": [
-    "store.buffer"
-  ],
   "Ext.data.BufferedStore": [
     "store.buffered"
   ],
@@ -2390,6 +2404,7 @@ Ext.ClassManager.addNameAliasMappings({
   "Ext.data.ProxyStore": [],
   "Ext.data.Request": [],
   "Ext.data.ResultSet": [],
+  "Ext.data.Session": [],
   "Ext.data.SortTypes": [],
   "Ext.data.Store": [
     "store.store"
@@ -2438,6 +2453,9 @@ Ext.ClassManager.addNameAliasMappings({
   "Ext.data.identifier.Uuid": [
     "data.identifier.uuid"
   ],
+  "Ext.data.matrix.Matrix": [],
+  "Ext.data.matrix.Side": [],
+  "Ext.data.matrix.Slice": [],
   "Ext.data.operation.Create": [
     "data.operation.create"
   ],
@@ -2507,18 +2525,9 @@ Ext.ClassManager.addNameAliasMappings({
   "Ext.data.schema.Schema": [
     "schema.default"
   ],
-  "Ext.data.session.AbstractStub": [],
-  "Ext.data.session.AssociatedEntitiesStub": [],
-  "Ext.data.session.AssociatedEntityStub": [],
-  "Ext.data.session.BaseBinding": [],
-  "Ext.data.session.Binding": [],
-  "Ext.data.session.EntityStub": [],
-  "Ext.data.session.Matrix": [],
-  "Ext.data.session.MatrixSide": [],
-  "Ext.data.session.MatrixSlice": [],
-  "Ext.data.session.MatrixStub": [],
-  "Ext.data.session.Session": [],
-  "Ext.data.session.ValidationStub": [],
+  "Ext.data.session.BatchVisitor": [],
+  "Ext.data.session.ChangesVisitor": [],
+  "Ext.data.session.ChildChangesVisitor": [],
   "Ext.data.validator.Bound": [
     "data.validator.bound"
   ],
@@ -2597,6 +2606,7 @@ Ext.ClassManager.addNameAliasMappings({
   "Ext.direct.Transaction": [
     "direct.transaction"
   ],
+  "Ext.dom.ButtonElement": [],
   "Ext.dom.CompositeElement": [],
   "Ext.dom.CompositeElementLite": [],
   "Ext.dom.Element": [],
@@ -2907,6 +2917,28 @@ Ext.ClassManager.addNameAliasMappings({
   "Ext.grid.feature.Summary": [
     "feature.summary"
   ],
+  "Ext.grid.filters.Filters": [
+    "plugin.gridfilters"
+  ],
+  "Ext.grid.filters.filter.Base": [],
+  "Ext.grid.filters.filter.Boolean": [
+    "grid.filter.boolean"
+  ],
+  "Ext.grid.filters.filter.Date": [
+    "grid.filter.date"
+  ],
+  "Ext.grid.filters.filter.List": [
+    "grid.filter.list"
+  ],
+  "Ext.grid.filters.filter.Number": [
+    "grid.filter.number",
+    "grid.filter.numeric"
+  ],
+  "Ext.grid.filters.filter.SingleFilter": [],
+  "Ext.grid.filters.filter.String": [
+    "grid.filter.string"
+  ],
+  "Ext.grid.filters.filter.TriFilter": [],
   "Ext.grid.header.Container": [
     "widget.headercontainer"
   ],
@@ -2918,13 +2950,8 @@ Ext.ClassManager.addNameAliasMappings({
   "Ext.grid.plugin.BufferedRenderer": [
     "plugin.bufferedrenderer"
   ],
-  "Ext.grid.plugin.BufferedRendererTableView": [],
-  "Ext.grid.plugin.BufferedRendererTreeView": [],
   "Ext.grid.plugin.CellEditing": [
     "plugin.cellediting"
-  ],
-  "Ext.grid.plugin.CellUpdating": [
-    "plugin.cellupdating"
   ],
   "Ext.grid.plugin.DragDrop": [
     "plugin.gridviewdragdrop"
@@ -2944,14 +2971,12 @@ Ext.ClassManager.addNameAliasMappings({
   "Ext.grid.plugin.RowExpander": [
     "plugin.rowexpander"
   ],
-  "Ext.grid.plugin.SubTable": [
-    "plugin.subtable"
-  ],
   "Ext.grid.property.Grid": [
     "widget.propertygrid"
   ],
   "Ext.grid.property.HeaderContainer": [],
   "Ext.grid.property.Property": [],
+  "Ext.grid.property.Reader": [],
   "Ext.grid.property.Store": [],
   "Ext.layout.ClassList": [],
   "Ext.layout.Context": [],
@@ -2966,9 +2991,6 @@ Ext.ClassManager.addNameAliasMappings({
   ],
   "Ext.layout.component.BoundList": [
     "layout.boundlist"
-  ],
-  "Ext.layout.component.Button": [
-    "layout.button"
   ],
   "Ext.layout.component.Component": [],
   "Ext.layout.component.Dock": [
@@ -3037,6 +3059,9 @@ Ext.ClassManager.addNameAliasMappings({
   "Ext.layout.container.HBox": [
     "layout.hbox"
   ],
+  "Ext.layout.container.SegmentedButton": [
+    "layout.segmentedbutton"
+  ],
   "Ext.layout.container.SplitColumn": [
     "layout.split-column"
   ],
@@ -3047,9 +3072,18 @@ Ext.ClassManager.addNameAliasMappings({
     "layout.vbox"
   ],
   "Ext.layout.container.border.Region": [],
-  "Ext.layout.container.boxOverflow.Menu": [],
-  "Ext.layout.container.boxOverflow.None": [],
-  "Ext.layout.container.boxOverflow.Scroller": [],
+  "Ext.layout.container.boxOverflow.Menu": [
+    "box.overflow.Menu",
+    "box.overflow.menu"
+  ],
+  "Ext.layout.container.boxOverflow.None": [
+    "box.overflow.None",
+    "box.overflow.none"
+  ],
+  "Ext.layout.container.boxOverflow.Scroller": [
+    "box.overflow.Scroller",
+    "box.overflow.scroller"
+  ],
   "Ext.menu.CheckItem": [
     "widget.menucheckitem"
   ],
@@ -3072,23 +3106,26 @@ Ext.ClassManager.addNameAliasMappings({
   ],
   "Ext.mixin.Bindable": [],
   "Ext.mixin.Factoryable": [],
+  "Ext.mixin.Hookable": [],
   "Ext.mixin.Identifiable": [],
   "Ext.mixin.Inheritable": [],
   "Ext.mixin.Mashup": [],
   "Ext.mixin.Observable": [],
   "Ext.mixin.Queryable": [],
+  "Ext.mixin.Responsive": [],
   "Ext.mixin.Selectable": [],
   "Ext.mixin.Templatable": [],
   "Ext.mixin.Traversable": [],
   "Ext.overrides.GlobalEvents": [],
   "Ext.overrides.Widget": [],
   "Ext.overrides.app.Application": [],
-  "Ext.overrides.data.NodeInterface": [],
   "Ext.overrides.dom.Element": [],
   "Ext.overrides.dom.Helper": [],
   "Ext.overrides.event.Event": [],
   "Ext.overrides.event.publisher.Dom": [],
   "Ext.overrides.event.publisher.Gesture": [],
+  "Ext.overrides.util.Positionable": [],
+  "Ext.panel.Bar": [],
   "Ext.panel.DD": [],
   "Ext.panel.Header": [
     "widget.header"
@@ -3100,6 +3137,9 @@ Ext.ClassManager.addNameAliasMappings({
   "Ext.panel.Proxy": [],
   "Ext.panel.Table": [
     "widget.tablepanel"
+  ],
+  "Ext.panel.Title": [
+    "widget.title"
   ],
   "Ext.panel.Tool": [
     "widget.tool"
@@ -3118,6 +3158,14 @@ Ext.ClassManager.addNameAliasMappings({
   "Ext.picker.Time": [
     "widget.timepicker"
   ],
+  "Ext.plugin.Abstract": [],
+  "Ext.plugin.Manager": [],
+  "Ext.plugin.Responsive": [
+    "plugin.responsive"
+  ],
+  "Ext.plugin.Viewport": [
+    "plugin.viewport"
+  ],
   "Ext.resizer.BorderSplitter": [
     "widget.bordersplitter"
   ],
@@ -3131,6 +3179,7 @@ Ext.ClassManager.addNameAliasMappings({
   "Ext.resizer.SplitterTracker": [],
   "Ext.rtl.Component": [],
   "Ext.rtl.button.Button": [],
+  "Ext.rtl.button.Segmented": [],
   "Ext.rtl.dd.DD": [],
   "Ext.rtl.dom.Element": [],
   "Ext.rtl.dom.Layer": [],
@@ -3157,8 +3206,9 @@ Ext.ClassManager.addNameAliasMappings({
   "Ext.rtl.layout.container.VBox": [],
   "Ext.rtl.layout.container.boxOverflow.Menu": [],
   "Ext.rtl.layout.container.boxOverflow.Scroller": [],
-  "Ext.rtl.panel.Header": [],
+  "Ext.rtl.panel.Bar": [],
   "Ext.rtl.panel.Panel": [],
+  "Ext.rtl.panel.Title": [],
   "Ext.rtl.resizer.BorderSplitterTracker": [],
   "Ext.rtl.resizer.ResizeTracker": [],
   "Ext.rtl.resizer.SplitterTracker": [],
@@ -3252,9 +3302,14 @@ Ext.ClassManager.addNameAliasMappings({
     "widget.quicktip"
   ],
   "Ext.tip.QuickTipManager": [],
-  "Ext.tip.Tip": [],
+  "Ext.tip.Tip": [
+    "widget.tip"
+  ],
   "Ext.tip.ToolTip": [
     "widget.tooltip"
+  ],
+  "Ext.toolbar.Breadcrumb": [
+    "widget.breadcrumb"
   ],
   "Ext.toolbar.Fill": [
     "widget.tbfill"
@@ -3293,7 +3348,7 @@ Ext.ClassManager.addNameAliasMappings({
   ],
   "Ext.util.AbstractMixedCollection": [],
   "Ext.util.Animate": [],
-  "Ext.util.Bindable": [],
+  "Ext.util.Base64": [],
   "Ext.util.CSS": [],
   "Ext.util.ClickRepeater": [],
   "Ext.util.Collection": [],
@@ -3323,7 +3378,6 @@ Ext.ClassManager.addNameAliasMappings({
   "Ext.util.PaintMonitor": [],
   "Ext.util.Point": [],
   "Ext.util.Positionable": [],
-  "Ext.util.Positionable_ext": [],
   "Ext.util.ProtoElement": [],
   "Ext.util.Queue": [],
   "Ext.util.Region": [],
@@ -3334,6 +3388,7 @@ Ext.ClassManager.addNameAliasMappings({
   "Ext.util.Sortable": [],
   "Ext.util.Sorter": [],
   "Ext.util.SorterCollection": [],
+  "Ext.util.StoreHolder": [],
   "Ext.util.TaskManager": [],
   "Ext.util.TaskRunner": [],
   "Ext.util.TextMetrics": [],
@@ -3400,7 +3455,7 @@ Ext.ClassManager.addNameAliasMappings({
   "ExtThemeNeptune.toolbar.Paging": [],
   "ExtThemeNeptune.toolbar.Toolbar": []
 });
-Ext.setVersion("ext", "5.0.0.736");
+Ext.setVersion("ext", "5.0.0.970");
 Ext.setVersion("ext-theme-base", "5.0.0");
 Ext.setVersion("ext-theme-neptune", "5.0.0");
 Ext.setVersion("ext-theme-neutral", "5.0.0");
@@ -3415,6 +3470,7 @@ Ext.setVersion("sencha-core", "5.0.0");
 
 Ext.Loader.loadScriptsSync([
   "../../../../overrides/event/Event.js",
+  "../../../../overrides/Positionable.js",
   "../../../../overrides/dom/Helper.js",
   "../../../../overrides/dom/Element.js",
   "../../../../overrides/GlobalEvents.js",
@@ -3437,7 +3493,6 @@ Ext.Loader.loadScriptsSync([
   "../../overrides/grid/column/RowNumberer.js",
   "../../overrides/menu/Separator.js",
   "../../overrides/menu/Menu.js",
-  "../../../../overrides/data/NodeInterface.js",
   "../../overrides/tab/Tab.js"
 ]);
 

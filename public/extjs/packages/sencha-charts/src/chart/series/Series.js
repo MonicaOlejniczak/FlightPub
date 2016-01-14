@@ -30,10 +30,13 @@
  */
 Ext.define('Ext.chart.series.Series', {
 
-    requires: ['Ext.chart.Markers', 'Ext.chart.label.Label'],
+    requires: [
+        'Ext.chart.Markers',
+        'Ext.chart.label.Label',
+        'Ext.tip.ToolTip'
+    ],
 
     mixins: {
-        tips: 'Ext.chart.Tip',
         observable: 'Ext.mixin.Observable'
     },
 
@@ -49,13 +52,6 @@ Ext.define('Ext.chart.series.Series', {
      * Default series sprite type.
      */
     seriesType: 'sprite',
-
-    /**
-     * @property {String} chartType
-     * The type of chart this series belongs to: cartesian, polar or generic. 
-     * Set in subclasses and defined in {@link Ext.chart.Chart.chartTypes}.
-     */
-    chartType: null,
 
     identifiablePrefix: 'ext-line-',
 
@@ -277,12 +273,6 @@ Ext.define('Ext.chart.series.Series', {
         marker: null,
 
         /**
-         * @cfg {Object} markerConfig
-         * @deprecated Use {@link #marker} instead
-         */
-        markerConfig: null,
-
-        /**
          * @cfg {Object} markerSubStyle
          * This is cyclic used if series have multiple marker sprites.
          */
@@ -322,14 +312,55 @@ Ext.define('Ext.chart.series.Series', {
         hidden: false,
 
         /**
-         * @cfg {Object} highlightCfg The sprite configuration used when highlighting items in the series.
+         * @cfg {Boolean/Object} highlight
+         * The sprite attributes that will be applied to the highlighted items in the series.
+         * If set to 'true', the default highlight style from {@link #highlightCfg} will be used.
+         * If the value of this config is an object, it will be merged with the {@link #highlightCfg}.
+         * In case merging of 'highlight' and 'highlightCfg' configs in not the desired behavior,
+         * provide the 'highlightCfg' instead.
          */
-        highlightCfg: null,
+        highlight: false,
+
+        /**
+         * @protected
+         * @cfg {Object} highlightCfg
+         * The default style for the highlighted item.
+         * Used when {@link #highlight} config was simply set to 'true' instead of specifying a style.
+         */
+        highlightCfg: {
+            // Make custom highlightCfg's in subclasses replace this one.
+            merge: function (value) {
+                return value;
+            },
+            $value: {
+                fillStyle: 'yellow',
+                strokeStyle: 'red'
+            }
+        },
 
         /**
          * @cfg {Object} animation The series animation configuration.
          */
-        animation: null
+        animation: null,
+
+        /**
+         * @cfg {Object} tooltip
+         * Add tooltips to the visualization's markers. The options for the tooltip are the
+         * same configuration used with {@link Ext.tip.ToolTip}. For example:
+         *
+         *     tooltip: {
+         *       trackMouse: true,
+         *       width: 140,
+         *       height: 28,
+         *       renderer: function (storeItem, item) {
+         *           this.setHtml(storeItem.get('name') + ': ' + storeItem.get('data1') + ' views');
+         *       }
+         *     }
+         */
+        tooltip: {
+            lazy: true,
+            $value: null
+        }
     },
 
     directions: [],
@@ -353,14 +384,6 @@ Ext.define('Ext.chart.series.Series', {
      */
     themeMarkerCount: function() {
         return 0;
-    },
-
-    setMarkerConfig: function (m) {
-        return this.setMarker(m);
-    },
-
-    getMarkerConfig: function () {
-        return this.getMarker();
     },
 
     getFields: function (fieldCategory) {
@@ -396,25 +419,28 @@ Ext.define('Ext.chart.series.Series', {
             newTitle = Ext.Array.from(newTitle),
             chart = me.getChart(),
             series = chart.getSeries(),
-            seriesIndex = (series && Ext.Array.indexOf(series, me)) || -1,
+            seriesIndex = Ext.Array.indexOf(series, me),
             legendStore = chart.getLegendStore(),
             ln = Math.min(newTitle.length, me.getYField().length),
             i, item, title;
 
-        if (newTitle) {
-            if (seriesIndex !== -1) {
-                for (i = 0; i < ln; i++) {
-                    title = newTitle[i];
-                    if (title) {
-                        item = legendStore.getAt(seriesIndex + i);
-                        item.set('name', title);
-                    }
+        if (seriesIndex !== -1) {
+            for (i = 0; i < ln; i++) {
+                title = newTitle[i];
+                if (title) {
+                    item = legendStore.getAt(seriesIndex + i);
+                    item.set('name', title);
                 }
             }
         }
     },
 
-    applyHighlightCfg: function (highlight, oldHighlight) {
+    applyHighlight: function (highlight, oldHighlight) {
+        if (Ext.isObject(highlight)) {
+            highlight = Ext.merge({}, this.config.highlightCfg, highlight);
+        } else if (highlight === true) {
+            highlight = this.config.highlightCfg;
+        }
         return Ext.apply(oldHighlight || {}, highlight);
     },
 
@@ -435,6 +461,19 @@ Ext.define('Ext.chart.series.Series', {
                 item.sprite.setAttributes(change);
             }
         }
+    },
+
+    getBBoxForItem: function (item) {
+        if (item && item.sprite) {
+            if (item.sprite.itemsMarker && item.category === 'items') {
+                return item.sprite.getMarkerBBox(item.category, item.index);
+            } else if (item.sprite instanceof Ext.draw.sprite.Instancing) {
+                return item.sprite.getBBoxFor(item.index);
+            } else {
+                return item.sprite.getBBox();
+            }
+        }
+        return null;
     },
 
     applyHighlightItem: function (newHighlightItem, oldHighlightItem) {
@@ -462,8 +501,84 @@ Ext.define('Ext.chart.series.Series', {
         me.sprites = [];
         me.dataRange = [];
         Ext.ComponentManager.register(me);
-        me.mixins.tips.constructor.apply(me, arguments);
-        me.mixins.observable.constructor.apply(me, arguments);
+
+        if (config) {
+            // Backward compatibility with Ext.
+            if (config.tips) {
+                config = Ext.apply({
+                    tooltip: config.tips
+                }, config);
+            }
+            // Backward compatibility with Touch.
+            if (config.highlightCfg) {
+                config = Ext.apply({
+                    highlight: config.highlightCfg
+                }, config);
+            }
+        }
+
+        me.mixins.observable.constructor.call(me, config);
+    },
+
+    applyTooltip: function (tooltip, oldTooltip) {
+        var config = Ext.apply({}, tooltip, {
+            renderer: Ext.emptyFn,
+            constrainPosition: true,
+            shrinkWrapDock: true,
+            autoHide: true,
+            offsetX: 10,
+            offsetY: 10
+        });
+        return new Ext.tip.ToolTip(config);
+    },
+
+    showTip: function (item, xy) {
+        var me = this,
+            tooltip = me.getTooltip(),
+            sprite, surface, surfaceEl,
+            pos, point,
+            bbox, x, y,
+            config,
+            isRtl;
+
+        if (!tooltip) {
+            return;
+        }
+        clearTimeout(me.tooltipTimeout);
+        config = tooltip.config;
+        if (tooltip.trackMouse) {
+            xy[0] += config.offsetX;
+            xy[1] += config.offsetY;
+        } else {
+            sprite = item.sprite;
+            surface = sprite.getSurface();
+            surfaceEl = Ext.get(surface.getId());
+            if (surfaceEl) {
+                bbox = item.series.getBBoxForItem(item);
+                x = bbox.x + bbox.width / 2;
+                y = bbox.y + bbox.height / 2;
+                point = surface.matrix.transformPoint([x, y]);
+                pos = surfaceEl.getXY();
+                isRtl = surface.getInherited().rtl;
+                x = isRtl ? pos[0] + surfaceEl.getWidth() - point[0] : pos[0] + point[0];
+                y = pos[1] + point[1];
+                xy = [x, y];
+            }
+        }
+        tooltip.config.renderer.call(tooltip, item.record, item);
+        tooltip.show(xy);
+    },
+
+    hideTip: function (item) {
+        var me = this,
+            tooltip = me.getTooltip();
+        if (!tooltip) {
+            return;
+        }
+        clearTimeout(me.tooltipTimeout);
+        me.tooltipTimeout = setTimeout(function () {
+            tooltip.hide();
+        }, 0);
     },
 
     applyStore: function (store) {
@@ -673,7 +788,7 @@ Ext.define('Ext.chart.series.Series', {
             labels = [];
             sprite = sprites[i];
             field = sprite.getField();
-            if (labelFields.indexOf(field) < 0) {
+            if (Ext.Array.indexOf(labelFields, field) < 0) {
                 field = labelFields[i];
             }
             for (j = 0, ln = items.length; j < ln; j++) {
@@ -757,23 +872,23 @@ Ext.define('Ext.chart.series.Series', {
     onAxesChange: function (chart) {
         var me = this,
             axes = chart.getAxes(), axis,
-            directionAxesMap = {}, directionAxes,
-            directionFieldsMap = {}, directionFields,
+            directionToAxesMap = {},
+            directionToFieldsMap = {},
             needHighPrecision = false,
             directions = this.directions, direction,
-            i, ln, j, ln2, k, ln3;
+            i, ln;
 
         for (i = 0, ln = directions.length; i < ln; i++) {
             direction = directions[i];
-            directionFieldsMap[direction] = me.getFields(me['fieldCategory' + direction]);
+            directionToFieldsMap[direction] = me.getFields(me['fieldCategory' + direction]);
         }
 
         for (i = 0, ln = axes.length; i < ln; i++) {
             axis = axes[i];
-            if (!directionAxesMap[axis.getDirection()]) {
-                directionAxesMap[axis.getDirection()] = [axis];
+            if (!directionToAxesMap[axis.getDirection()]) {
+                directionToAxesMap[axis.getDirection()] = [axis];
             } else {
-                directionAxesMap[axis.getDirection()].push(axis);
+                directionToAxesMap[axis.getDirection()].push(axis);
             }
         }
 
@@ -782,34 +897,44 @@ Ext.define('Ext.chart.series.Series', {
             if (me['get' + direction + 'Axis']()) {
                 continue;
             }
-            if (directionAxesMap[direction]) {
-                directionAxes = directionAxesMap[direction];
-                for (j = 0, ln2 = directionAxes.length; j < ln2; j++) {
-                    axis = directionAxes[j];
-                    if (axis.getFields().length === 0) {
-                        me['set' + direction + 'Axis'](axis);
-                        if (axis.getNeedHighPrecision()) {
-                            needHighPrecision = true;
-                        }
-                        break;
-                    } else {
-                        directionFields = directionFieldsMap[direction];
-                        if (directionFields) {
-                            for (k = 0, ln3 = directionFields.length; k < ln3; k++) {
-                                if (axis.fieldsMap[directionFields[k]]) {
-                                    me['set' + direction + 'Axis'](axis);
-                                    if (axis.getNeedHighPrecision()) {
-                                        needHighPrecision = true;
-                                    }
-                                    break;
-                                }
-                            }
-                        }
+            if (directionToAxesMap[direction]) {
+                axis = me.findMatchingAxis(directionToAxesMap[direction], directionToFieldsMap[direction]);
+                if (axis) {
+                    me['set' + direction + 'Axis'](axis);
+                    if (axis.getNeedHighPrecision()) {
+                        needHighPrecision = true;
                     }
                 }
             }
         }
         this.getSurface().setHighPrecision(needHighPrecision);
+    },
+
+    /**
+     * @private
+     * Given the list of axes in a certain direction and a list of series fields in that direction
+     * returns the first matching axis for the series in that direction,
+     * or undefined if a match wasn't found.
+     */
+    findMatchingAxis: function (directionAxes, directionFields) {
+        var axis, axisFields,
+            i, j;
+
+        for (i = 0; i < directionAxes.length; i++) {
+            axis = directionAxes[i];
+            axisFields = axis.getFields();
+            if (!axisFields.length) {
+                return axis;
+            } else {
+                if (directionFields) {
+                    for (j = 0; j < directionFields.length; j++) {
+                        if ( Ext.Array.indexOf(axisFields, directionFields[j]) >= 0 ) {
+                            return axis;
+                        }
+                    }
+                }
+            }
+        }
     },
 
     onChartDetached: function (oldChart) {
@@ -852,8 +977,8 @@ Ext.define('Ext.chart.series.Series', {
 
         markers.setAttributes({zIndex: Number.MAX_VALUE});
         var config = Ext.apply({}, itemInstancing);
-        if (me.getHighlightCfg()) {
-            config.highlightCfg = me.getHighlightCfg();
+        if (me.getHighlight()) {
+            config.highlight = me.getHighlight();
             config.modifiers = ['highlight'];
         }
         markers.setTemplate(config);
@@ -891,8 +1016,8 @@ Ext.define('Ext.chart.series.Series', {
             if (me.getShowMarkers() && me.getMarker()) {
                 marker = new Ext.chart.Markers();
                 config = Ext.merge({}, me.getMarker());
-                if (me.getHighlightCfg()) {
-                    config.highlightCfg = me.getHighlightCfg();
+                if (me.getHighlight()) {
+                    config.highlight = me.getHighlight();
                     config.modifiers = ['highlight'];
                 }
                 marker.setTemplate(config);
@@ -1026,7 +1151,7 @@ Ext.define('Ext.chart.series.Series', {
             darkerRatio = (Ext.isNumber(darker) ? darker : me.darkerStrokeRatio),
             strokeColors;
         if (darker) {
-            strokeColors = colors.map(function(colorString) {
+            strokeColors = Ext.Array.map(colors, function(colorString) {
                 var color = Ext.draw.Color.fromString(colorString);
                 return color.getDarker(darkerRatio).toString();
             });
@@ -1268,13 +1393,21 @@ Ext.define('Ext.chart.series.Series', {
     },
 
     destroy: function () {
-        this.clearListeners();
-        Ext.ComponentManager.unregister(this);
-        var store = this.getStore();
+        var me = this,
+            store = me.getStore(),
+            // Peek at the config so we don't create one just to destroy it
+            tooltip = me.getConfig('tooltip', true);
+
+        me.clearListeners();
+        Ext.ComponentManager.unregister(me);
         if (store && store.getAutoDestroy()) {
             Ext.destroy(store);
         }
-        this.setStore(null);
-        this.callParent();
+        me.setStore(null);
+        if (tooltip) {
+            Ext.destroy(tooltip);
+            clearTimeout(me.tooltipTimeout);
+        }
+        me.callParent();
     }
 });

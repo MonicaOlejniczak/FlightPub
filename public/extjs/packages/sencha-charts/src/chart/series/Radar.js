@@ -139,28 +139,29 @@ Ext.define('Ext.chart.series.Radar', {
             i, length = dataX.length,
             store = me.getStore(),
             marker = me.getMarker(),
+            threshhold = 22,
             item, th, r;
 
-        if(me.getHidden()) {
+        if (me.getHidden()) {
             return null;
         }
         if (sprite && marker) {
             for (i = 0; i < length; i++) {
                 th = (dataX[i] - minX) / (maxX - minX + 1) * 2 * Math.PI + baseRotation;
                 r = dataY[i] / maxY * (endRho - startRho) + startRho;
-                if (Math.abs(centerX + Math.cos(th) * r - x) < 22 && Math.abs(centerY + Math.sin(th) * r - y) < 22) {
+                if (Math.abs(centerX + Math.cos(th) * r - x) < threshhold && Math.abs(centerY + Math.sin(th) * r - y) < threshhold) {
                     item = {
-                        series: this,
+                        series: me,
                         sprite: sprite,
                         index: i,
                         record: store.getData().items[i],
-                        field: store.getFields().items[i]
+                        field: me.getYField()
                     };
                     return item;
                 }
             }
         }
-        return this.callParent(arguments);
+        return me.callParent(arguments);
     },
 
     provideLegendInfo: function (target) {

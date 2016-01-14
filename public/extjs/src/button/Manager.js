@@ -107,21 +107,23 @@ Ext.define('Ext.button.Manager', {
         }
     },
 
-    // Gets the pressed button in the passed group or null
-    // @param {String} group
-    // @return {Ext.button.Button}
-    getPressed: function(group) {
-        var g = this.groups[group],
+    /**
+     * Gets the pressed button in the passed group or null
+     * @param {String} groupName
+     * @return {Ext.button.Button}
+     */
+    getPressed: function(groupName) {
+        var group = this.groups[groupName],
             i = 0,
             len;
 
-        if (g) {
-            for (len = g.length; i < len; i++) {
-                if (g[i].pressed === true) {
-                    return g[i];
+        if (group) {
+            for (len = group.length; i < len; i++) {
+                if (group[i].pressed === true) {
+                    return group[i];
                 }
             }
         }
         return null;
-    } 
+    }
 });

@@ -618,7 +618,7 @@ var makeCtor = Ext.Class.makeCtor,
          * Get the name of the class by its reference or its instance. This is
          * usually invoked by the shorthand {@link Ext#getClassName}.
          *
-         *     Ext.getName(Ext.Action); // returns "Ext.Action"
+         *     Ext.ClassManager.getName(Ext.Action); // returns "Ext.Action"
          *
          * @param {Ext.Class/Object} object
          * @return {String} className
@@ -1172,12 +1172,18 @@ var makeCtor = Ext.Class.makeCtor,
      *              }
      *          }
      *      });
+     *
+     * If you specify a `$enabled` property in the `debugHooks` object that will be used
+     * as the default enabled state for the hooks. If the `{@link Ext#manifest}` contains
+     * a `debug` object of if `{@link Ext#debugConfig}` is specified, the `$enabled` flag
+     * will override its "*" value.
      */
     Manager.registerPostprocessor('debugHooks', function(name, Class, data) {
         //<debug>
         Ext.classSystemMonitor && Ext.classSystemMonitor(Class, 'Ext.Class#debugHooks', arguments);
 
-        if (Ext.isDebugEnabled(Class.$className)) {
+        if (Ext.isDebugEnabled(Class.$className, data.debugHooks.$enabled)) {
+            delete data.debugHooks.$enabled;
             Ext.override(Class, data.debugHooks);
         }
         //</debug>
@@ -1437,12 +1443,13 @@ var makeCtor = Ext.Class.makeCtor,
             //      5: (component)
             //      
             var xtype = name,
-                alias, className, T, load;
+                alias, className, T;
 
             if (typeof xtype !== 'string') { // if (form 3 or 5)
                 // first arg is config or component
                 config = name; // arguments[0]
                 xtype = config.xtype;
+                className = config.xclass;
             } else {
                 config = config || {};
             }
@@ -1451,17 +1458,18 @@ var makeCtor = Ext.Class.makeCtor,
                 return config;
             }
 
-            alias = 'widget.' + xtype;
-            className = Manager.getNameByAlias(alias);
-
-            // this is needed to support demand loading of the class
             if (!className) {
-                load = true;
+                alias = 'widget.' + xtype;
+                className = Manager.getNameByAlias(alias);
             }
 
-            T = Manager.get(className);
-            if (load || !T) {
-                return Ext.create(alias, config);
+            // this is needed to support demand loading of the class
+            if (className) {
+                T = Manager.get(className);
+            }
+
+            if (!T) {
+                return Ext.create(className || alias, config);
             }
             return new T(config);
         },

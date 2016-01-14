@@ -14,8 +14,8 @@ Ext.define('Ext.view.BoundList', {
     /**
      * @cfg {Number} [pageSize=0]
      * If greater than `0`, a {@link Ext.toolbar.Paging} is displayed at the bottom of the list and store
-     * queries will execute with page {@link Ext.data.Operation#start start} and
-     * {@link Ext.data.Operation#limit limit} parameters.
+     * queries will execute with page {@link Ext.data.operation.Read#start start} and
+     * {@link Ext.data.operation.Read#limit limit} parameters.
      */
     pageSize: 0,
 
@@ -39,9 +39,6 @@ Ext.define('Ext.view.BoundList', {
 
     preserveScrollOnRefresh: true,
 
-    // This Component is used as a popup, not part of a complex layout. Display data immediately.
-    deferInitialRefresh: false,
-
     componentLayout: 'boundlist',
 
     autoScroll: true,
@@ -51,8 +48,8 @@ Ext.define('Ext.view.BoundList', {
     ],
 
     renderTpl: [
-        '<div id="{id}-listWrap" role="presentation" class="{baseCls}-list-ct ', Ext.dom.Element.unselectableCls, '">',
-            '<ul id="{id}-listEl" class="' + Ext.plainListCls + '">',
+        '<div id="{id}-listWrap" data-ref="listWrap" role="presentation" class="{baseCls}-list-ct ', Ext.dom.Element.unselectableCls, '">',
+            '<ul id="{id}-listEl" data-ref="listEl" class="' + Ext.plainListCls + '">',
             '</ul>',
         '</div>',
         '{%',
@@ -151,14 +148,6 @@ Ext.define('Ext.view.BoundList', {
         return result;
     },
 
-    getTargetEl: function() {
-        return this.listEl;
-    },
-
-    getOverflowEl: function() {
-        return this.listWrap;
-    },
-
     createPagingToolbar: function() {
         return Ext.widget('pagingtoolbar', {
             id: this.id + '-paging-toolbar',
@@ -170,15 +159,8 @@ Ext.define('Ext.view.BoundList', {
         });
     },
 
-    // Do the job of a container layout at this point even though we are not a Container.
-    finishRenderChildren: function () {
-        var toolbar = this.pagingToolbar;
-
-        this.callParent(arguments);
-
-        if (toolbar) {
-            toolbar.finishRender();
-        }
+    getNodeContainer: function() {
+        return this.listEl;
     },
 
     refresh: function(){
@@ -233,5 +215,26 @@ Ext.define('Ext.view.BoundList', {
     onDestroy: function() {
         this.callParent();
         Ext.destroyMembers(this, 'pagingToolbar', 'listWrap', 'listEl');
+    },
+
+    privates: {
+        getTargetEl: function() {
+            return this.listEl;
+        },
+
+        getOverflowEl: function() {
+            return this.listWrap;
+        },
+
+        // Do the job of a container layout at this point even though we are not a Container.
+        finishRenderChildren: function () {
+            var toolbar = this.pagingToolbar;
+
+            this.callParent(arguments);
+
+            if (toolbar) {
+                toolbar.finishRender();
+            }
+        }
     }
 });

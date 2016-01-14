@@ -2,7 +2,6 @@
  * @class Ext.chart.PolarChart
  * @extends Ext.chart.AbstractChart
  * @xtype polar
- * @deprecated Use Ext.chart.Chart directly
  *
  * Represent a chart that uses polar coordinates.
  * A polar chart has two axes: an angular axis (which is a circle) and
@@ -139,7 +138,7 @@ Ext.define('Ext.chart.PolarChart', {
 
             me.setMainRect(mainRect);
 
-            me.doSetSurfaceRect(me.getSurface(), chartRect);
+            me.doSetSurfaceRect(me.getSurface(), mainRect);
             for (i = 0, ln = me.surfaceMap.grid && me.surfaceMap.grid.length; i < ln; i++) {
                 me.doSetSurfaceRect(me.surfaceMap.grid[i], chartRect);
             }
@@ -161,19 +160,6 @@ Ext.define('Ext.chart.PolarChart', {
                 floating = axis.getFloating();
                 floatingValue = floating ? floating.value : null;
                 me.doSetSurfaceRect(axis.getSurface(), chartRect);
-                // TODO: Below code will try to use the smallest possible surface size
-                // TODO: for the axis to render, instead of using the whole chart surface.
-                // TODO: Advantages of this is lower memory use.
-                // TODO: Disadvantages are that we have to use the axis.margin
-                // TODO: instead of the more flexible chart.insetPadding to prevent labels
-                // TODO: from clipping. This mostly applies to the outermost angular axis.
-                // TODO: We still have to use axis.margin on inner angular axes to make sure
-                // TODO: there's enough space for labels to render without overlapping nearby axes.
-                // TODO: After experimenting with this, I'd say added convenience is
-                // TODO: worth extra memory use.
-                // TODO: This also takes care of this issue:
-// TODO:               me.doSetSurfaceRect(axis.getSurface(),
-// TODO:                   floatingValue === null ? [shrinkBox.left, shrinkBox.top, width, height] : mainRect);
                 thickness = axis.getThickness();
                 for (side in shrinkBox) {
                     shrinkBox[side] += thickness;
@@ -279,14 +265,6 @@ Ext.define('Ext.chart.PolarChart', {
                 }
             }
         }
-    },
-
-    getEventXY: function (e) {
-        e = (e.changedTouches && e.changedTouches[0]) || e.event || e.browserEvent || e;
-        var me = this,
-            xy = me.innerElement.getXY(),
-            padding = me.getInsetPadding();
-        return [e.pageX - xy[0] - padding.left, e.pageY - xy[1] - padding.top];
     },
 
     redraw: function () {

@@ -14,9 +14,6 @@
  */
 Ext.define('Ext.data.schema.OneToOne', {
     extend: 'Ext.data.schema.Association',
-    uses: [
-        'Ext.data.session.AssociatedEntityStub'
-    ],
 
     isOneToOne: true,
 
@@ -41,13 +38,6 @@ Ext.define('Ext.data.schema.OneToOne', {
                 // 'this' refers to the Model instance inside this function
                 return me.doSet(this, value);
             };
-        },
-
-        createStub: function (session, id, options) {
-            // This role refers to User (with the key), so we want to get a user here.
-            // The way we handle this special case is we use a Store but limit its size to
-            // one and deliver to the callback just the one entity.
-            return new Ext.data.session.AssociatedEntitiesStub(session, id, options);
         },
 
         doGet: function (rightRecord) {
@@ -131,10 +121,10 @@ Ext.define('Ext.data.schema.OneToOne', {
             };
         },
 
-        createStub: function (session, id, options) {
-            // This role refers to Address (without a key), so we want to get an address here, so in this case
-            // we only want to create a single item.
-            return new Ext.data.session.AssociatedEntityStub(session, id, options);
+        onValueChange: function(leftRecord, session, newValue) {
+            leftRecord.changingKey = true;
+            this.doSetFK(leftRecord, newValue);
+            leftRecord.changingKey = false;
         },
         
         read: function(record, node, fromReader, readOptions) {

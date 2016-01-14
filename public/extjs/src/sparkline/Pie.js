@@ -1,5 +1,7 @@
-/*
- * Pie charts
+/**
+ * @class Ext.sparkline.Pie
+ *
+ * Plots a pie chart based upon the input {#values} array.
  */
 Ext.define('Ext.sparkline.Pie', {
     extend: 'Ext.sparkline.Base',
@@ -7,10 +9,27 @@ Ext.define('Ext.sparkline.Pie', {
     alias: 'widget.sparklinepie',
 
     config: {
+
+        /**
+         * @cfg {Number} [offset] Angle in degrees to offset the first slice.
+         */
         offset: 0,
+        
+        /**
+         * @cfg {String[]} [sliceColors] An array of CSS colro values to apply to the chart slices.
+         */
         sliceColors: ['#3366cc', '#dc3912', '#ff9900', '#109618', '#66aa00', '#dd4477', '#0099c6', '#990099'],
+        
+        /**
+         * @cfg {Number} [borderWidth=0] Border width in pixels of line round slices.
+         */
         borderWidth: 0,
+        
+        /**
+         * @cfg {String} [borderColor=#000] Border color of line round slices.
+         */
         borderColor: '#000',
+        
         tipTpl: new Ext.XTemplate('&#9679; {value} ({percent:number("0.0")}%)')
     },
 

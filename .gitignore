@@ -2,6 +2,7 @@
 /project/project/
 /project/target/
 /conf/evolutions/
+/conf/application.conf
 /target/
 /out/
 /dist/
@@ -12,3 +13,7 @@
 /RUNNING_PID
 /server.pid
 /activator-sbt-echo-play-shim.sbt
+*.sql
+FlightPub.sublime-workspace
+/node_modules/
+/test/client/coverage/results/

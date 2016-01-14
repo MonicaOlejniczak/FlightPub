@@ -58,7 +58,7 @@ Ext.define('Ext.event.gesture.DoubleTap', {
             return false;
         }
         // the start point of the last touch that occurred.
-        lastStartPoint = me.lastStartPoint = e.changedTouches[0].point
+        lastStartPoint = me.lastStartPoint = e.changedTouches[0].point;
 
         // the start point of the "first" touch in this gesture
         me.startPoint = me.startPoint || lastStartPoint;

@@ -1,3 +1,6 @@
+/**
+ * @author Monica Olejniczak
+ */
 Ext.define('FB.sorter.ArrivalTime', {
 	extend: 'Ext.util.Sorter',
 	root: 'data',

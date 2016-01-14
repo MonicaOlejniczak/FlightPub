@@ -1,5 +1,8 @@
-/*
- * Box plots
+/**
+ * @class Ext.sparkline.Box
+ * Generates a box plot graph from the provided {@link #values} array.
+ *
+ * See <a href="http://en.wikipedia.org/wiki/Box_plot">Wikipedia Box Plots</a>
  */
 Ext.define('Ext.sparkline.Box', {
     extend: 'Ext.sparkline.Base',
@@ -7,20 +10,77 @@ Ext.define('Ext.sparkline.Box', {
     alias: 'widget.sparklinebox',
 
     config: {
+
+        /**
+         * @cfg {Boolean} [raw=false] By default the points are calciulated from the input values array. Set this to true to passthe pre-calculated points in the values config.
+         */
         raw: false,
+
+        /**
+         * @cfg {String} [boxLineColor=#000] The color of the box outline.
+         */
         boxLineColor: '#000',
+        
+        /**
+         * @cfg {String} [boxFillColor=#cdf] The color of the box fill.
+         */
         boxFillColor: '#cdf',
+        
+        /**
+         * @cfg {String} [whiskerColor=#000] The color of the whiskers.
+         */
         whiskerColor: '#000',
+        
+        /**
+         * @cfg {String} [outlierLineColor=#333] The color of the outlier circles' outline.
+         */
         outlierLineColor: '#333',
+        
+        /**
+         * @cfg {String} [outlierFillColor=#fff] The fill color of the outlier circles.
+         */
         outlierFillColor: '#fff',
+        
+        /**
+         * @cfg {String} [medianColor=#f00] The color of the median line.
+         */
         medianColor: '#f00',
+        
+        /**
+         * @cfg {Boolean} [showOutliers=true] Configure as `false` to not show outlier circles.
+         */
         showOutliers: true,
+        
+        /**
+         * @cfg {Number} [outlierIQR=1.5] The inter-quartile range multipler used to calculate values that qualify as an outlier.
+         */
         outlierIQR: 1.5,
+        
+        /**
+         * @cfg {Number} [spotRadius=1.5] The radius of the outlier circles.
+         */
         spotRadius: 1.5,
+        
+        /**
+         * @cfg {Number} [target] If set, a crosshair will be drawn at the specified value point.
+         */
         target: null,
+        
+        /**
+         * @cfg {Number} [targetColor=#4a2] The color of the crosshair drawn at the pointe specified by {@link #target}.
+         */
         targetColor: '#4a2',
-        chartRangeMax: null,
+        
+        /**
+         * @cfg {Number} [chartRangeMin] The minimum value to use for the range of Y values of the chart - Defaults to the minimum value supplied.
+         */
         chartRangeMin: null,
+        
+        /**
+         * @cfg {Number} [chartRangeMax] The maximum value to use for the range of Y values of the chart - Defaults to the minimum value supplied.
+         */
+        chartRangeMax: null,
+                
         tipTpl: new Ext.XTemplate('{field:this.fields}: {value}', {
             fields: function(v) {
                 var fields = {

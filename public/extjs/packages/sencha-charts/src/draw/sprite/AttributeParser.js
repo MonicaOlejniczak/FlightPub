@@ -59,9 +59,13 @@ Ext.define('Ext.draw.sprite.AttributeParser', {
         } else if (!n) {
             return 'none';
         } else if (Ext.isString(n)) {
-            n = Ext.draw.gradient.GradientDefinition.get(n);
-            if (Ext.isString(n)) {
-                return n;
+            if (n.substr(0, 3) === 'url') {
+                n = Ext.draw.gradient.GradientDefinition.get(n);
+                if (Ext.isString(n)) {
+                    return n;
+                }
+            } else {
+                return Ext.draw.Color.fly(n).toString();
             }
         }
         if (n.type === 'linear') {
@@ -74,9 +78,9 @@ Ext.define('Ext.draw.sprite.AttributeParser', {
     },
 
     limited: function (low, hi) {
-        return (function (n) {
+        return function (n) {
             return isNaN(n) ? undefined : Math.min(Math.max(+n, low), hi);
-        });
+        };
     },
     
     limited01: function (n) {
@@ -91,8 +95,8 @@ Ext.define('Ext.draw.sprite.AttributeParser', {
         for (i = 0, ln = args.length; i < ln; i++) {
             enums[args[i]] = true;
         }
-        return (function (n) {
+        return function (n) {
             return n in enums ? n : undefined;
-        });
+        };
     }
 });

@@ -178,6 +178,35 @@ describe("Ext.data.proxy.Ajax", function() {
                 });
                 expect(ajax.params).toBeUndefined();
             });
+
+            it("should not overwrite existing jsonData, but merge them", function() {
+                proxy = new Ext.data.proxy.Ajax({
+                    url: 'fake',
+                    paramsAsJson: true,
+                    writer: {
+                        type: 'json',
+                        writeRecordId: false
+                    }
+                });
+                var Model = Ext.define(null, {
+                    extend: 'Ext.data.Model',
+                    fields: ['name']
+                });
+
+                operation = new Ext.data.operation.Create({
+                    records: [new Model({
+                        name: 'X'
+                    })]
+                });
+                operation.setParams({
+                    foo: 1
+                });
+                proxy.create(operation);
+                expect(ajax.jsonData).toEqual({
+                    name: 'X',
+                    foo: 1
+                });
+            });
         });
     });
     
@@ -279,7 +308,8 @@ describe("Ext.data.proxy.Ajax", function() {
                     expect(operation.wasSuccessful()).toBe(false);
                     expect(operation.getError()).toEqual({
                         status: 500,
-                        statusText: 'failStatus'
+                        statusText: 'failStatus',
+                        response: jasmine.any(Object)
                     });
                 });
                 
@@ -306,7 +336,8 @@ describe("Ext.data.proxy.Ajax", function() {
                         expect(operation.wasSuccessful()).toBe(false);
                         expect(operation.getError()).toEqual({
                             status: 0,
-                            statusText: 'communication failure'
+                            statusText: 'communication failure',
+                            response: jasmine.any(Object)
                         });
                     });
                 });

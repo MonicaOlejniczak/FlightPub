@@ -311,7 +311,7 @@ Ext.define('Ext.grid.column.Action', {
 
     updater: function(cell, value) {
         var cellValues = {};
-        cell.firstChild.innerHTML = Ext.grid.column.ActionColumn.prototype.defaultRenderer.call(this, value, cellValues);
+        cell.firstChild.innerHTML = Ext.grid.column.Action.prototype.defaultRenderer.call(this, value, cellValues);
         Ext.fly(cell).addCls(cellValues.tdCls);
     },
 

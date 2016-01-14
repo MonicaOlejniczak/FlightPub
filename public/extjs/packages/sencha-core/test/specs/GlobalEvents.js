@@ -66,7 +66,7 @@ describe("Ext.GlobalEvents", function() {
                 waits(delay);
                 runs(function() {
                     expect(idleFired).toBe(true);
-                    store.destroyStore();
+                    store.destroy();
                 });
             });
         });

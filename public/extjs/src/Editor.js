@@ -30,18 +30,12 @@
  *
  */
 Ext.define('Ext.Editor', {
-
-    /* Begin Definitions */
-
     extend: 'Ext.container.Container',
-
-    alias: 'widget.editor',
+    xtype: 'editor',
 
     requires: ['Ext.layout.container.Editor'],
 
-    /* End Definitions */
-
-   layout: 'editor',
+    layout: 'editor',
 
     /**
     * @cfg {Ext.form.field.Field} field
@@ -155,7 +149,7 @@ Ext.define('Ext.Editor', {
     focusOnToFront: false,
 
     /**
-     * @cfg {String/HTMLElement/Ext.Element} [parentEl=document.body]
+     * @cfg {String/HTMLElement/Ext.dom.Element} [parentEl=document.body]
      * An element to render to.
      */
 
@@ -168,7 +162,7 @@ Ext.define('Ext.Editor', {
      * Fires when editing is initiated, but before the value changes.  Editing can be canceled by returning
      * false from the handler of this event.
      * @param {Ext.Editor} this
-     * @param {Ext.Element} boundEl The underlying element bound to this editor
+     * @param {Ext.dom.Element} boundEl The underlying element bound to this editor
      * @param {Object} value The field value being set
      */
 
@@ -176,7 +170,7 @@ Ext.define('Ext.Editor', {
      * @event startedit
      * Fires when this editor is displayed
      * @param {Ext.Editor} this
-     * @param {Ext.Element} boundEl The underlying element bound to this editor
+     * @param {Ext.dom.Element} boundEl The underlying element bound to this editor
      * @param {Object} value The starting field value
      */
 
@@ -290,7 +284,7 @@ Ext.define('Ext.Editor', {
 
     /**
      * Starts the editing process and shows the editor.
-     * @param {String/HTMLElement/Ext.Element} el The element to edit
+     * @param {String/HTMLElement/Ext.dom.Element} el The element to edit
      * @param {String} value (optional) A value to initialize the editor with. If a value is not provided, it defaults
       * to the innerHTML of el.
      */
@@ -483,7 +477,7 @@ Ext.define('Ext.Editor', {
         return this.field.getValue();
     },
 
-    beforeDestroy : function() {
+    beforeDestroy: function () {
         var me = this;
 
         Ext.destroy(me.field);

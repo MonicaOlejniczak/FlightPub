@@ -24,6 +24,30 @@ Ext.define('Ext.GlobalEvents', {
     resizeBuffer: 100,
 
     /**
+     * @event added
+     * Fires when a Component is added to a Container.
+     * @param {Ext.Component} component
+     */
+
+    /**
+     * @event collapse
+     * Fires when a Component is collapsed (e.g., a panel).
+     * @param {Ext.Component} component
+     */
+
+    /**
+     * @event expand
+     * Fires when a Component is expanded (e.g., a panel).
+     * @param {Ext.Component} component
+     */
+
+    /**
+     * @event hide
+     * Fires when a Component is hidden.
+     * @param {Ext.Component} component
+     */
+
+    /**
      * @event idle
      * Fires when an event handler finishes its run, just before returning to
      * browser control.
@@ -41,12 +65,24 @@ Ext.define('Ext.GlobalEvents', {
      */
 
     /**
+     * @event removed
+     * Fires when a Component is removed from a Container.
+     * @param {Ext.Component} component
+     */
+
+    /**
      * @event resize
      * Fires when the browser window is resized.  To avoid running resize handlers
      * too often resulting in sluggish window resizing, resize events use a buffer
      * of 100 milliseconds.
      * @param {Number} width The new width
      * @param {Number} height The new height
+     */
+
+    /**
+     * @event show
+     * Fires when a Component is shown.
+     * @param {Ext.Component} component
      */
 
     /**
@@ -59,6 +95,8 @@ Ext.define('Ext.GlobalEvents', {
     idleEventMask: {
         mousemove: 1,
         touchmove: 1,
+        pointermove: 1,
+        MSPointerMove: 1,
         unload: 1
     },
 

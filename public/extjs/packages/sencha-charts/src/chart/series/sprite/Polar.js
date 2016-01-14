@@ -33,11 +33,11 @@ Ext.define('Ext.chart.series.sprite.Polar', {
                 dataMaxY: 'number',
 
                 /**
-                 * @cfg {Array} Data range derived from all the series bound to the x-axis.
+                 * @cfg {Array} [rangeX='data'] Data range derived from all the series bound to the x-axis.
                  */
                 rangeX: 'data',
                 /**
-                 * @cfg {Array} Data range derived from all the series bound to the y-axis.
+                 * @cfg {Array} [rangeY='data'] Data range derived from all the series bound to the y-axis.
                  */
                 rangeY: 'data',
 
@@ -64,27 +64,27 @@ Ext.define('Ext.chart.series.sprite.Polar', {
                 /**
                  * @cfg {Number} [startAngle=0] The starting angle of the polar series.
                  */
-                startAngle: "number",
+                startAngle: 'number',
 
                 /**
                  * @cfg {Number} [endAngle=Math.PI] The ending angle of the polar series.
                  */
-                endAngle: "number",
+                endAngle: 'number',
 
                 /**
                  * @cfg {Number} [startRho=0] The starting radius of the polar series.
                  */
-                startRho: "number",
+                startRho: 'number',
 
                 /**
                  * @cfg {Number} [endRho=150] The ending radius of the polar series.
                  */
-                endRho: "number",
+                endRho: 'number',
 
                 /**
                  * @cfg {Number} [baseRotation=0] The starting rotation of the polar series.
                  */
-                baseRotation: "number",
+                baseRotation: 'number',
 
                 /**
                  * @cfg {Object} [labels=null] Labels used in the series.
@@ -120,13 +120,13 @@ Ext.define('Ext.chart.series.sprite.Polar', {
                 dataMaxX: 'bbox',
                 dataMinY: 'bbox',
                 dataMaxY: 'bbox',
-                centerX: "bbox",
-                centerY: "bbox",
-                startAngle: "bbox",
-                endAngle: "bbox",
-                startRho: "bbox",
-                endRho: "bbox",
-                baseRotation: "bbox"
+                centerX: 'bbox',
+                centerY: 'bbox',
+                startAngle: 'bbox',
+                endAngle: 'bbox',
+                startRho: 'bbox',
+                endRho: 'bbox',
+                baseRotation: 'bbox'
             }
         }
     },

@@ -77,10 +77,10 @@ Ext.define('Ext.layout.container.Form', {
     childEls: ['formWrap', 'labelColumn'],
 
     beforeBodyTpl:
-        '<div id="{ownerId}-formWrap" class="{formWrapCls}"' +
+        '<div id="{ownerId}-formWrap" data-ref="formWrap" class="{formWrapCls}"' +
             '<tpl if="itemSpacing"> style="border-spacing:{itemSpacing}px"</tpl>>' +
             '<div class="{formColGroupCls}">' +
-                '<div id="{ownerId}-labelColumn" class="{formColumnCls} {formLabelColumnCls}"' +
+                '<div id="{ownerId}-labelColumn" data-ref="labelColumn" class="{formColumnCls} {formLabelColumnCls}"' +
                     '<tpl if="labelWidth"> style="width:{labelWidth}"</tpl>>' +
                 '</div>' +
                 '<div class="{formColumnCls}"></div>' +

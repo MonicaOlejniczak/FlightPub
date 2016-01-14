@@ -85,7 +85,6 @@ var noArgs = [],
     Base = function(){},
     BasePrototype = Base.prototype;
 
-
     // These static properties will be copied to every newly created class with {@link Ext#define}
     Ext.apply(Base, {
         $className: 'Ext.Base',
@@ -498,19 +497,19 @@ var noArgs = [],
          *
          * @param {Object} members The members to add to this class.
          * @param {Boolean} [isStatic=false] Pass `true` if the members are static.
-         * @param {Boolean} [isPrivate=false] Pass `true` if the members are private. This
+         * @param {Boolean} [privacy=false] Pass `true` if the members are private. This
          * only has meaning in debug mode and only for methods.
          * @static
          * @inheritable
          */
-        addMembers: function (members, isStatic, isPrivate) {
+        addMembers: function (members, isStatic, privacy) {
             var me = this, // this class
                 cloneFunction = Ext.Function.clone,
                 target = isStatic ? me : me.prototype,
                 defaultConfig = !isStatic && target.defaultConfig,
                 enumerables = Ext.enumerables,
                 privates = members.privates,
-                configs, i, ln, member, name;
+                configs, i, ln, member, name, subPrivacy;
 
             //<debug>
             var displayName = (me.$className || '') + '#';
@@ -520,12 +519,28 @@ var noArgs = [],
                 // This won't run for normal class private members but will pick up all
                 // others (statics, overrides, etc).
                 delete members.privates;
-                me.addMembers(privates, isStatic, true);
+
+                //<debug>
+                subPrivacy = privates.privacy || privacy || 'framework';
+                //</debug>
+
+                me.addMembers(privates, isStatic, subPrivacy);
+                privates = privates.statics;
+                if (privates && !isStatic) {
+                    me.addMembers(privates, true, subPrivacy);
+                }
             }
 
             for (name in members) {
                 if (members.hasOwnProperty(name)) {
                     member = members[name];
+
+                    //<debug>
+                    if (member && member.$nullFn && privacy !== member.$privacy) {
+                        Ext.Error.raise('Cannot use stock function for private method ' +
+                            (me.$className ? me.$className + '#' : '') + name);
+                    }
+                    //</debug>
 
                     if (typeof member === 'function' && !member.$isClass && !member.$nullFn) {
                         if (member.$owner) {
@@ -544,28 +559,31 @@ var noArgs = [],
                         //<debug>
                         member.displayName = displayName + name;
 
-                        if (isPrivate) {
-                            member.$private = true;
-                            if (target[name] && !target[name].$private) {
-                                Ext.log.warn('Private method "' + name + '" declared by ' +
-                                     me.$className + (target[name].$owner
-                                        ? ' hides public method inherited from ' +
-                                            target[name].$owner.$className
-                                        : ' hides inherited public method.'));
+                        var existing = target[name];
+
+                        if (privacy) {
+                            if (privacy === true) {
+                                privacy = 'framework';
                             }
-                        } else {
-                            // The method is public, so check to see if this is private
-                            // method of the base class.
-                            if (target[name] && target[name].$private) {
-                                Ext.Error.raise('Public method "' + name + '" declared by ' +
-                                    me.$className + (target[name].$owner
-                                        ? ' conflicts with private method declared by ' +
-                                            target[name].$owner.$className
-                                        : ' conflicts with inherited private method.'));
+
+                            member.$privacy = privacy;
+
+                            // The general idea here is that an existing, non-private
+                            // method can be marked private. This is because the other
+                            // way is strictly forbidden (private method going public)
+                            // so if a method is in that gray area it can only be made
+                            // private in doc form which allows a derived class to make
+                            // it public.
+                            if (existing && existing.$privacy && existing.$privacy !== privacy) {
+                                Ext.privacyViolation(me, existing, member, isStatic);
                             }
+                        } else if (existing && existing.$privacy) {
+                            Ext.privacyViolation(me, existing, member, isStatic);
                         }
                         //</debug>
-                    } else if (defaultConfig && (name in defaultConfig)) {
+                    // The last part of the check here resolves a conflict if we have the same property
+                    // declared as both a config and a member on the class so that the config wins.
+                    } else if (defaultConfig && (name in defaultConfig) && !target.config.hasOwnProperty(name)) {
                         // This is a config property so it must be added to the configs
                         // collection not just smashed on the prototype...
                         (configs || (configs = {}))[name] = member;
@@ -873,11 +891,16 @@ var noArgs = [],
 
             //<feature classSystem.config>
             if ('config' in mixin) {
-                me.addConfig(mixin.config, true);
+                me.addConfig(mixin.config, mixinClass);
             }
             //</feature>
 
             prototype.mixins[name] = mixin;
+
+            if (mixin.afterClassMixedIn) {
+                mixin.afterClassMixedIn.call(mixinClass, me);
+            }
+
             return me;
         },
         //</feature>
@@ -889,18 +912,20 @@ var noArgs = [],
          * overrides defined that target the class.
          * 
          * @param {Object} config
-         * @param {Boolean} [isMixin=false] `true` if the config is being added from a mixin.
+         * @param {Class} [mixinClass] The mixin class if the configs are from a mixin.
          * @private
          * @static
          * @inheritable
          */
-        addConfig: function (config, isMixin) {
+        addConfig: function (config, mixinClass) {
             var cfg = this.$config || this.getConfigurator();
-            cfg.add(config, isMixin);
+            cfg.add(config, mixinClass);
         },
 
         addCachedConfig: function(config, isMixin) {
-            var cached = {};
+            var cached = {},
+                key;
+                
             for (key in config) {
                 cached[key] = {
                     cached: true,
@@ -996,17 +1021,24 @@ var noArgs = [],
 
     Base.addMembers({
         /** @private */
+        $className: 'Ext.Base',
+
+        /**
+         * @property {Boolean} isInstance
+         * This value is `true` and is used to identify plain objects from instances of
+         * a defined class.
+         * @protected
+         * @readonly
+         */
         isInstance: true,
 
-        /** @private */
-        $className: 'Ext.Base',
-        
         /**
          * @property {Boolean} [$configPrefixed=false]
          * The value `true` causes `config` values to be stored on instances using a
          * property name prefixed with an underscore ("_") character. A value of `false`
          * stores `config` values as properties using their exact name (no prefix).
          * @private
+         * @since 5.0.0
          */
         $configPrefixed: true,
         
@@ -1016,8 +1048,27 @@ var noArgs = [],
          * properties declared in the `config` block of a class. When `false`, properties
          * that are not declared in a `config` block will be placed on the instance.
          * @private
+         * @since 5.0.0
          */
         $configStrict: true,
+
+        /**
+         * @property {Boolean} isConfiguring
+         * This property is set to `true` during the call to `initConfig`.
+         * @protected
+         * @readonly
+         * @since 5.0.0
+         */
+        isConfiguring: false,
+
+        /**
+         * @property {Boolean} isFirstInstance
+         * This property is set to `true` if this instance is the first of its class.
+         * @protected
+         * @readonly
+         * @since 5.0.0
+         */
+        isFirstInstance: false,
 
         /**
          * Get the reference to the class from which this object was instantiated. Note that unlike {@link Ext.Base#self},
@@ -1334,7 +1385,6 @@ var noArgs = [],
 
         //<feature classSystem.config>
         getConfigurator: function () {
-            
             return this.$config || this.self.getConfigurator();
         },
 
@@ -1446,56 +1496,77 @@ var noArgs = [],
         },
         //</feature>
 
+        $links: null,
+
         /**
+         * Adds a "destroyable" object to an internal list of objects that will be destroyed
+         * when this instance is destroyed (via `{@link #destroy}`).
+         * @param {String} name
+         * @param {Object} value
+         * @return {Object} The `value` passed.
          * @private
-         * @param name
-         * @param value
-         * @return {Mixed}
          */
-        link: function(name, value) {
-            var links = this.$links || (this.$links = {});
+        link: function (name, value) {
+            var me = this,
+                links = me.$links || (me.$links = {});
 
             links[name] = true;
-            this[name] = value;
+            me[name] = value;
 
             return value;
         },
 
         /**
+         * Destroys a given set of `{@link #link linked}` objects. This is only needed if
+         * the linked object is being destroyed before this instance.
+         * @param {String[]} names The names of the linked objects to destroy.
+         * @return {Ext.Base} this
          * @private
          */
-        unlink: function() {
-            var i, ln, link, value;
+        unlink: function (names) {
+            var me = this,
+                i, ln, link, value;
 
-            for (i = 0, ln = arguments.length; i < ln; i++) {
-                link = arguments[i];
-                if (this.hasOwnProperty(link)) {
-                    value = this[link];
-                    if (value) {
-                        if (value.isInstance && !value.isDestroyed) {
-                            value.destroy();
-                        }
-                        else if (value.parentNode && 'nodeType' in value) {
-                            value.parentNode.removeChild(value);
-                        }
+            //<debug>
+            if (!Ext.isArray(names)) {
+                Ext.Error.raise('Invalid argument - expected array of strings');
+            }
+            //</debug>
+
+            for (i = 0, ln = names.length; i < ln; i++) {
+                link = names[i];
+                value = me[link];
+
+                if (value) {
+                    if (value.isInstance && !value.isDestroyed) {
+                        value.destroy();
                     }
-                    delete this[link];
+                    else if (value.parentNode && 'nodeType' in value) {
+                        value.parentNode.removeChild(value);
+                    }
                 }
+
+                me[link] = null;
             }
 
-            return this;
+            return me;
         },
 
         /**
+         * This method is called to cleanup an object and its resources. After calling
+         * this method, the object should not be used any further.
          * @protected
          */
         destroy: function() {
-            this.destroy = Ext.emptyFn;
-            this.isDestroyed = true;
+            var me = this,
+                links = me.$links;
 
-            if (this.hasOwnProperty('$links')) {
-                this.unlink.apply(this, Ext.Object.getKeys(this.$links));
-                this.$links = null;
+            me.destroy = Ext.emptyFn;
+            me.isDestroyed = true;
+
+            if (links) {
+                me.$links = null;
+                me.unlink(Ext.Object.getKeys(links));
             }
         }
     });
@@ -1530,6 +1601,42 @@ var noArgs = [],
      * @deprecated Use {@link #callParent} instead.
      */
     BasePrototype.callOverridden = BasePrototype.callParent;
+
+    //<debug>
+    Ext.privacyViolation = function (cls, existing, member, isStatic) {
+        var name = member.$name,
+            conflictCls = existing.$owner && existing.$owner.$className,
+            s = isStatic ? 'static ' : '',
+            msg = member.$privacy
+                ? 'Private ' + s + member.$privacy + ' method "' + name + '"'
+                : 'Public ' + s + 'method "' + name + '"';
+
+        if (cls.$className) {
+            msg = cls.$className + ': ' + msg;
+        }
+
+        if (!existing.$privacy) {
+            msg += conflictCls
+                ? ' hides public method inherited from ' + conflictCls
+                : ' hides inherited public method.';
+        } else {
+            msg += conflictCls
+                ? ' conflicts with private ' + existing.$privacy +
+                  ' method declared by ' + conflictCls
+                : ' conflicts with inherited private ' + existing.$privacy + ' method.';
+        }
+
+        var compat = Ext.getCompatVersion();
+        var ver = Ext.getVersion();
+
+        // When compatibility is enabled, log problems instead of throwing errors.
+        if (ver && compat && compat.lt(ver)) {
+            Ext.log.error(msg);
+        } else {
+            Ext.Error.raise(msg);
+        }
+    };
+    //</debug>
 
     return Base;
 }(Ext.Function.flexSetter));

@@ -2,6 +2,7 @@
  * A mixin to add floating capability to a Component.
  */
 Ext.define('Ext.util.Floating', {
+    mixinId: 'floating',
 
     uses: ['Ext.Layer', 'Ext.ZIndexManager'],
 
@@ -61,10 +62,12 @@ Ext.define('Ext.util.Floating', {
             });
         }
 
-        // clickToRaise
+        // mousedown brings to front
+        // Use capture to see the event first before any contained DD instance stop the event.
         me.mon(me.el, {
             mousedown: me.onMouseDown,
-            scope: me
+            scope: me,
+            capture: true
         });
 
         // release config object (if it was one)
@@ -83,7 +86,7 @@ Ext.define('Ext.util.Floating', {
             syncHidden = this.syncHidden;
 
         if (!me.hasHierarchyEventListeners) {
-            me.mon(me.hierarchyEventSource, {
+            me.mon(Ext.GlobalEvents, {
                 hide: syncHidden,
                 collapse: syncHidden,
                 show: syncHidden,
@@ -165,7 +168,7 @@ Ext.define('Ext.util.Floating', {
             focusTask = me.focusTask,
             preventFocus = false,
             target, dom;
-        
+
         if (me.floating &&
             // get out of here if there is already a pending focus.  This usually means
             // that the handler for a mousedown on a child element set the focus on some
@@ -176,8 +179,10 @@ Ext.define('Ext.util.Floating', {
             dom = me.el.dom;
             // loop the target's ancestors to see if we clicked on a focusable element
             // or a descendant of a focusable element,  If so we don't want to focus
-            // this floating component
-            while (target !== dom) {
+            // this floating component. If we end up with no target, it probably means
+            // it's been removed from the DOM, so we should attempt to bring ourselves
+            // to front anyway
+            while (target && target !== dom) {
                 if (Ext.fly(target).isFocusable()) {
                     preventFocus = true;
                     break;
@@ -272,7 +277,7 @@ Ext.define('Ext.util.Floating', {
      * rendered to.
      *
      * An alternative constraint may be passed.
-     * @param {String/HTMLElement/Ext.Element/Ext.util.Region} [constrainTo] The Element or {@link Ext.util.Region Region}
+     * @param {String/HTMLElement/Ext.dom.Element/Ext.util.Region} [constrainTo] The Element or {@link Ext.util.Region Region}
      * into which this Component is to be constrained. Defaults to the element into which this floating Component
      * was rendered.
      */

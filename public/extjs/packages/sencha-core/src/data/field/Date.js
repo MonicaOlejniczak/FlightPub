@@ -47,9 +47,9 @@ Ext.define('Ext.data.field.Date', {
      *
      * See the {@link Ext.data.writer.Writer} docs for more information on writing dates.
      *
-     * **Note** to use a {@link Ext.data.JsonWriter JsonWriter} to send Microsoft format
-     * "JSON" dates, which are in fact invalid JSON, it is not possible to use the standard
-     * date serialization pathway or {@link Ext#USE_NATIVE_JSON native browser JSON production}.
+     * **Note** It is not possible to use the standard date serialization pathway or {@link Ext#USE_NATIVE_JSON native browser JSON production}
+     * to use a {@link Ext.data.JsonWriter JsonWriter} to send Microsoft formated
+     * "JSON" dates.
      *
      * To use a {@link Ext.data.JsonWriter JsonWriter} to write dates in a JSON packet in
      * the form `"\/Date(1357372800000)\/"` configure the field like this:

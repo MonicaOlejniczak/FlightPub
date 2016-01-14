@@ -1,3 +1,7 @@
+/**
+ * A Widget-based implementation of a slider.
+ * @since 5.0.0
+ */
 Ext.define('Ext.slider.Widget', {
     extend: 'Ext.Widget',
     alias: 'widget.sliderwidget',
@@ -8,11 +12,7 @@ Ext.define('Ext.slider.Widget', {
     ], 
 
     cachedConfig: {
-        vertical: false,
-
-        cls: Ext.baseCSSPrefix + 'slider',
-        
-        baseCls: Ext.baseCSSPrefix + 'slider'        
+        vertical: false
     },
 
     config: {
@@ -20,54 +20,82 @@ Ext.define('Ext.slider.Widget', {
          * @cfg {Boolean} clickToChange
          * Determines whether or not clicking on the Slider axis will change the slider.
          */
-        clickToChange : true,
+        clickToChange: true,
 
         ui: 'widget',
-        
+
         value: 0,
 
         minValue: 0,
 
-        maxValue: 100
+        maxValue: 100,
+
+        /**
+         * @cfg {Boolean} [publishOnComplete=true]
+         * This controls when the value of the slider is published to the `ViewModel`. By
+         * default this is done only when the thumb is released (the change is complete). To
+         * cause this to happen on every change of the thumb position, specify `false`. This
+         * setting is `true` by default for improved performance on slower devices (such as
+         * older browsers or tablets).
+         */
+        publishOnComplete: true,
+
+        /**
+         * @cfg {Object} twoWayBindProperties
+         * This object is a map of config property names holding a `true` if changes to
+         * that config should written back to its binding. Most commonly this is used to
+         * indicate that the `value` config should be monitored and changes written back
+         * to the bound value.
+         */
+        twoWayBindable: {
+            value: 1
+        }
     },
 
+    decimalPrecision: 0,
+
     defaultBindProperty: 'value',
+
+    element: {
+        reference: 'element',
+        cls: Ext.baseCSSPrefix + 'slider',
+        listeners: {
+            mousedown: 'onMouseDown',
+            dragstart: 'cancelDrag',
+            drag: 'cancelDrag',
+            dragend: 'cancelDrag'
+        },
+        children: [{
+            reference: 'endEl',
+            cls: Ext.baseCSSPrefix + 'slider-end',
+            children: [{
+                reference: 'innerEl',
+                cls: Ext.baseCSSPrefix + 'slider-inner'
+            }]
+        }]
+    },
 
     thumbCls: Ext.baseCSSPrefix + 'slider-thumb',
 
     horizontalProp: 'left',
 
-    getElementConfig: function() {
-        return {
-            reference: 'element',
-            cls: Ext.baseCSSPrefix + 'slider',
-            listeners: {
-                mousedown: 'onMouseDown',
-                dragstart: 'cancelDrag',
-                drag: 'cancelDrag',
-                dragend: 'cancelDrag'
-            },
-            children: [{
-                reference: 'endEl',
-                cls: Ext.baseCSSPrefix + 'slider-end',
-                children: [{
-                    reference: 'innerEl',
-                    cls: Ext.baseCSSPrefix + 'slider-inner'
-                }]
-            }]
-        };
-    },
+    // This property is set to false onMouseDown and deleted onMouseUp. It is used only
+    // by applyValue when it passes the animate parameter to setThumbValue.
+    animateOnSetValue: undefined,
 
     applyValue: function(value) {
-        var i, len;
+        var me = this,
+            animate = me.animateOnSetValue,
+            i, len;
 
         if (Ext.isArray(value)) {
-            value = Ext.Array.map(Ext.Array.from(value), Number);
+            value = Ext.Array.from(value);
             for (i = 0, len = value.length; i < len; ++i) {
-                this.setThumbValue(i, value[i]);
+                me.setThumbValue(i, value[i] = me.normalizeValue(value[i]), animate, true);
             }
         } else {
-            this.setThumbValue(0, value);
+            value = me.normalizeValue(value);
+            me.setThumbValue(0, value, animate, true);
         }
         return value;
     },
@@ -107,20 +135,20 @@ Ext.define('Ext.slider.Widget', {
         return this.getVertical() ? 'bottom' : (this.rtl && Ext.rtl ? 'right' : 'left');
     },
 
-    // TODO: RTL? How in this paradigm?
-    getRenderTree: function() {
-        var me = this,
-            rtl = me.rtl;
-
-        if (rtl && Ext.rtl) {
-            me.baseCls += ' ' + (Ext.rtl.util.Renderable.prototype._rtlCls);
-            me.horizontalProp = 'right';
-        } else if (rtl === false) {
-            me.addCls(Ext.rtl.util.Renderable.prototype._ltrCls);
-        }
-
-        return me.callParent();
-    },
+//    // TODO: RTL
+//    getRenderTree: function() {
+//        var me = this,
+//            rtl = me.rtl;
+//
+//        if (rtl && Ext.rtl) {
+//            me.baseCls += ' ' + (Ext.rtl.util.Renderable.prototype._rtlCls);
+//            me.horizontalProp = 'right';
+//        } else if (rtl === false) {
+//            me.addCls(Ext.rtl.util.Renderable.prototype._ltrCls);
+//        }
+//
+//        return me.callParent();
+//    },
 
     update: function() {
         var me = this,
@@ -143,6 +171,8 @@ Ext.define('Ext.slider.Widget', {
             thumb = e.getTarget('.' + me.thumbCls, null, true);
 
             if (thumb) {
+                me.animateOnSetValue = false;
+
                 me.promoteThumb(thumb);
                 me.captureMouse(me.onMouseMove, me.onMouseUp, [thumb], 1);
                 delta = me.pointerOffset = thumb.getXY();
@@ -171,7 +201,7 @@ Ext.define('Ext.slider.Widget', {
      */
     onClickChange : function(trackPoint) {
         var me = this,
-            thumb, index;
+            thumb, index, value;
 
         // How far along the track *from the origin* was the click.
         // If vertical, the origin is the bottom of the slider track.
@@ -179,7 +209,12 @@ Ext.define('Ext.slider.Widget', {
         //find the nearest thumb to the click event
         thumb = me.getNearest(trackPoint);
         index = parseInt(thumb.getAttribute('data-thumbIndex'), 10);
-        me.setThumbValue(index, Ext.util.Format.round(me.reversePixelValue(trackPoint), me.decimalPrecision), undefined, true);
+        value = Ext.util.Format.round(me.reversePixelValue(trackPoint), me.decimalPrecision);
+        if (index) {
+            me.setThumbValue(index, value, undefined, true);
+        } else {
+            me.setValue(value);
+        }
     },
 
     /**
@@ -222,49 +257,51 @@ Ext.define('Ext.slider.Widget', {
      * @param {Ext.slider.Thumb} topThumb The thumb to move to the top
      */
     promoteThumb: function(topThumb) {
-        var thumbs = this.thumbs,
+        var thumbs = this.thumbStack || (this.thumbStack = Ext.Array.slice(this.thumbs)),
             ln = thumbs.length,
-            thumb, i;
+            zIndex = 10000, i;
 
-        topThumb = Ext.getDom(topThumb);
+        // Move topthumb to position zero
+        if (thumbs[0] !== topThumb) {
+            Ext.Array.remove(thumbs, topThumb);
+            thumbs.unshift(topThumb);
+        }
+
+        // Then shuffle the zIndices
         for (i = 0; i < ln; i++) {
-            thumb = thumbs[i];
-            thumb.setStyle('z-index', thumb.dom === topThumb ? 1000 : '');
+            thumbs[i].el.setStyle('zIndex', zIndex);
+            zIndex -= 1000;
+        }
+    },
+
+    doMouseMove: function (e, thumb, changeComplete) {
+        var me = this,
+            trackerXY = e.getXY(),
+            newValue, thumbIndex, trackPoint;
+
+        trackerXY[0] += me.pointerOffset[0];
+        trackerXY[1] += me.pointerOffset[1];
+        trackPoint = me.getTrackpoint(trackerXY);
+
+        // If dragged out of range, value will be undefined
+        if (trackPoint) {
+            newValue = me.reversePixelValue(trackPoint);
+            thumbIndex = parseInt(thumb.getAttribute('data-thumbIndex'), 10);
+            if (thumbIndex || (!changeComplete && me.getPublishOnComplete())) {
+                me.setThumbValue(thumbIndex, newValue, false, changeComplete);
+            } else {
+                me.setValue(newValue);
+            }
         }
     },
 
     onMouseMove: function(e, thumb) {
-        var me = this,
-            trackerXY = e.getXY(),
-            trackPoint,
-            newValue;
-
-        trackerXY[0] += this.pointerOffset[0];
-        trackerXY[1] += this.pointerOffset[1];
-        trackPoint = me.getTrackpoint(trackerXY);
-
-        // If dragged out of range, value will be undefined
-        if (trackPoint != null) {
-            newValue = me.reversePixelValue(trackPoint);
-            me.setThumbValue(thumb.getAttribute('data-thumbIndex'), newValue, false);
-        }
+        this.doMouseMove(e, thumb, false);
     },
 
     onMouseUp: function(e, thumb) {
-        var me = this,
-            trackerXY = e.getXY(),
-            trackPoint,
-            newValue;
-
-        trackerXY[0] += this.pointerOffset[0];
-        trackerXY[1] += this.pointerOffset[1];
-        trackPoint = me.getTrackpoint(trackerXY);
-
-        // If dragged out of range, value will be undefined
-        if (trackPoint != null) {
-            newValue = me.reversePixelValue(trackPoint);
-            me.setThumbValue(thumb.getAttribute('data-thumbIndex'), newValue, false, true);
-        }
+        this.doMouseMove(e, thumb, true);
+        delete this.animateOnSetValue; // expose "undefined" on prototype
     },
 
     /**
@@ -294,7 +331,7 @@ Ext.define('Ext.slider.Widget', {
             animate = value;
 
             for (i = 0, len = values.length; i < len; ++i) {
-                me.setThumbValue(i, values[i], animate);
+                me.setThumbValue(i, values[i], animate, changeComplete);
             }
             return me;
         }
@@ -328,8 +365,20 @@ Ext.define('Ext.slider.Widget', {
      * no index is given.
      */
     getValue : function(index) {
-        var me = this;
-        return Ext.isNumber(index) ? me.reversePercentageValue(parseInt(me.thumbs[index].dom.style[me.getThumbPositionStyle()], 10)) : me.getValues();
+        var me = this,
+            value;
+
+        if (Ext.isNumber(index)) {
+            value = me.thumbs[index].dom.style[me.getThumbPositionStyle()];
+            value = me.reversePercentageValue(parseInt(value, 10));
+        } else {
+            value = me.getValues();
+            if (value.length === 1) {
+                value = value[0];
+            }
+        }
+
+        return value;
     },
 
     /**

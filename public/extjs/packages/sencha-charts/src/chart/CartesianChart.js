@@ -2,7 +2,6 @@
  * @class Ext.chart.CartesianChart
  * @extends Ext.chart.AbstractChart
  * @xtype cartesian
- * @deprecated Use Ext.chart.Chart directly
  *
  * Represents a chart that uses cartesian coordinates.
  * A cartesian chart has two directions, X direction and Y direction.
@@ -40,16 +39,11 @@ Ext.define('Ext.chart.CartesianChart', {
             bottom: 0
         }
     },
-    xtype: 'cartesian',
+    xtype: [ 'cartesian', 'chart' ],
 
     applyInnerPadding: function (padding, oldPadding) {
-        if (Ext.isNumber(padding)) {
-            return {
-                top: padding,
-                left: padding,
-                right: padding,
-                bottom: padding
-            };
+        if (!Ext.isObject(padding)) {
+            return Ext.util.Format.parseBox(padding);
         } else if (!oldPadding) {
             return padding;
         } else {
@@ -95,6 +89,7 @@ Ext.define('Ext.chart.CartesianChart', {
                 shrinkBox = Ext.apply({}, insetPadding),
                 mainRect, innerWidth, innerHeight,
                 elements, floating, floatingValue, matrix, i, ln,
+                isRtl = me.getInherited().rtl,
                 flipXY = me.getFlipXY();
 
             if (width <= 0 || height <= 0) {
@@ -181,9 +176,19 @@ Ext.define('Ext.chart.CartesianChart', {
                 surface = series.getSurface();
                 surface.setRect(mainRect);
                 if (flipXY) {
-                    surface.matrix.set(0, -1, 1, 0, innerPadding.left, innerPadding.top + innerHeight);
+                    if (isRtl) {
+                        surface.matrix.set(0, -1, -1, 0,
+                                innerPadding.left + innerWidth,
+                                innerPadding.top + innerHeight);
+                    } else {
+                        surface.matrix.set(0, -1, 1, 0,
+                            innerPadding.left,
+                            innerPadding.top + innerHeight);
+                    }
                 } else {
-                    surface.matrix.set(1, 0, 0, -1, innerPadding.left, innerPadding.top + innerHeight);
+                    surface.matrix.set(1, 0, 0, -1,
+                        innerPadding.left,
+                        innerPadding.top + innerHeight);
                 }
                 surface.matrix.inverse(surface.inverseMatrix);
                 series.getOverlaySurface().setRect(mainRect);
@@ -283,7 +288,10 @@ Ext.define('Ext.chart.CartesianChart', {
             if ((axisX = series[i].getXAxis())) {
                 visibleRange = axisX.getVisibleRange();
                 xRange = axisX.getRange();
-                xRange = [xRange[0] + (xRange[1] - xRange[0]) * visibleRange[0], xRange[0] + (xRange[1] - xRange[0]) * visibleRange[1]];
+                xRange = [
+                    xRange[0] + (xRange[1] - xRange[0]) * visibleRange[0],
+                    xRange[0] + (xRange[1] - xRange[0]) * visibleRange[1]
+                ];
             } else {
                 xRange = series[i].getXRange();
             }
@@ -291,7 +299,10 @@ Ext.define('Ext.chart.CartesianChart', {
             if ((axisY = series[i].getYAxis())) {
                 visibleRange = axisY.getVisibleRange();
                 yRange = axisY.getRange();
-                yRange = [yRange[0] + (yRange[1] - yRange[0]) * visibleRange[0], yRange[0] + (yRange[1] - yRange[0]) * visibleRange[1]];
+                yRange = [
+                    yRange[0] + (yRange[1] - yRange[0]) * visibleRange[0],
+                    yRange[0] + (yRange[1] - yRange[0]) * visibleRange[1]
+                ];
             } else {
                 yRange = series[i].getYRange();
             }

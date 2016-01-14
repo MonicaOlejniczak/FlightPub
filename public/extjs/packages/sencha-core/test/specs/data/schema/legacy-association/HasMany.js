@@ -19,6 +19,7 @@ describe("Ext.data.association.HasMany_legacy", function() {
     }
     
     beforeEach(function() {
+        Ext.data.Model.schema.setNamespace('spec');
         Ext.define('spec.Post', {
             extend: 'Ext.data.Model',
             fields: ['title', 'content', 'user_id', 'thread_id']
@@ -42,7 +43,7 @@ describe("Ext.data.association.HasMany_legacy", function() {
         Ext.undefine('spec.Site');
         Ext.undefine('spec.Thread');
         
-        Ext.data.Model.schema.clear();
+        Ext.data.Model.schema.clear(true);
         
         rec = null;
     });
@@ -146,7 +147,9 @@ describe("Ext.data.association.HasMany_legacy", function() {
                 }
             });
             makeThread(3);
-            expect(getStore().getAutoLoad()).toBe(true);
+            var store = getStore();
+            expect(store.getAutoLoad()).toBe(true);
+            store.destroy();
         });
         
         describe("autoLoad", function() {
@@ -248,7 +251,7 @@ describe("Ext.data.association.HasMany_legacy", function() {
                     }]
                 }
             }]).getRecords()[0];
-            
+
             var posts = getStore();
             expect(posts.getCount()).toBe(2);
             expect(posts.first().get('title')).toBe('t1');

@@ -5,25 +5,25 @@
 // import 'user-interface' to use the 'user-select' mixin
 @import "compass/css3/user-interface";
 
-.x-android-3 .x-surface-wrap, .x-android-3 .x-surface-wrap > * {
+.#{$prefix}android-3 .#{$prefix}surface-wrap, .#{$prefix}android-3 .#{$prefix}surface-wrap > * {
   -webkit-perspective: 1;
 }
 
-.x-draw-container {
+.#{$prefix}draw-container {
   position: relative;
   @include user-select(none);
   -ms-user-select: none;
   cursor: default;
-  .x-inner {
+  .#{$prefix}inner {
     overflow: hidden;
   }
 }
 
-.x-surface {
+.#{$prefix}surface-canvas {
   position: absolute;
 }
 
-.x-chart-watermark {
+.#{$prefix}chart-watermark {
   opacity: 0.5;
   z-index: 9;
   right: 0;
@@ -39,13 +39,14 @@
   -webkit-border-top-left-radius: 4px;
 }
 
-.x-chart-image {
+.#{$prefix}chart-image {
   width: 100%;
   height: auto;
 }
 
-.x-legend-container {
+.#{$prefix}legend-container {
   display: inline-block;
+  line-height: 0;
   @include border-radius($chart-legend-border-radius);
   border: $chart-legend-border;
   background: $chart-legend-background-color;
@@ -57,7 +58,7 @@
   }
 }
 
-.x-legend-item {
+.#{$prefix}legend-item {
   padding: .8em 1em .8em $chart-marker-size + 1em;
   color: $chart-legend-item-color;
   background: $chart-legend-item-background;
@@ -65,48 +66,65 @@
   min-width: 0;
   font-size: $font-size;
   font-family: $font-family;
-  line-height: 14px;
+  line-height: $font-size;
   font-weight: $font-weight;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   position: relative;
-
-  .x-legend-inactive {
-    @include opacity(.3);
-  }
-
-  .x-legend-item-marker {
-    position: absolute;
-    width: $chart-marker-size;
-    height: $chart-marker-size;
-    @include border-radius($chart-marker-size/2);
-    @include box-shadow(rgba(#fff, .3) 0 1px 0, rgba(#000, .4) 0 1px 0 inset);
-    left: .7em;
-    top: .85em;
-  }
 }
 
-.x-legend, .x-legend-panel {
-  background: $chart-legend-background-color;
+.#{$prefix}legend-inactive {
+  @include opacity(.3);
+}
 
-  &.x-docked-top, &.x-docked-bottom {
-    .x-legend-item {
+.#{$prefix}legend-item-marker {
+  position: absolute;
+  width: $chart-marker-size;
+  height: $chart-marker-size;
+  @include border-radius($chart-marker-size/2);
+  @include box-shadow(rgba(#fff, .3) 0 1px 0, rgba(#000, .4) 0 1px 0 inset);
+  left: .7em;
+  top: .85em;
+}
+
+.#{$prefix}rtl > * > .#{$prefix}legend-item {
+  padding: .8em $chart-marker-size + 1em .8em 1em;
+}
+
+.#{$prefix}rtl > * > * > .#{$prefix}legend-item-marker {
+  right: .7em;
+}
+
+.#{$prefix}legend, .#{$prefix}legend-panel {
+  background: $chart-legend-background-color;
+  outline: none; // hide dotted focus outline in Firefox
+
+  &.#{$prefix}docked-top, &.#{$prefix}docked-bottom {
+    .#{$prefix}legend-item {
       border-left: $chart-legend-item-border;
       &:first-child {
         border-left: none;
       }
     }
+    &.#{$prefix}rtl .#{$prefix}legend-item {
+      &:first-child {
+        border-left: $chart-legend-item-border;
+      }
+      &:last-child {
+        border-left: none;
+      }
+    }
   }
   
-  &.x-docked-left, &.x-docked-right {
-    .x-legend-item {
+  &.#{$prefix}docked-left, &.#{$prefix}docked-right {
+    .#{$prefix}legend-item {
       border-top: $chart-legend-item-border;
       &:first-child {
         border-top: none;
       }
     }
-    .x-legend-inner {
+    .#{$prefix}legend-inner {
       display: -webkit-box;
       -webkit-box-align: center;
       -webkit-box-pack: center;
@@ -114,20 +132,20 @@
   }
 }
 
-.x-legend.x-horizontal {
+.#{$prefix}legend.#{$prefix}horizontal {
   white-space: nowrap;
-  .x-legend-item {
-    display: table-cell;
+  .#{$prefix}legend-item {
+    display: inline-block;
   }
 }
 
-.x-chart-toolbar {
+.#{$prefix}chart-toolbar {
   position: absolute;
   z-index: 9;
   @include display-box;
   padding: .6em;
 
-  .x-button {
+  .#{$prefix}button {
     margin: .2em;
   }
 

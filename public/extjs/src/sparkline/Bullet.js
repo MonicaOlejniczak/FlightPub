@@ -1,5 +1,9 @@
-/*
- * Bullet charts
+/**
+ * @class Ext.sparkline.Bullet
+ *
+ * Plots a bullet graph based upon the input {@link #values} array.
+ *
+ * See <a href="http://en.wikipedia.org/wiki/Bullet_graph">Bullet graphs Wikipedia Page</a> for more information.
  */
 Ext.define('Ext.sparkline.Bullet', {
     extend: 'Ext.sparkline.Base',
@@ -7,11 +11,32 @@ Ext.define('Ext.sparkline.Bullet', {
     alias: 'widget.sparklinebullet',
 
     config: {
+
+        /**
+         * @cfg {String} [targetColor=#f33] The colour of the vertical target marker.
+         */
         targetColor: '#f33',
-        targetWidth: 3, // width of the target bar in pixels
+        
+        /**
+         * @cfg {Number} [targetWidth=3] Width of the target bar in pixels.
+         */
+        targetWidth: 3,
+        
+        /**
+         * @cfg {String} [performanceColor=#33f] The color of the performance measure horizontal bar.
+         */
         performanceColor: '#33f',
+        
+        /**
+         * @cfg {String[]} [rangeColors] An array of colors to use for each qualitative range background color.
+         */
         rangeColors: ['#d3dafe', '#a8b6ff', '#7f94ff'],
-        base: null, // set this to a number to change the base start number
+        
+        /**
+         * @cfg {Number} [base] Set this to a number to change the base start number.
+         */
+        base: null,
+        
         tipTpl: new Ext.XTemplate('{fieldkey:this.fields} - {value}', {
             fields: function(v) {
                 if (v === 'r') {

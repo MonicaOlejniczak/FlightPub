@@ -2,7 +2,7 @@
  * This class is created to manage a multi-bind against a `ViewModel`.
  */
 Ext.define('Ext.app.bind.Multi', {
-    extend: 'Ext.data.session.BaseBinding',
+    extend: 'Ext.app.bind.BaseBinding',
 
     isMultiBinding: true,
 
@@ -157,6 +157,20 @@ Ext.define('Ext.app.bind.Multi', {
         return false;
     },
 
+    isStatic: function() {
+        var bindings = this.bindings,
+            len = bindings.length,
+            i, binding;
+
+        for (i = 0; i < len; ++i) {
+            binding = bindings[i];
+            if (!(binding.isTemplateBinding && binding.isStatic)) {
+                return false;
+            }
+        }
+        return true;
+    },
+
     react: function () {
         this.notify(this.lastValue);
     },
@@ -164,11 +178,13 @@ Ext.define('Ext.app.bind.Multi', {
     refresh: function () {
         // @TODO
     },
+    
+    privates: {
+        sort: function () {
+            this.scheduler.sortItems(this.bindings);
 
-    sort: function () {
-        this.scheduler.sortItems(this.bindings);
-
-        // Schedulable#sort === emptyFn
-        //me.callParent();
+            // Schedulable#sort === emptyFn
+            //me.callParent();
+        }
     }
 });

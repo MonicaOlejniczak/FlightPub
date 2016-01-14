@@ -52,7 +52,7 @@ Ext.define('Ext.draw.modifier.Highlight', {
             if (this.getHighlightStyle()) {
                 this._highlightStyle = sprite.self.def.normalize(this.getHighlightStyle());
             }
-            this.setHighlightStyle(sprite.config.highlightCfg);
+            this.setHighlightStyle(sprite.config.highlight);
         }
 
         // Before attaching to a sprite, register the highlight related
@@ -71,12 +71,7 @@ Ext.define('Ext.draw.modifier.Highlight', {
                 highlighted: 'bool'
             },
 
-            aliases: {
-                highlight: 'highlighted',
-                highlighting: 'highlighted'
-            },
-
-            dirtyFlags: {
+            dirtyTriggers: {
             },
 
             updaters: {

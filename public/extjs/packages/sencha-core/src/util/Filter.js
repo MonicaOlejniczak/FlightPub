@@ -59,7 +59,7 @@ Ext.define('Ext.util.Filter', {
 
         /**
          * @cfg {String} [id]
-         * An identifier by which this Filter is indexed in a {@link Ext.data.Store#property-filters Store's filters collection}
+         * An identifier by which this Filter is indexed in a {@link Ext.data.Store#cfg-filters Store's filters collection}
          *
          * Identified Filters may be individually removed from a Store's filter set by using {@link Ext.data.Store#removeFilter}.
          *
@@ -87,7 +87,7 @@ Ext.define('Ext.util.Filter', {
 
         /**
          * @property {Boolean} disabled
-         * Setting this property to `true` disables this individual Filter so that it no longer contributes to a {@link Ext.data.Store#property-filters Store's filter set}
+         * Setting this property to `true` disables this individual Filter so that it no longer contributes to a {@link Ext.data.Store#cfg-filters Store's filter set}
          *
          * When disabled, the next time the store is filtered, the Filter plays no part in filtering and records eliminated by it may rejoin the dataset.
          *
@@ -285,16 +285,44 @@ Ext.define('Ext.util.Filter', {
         return value[this._property];
     },
 
-    getState: function() {
-         var result = Ext.apply({}, this.getInitialConfig());
+    /**
+     * Returns this filter's state.
+     * @return {Object}
+     */
+    getState: function () {
+         var config = this.getInitialConfig(),
+             result = {},
+             name;
 
+        for (name in config) {
+            // We only want the instance properties in this case, not inherited ones,
+            // so we need hasOwnProperty to filter out our class values.
+            if (config.hasOwnProperty(name)) {
+                result[name] = config[name];
+            }
+        }
+
+        delete result.root;
         result.value = this.getValue();
         return result;
     },
 
     getScope: function() {
         return this.scope;
-    }    
+    },
+
+    /**
+     * Returns this filter's serialized state. This is used when transmitting this filter
+     * to a server.
+     * @return {Object}
+     */
+    serialize: function () {
+        var result = this.getState();
+
+        delete result.id;
+
+        return result;
+    }
 }, function() {
     var prototype = this.prototype,
         operatorFns = (prototype.operatorFns = {
@@ -321,6 +349,14 @@ Ext.define('Ext.util.Filter', {
             "!=": function (candidate) {
                 var v = this._value;
                 return Ext.coerce(this.getPropertyValue(candidate), v) != v;
+            },
+            "in": function (candidate) {
+                var v = this._value;
+                return Ext.Array.contains(v, Ext.coerce(this.getPropertyValue(candidate), v));
+            },
+            like: function (candidate) {
+                var v = this._value;
+                return v && Ext.coerce(this.getPropertyValue(candidate), v).toLowerCase().indexOf(v.toLowerCase()) > -1;
             }
         }),
         invalidateFilterFn = function () {
@@ -336,6 +372,15 @@ Ext.define('Ext.util.Filter', {
 
     // Operator type '==' is the same as operator type '='
     operatorFns['=='] = operatorFns['='];
+
+    operatorFns.gt = operatorFns['>'];
+    operatorFns.ge = operatorFns['>='];
+
+    operatorFns.lt = operatorFns['<'];
+    operatorFns.le = operatorFns['<='];
+
+    operatorFns.eq = operatorFns['='];
+    operatorFns.ne = operatorFns['!='];
 
     for (i = updaters.length; i-- > 0; ) {
         prototype[updaters[i]] = invalidateFilterFn;

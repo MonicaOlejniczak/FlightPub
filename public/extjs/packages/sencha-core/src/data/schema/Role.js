@@ -34,7 +34,7 @@ Ext.define('Ext.data.schema.Role', {
     isMany: false,
 
     /**
-     * @property {Class} cls
+     * @property {Ext.Class} cls
      * The `Ext.data.Model` derived class.
      * @readonly
      */
@@ -78,7 +78,98 @@ Ext.define('Ext.data.schema.Role', {
         }
     },
 
-    getAssociatedStore: function (inverseRecord, data) {
+    processUpdate: function() {
+        Ext.Error.raise('Only the "many" for an association may be processed. "' + this.role + '" is not valid.');
+    },
+
+    /**
+     * Exclude any locally modified records that don't belong in the store. Include locally
+     * modified records that should be in the store.
+     * 
+     * @param {Ext.data.Session} session The session holding the records
+     * @param {Ext.data.Model} associatedEntity The entity that owns the records.
+     * @param {Ext.data.Model[]} records The records to check.
+     * @return {Ext.data.Model[]} The corrected set of records.
+     *
+     * @private
+     */
+    validateAssociationRecords: function(session, associatedEntity, records) {
+        return records;
+    },
+
+    createAssociationStore: function (session, from, records, isComplete) {
+        var me = this,
+            association = me.association,
+            foreignKeyName = association.getFieldName(),
+            isMany = association.isManyToMany,
+            storeConfig = me.storeConfig,
+            id = from.getId(),
+            config = {
+                model: me.cls,
+                data: records,
+                role: me,
+                session: session,
+                associatedEntity: from,
+                disableMetaChangeEvent: true,
+                pageSize: null,
+                remoteFilter: true,
+                trackRemoved: !session
+            },
+            matrix, store;
+
+        if (isMany) {
+            // For many-to-many associations each role has a field
+            config.filters = [{
+                property  : me.inverse.field, // @TODO filterProperty
+                value     : id,
+                exactMatch: true
+            }];
+        } else if (foreignKeyName) {
+            config.filters = [{
+                property  : foreignKeyName, // @TODO filterProperty
+                value     : id,
+                exactMatch: true
+            }];
+            config.foreignKeyName = foreignKeyName;
+        }
+
+        if (storeConfig) {
+            Ext.apply(config, storeConfig);
+        }
+
+        store = Ext.Factory.store(config);
+        if (records) {
+            store.complete = !!isComplete;
+        }
+        if (isMany) {
+            if (session) {
+                // If we are creating a store of say Groups in a UserGroups matrix, we want
+                // to traverse the inverse side of the matrix (Users) because the id we have
+                // is that of the User to which these Groups are associated.
+                matrix = session.getMatrixSlice(me.inverse, id);
+
+                matrix.attach(store);
+                matrix.notify = me.onMatrixUpdate;
+                matrix.scope = me;
+            }
+        }
+
+        if (foreignKeyName || (isMany && session)) {
+            store.on({
+                add: 'onAddToMany',
+                remove: 'onRemoveFromMany',
+                clear: 'onRemoveFromMany',
+                scope: me
+            });
+            if (records) {
+                me.onAddToMany(store, store.getData().items, true);
+            }
+        }
+
+        return store;
+    },
+
+    getAssociatedStore: function (inverseRecord, options, scope, records, isComplete) {
         // Consider the Comment entity with a ticketId to a Ticket entity. The Comment
         // is on the left (the FK holder's side) so we are implementing the guts of
         // the comments() method to load the Store of Comment entities. This trek
@@ -87,35 +178,70 @@ Ext.define('Ext.data.schema.Role', {
         var me = this,
             propertyName = me.storeName || me.getStoreName(),
             store = inverseRecord[propertyName],
+            load = options && options.reload,
+            source = inverseRecord.$source,
             session = inverseRecord.session,
-            binding;
+            args, i, len, raw, rec, sourceStore;
 
-        if (store === undefined) {
-            if (session) {
-                // This creates the Store immediately and starts loading it on the
-                // firstTick... unless we add the data before then.
-                binding = session.bind({
-                    reference: inverseRecord.entityName,  // Ticket
-                    id: inverseRecord.getId(),  // ticketId
-                    association: me.role  // comments
-                }, Ext.emptyFn, undefined, data ? {
-                    data: data
-                } : undefined);
+        if (!store) {
+            // We want to check whether we can automatically get the store contents from the parent session.
+            // For this to occur, we need to have a parent in the session, and the store needs to be created
+            // and loaded with the initial dataset.
+            if (!records && source) {
+                source = source[propertyName];
+                if (source && !source.isLoading()) {
+                    sourceStore = source;
+                    records = [];
+                    raw = source.getData().items;
 
-                store = binding.stub.store;
-                binding.destroy();
-            } else {
-                store = inverseRecord.schema.createAssociationStore(null, me, inverseRecord);
-
-                if (!data && me.autoLoad) {
-                    store.load();
+                    for (i = 0, len = raw.length; i < len; ++i) {
+                        rec = raw[i];
+                        records.push(session.getRecord(rec.self, rec.id));
+                    }
+                    isComplete = true;
                 }
+            }
+            store = me.createAssociationStore(session, inverseRecord, records, isComplete);
+            store.$source = sourceStore;
+
+            if (!records && (me.autoLoad || options)) {
+                load = true;
             }
 
             inverseRecord[propertyName] = store;
-            if (data) {
-                store.add(data);
+        }
+
+        if (options) {
+            // We need to trigger a load or the store is already loading. Defer
+            // callbacks until that happens
+            if (load || store.isLoading()) {
+                store.on('load', function(store, records, success, operation) {
+                    args = [store, operation];
+                    scope = scope || options.scope || inverseRecord;
+
+                    if (success) {
+                        Ext.callback(options.success, scope, args);
+                    } else {
+                        Ext.callback(options.failure, scope, args);
+                    }
+                    args.push(success);
+                    Ext.callback(options, scope, args);
+                    Ext.callback(options.callback, scope, args);
+                }, null, {single: true});
+            } else {
+                // Trigger straight away
+                args = [store, null];
+                scope = scope || options.scope || inverseRecord;
+
+                Ext.callback(options.success, scope, args);
+                args.push(true);
+                Ext.callback(options, scope, args);
+                Ext.callback(options.callback, scope, args);
             }
+        }
+
+        if (load && !store.isLoading()) {
+            store.load();
         }
 
         return store;
@@ -163,7 +289,7 @@ Ext.define('Ext.data.schema.Role', {
                 reader.setUseSimpleAccessors(useSimpleAccessors);
             } else {
                 Ext.applyIf(reader, {
-                    model: model,
+                    model: Model,
                     rootProperty: root,
                     useSimpleAccessors: useSimpleAccessors,
                     type: me.defaultReaderType
@@ -220,6 +346,19 @@ Ext.define('Ext.data.schema.Role', {
         return result;
     },
 
+    getCallbackOptions: function(options, scope, defaultScope) {
+        if (typeof options === 'function') {
+            options = {
+                callback: options,
+                scope: scope || defaultScope
+            };
+        } else if (options) {
+            options = Ext.apply({}, options);
+            options.scope = scope || options.scope || defaultScope;
+        }
+        return options;
+    },
+
     doGetFK: function (leftRecord, options, scope) {
         // Consider the Department entity with a managerId to a User entity. This method
         // is the guts of the getManager method that we place on the Department entity to
@@ -232,72 +371,41 @@ Ext.define('Ext.data.schema.Role', {
             foreignKey   = me.association.getFieldName(),  // "managerId"
             propertyName = me.role,  // "manager"
             rightRecord  = leftRecord[propertyName], // = department.manager
-            done         = rightRecord !== undefined && !(options && options.reload),
+            reload       = options && options.reload,
+            done         = rightRecord !== undefined && !reload,
             session      = leftRecord.session,
-            foreignKeyId, success, args, binding, result;
+            foreignKeyId, args;
 
         if (!done) {
             // We don't have the User record yet, so try to get it.
 
             if (session) {
-                binding = session.bind({
-                    reference: leftRecord.entityName,
-                    id: leftRecord.getId(),
-                    association: me.role
-                }, function(rec) {
-                    binding.destroy();
-                    if (!done && options) {
-                        args = [rec];
-                        scope = scope || options.scope || leftRecord;
-
-                        Ext.callback(options, scope, args);
-                        Ext.callback(options.success, scope, args);
-                        Ext.callback(options.callback, scope, args);
-                    }
-                });
-                result = session.getEntity(me.type, leftRecord.get(foreignKey));
-                done = !!result;
-                if (done) {
-                    rightRecord = result;
-                    leftRecord[propertyName] = rightRecord;
+                foreignKeyId = leftRecord.get(foreignKey);
+                if (foreignKeyId || foreignKeyId === 0) {
+                    done = session.peekRecord(cls, foreignKeyId, true) && !reload;
+                    rightRecord = session.getRecord(cls, foreignKeyId, false);
+                } else {
+                    done = true;
+                    leftRecord[propertyName] = rightRecord = null;
                 }
             } else if (foreignKey) {
                 // The good news is that we do indeed have a FK so we can do a load using
                 // the value of the FK.
 
-                if (Ext.isEmpty(foreignKeyId = leftRecord.get(foreignKey))) {
+                foreignKeyId = leftRecord.get(foreignKey);
+                if (!foreignKeyId && foreignKeyId !== 0) {
                     // A value of null ends that hope though... but we still need to do
                     // some callbacks perhaps.
                     done = true;
-                    rightRecord = null;
+                    leftRecord[propertyName] = rightRecord = null;
                 } else {
                     // foreignKeyId is the managerId from the Department (record), so
                     // make a new User, set its idProperty and load the real record via
                     // User.load method.
-                    rightRecord = cls.createWithId(foreignKeyId);
-
-                    // Assign temporarily while we wait for data to return.
-                    leftRecord[propertyName] = rightRecord;
-
-                    if (typeof options === 'function') {
-                        options = {
-                            callback: options,
-                            scope: scope || leftRecord
-                        };
-                    } else {
-                        options = Ext.apply({}, options);
+                    if (!rightRecord) {
+                        // We may be reloading, let's check if we have one.
+                        rightRecord = cls.createWithId(foreignKeyId);
                     }
-
-                    // Overwrite the success handler so we can assign the current instance
-                    success = options.success;
-                    options.success = function(rec){
-                        leftRecord[propertyName] = rec; // set the real one now that we have it
-                        if (success) {
-                            success.apply(this, arguments);
-                        }
-                    };
-
-                    cls.load(foreignKeyId, options);
                     // we are not done in this case, so don't set "done"
                 }
             } else {
@@ -305,15 +413,25 @@ Ext.define('Ext.data.schema.Role', {
                 // anything. Declare victory and get out.
                 done = true;
             }
+        } else if (rightRecord) {
+            // If we're still loading, call load again which will handle the extra callbacks.
+            done = !rightRecord.isLoading();
         }
 
-        if (done && options) {
-            args = [rightRecord];
-            scope = scope || options.scope || leftRecord;
+        if (done) {
+            if (options) {
+                args = [rightRecord, null];
+                scope = scope || options.scope || leftRecord;
 
-            Ext.callback(options, scope, args);
-            Ext.callback(options.success, scope, args);
-            Ext.callback(options.callback, scope, args);
+                Ext.callback(options.success, scope, args);
+                args.push(true);
+                Ext.callback(options, scope, args);
+                Ext.callback(options.callback, scope, args);
+            }
+        } else {
+            leftRecord[propertyName] = rightRecord;
+            options = me.getCallbackOptions(options, scope, leftRecord);
+            rightRecord.load(options);
         }
 
         return rightRecord;
@@ -361,8 +479,8 @@ Ext.define('Ext.data.schema.Role', {
             }
             //</debug>
 
-            modified = leftRecord.set(foreignKey, rightRecord);
-            // set returns the modifiedFieldNames[] or null if nothing was changed
+            modified = (leftRecord.changingKey && !inverse.isMany) || leftRecord.set(foreignKey, rightRecord);
+            // set returns the modifiedFieldNames[] or null if nothing was change
 
             if (modified && ret && ret.isEntity && !ret.isEqual(ret.getId(), rightRecord)) {
                 // If we just modified the FK value and it no longer matches the id of the
@@ -372,54 +490,13 @@ Ext.define('Ext.data.schema.Role', {
         }
 
         if (options) {
-            if (session) {
-                // @TODO
-            } else {
-                if (Ext.isFunction(options)) {
-                    options = {
-                        callback: options,
-                        scope: scope || leftRecord
-                    };
-                }
-
-                ret = leftRecord.save(options);
+            if (Ext.isFunction(options)) {
+                options = {
+                    callback: options,
+                    scope: scope || leftRecord
+                };
             }
-        }
-
-        return ret;
-    },
-
-    syncFK: function (records, foreignKeyValue, clearing) {
-        // We are called to set things like the FK (ticketId) of an array of Comment
-        // entities. The best way to do that is call the setter on the Comment to set
-        // the Ticket. Since we are setting the Ticket, the name of that setter is on
-        // our inverse role.
-
-        var foreignKeyName = this.association.getFieldName(),
-            setter = this.inverse.setterName, // setTicket
-            i = records.length,
-            newVal = clearing ? null : foreignKeyValue,
-            different, rec;
-
-        while (i-- > 0) {
-            rec = records[i];
-            different = !rec.isEqual(foreignKeyValue, rec.get(foreignKeyName));
-
-            if (different !== clearing) {
-                // clearing === true
-                //      different === true  :: leave alone (not associated anymore)
-                //   ** different === false :: null the value (no longer associated)
-                //
-                // clearing === false
-                //   ** different === true  :: set the value (now associated)
-                //      different === false :: leave alone (already associated)
-                //
-                if (setter) {
-                    rec[setter](newVal);
-                } else {
-                    rec.set(foreignKeyName, newVal);
-                }
-            }
+            return leftRecord.save(options);
         }
     }
 });

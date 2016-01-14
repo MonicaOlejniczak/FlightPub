@@ -260,7 +260,7 @@ Ext.define('Ext.draw.engine.Svg', {
 
     render: function (container) {
         var me = this,
-            el, defs, bgRect, webkitRect;
+            cfg, el, defs, bgRect, webkitRect;
             
         if (!me.el) {
             cfg = {

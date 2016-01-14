@@ -37,6 +37,23 @@ Ext.define('Ext.data.TreeStore', {
     isTreeStore: true,
 
     config: {
+        /**
+         * @cfg {Ext.data.TreeModel/Ext.data.NodeInterface/Object} root
+         * The root node for this store. For example:
+         *
+         *     root: {
+         *         expanded: true,
+         *         text: "My Root",
+         *         children: [
+         *             { text: "Child 1", leaf: true },
+         *             { text: "Child 2", expanded: true, children: [
+         *                 { text: "GrandChild", leaf: true }
+         *             ] }
+         *         ]
+         *     }
+         *
+         * Setting the `root` config option is the same as calling {@link #setRootNode}.
+         */
         root: null,
         
         rootVisible: false,
@@ -48,24 +65,6 @@ Ext.define('Ext.data.TreeStore', {
          */
         defaultRootProperty: 'children'
     },
-
-    /**
-     * @cfg {Ext.data.TreeModel/Ext.data.NodeInterface/Object} root
-     * The root node for this store. For example:
-     *
-     *     root: {
-     *         expanded: true,
-     *         text: "My Root",
-     *         children: [
-     *             { text: "Child 1", leaf: true },
-     *             { text: "Child 2", expanded: true, children: [
-     *                 { text: "GrandChild", leaf: true }
-     *             ] }
-     *         ]
-     *     }
-     *
-     * Setting the `root` config option is the same as calling {@link #setRootNode}.
-     */
 
     /**
      * @cfg {Boolean} [clearOnLoad=true]
@@ -960,7 +959,7 @@ Ext.define('Ext.data.TreeStore', {
         me.fireEvent('rootchange', newRoot, oldRoot);
 
         // Ensure that the old root is unjoined.
-        if (oldRoot) {
+        if (oldRoot && oldRoot.isModel) {
             oldRoot.set('root', false);
             me.remove(oldRoot);
             oldRoot.fireEvent('remove', null, oldRoot, false);
@@ -1279,6 +1278,10 @@ Ext.define('Ext.data.TreeStore', {
             node = options.node,
             scope = operation.getScope() || me,
             args = [records, operation, successful];
+
+        if (me.isDestroyed) {
+            return;
+        }
 
         me.loading = false;
         node.set('loading', false);

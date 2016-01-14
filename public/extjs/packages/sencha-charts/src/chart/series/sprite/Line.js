@@ -239,10 +239,10 @@ Ext.define('Ext.chart.series.sprite.Line', {
 
         labelCfg.text = text;
 
-        labelBox = this.getMarkerBBox('labels', labelId, true);
+        labelBox = me.getMarkerBBox('labels', labelId, true);
         if (!labelBox) {
             me.putMarker('labels', labelCfg, labelId);
-            labelBox = this.getMarkerBBox('labels', labelId, true);
+            labelBox = me.getMarkerBBox('labels', labelId, true);
         }
 
         if (flipXY) {
@@ -255,10 +255,18 @@ Ext.define('Ext.chart.series.sprite.Line', {
         halfHeight = labelBox.height / 2;
 
         labelX = dataX;
-        if (labelTpl.attr.display === 'over') {
-            labelY = dataY + halfHeight + labelOverflowPadding;
-        } else {
-            labelY = dataY - halfHeight - labelOverflowPadding;
+
+        switch (labelTpl.attr.display) {
+            case 'under':
+                labelY = dataY - halfHeight - labelOverflowPadding;
+                break;
+            case 'rotate':
+                labelX += labelOverflowPadding;
+                labelY = dataY - labelOverflowPadding;
+                labelCfg.rotationRads = -Math.PI / 4;
+                break;
+            default: // 'over'
+                labelY = dataY + halfHeight + labelOverflowPadding;
         }
 
         if (labelX <= left + halfWidth) {
@@ -277,7 +285,7 @@ Ext.define('Ext.chart.series.sprite.Line', {
         labelCfg.y = surfaceMatrix.y(labelX, labelY);
 
         if (labelTpl.attr.renderer) {
-            changes = labelTpl.attr.renderer.call(this, text, label, labelCfg, {store: this.getStore()}, labelId);
+            changes = labelTpl.attr.renderer.call(me, text, label, labelCfg, {store: me.getStore()}, labelId);
             if (typeof changes === 'string') {
                 labelCfg.text = changes;
             } else {
@@ -294,7 +302,7 @@ Ext.define('Ext.chart.series.sprite.Line', {
             dataX = attr.dataX,
             dataY = attr.dataY,
             labels = attr.labels,
-            drawLabels = labels && !!me.getBoundMarker('labels'),
+            drawLabels = labels && me.getBoundMarker('labels'),
             matrix = attr.matrix,
             surfaceMatrix = surface.matrix,
             pixel = surface.devicePixelRatio,

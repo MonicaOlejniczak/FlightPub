@@ -4,6 +4,7 @@
  * @private
  */
 Ext.define('Ext.util.Positionable', {
+    mixinId: 'positionable',
 
     _positionTopLeft: ['position', 'top', 'left'],
 
@@ -378,7 +379,7 @@ Ext.define('Ext.util.Positionable', {
             // Otherwise, if we are a Component, there will be a container property.
             // Otherwise, use this Positionable's element's parent node.
             constrainToEl = me.constrainTo || me.container || me.el.parent();
-            constrainToEl = Ext.get(constrainToEl.el || constrainToEl)
+            constrainToEl = Ext.get(constrainToEl.el || constrainToEl);
             constrainTo = constrainToEl.getViewRegion();
             constrainTo.right = constrainTo.left + constrainToEl.el.dom.clientWidth;
 
@@ -519,7 +520,7 @@ Ext.define('Ext.util.Positionable', {
      * Priority is given to constraining the top and left within the constraint.
      *
      * An alternative constraint may be passed.
-     * @param {String/HTMLElement/Ext.Element/Ext.util.Region} [constrainTo] The Element or {@link Ext.util.Region Region}
+     * @param {String/HTMLElement/Ext.dom.Element/Ext.util.Region} [constrainTo] The Element or {@link Ext.util.Region Region}
      * into which this Component is to be constrained. Defaults to the element into which this Positionable
      * was rendered, or this Component's {@link Ext.Component#constrainTo.
      * @param {Number[]} [proposedPosition] A proposed `[X, Y]` position to test for validity
@@ -754,6 +755,15 @@ Ext.define('Ext.util.Positionable', {
         var me = this,
             x, y;
 
+        if (box.isRegion) {
+            box = {
+                x: box.left,
+                y: box.top,
+                width: box.right - box.left,
+                height: box.bottom - box.top
+            };
+        }
+
         me.constrainBox(box);
         x = box.x;
         y = box.y;
@@ -787,22 +797,6 @@ Ext.define('Ext.util.Positionable', {
                 box.y = constrainedPos[1];
             }
         }
-    },
-
-    /**
-     * Sets the element's position and size to the specified region. If animation is true
-     * then width, height, x and y will be animated concurrently.
-     *
-     * @param {Ext.util.Region} region The region to fill
-     * @return {Ext.util.Positionable} this
-     */
-    setRegion: function(region, /* private (documented in ext) */ animate) {
-        return this.setBox({
-            x: region.left,
-            y: region.top,
-            width: region.right - region.left,
-            height: region.bottom - region.top
-        }, animate);
     },
 
     /**

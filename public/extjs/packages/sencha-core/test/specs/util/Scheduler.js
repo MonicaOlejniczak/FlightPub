@@ -22,8 +22,10 @@ describe('Ext.util.Scheduler', function () {
                 log.push(this.name);
             },
 
-            sort: function () {
-                this.scheduler.sortItems(this.depends);
+            privates: {
+                sort: function () {
+                    this.scheduler.sortItems(this.depends);
+                }
             }
         });
     }
@@ -288,18 +290,22 @@ describe('Ext.util.Scheduler', function () {
             expect(scheduler.passes).toBe(0);
             expect(sorts).toBe(0);
 
-            expect(function () {
-                scheduler.notify();
-            }).toThrow();
+            var exceeded;
+            scheduler.onCycleLimitExceeded = function () {
+                exceeded = true;
+            };
+
+            scheduler.notify();
+            expect(exceeded).toBe(true);
 
             expect(scheduler.passes).toBe(4);
             expect(sorts).toBe(1);
             expect(log.join('')).toBe('BABABAB');
 
             // No changes... but will aborted early so we think there is work to do
-            expect(function () {
-                scheduler.notify();
-            }).toThrow();
+            exceeded = false;
+            scheduler.notify();
+            expect(exceeded).toBe(true);
 
             expect(scheduler.passes).toBe(8);
             expect(sorts).toBe(1);

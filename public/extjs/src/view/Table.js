@@ -453,12 +453,82 @@ Ext.define('Ext.view.Table', {
       * @param {Ext.event.Event} e
       */
 
+     /**
+      * @event rowclick
+      * Fired when table cell is clicked.
+      * @param {Ext.view.Table} this
+      * @param {Ext.data.Model} record
+      * @param {HTMLElement} tr The TR element for the cell.
+      * @param {Number} rowIndex
+      * @param {Ext.event.Event} e
+      */
+
+     /**
+      * @event rowdblclick
+      * Fired when table cell is double clicked.
+      * @param {Ext.view.Table} this
+      * @param {Ext.data.Model} record
+      * @param {HTMLElement} tr The TR element for the cell.
+      * @param {Number} rowIndex
+      * @param {Ext.event.Event} e
+      */
+
+     /**
+      * @event rowcontextmenu
+      * Fired when table cell is right clicked.
+      * @param {Ext.view.Table} this
+      * @param {Ext.data.Model} record
+      * @param {HTMLElement} tr The TR element for the cell.
+      * @param {Number} rowIndex
+      * @param {Ext.event.Event} e
+      */
+
+     /**
+      * @event rowmousedown
+      * Fired when the mousedown event is captured on the cell.
+      * @param {Ext.view.Table} this
+      * @param {Ext.data.Model} record
+      * @param {HTMLElement} tr The TR element for the cell.
+      * @param {Number} rowIndex
+      * @param {Ext.event.Event} e
+      */
+
+     /**
+      * @event rowmouseup
+      * Fired when the mouseup event is captured on the cell.
+      * @param {Ext.view.Table} this
+      * @param {Ext.data.Model} record
+      * @param {HTMLElement} tr The TR element for the cell.
+      * @param {Number} rowIndex
+      * @param {Ext.event.Event} e
+      */
+
+     /**
+      * @event rowkeydown
+      * Fired when the keydown event is captured on the cell.
+      * @param {Ext.view.Table} this
+      * @param {Ext.data.Model} record
+      * @param {HTMLElement} tr The TR element for the cell.
+      * @param {Number} rowIndex
+      * @param {Ext.event.Event} e
+      */
+
     constructor: function(config) {
         // Adjust our base class if we are inside a TreePanel
         if (config.grid.isTree) {
             config.baseCls = Ext.baseCSSPrefix + 'tree-view';
         }
         this.callParent([config]);
+    },
+
+    /**
+     * @private
+     * Returns `true` if this view has been configured with variableRowHeight (or this has been set by a plugin/feature)
+     * which might insert arbitrary markup into a grid item. Or if at least one visible column has been configured
+     * with variableRowHeight. Or if the store is grouped.
+     */
+    hasVariableRowHeight: function() {
+        return this.variableRowHeight || this.store.isGrouped() || this.getVisibleColumnManager().hasVariableRowHeight();
     },
 
     initComponent: function() {
@@ -942,9 +1012,8 @@ Ext.define('Ext.view.Table', {
     // because it may have to accommodate (or cease to accommodate) a vertical scrollbar.
     // Only do this on platforms which have a space-consuming scrollbar.
     // Only do it when vertical scrolling is enabled.
-    refreshSize: function() {
+    refreshSize: function(forceLayout) {
         var me = this,
-            grid,
             bodySelector = me.getBodySelector();
 
         // On every update of the layout system due to data update, capture the view's main element in our private flyweight.
@@ -956,18 +1025,17 @@ Ext.define('Ext.view.Table', {
         }
 
         if (!me.hasLoadingHeight) {
-            grid = me.up('tablepanel');
-
             // Suspend layouts in case the superclass requests a layout. We might too, so they
-            // must be coalescsed.
+            // must be coalesced.
             Ext.suspendLayouts();
 
-            me.callParent();
+            me.callParent(arguments);
 
-            // Since columns and tables are not sized by generated CSS rules any more, EVERY table refresh
-            // when there are rows containing columns to size has to be followed by a layout to ensure correct table and column sizing.
-            if (me.dataSource.getCount()) {
-                grid.updateLayout();
+            // We only need to adjust for height changes in the data if we, or any visible columns have been configured with
+            // variableRowHeight: true
+            // OR, if we are being passed the forceUpdate flag which is passed when the view's item count changes.
+            if (forceLayout || (me.hasVariableRowHeight() && me.dataSource.getCount())) {
+                me.grid.updateLayout();
             }
 
             Ext.resumeLayouts(true);
@@ -978,7 +1046,7 @@ Ext.define('Ext.view.Table', {
         var me = this,
             all = me.all,
             store = me.getStore(),
-            i, item;
+            i, item, nodeContainer, targetEl;
         
         // The purpose of this is to allow boilerplate HTML nodes to remain in place inside a View
         // while the transient, templated data can be discarded and recreated.
@@ -994,7 +1062,16 @@ Ext.define('Ext.view.Table', {
             me.fireEvent('itemremove', store.getByInternalId(item.getAttribute('data-recordId')), i, item, me);
         }
 
-        me.callParent([leaveNodeContainer]);
+        me.clearEmptyEl();
+        me.all.clear(true);
+
+        nodeContainer = Ext.fly(me.getNodeContainer());
+        if (nodeContainer && !leaveNodeContainer) {
+            targetEl = me.getTargetEl();
+            if (targetEl.dom !== nodeContainer.dom) {
+                nodeContainer.destroy();
+            }
+        }
     },
 
     // Masking a TableView masks its owning GridPanel
@@ -1016,7 +1093,7 @@ Ext.define('Ext.view.Table', {
         var me = this,
             recordIndex;
 
-        // If store.destroyStore has been called before some delayed event fires on a node, we must ignore the event.
+        // If store.destroy has been called before some delayed event fires on a node, we must ignore the event.
         if (me.store.isDestroyed) {
             return;
         }
@@ -1122,6 +1199,17 @@ Ext.define('Ext.view.Table', {
             rowClasses = rowValues.rowClasses,
             cls,
             rowTpl = me.rowTpl;
+
+        // Define the rowAttr object now. We don't want to do it in the treeview treeRowTpl because anything
+        // this is processed in a deferred callback (such as deferring initial view refresh in gridview) could
+        // poke rowAttr that are then shared in tableview.rowTpl. See EXTJSIV-9341.
+        //
+        // For example, the following shows the shared ref between a treeview's rowTpl nextTpl and the superclass
+        // tableview.rowTpl:
+        //
+        //      tree.view.rowTpl.nextTpl === grid.view.rowTpl
+        //
+        rowValues.rowAttr = {};
 
         // Set up mandatory properties on rowValues
         rowValues.record = record;
@@ -1451,6 +1539,12 @@ Ext.define('Ext.view.Table', {
         var me = this;
 
         me.addItemCls(rowIdx, me.selectedItemCls);
+
+        //<feature legacyBrowser>
+        if (Ext.isIE8) {
+            me.repaintBorder(rowIdx + 1);
+        }
+        //</feature>
     },
 
     // GridSelectionModel invokes onRowDeselect as selection changes
@@ -1458,6 +1552,12 @@ Ext.define('Ext.view.Table', {
         var me = this;
 
         me.removeItemCls(rowIdx, me.selectedItemCls);
+
+        //<feature legacyBrowser>
+        if (Ext.isIE8) {
+            me.repaintBorder(rowIdx + 1);
+        }
+        //</feature>
     },
 
     onCellSelect: function(position) {
@@ -1487,10 +1587,6 @@ Ext.define('Ext.view.Table', {
         return false;
     },
 
-    getFocusEl: function() {
-        return this.focusEl;
-    },
-
     // GridSelectionModel invokes onRowFocus to 'highlight'
     // the last row focused
     onRowFocus: function(rowIdx, highlight, supressFocus) {
@@ -1505,6 +1601,12 @@ Ext.define('Ext.view.Table', {
         } else {
             me.removeItemCls(rowIdx, me.focusedItemCls);
         }
+
+        //<feature legacyBrowser>
+        if (Ext.isIE8) {
+            me.repaintBorder(rowIdx + 1);
+        }
+        //</feature>
     },
 
     /**
@@ -1664,6 +1766,17 @@ Ext.define('Ext.view.Table', {
         }
     },
 
+    onUpdate : function(store, record, operation, modifiedFieldNames) {
+        var me = this;
+
+        // If we are buffer rendered, and using throttled update and the record is not in view, we do not have to queue the change.
+        // The row will be rendered correctly directly from the record when it is scrolled into view.
+        if (me.rendered && me.throttledUpdate && me.bufferedRenderer && !me.getNode(record)) {
+            return;
+        }
+        me.callParent(arguments);
+    },
+
     // private
     handleUpdate: function(store, record, operation, changedFieldNames) {
         var me = this,
@@ -1677,7 +1790,16 @@ Ext.define('Ext.view.Table', {
             columns,
             column,
             columnsToUpdate = [],
-            len, i;
+            len, i,
+            hasVariableRowHeight = me.variableRowHeight,
+            cellUpdateFlag,
+            updateTypeFlags = 0,
+            cell,
+            fieldName,
+            value,
+            defaultRenderer,
+            scope,
+            ownerCt = me.ownerCt;
 
         if (me.viewReady) {
             // Table row being updated
@@ -1695,69 +1817,187 @@ Ext.define('Ext.view.Table', {
                 // (which means value could rely on any other changed field) we include the column.
                 for (i = 0, len = columns.length; i < len; i++) {
                     column = columns[i];
-                    if (me.shouldUpdateCell(record, column, changedFieldNames)) {
+
+                    // 0 = Column doesn't need update.
+                    // 1 = Column needs update, and renderer has > 1 argument; We need to render a whole new HTML item.
+                    // 2 = Column needs update, but renderer has 1 argument or column uses an updater.
+                    cellUpdateFlag = me.shouldUpdateCell(record, column, changedFieldNames);
+
+                    if (cellUpdateFlag) {
+                        // Track if any of the updating columns yields a flag with the 1 bit set.
+                        // This means that there is a custom renderer involved and a new TableView item
+                        // will need rendering.
+                        updateTypeFlags = updateTypeFlags | cellUpdateFlag;
+
                         columnsToUpdate[columnsToUpdate.length] = column;
+                        hasVariableRowHeight = hasVariableRowHeight || column.variableRowHeight;
                     }
                 }
 
-                oldItem = Ext.fly(oldItemDom, '_internal');
-                newItemDom = me.createRowElement(record, me.dataSource.indexOf(record), columnsToUpdate);
-                if (oldItem.hasCls(overItemCls)) {
-                    Ext.fly(newItemDom).addCls(overItemCls);
-                }
-                if (oldItem.hasCls(focusedItemCls)) {
-                    Ext.fly(newItemDom).addCls(focusedItemCls);
-                }
-                if (oldItem.hasCls(selectedItemCls)) {
-                    Ext.fly(newItemDom).addCls(selectedItemCls);
-                }
+                // If there's no data row (some other rowTpl has been used; eg group header)
+                //  or one or more columns has a custom renderer
+                //  or there's more than one <TR>, we must use the full render pathway to create a whole new TableView item
+                if (!me.getRowFromItem(oldItemDom) || (updateTypeFlags & 1) || (oldItemDom.tBodies[0].childNodes.length > 1)) {
+                    oldItem = Ext.fly(oldItemDom, '_internal');
+                    newItemDom = me.createRowElement(record, me.dataSource.indexOf(record), columnsToUpdate);
+                    if (oldItem.hasCls(overItemCls)) {
+                        Ext.fly(newItemDom).addCls(overItemCls);
+                    }
+                    if (oldItem.hasCls(focusedItemCls)) {
+                        Ext.fly(newItemDom).addCls(focusedItemCls);
+                    }
+                    if (oldItem.hasCls(selectedItemCls)) {
+                        Ext.fly(newItemDom).addCls(selectedItemCls);
+                    }
 
-                // Copy new row attributes across. Use IE-specific method if possible.
-                // In IE10, there is a problem where the className will not get updated
-                // in the view, even though the className on the dom element is correct.
-                // See EXTJSIV-9462
-                if (Ext.isIE9m && oldItemDom.mergeAttributes) {
-                    oldItemDom.mergeAttributes(newItemDom, true);
-                } else {
-                    newAttrs = newItemDom.attributes;
-                    attLen = newAttrs.length;
-                    for (attrIndex = 0; attrIndex < attLen; attrIndex++) {
-                        attName = newAttrs[attrIndex].name;
-                        if (attName !== 'id') {
-                            oldItemDom.setAttribute(attName, newAttrs[attrIndex].value);
+                    // Copy new row attributes across. Use IE-specific method if possible.
+                    // In IE10, there is a problem where the className will not get updated
+                    // in the view, even though the className on the dom element is correct.
+                    // See EXTJSIV-9462
+                    if (Ext.isIE9m && oldItemDom.mergeAttributes) {
+                        oldItemDom.mergeAttributes(newItemDom, true);
+                    } else {
+                        newAttrs = newItemDom.attributes;
+                        attLen = newAttrs.length;
+                        for (attrIndex = 0; attrIndex < attLen; attrIndex++) {
+                            attName = newAttrs[attrIndex].name;
+                            if (attName !== 'id') {
+                                oldItemDom.setAttribute(attName, newAttrs[attrIndex].value);
+                            }
                         }
                     }
+
+                    // If we have columns which may *need* updating (think locked side of lockable grid with all columns unlocked)
+                    // and the changed record is within our view, then update the view.
+                    if (columns.length && (oldDataRow = me.getRow(oldItemDom))) {
+                        me.updateColumns(oldDataRow, Ext.fly(newItemDom).down(me.rowSelector, true), columnsToUpdate);
+                    }
+
+                    // Loop thru all of rowTpls asking them to sync the content they are responsible for if any.
+                    while (rowTpl) {
+                        if (rowTpl.syncContent) {
+                            // *IF* we are selectively updating columns (have been passed changedFieldNames), then pass the column set, else
+                            // pass null, and it will sync all content.
+                            if (rowTpl.syncContent(oldItemDom, newItemDom, changedFieldNames ? columnsToUpdate : null) === false) {
+                                break;
+                            }
+                        }
+                        rowTpl = rowTpl.nextTpl;
+                    }
                 }
 
-                // If we have columns which may *need* updating (think locked side of lockable grid with all columns unlocked)
-                // and the changed record is within our view, then update the view.
-                if (columns.length && (oldDataRow = me.getRow(oldItemDom))) {
-                    me.updateColumns(oldDataRow, Ext.fly(newItemDom).down(me.rowSelector, true), columnsToUpdate);
-                }
+                // No custom renderers found in columns to be updated, we can simply update the existing cells.
+                else {
+                    
+                    // Flyweight for manipulation of the update cell
+                    if (!me.cellFly) {
+                        me.cellFly = new Ext.dom.Fly();
+                    }
 
-                // Loop thru all of rowTpls asking them to sync the content they are responsible for if any.
-                while (rowTpl) {
-                    if (rowTpl.syncContent) {
-                        // *IF* we are selectively updating columns (have been passed changedFieldNames), then pass the column set, else
-                        // pass null, and it will sync all content.
-                        if (rowTpl.syncContent(oldItemDom, newItemDom, changedFieldNames ? columnsToUpdate : null) === false) {
-                            break;
+                    // Loop through columns which need updating.
+                    for (i = 0, len = columnsToUpdate.length; i < len; i++) {
+                        column = columnsToUpdate[i];
+
+                        // The dataIndex of the column is the field name
+                        fieldName = column.dataIndex;
+
+                        value = record.get(fieldName);
+                        cell = oldItemDom.firstChild.firstChild.childNodes[column.getVisibleIndex()];
+
+                        // Mark the field's dirty status if we are configured to do so (defaults to true)
+                        if (me.markDirty) {
+                            me.cellFly.attach(cell);
+                            if (record.isModified(column.dataIndex)) {
+                                me.cellFly.addCls(me.dirtyCls);
+                            } else {
+                                me.cellFly.removeCls(me.dirtyCls);
+                            }
+                        }
+
+                        defaultRenderer = column.usingDefaultRenderer;
+                        scope = defaultRenderer ? column : column.scope;
+
+                        // Call the column updater which gets passed the TD element
+                        if (column.updater) {
+                            Ext.callback(column.updater, scope, [cell, value, record, me], 0, column, ownerCt);
+                        }
+                        else {
+                            if (column.renderer) {
+                                value = Ext.callback(column.renderer, scope,
+                                        [value, null, record, 0, 0, me.dataSource, me], 0, column, ownerCt);
+                            }
+
+                            // Update the value of the cell's inner in the best way.
+                            // We only use innerHTML of the cell's inner DIV if the renderer produces HTML
+                            // Otherwise we change the value of the single text node within the inner DIV
+                            if (column.producesHTML) {
+                                cell.childNodes[0].innerHTML = value;
+                            } else {
+                                cell.childNodes[0].childNodes[0].data = value;
+                            }
+                        }
+
+                        // Add the highlight class if there is one
+                        if (me.highlightClass) {
+                            Ext.fly(cell).addCls(me.highlightClass);
+
+                            // Start up a DelayedTask which will purge the changedCells stack, removing the highlight class
+                            // after the expiration time
+                            if (!me.changedCells) {
+                                me.self.prototype.changedCells = [];
+                                me.prototype.clearChangedTask = new Ext.util.DelayedTask(me.clearChangedCells, me.prototype);
+                                me.clearChangedTask.delay(me.unhighlightDelay);
+                            }
+
+                            // Post a changed cell to the stack along with expiration time
+                            me.changedCells.push({
+                                cell: cell,
+                                cls: me.highlightClass,
+                                expires: Ext.Date.now() + 1000
+                            });
                         }
                     }
-                    rowTpl = rowTpl.nextTpl;
                 }
 
                 // Coalesce any layouts which happen due to any itemupdate handlers (eg Widget columns) with the final refreshSize layout.
-                Ext.suspendLayouts();
+                if (hasVariableRowHeight) {
+                    Ext.suspendLayouts();
+                }
 
                 // Since we don't actually replace the row, we need to fire the event with the old row
                 // because it's the thing that is still in the DOM
                 me.fireEvent('itemupdate', record, me.store.indexOf(record), oldItemDom);
-                me.refreshSize();
 
-                // Ensure any layouts queued by itemupdate handlers and/or the refreshSize call are executed.
-                Ext.resumeLayouts(true);
+                // We only need to update the layout if any of the columns can change the row height.
+                if (hasVariableRowHeight) {
+                    me.refreshSize();
+
+                    // Ensure any layouts queued by itemupdate handlers and/or the refreshSize call are executed.
+                    Ext.resumeLayouts(true);
+                }
             }
+        }
+    },
+
+    clearChangedCells: function() {
+        var me = this,
+            now = Ext.Date.now(),
+            changedCell;
+
+        for (var i = 0, len = me.changedCells.length; i < len; ) {
+            changedCell = me.changedCells[i];
+            if (changedCell.expires <= now) {
+                Ext.fly(changedCell.cell).removeCls(changedCell.highlightClass);
+                Ext.Array.erase(me.changedCells, i, 1);
+                len--;
+            } else {
+                break;
+            }
+        }
+
+        // Keep repeating the delay until all highlighted cells have been cleared
+        if (len) {
+            me.clearChangedTask.delay(me.unhighlightDelay);
         }
     },
 
@@ -1800,17 +2040,26 @@ Ext.define('Ext.view.Table', {
         }
     },
 
+    /**
+     * @private
+     * Decides whether the column needs updating
+     * @return {Number} 0 = Doesn't need update.
+     * 1 = Column needs update, and renderer has > 1 argument; We need to render a whole new HTML item.
+     * 2 = Column needs update, but renderer has 1 argument or column uses an updater.
+     */
     shouldUpdateCell: function(record, column, changedFieldNames) {
         // We should not update certain columns (widget column)
         if (!column.preventUpdate) {
-            // Though this may not be the most efficient, a renderer could be dependent on any field in the
-            // store, so we must always update the cell.
-            // If no changeFieldNames array was passed, we have to assume that that information
-            // is unknown and update all cells.
-            if (column.hasCustomRenderer || !changedFieldNames) {
-                return true;
+
+            // The passed column has a renderer which peeks and pokes at other data.
+            // Return 1 which means that a whole new TableView item must be rendered.
+            if (column.hasCustomRenderer) {
+                return 1;
             }
 
+            // If there is a changed field list, and it's NOT a custom column renderer
+            // (meaning it doesn't peek at other data, but just uses the raw field value)
+            // We only have to update it if the column's field is amobg those changes.
             if (changedFieldNames) {
                 var len = changedFieldNames.length,
                     i, field;
@@ -1818,12 +2067,14 @@ Ext.define('Ext.view.Table', {
                 for (i = 0; i < len; ++i) {
                     field = changedFieldNames[i];
                     if (field === column.dataIndex || field === record.idProperty) {
-                        return true;
+                        return 2;
                     }
                 }
+            } else {
+                return 2;
             }
         }
-        return false;
+        return 0;
     },
 
     /**
@@ -2396,30 +2647,77 @@ Ext.define('Ext.view.Table', {
     // Respond to store replace event which is fired by GroupStore group expand/collapse operations.
     // This saves a layout because a remove and add operation are coalesced in this operation.
     onReplace: function(store, startIndex, oldRecords, newRecords) {
-        var me = this;
+        var me = this,
+            bufferedRenderer = me.bufferedRenderer;
 
-        me.callParent(arguments);
-        me.doStripeRows(startIndex);
-        me.selModel.onLastFocusChanged(null, me.selModel.lastFocused, true);
+        // If there's a buffered renderer and the removal range falls inside the current view...
+        if (me.rendered && bufferedRenderer) {
+            bufferedRenderer.onReplace(store, startIndex, oldRecords, newRecords);
+        } else {
+            me.callParent(arguments);
+            me.doStripeRows(startIndex);
+            me.selModel.onLastFocusChanged(null, me.selModel.lastFocused, true);
+        }
     },
 
     // after adding a row stripe rows from then on
-    onAdd: function(ds, records, index) {
-        var me = this;
+    onAdd: function(store, records, index) {
+        var me = this,
+            bufferedRenderer = me.bufferedRenderer;
 
-        me.callParent(arguments);
-        me.setPendingStripe(index);
-        me.selModel.onLastFocusChanged(null, me.selModel.lastFocused, true);
+        if (me.rendered && bufferedRenderer) {
+             bufferedRenderer.onReplace(store, index, [], records);
+        }
+        // No BufferedRenderer present
+        else {
+            me.callParent(arguments);
+            me.setPendingStripe(index);
+            me.selModel.onLastFocusChanged(null, me.selModel.lastFocused, true);
+        }
     },
 
     // after removing a row stripe rows from then on
-    onRemove: function(ds, records, index) {
-        var me = this;
+    onRemove: function(store, records, index) {
+        var me = this,
+            bufferedRenderer = me.bufferedRenderer;
 
-        me.callParent(arguments);
-        me.setPendingStripe(index);
+        // If there's a BufferedRenderer...
+        if (me.rendered && bufferedRenderer) {
+            bufferedRenderer.onReplace(store, index, records, []);
+        } else {
+            me.callParent(arguments);
+            me.setPendingStripe(index);
+        }
     },
     
+    // When there's a buffered renderer present, store refresh events cause TableViews to go to scrollTop:0
+    onDataRefresh: function() {
+        var me = this,
+            owner = me.ownerCt;
+
+        // If triggered during an animation, refresh once we're done
+        if (owner && owner.isCollapsingOrExpanding === 2) {
+            owner.on('expand', me.onDataRefresh, me, {single: true});
+            return;
+        }
+
+        if (me.bufferedRenderer) {
+            // Clear NodeCache. Do NOT remove nodes from DOM - that would blur the view, and then refresh will not refocus after the refresh.
+            me.all.clear();
+            me.bufferedRenderer.onStoreClear();
+        }
+        me.callParent();
+    },
+
+    getViewRange: function() {
+        var me = this;
+
+        if (me.bufferedRenderer) {
+            return me.bufferedRenderer.getViewRange();
+        }
+        return me.callParent();
+    },
+
     setPendingStripe: function(index) {
         var current = this.stripeOnUpdate;
         if (current === null) {
@@ -2478,5 +2776,23 @@ Ext.define('Ext.view.Table', {
 
     getCellPaddingAfter: function(cell) {
         return Ext.fly(cell).getPadding('r');
+    },
+
+    privates: {
+        getFocusEl: function() {
+            return this.focusEl;
+        },
+        refreshScroll: function () {
+            var me = this,
+                bufferedRenderer = me.bufferedRenderer;
+
+            // If there is a BufferedRenderer, we must refresh the scroller using BufferedRenderer methods
+            // which take account of the full virtual scroll range.
+            if (bufferedRenderer) {
+                bufferedRenderer.stretchView(me, bufferedRenderer.getScrollHeight(true));
+            } else {
+                me.callParent();
+            }
+        }
     }
 });

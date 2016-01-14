@@ -118,6 +118,7 @@ Ext.define('Ext.window.MessageBox', {
     hideMode: 'offsets',
     closeAction: 'hide',
     resizable: false,
+    autoScroll: true,
     title: '&#160;',
 
     defaultMinWidth: 250,
@@ -271,7 +272,10 @@ Ext.define('Ext.window.MessageBox', {
                 }),
                 me.promptContainer = new Ext.container.Container({
                     flex: 1,
-                    layout: 'anchor',
+                    layout: {
+                        type: 'vbox',
+                        align: 'stretch'
+                    },
                     items: [
                         me.msg = new Ext.form.field.Display({
                             id: baseId + '-displayfield',
@@ -279,7 +283,6 @@ Ext.define('Ext.window.MessageBox', {
                         }),
                         me.textField = new Ext.form.field.Text({
                             id: baseId + '-textfield',
-                            anchor: '100%',
                             enableKeyEvents: true,
                             listeners: {
                                 keydown: me.onPromptKey,
@@ -288,13 +291,13 @@ Ext.define('Ext.window.MessageBox', {
                         }),
                         me.textArea = new Ext.form.field.TextArea({
                             id: baseId + '-textarea',
-                            anchor: '100%',
                             height: 75
                         })
                     ]
                 })
             ]
         });
+
         me.progressBar = new Ext.ProgressBar({
             id: baseId + '-progressbar',
             margin: '0 10 10 10'

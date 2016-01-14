@@ -4,12 +4,7 @@
  * @private
  */
 Ext.define('Ext.layout.component.Component', {
-
-    /* Begin Definitions */
-
     extend: 'Ext.layout.Layout',
-
-    /* End Definitions */
 
     type: 'component',
 
@@ -165,7 +160,7 @@ Ext.define('Ext.layout.component.Component', {
 
     /**
      * Returns the owner component's resize element.
-     * @return {Ext.Element}
+     * @return {Ext.dom.Element}
      */
     getTarget : function() {
         return this.owner.el;
@@ -175,7 +170,7 @@ Ext.define('Ext.layout.component.Component', {
      * Returns the element into which rendering must take place. Defaults to the owner Component's encapsulating element.
      *
      * May be overridden in Component layout managers which implement an inner element.
-     * @return {Ext.Element}
+     * @return {Ext.dom.Element}
      */
     getRenderTarget : function() {
         return this.owner.el;

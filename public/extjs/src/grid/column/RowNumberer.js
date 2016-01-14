@@ -51,6 +51,8 @@ Ext.define('Ext.grid.column.RowNumberer', {
 
     align: 'right',
 
+    producesHTML: false,
+
     constructor: function (config) {
         var me = this;
 
@@ -64,19 +66,6 @@ Ext.define('Ext.grid.column.RowNumberer', {
         me.sortable = false;
 
         me.scope = me;
-    },
-
-    beforeRender: function () {
-        var rowBody = this.up('tablepanel').view.findFeature('rowbody');
-
-        this.callParent(arguments);
-
-        // If there is a RowBody Feature, and this coliumn is index 1 (immediately after the expander)...
-        // the RowBody cell must not span this column, and this column must span into the expander row.
-        if (rowBody && this.ownerCt.items.indexOf(this) === 1) {
-            rowBody.colSpanDecrement = rowBody.colSpanDecrement + 1;
-            this.rowspan = 2;
-        }
     },
 
     // private

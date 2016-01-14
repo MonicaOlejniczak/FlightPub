@@ -41,8 +41,7 @@ Ext.define('Ext.layout.container.Auto', {
 
     childEls: [
         'outerCt',
-        'innerCt',
-        'clearEl'
+        'innerCt'
     ],
 
     /**
@@ -221,8 +220,8 @@ Ext.define('Ext.layout.container.Auto', {
         // An outerCt with display:table shrink-wraps contents, and contains child
         // margins. The table-cell innerCt is required in order to support percentage
         // heights on child elements.
-        '<div id="{ownerId}-outerCt" class="{outerCtCls}" role="presentation">',
-            '<div id="{ownerId}-innerCt" style="{%this.renderPadding(out, values)%}" ',
+        '<div id="{ownerId}-outerCt" data-ref="outerCt" class="{outerCtCls}" role="presentation">',
+            '<div id="{ownerId}-innerCt" data-ref="innerCt" style="{%this.renderPadding(out, values)%}" ',
                 'class="{innerCtCls}" role="presentation">',
                 '{%this.renderBody(out,values)%}',
             '</div>',

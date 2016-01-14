@@ -5,8 +5,6 @@
  * 
  * Used as mixins by Ext.chart.AbstractChart.
  */
-Ext.chart = Ext.chart || {};
-
 Ext.define('Ext.chart.theme.Theme', (
 
 // This callback is executed right after when the class is created. This scope refers to the newly created class itself
@@ -74,6 +72,7 @@ function() {
  */
 
 (function() {
+    Ext.chart = Ext.chart || {};
     Ext.chart.theme = function(config, base) {
         config = config || {};
         var i = 0, d = Ext.Date.now(), l, colors, color,
@@ -178,12 +177,9 @@ function() {
 }());
 
 return {
-
-    /* Begin Definitions */
+    mixinId: 'themeManager',
 
     requires: ['Ext.draw.Color'],
-
-    /* End Definitions */
 
     defaultTheme: 'Base',
 

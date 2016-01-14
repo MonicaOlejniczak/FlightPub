@@ -35,8 +35,11 @@
 Ext.define('Ext.grid.column.Number', {
     extend: 'Ext.grid.column.Column',
     alias: ['widget.numbercolumn'],
+
     requires: ['Ext.util.Format'],
     alternateClassName: 'Ext.grid.NumberColumn',
+
+    defaultFilterType: 'number',
 
     //<locale>
     /**
@@ -55,6 +58,8 @@ Ext.define('Ext.grid.column.Number', {
      * @cfg {Object} scope
      * @hide
      */
+
+    producesHTML: false,
 
     defaultRenderer: function(value) {
         return Ext.util.Format.number(value, this.format);

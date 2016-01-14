@@ -67,13 +67,13 @@ Ext.define('Ext.form.field.HtmlEditor', {
 
     componentTpl: [
         '{beforeTextAreaTpl}',
-        '<textarea id="{id}-textareaEl" name="{name}" tabIndex="-1" {inputAttrTpl}',
+        '<textarea id="{id}-textareaEl" data-ref="textareaEl" name="{name}" tabIndex="-1" {inputAttrTpl}',
                  ' class="{textareaCls}" autocomplete="off">',
             '{[Ext.util.Format.htmlEncode(values.value)]}',
         '</textarea>',
         '{afterTextAreaTpl}',
         '{beforeIFrameTpl}',
-        '<iframe id="{id}-iframeEl" name="{iframeName}" frameBorder="0" {iframeAttrTpl}',
+        '<iframe id="{id}-iframeEl" data-ref="iframeEl" name="{iframeName}" frameBorder="0" {iframeAttrTpl}',
                ' src="{iframeSrc}" class="{iframeCls}"></iframe>',
         '{afterIFrameTpl}',
         {
@@ -361,7 +361,7 @@ Ext.define('Ext.form.field.HtmlEditor', {
             fontSelectItem = Ext.widget('component', {
                 itemId: 'fontSelect',
                 renderTpl: [
-                    '<select id="{id}-selectEl" class="' + baseCSSPrefix + 'font-select">',
+                    '<select id="{id}-selectEl" data-ref="selectEl" class="' + baseCSSPrefix + 'font-select">',
                     '</select>'
                 ],
                 childEls: ['selectEl'],
@@ -501,7 +501,7 @@ Ext.define('Ext.form.field.HtmlEditor', {
             if (me.enableSourceEdit) {
                 items.push(
                     '-',
-                    btn('sourceedit', true, function(btn){
+                    btn('sourceedit', true, function(){
                         me.toggleSourceEdit(!me.sourceEditMode);
                     })
                 );
@@ -947,17 +947,6 @@ Ext.define('Ext.form.field.HtmlEditor', {
         }
     },
 
-    // @private
-    deferFocus: function(){
-         this.focus(false, true);
-    },
-
-    getFocusEl: function() {
-        var me = this,
-            win = me.win;
-        return win && !me.sourceEditMode ? win : me.textareaEl;
-    },
-
     focus: function(selectText, delay) {
         var me = this,
             value, focusEl;
@@ -1233,7 +1222,7 @@ Ext.define('Ext.form.field.HtmlEditor', {
     },
 
     // @private
-    onEditorEvent: function(e) {
+    onEditorEvent: function() {
         this.updateToolbar();
     },
 
@@ -1602,7 +1591,7 @@ Ext.define('Ext.form.field.HtmlEditor', {
             text: 'Switch to source editing mode.',
             cls: Ext.baseCSSPrefix + 'html-editor-tip'
         }
-    }
+    },
     //</locale>
 
     // hide stuff that is not compatible
@@ -1658,4 +1647,16 @@ Ext.define('Ext.form.field.HtmlEditor', {
      * @method validate
      * @private
      */
+
+    privates: {
+        deferFocus: function(){
+            this.focus(false, true);
+        },
+
+        getFocusEl: function() {
+            var me = this,
+                win = me.win;
+            return win && !me.sourceEditMode ? win : me.textareaEl;
+        }
+    }
 });

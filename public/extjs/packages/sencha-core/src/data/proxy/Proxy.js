@@ -21,7 +21,7 @@
  * - {@link Ext.data.proxy.Direct Direct} - uses {@link Ext.direct.Manager} to send requests
  *
  * Proxies operate on the principle that all operations performed are either Create, Read, Update or Delete. These four
- * operations are mapped to the methods {@link #create}, {@link #read}, {@link #update} and {@link #destroy}
+ * operations are mapped to the methods {@link #create}, {@link #read}, {@link #update} and {@link #erase}
  * respectively. Each Proxy subclass implements these functions.
  *
  * The CRUD methods each expect an {@link Ext.data.operation.Operation Operation} object as the sole argument. The Operation
@@ -35,8 +35,10 @@
 Ext.define('Ext.data.proxy.Proxy', {
     mixins: [
         'Ext.mixin.Factoryable',
-        'Ext.util.Observable'
+        'Ext.mixin.Observable'
     ],
+
+    $configPrefixed: false,
 
     alias: 'proxy.proxy', // also configures Factoryable
 
@@ -127,11 +129,8 @@ Ext.define('Ext.data.proxy.Proxy', {
      * @param {Object} [config] Config object.
      */
     constructor: function(config) {
-        var me = this;
-
-        me.initConfig(config);
-
-        me.mixins.observable.constructor.call(me);
+        // Will call initConfig
+        this.mixins.observable.constructor.call(this, config);
     },
      
     applyModel: function(model) {
@@ -213,7 +212,7 @@ Ext.define('Ext.data.proxy.Proxy', {
      * @param {Ext.data.operation.Operation} operation The Operation to perform
      * @method
      */
-    destroy: Ext.emptyFn,
+    erase: Ext.emptyFn,
 
     /**
      * Performs a batch of {@link Ext.data.operation.Operation Operations}, in the order specified by {@link #batchOrder}. Used
@@ -317,7 +316,9 @@ Ext.define('Ext.data.proxy.Proxy', {
             if (records) {
                 if (useBatch) {
                     batch.add(me.createOperation(action, {
-                        records : records
+                        records : records,
+                        // Relay any additional params through to the Operation (and Request).
+                        params: options.params
                     }));
                 } else {
                     rLen = records.length;
@@ -326,7 +327,9 @@ Ext.define('Ext.data.proxy.Proxy', {
                         record = records[r];
 
                         batch.add(me.createOperation(action, {
-                            records : [record]
+                            records : [record],
+                            // Relay any additional params through to the Operation (and Request).
+                            params: options.params
                         }));
                     }
                 }

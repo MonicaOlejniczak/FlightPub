@@ -1,3 +1,8 @@
+/**
+ * @class Ext.draw.gradient.GradientDefinition
+ *
+ * A global map of all gradient configs.
+ */
 Ext.define('Ext.draw.gradient.GradientDefinition', {
     singleton: true,
 

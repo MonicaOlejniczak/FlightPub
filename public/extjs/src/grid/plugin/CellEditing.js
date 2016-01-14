@@ -28,7 +28,7 @@
  *             type: 'memory',
  *             reader: {
  *                 type: 'json',
- *                 root: 'items'
+ *                 rootProperty: 'items'
  *             }
  *         }
  *     });

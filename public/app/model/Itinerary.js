@@ -1,3 +1,6 @@
+/**
+ * @author Brendan Annable
+ */
 Ext.define('FB.model.Itinerary', {
 	extend: 'Ext.data.Model',
 	fields: [

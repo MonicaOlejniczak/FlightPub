@@ -10,10 +10,10 @@ Ext.define('Ext.grid.locking.View', {
         'Ext.view.AbstractView'
     ],
 
-    mixins: {
-        observable: 'Ext.util.Observable',
-        bindable: 'Ext.util.Bindable'
-    },
+    mixins: [
+        'Ext.util.Observable',
+        'Ext.util.StoreHolder'
+    ],
 
     /**
      * @property {Boolean} isLockingView
@@ -65,11 +65,6 @@ Ext.define('Ext.grid.locking.View', {
         me.normalGrid = me.panel.normalGrid = Ext.ComponentManager.create(config.normal);
         lockedView.lockingPartner = normalView = me.normalView = me.normalGrid.getView();
         normalView.lockingPartner = lockedView;
-
-        // This master view takes responsibility for performing refreshes.
-        // It must pbey the deferInitialRefresh configuration.
-        // Defer is *both* views defer.
-        me.deferInitialRefresh = normalView.deferInitialRefresh && lockedView.deferInitialRefresh;
 
         me.loadMask = (config.loadMask !== undefined) ? config.loadMask : me.loadMask;
 
@@ -241,18 +236,18 @@ Ext.define('Ext.grid.locking.View', {
      */
     bindStore : function(store, initial, propName) {
         var me = this;
-        me.mixins.bindable.bindStore.apply(me, arguments);
+        me.mixins.storeholder.bindStore.apply(me, arguments);
 
         // Bind the store to our selection model unless it's the initial bind.
         // Initial bind takes place afterRender
-        if (!initial) {
+        if (!initial && propName !== 'dataSource') {
             me.getSelectionModel().bindStore(store);
         }
 
         // If we have already achieved our first layout, refresh immediately.
         // If we have bound to the Store before the first layout, then onBoxReady will
         // call doFirstRefresh
-        if (me.componentLayoutCounter) {
+        if (me.normalView.componentLayoutCounter) {
             Ext.suspendLayouts();
             me.normalView.doFirstRefresh(store);
             me.lockedView.doFirstRefresh(store);

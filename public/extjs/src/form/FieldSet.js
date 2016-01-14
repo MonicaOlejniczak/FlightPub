@@ -148,7 +148,7 @@ Ext.define('Ext.form.FieldSet', {
 
     renderTpl: [
         '{%this.renderLegend(out,values);%}',
-        '<div id="{id}-body" class="{baseCls}-body {baseCls}-body-{ui} {bodyTargetCls}" ',
+        '<div id="{id}-body" data-ref="body" class="{baseCls}-body {baseCls}-body-{ui} {bodyTargetCls}" ',
                 'role="presentation"<tpl if="bodyStyle"> style="{bodyStyle}"</tpl>>',
             '{%this.renderContainer(out,values);%}',
         '</div>'
@@ -224,41 +224,6 @@ Ext.define('Ext.form.FieldSet', {
             me.legend = Ext.widget(me.createLegendCt());
         }
         me.initMonitor();
-    },
-
-    initPadding: function(targetEl) {
-        var me = this,
-            body = me.getProtoBody(),
-            padding = me.padding,
-            bodyPadding;
-
-        if (padding !== undefined) {
-            if (Ext.isIE8) {
-                // IE8 and below display fieldset top padding outside the border
-                // so we transfer the top padding to the body element.
-                padding = me.parseBox(padding);
-                bodyPadding = Ext.Element.parseBox(0);
-                bodyPadding.top = padding.top;
-                padding.top = 0;
-                body.setStyle('padding', me.unitizeBox(bodyPadding));
-            }
-
-            targetEl.setStyle('padding', me.unitizeBox(padding));
-        }
-    },
-
-    getProtoBody: function () {
-        var me = this,
-            body = me.protoBody;
-
-        if (!body) {
-            me.protoBody = body = new Ext.util.ProtoElement({
-                styleProp: 'bodyStyle',
-                styleIsText: true
-            });
-        }
-
-        return body;
     },
 
     /**
@@ -442,16 +407,6 @@ Ext.define('Ext.form.FieldSet', {
         }
     },
 
-    finishRender: function () {
-        var legend = this.legend;
-
-        this.callParent();
-
-        if (legend) {
-            legend.finishRender();
-        }
-    },
-
     getCollapsed: function () {
         return this.collapsed ? 'top' : false;
     },
@@ -469,8 +424,7 @@ Ext.define('Ext.form.FieldSet', {
      */
     setTitle: function(title) {
         var me = this,
-            legend = me.legend,
-            baseCls = me.baseCls;
+            legend = me.legend;
             
         me.title = title;
         if (me.rendered) {
@@ -502,18 +456,6 @@ Ext.define('Ext.form.FieldSet', {
         if (title || me.checkboxToggle || me.collapsible) {
             me.addCls(baseCls + '-with-legend');
         }
-    },
-
-    applyTargetCls: function(targetCls) {
-        this.bodyTargetCls = targetCls;
-    },
-
-    getTargetEl : function() {
-        return this.body || this.frameBody || this.el;
-    },
-
-    getDefaultContentTarget: function() {
-        return this.body;
     },
 
     /**
@@ -591,17 +533,76 @@ Ext.define('Ext.form.FieldSet', {
         this.setExpanded(!!this.collapsed);
     },
 
-    /**
-     * @private
-     * Handle changes in the checkbox checked state.
-     */
-    onCheckChange: function(cmp, checked) {
-        this.setExpanded(checked);
-    },
+    privates: {
+        applyTargetCls: function(targetCls) {
+            this.bodyTargetCls = targetCls;
+        },
 
-    setupRenderTpl: function (renderTpl) {
-        this.callParent(arguments);
+        finishRender: function () {
+            var legend = this.legend;
 
-        renderTpl.renderLegend = this.doRenderLegend;
+            this.callParent();
+
+            if (legend) {
+                legend.finishRender();
+            }
+        },
+
+        getProtoBody: function () {
+            var me = this,
+                body = me.protoBody;
+
+            if (!body) {
+                me.protoBody = body = new Ext.util.ProtoElement({
+                    styleProp: 'bodyStyle',
+                    styleIsText: true
+                });
+            }
+
+            return body;
+        },
+
+        getDefaultContentTarget: function() {
+            return this.body;
+        },
+
+        getTargetEl : function() {
+            return this.body || this.frameBody || this.el;
+        },
+
+        initPadding: function(targetEl) {
+            var me = this,
+                body = me.getProtoBody(),
+                padding = me.padding,
+                bodyPadding;
+
+            if (padding !== undefined) {
+                if (Ext.isIE8) {
+                    // IE8 and below display fieldset top padding outside the border
+                    // so we transfer the top padding to the body element.
+                    padding = me.parseBox(padding);
+                    bodyPadding = Ext.Element.parseBox(0);
+                    bodyPadding.top = padding.top;
+                    padding.top = 0;
+                    body.setStyle('padding', me.unitizeBox(bodyPadding));
+                }
+
+                targetEl.setStyle('padding', me.unitizeBox(padding));
+            }
+        },
+
+        /**
+         * @private
+         * Handle changes in the checkbox checked state.
+         */
+        onCheckChange: function(cmp, checked) {
+            this.setExpanded(checked);
+        },
+
+        setupRenderTpl: function (renderTpl) {
+            this.callParent(arguments);
+
+            renderTpl.renderLegend = this.doRenderLegend;
+        }
     }
 });

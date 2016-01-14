@@ -291,8 +291,8 @@ Ext.define('Ext.chart.series.Pie', {
             sprite = sprites[i];
             if (!sprite) {
                 sprite = me.createSprite();
-                if (me.getHighlightCfg()) {
-                    sprite.config.highlightCfg = me.getHighlightCfg();
+                if (me.getHighlight()) {
+                    sprite.config.highlight = me.getHighlight();
                     sprite.addModifier('highlight', true);
                 }
                 if (labelTpl.getField()) {
@@ -394,7 +394,7 @@ Ext.define('Ext.chart.series.Pie', {
                 originalY = y - center[1] + offsetY,
                 store = me.getStore(),
                 donut = me.getDonut(),
-                items = store.getData().items,
+                records = store.getData().items,
                 direction = Math.atan2(originalY, originalX) - me.getRotation(),
                 radius = Math.sqrt(originalX * originalX + originalY * originalY),
                 endRadius = me.getRadius(),
@@ -402,18 +402,18 @@ Ext.define('Ext.chart.series.Pie', {
                 hidden = me.getHidden(),
                 i, ln, attr;
 
-            for (i = 0, ln = items.length; i < ln; i++) {
-                if(!hidden[i]) {
+            for (i = 0, ln = records.length; i < ln; i++) {
+                if (!hidden[i]) {
                     // Fortunately, item's id equals its index in the instances list.
                     attr = sprites[i].attr;
-                    if (radius >= startRadius + attr.margin && radius <= endRadius + attr.margin) {
-                        if (this.betweenAngle(direction, attr.startAngle, attr.endAngle)) {
+                    if (radius >= startRadius + attr.margin && radius <= attr.endRho + attr.margin) {
+                        if (me.betweenAngle(direction, attr.startAngle, attr.endAngle)) {
                             return {
-                                series: this,
+                                series: me,
                                 sprite: sprites[i],
                                 index: i,
-                                record: items[i],
-                                field: this.getXField()
+                                record: records[i],
+                                field: me.getXField()
                             };
                         }
                     }

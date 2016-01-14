@@ -1,3 +1,7 @@
+/**
+ * @private
+ * @class Ext.draw.ContainerBase
+ */
 Ext.define('Ext.draw.ContainerBase', {
     extend: 'Ext.panel.Panel',
 
@@ -21,6 +25,11 @@ Ext.define('Ext.draw.ContainerBase', {
         }
     },
 
+    afterRender: function() {
+        this.callParent(arguments);
+        this.initAnimator();
+    },
+
     getItems: function() {
         var me = this,
             items = me.items;
@@ -35,15 +44,10 @@ Ext.define('Ext.draw.ContainerBase', {
         return me.items;
     },
 
-    getTargetEl: function() {
-        return this.innerElement;
-    },
-
     onRender: function() {
         this.callParent(arguments);
         this.element = this.el;
         this.innerElement = this.body;
-        this.el.setStyle('background', this.getBackground());
     },
 
     setItems: function(items) {
@@ -54,12 +58,6 @@ Ext.define('Ext.draw.ContainerBase', {
     setSurfaceSize: function(width, height) {
         this.resizeHandler({width:width, height:height});
         this.renderFrame();
-    },
-
-    updateBackground: function (background) {
-        if (this.rendered) {
-            this.el.setStyle('background', background);
-        }
     },
 
     onResize: function () {
@@ -113,5 +111,11 @@ Ext.define('Ext.draw.ContainerBase', {
                 }
             }
         });
+    },
+
+    privates: {
+        getTargetEl: function() {
+            return this.innerElement;
+        }
     }
 });

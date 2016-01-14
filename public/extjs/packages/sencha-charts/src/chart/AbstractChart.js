@@ -1,10 +1,10 @@
 /**
  * The Ext.chart package provides the capability to visualize data.
- * Each chart binds directly to an {@link Ext.data.Store} enabling automatic updates of the chart.
+ * Each chart binds directly to a {@link Ext.data.Store store} enabling automatic updates of the chart.
  * A chart configuration object has some overall styling options as well as an array of axes
- * and series. A chart instance example could look like:
+ * and series. A chart instance example could look like this:
  *
- *     new Ext.chart.Chart({
+ *     new Ext.chart.CartesianChart({
  *         width: 800,
  *         height: 600,
  *         animation: true,
@@ -48,7 +48,6 @@ Ext.define('Ext.chart.AbstractChart', {
         'Ext.data.StoreManager',
         'Ext.chart.Legend',
         'Ext.data.Store',
-        'Ext.draw.engine.SvgExporter',
         'Ext.chart.overrides.AbstractChart'
     ],
     
@@ -297,7 +296,7 @@ Ext.define('Ext.chart.AbstractChart', {
          * @cfg {Boolean/Object} animation (optional) `true` for the default animation (easing: 'ease' and duration: 500)
          * or a standard animation config object to be used for default chart animations.
          */
-        animation: true,
+        animation: !Ext.isIE8,
 
         /**
          * @cfg {Ext.chart.series.Series/Array} series
@@ -563,8 +562,10 @@ Ext.define('Ext.chart.AbstractChart', {
      * Schedule a layout at next frame.
      */
     scheduleLayout: function () {
-        if (!this.scheduledLayoutId) {
-            this.scheduledLayoutId = Ext.draw.Animator.schedule('doScheduleLayout', this);
+        var me = this;
+
+        if (me.rendered && !me.scheduledLayoutId) {
+            me.scheduledLayoutId = Ext.draw.Animator.schedule('doScheduleLayout', me);
         }
     },
 
@@ -587,48 +588,45 @@ Ext.define('Ext.chart.AbstractChart', {
     },
 
     constructor: function (config) {
-        var me = this;
+        var me = this,
+            chartSurface;
 
-        me.initialConfig = config || (config = {});
         me.itemListeners = {};
         me.surfaceMap = {};
-        me.legendStore = new Ext.data.Store({
-            storeId: this.getId() + '-legendStore',
-            autoDestroy: true,
-            fields: [
-                'id', 'name', 'mark', 'disabled', 'series', 'index'
-            ]
-        });
-        me.suspendLayout();
+
         me.isInitializing = true;
         me.callParent(arguments);
         delete me.isInitializing;
+
+        me.suspendLayout();
         me.getSurface('main');
-        if (me.sprites) {
-            me.getSurface('chart').add(me.sprites);
-        }
+        me.getSurface('chart').setFlipRtlText(me.getInherited().rtl);
         me.getSurface('overlay').waitFor(me.getSurface('series'));
-        me.refreshLegendStore();
-        me.getLegendStore().on('update', 'onUpdateLegendStore', me);
         me.resumeLayout();
+    },
+
+    applySprites: function (sprites) {
+        var surface = this.getSurface('chart');
+
+        sprites = Ext.Array.from(sprites);
+        surface.removeAll(true);
+        surface.add(sprites);
     },
 
     initItems: function () {
         var items = this.items,
-            i, ln, item, sprites = [];
+            i, ln, item;
         if (items && !items.isMixedCollection) {
             this.items = [];
             items = Ext.Array.from(items);
-            ln = items.length;
-            for (i = 0; i < ln; i++) {
+            for (i = 0, ln = items.length; i < ln; i++) {
                 item = items[i];
                 if (item.type) {
-                    sprites.push(item);
+                    Ext.Error.raise("To add custom sprites to the chart use the 'sprites' config.");
                 } else {
                     this.items.push(item);
                 }
             }
-            this.sprites = sprites;
         }
         this.callParent();
     },
@@ -650,8 +648,8 @@ Ext.define('Ext.chart.AbstractChart', {
     },
 
     /**
-     * Return the legend store that contains all the legend information. These
-     * information are collected from all the series.
+     * Return the legend store that contains all the legend information.
+     * This information is collected from all the series.
      * @return {Ext.data.Store}
      */
     getLegendStore: function () {
@@ -746,7 +744,7 @@ Ext.define('Ext.chart.AbstractChart', {
         if (!me.surfaceMap[type]) {
             me.surfaceMap[type] = [];
         }
-        if (me.surfaceMap[type].indexOf(surface) < 0) {
+        if (Ext.Array.indexOf(me.surfaceMap[type], (surface)) < 0) {
             surface.type = type;
             me.surfaceMap[type].push(surface);
         }
@@ -765,7 +763,7 @@ Ext.define('Ext.chart.AbstractChart', {
             result.map = {};
             newAxes = Ext.Array.from(newAxes, true);
             for (i = 0, ln = newAxes.length; i < ln; i++) {
-                axis = newAxes[i];
+                axis = Ext.Object.chain(newAxes[i]);
                 if (!axis) {
                     continue;
                 }
@@ -779,6 +777,9 @@ Ext.define('Ext.chart.AbstractChart', {
                             return false;
                         }
                     });
+                }
+                if (this.getInherited().rtl) {
+                    axis.position = {left: 'right', right: 'left'}[axis.position] || axis.position;
                 }
                 axis = Ext.factory(axis, null, oldAxis = oldMap[axis.getId && axis.getId() || axis.id], 'axis');
                 if (axis) {
@@ -852,7 +853,7 @@ Ext.define('Ext.chart.AbstractChart', {
     },
 
     applyColors: function (newColors) {
-        newColors = newColors.map(function(color) {
+        newColors = Ext.Array.map(newColors, function(color) {
             if (Ext.isString(color)) {
                 return color;
             } else {
@@ -884,13 +885,14 @@ Ext.define('Ext.chart.AbstractChart', {
 
     updateTheme: function (newTheme, oldTheme) {
         var me = this,
-        series = me.getSeries(),
-        seriesCount = series.length, i, len,
-        seriesItem, seriesTheme, theme, background, style, colors, colorCount,
-        styleConfig = me.config.style,
-        styleObject = {},
-        colorIndex = 0,
-        markerIndex = 0;
+            series = me.getSeries(),
+            seriesCount = series.length, i, len,
+            seriesItem, seriesTheme, theme, background, style, colors, colorCount,
+            styleConfig = me.config.style,
+            styleObject = {},
+            colorIndex = 0,
+            markerIndex = 0,
+            markerCount;
 
         theme = me.themeAttrs = me.initTheme(newTheme || this.defaultTheme);
         if (Ext.isEmpty(theme) || Ext.Object.isEmpty(theme)) {
@@ -916,8 +918,6 @@ Ext.define('Ext.chart.AbstractChart', {
         me.updateColors(colors);
 
         // series theme
-        colorIndex = 0;
-        markerIndex = 0;
         for (i = 0; i < seriesCount; i++) {
             seriesItem = series[i];
             seriesTheme = {};
@@ -941,8 +941,6 @@ Ext.define('Ext.chart.AbstractChart', {
             } else {
                 seriesTheme.markerSubStyle = {};
             }
-
-            seriesItem.setThemeStyle(seriesTheme);
         }
         me.refreshLegendStore();
     },
@@ -1026,7 +1024,15 @@ Ext.define('Ext.chart.AbstractChart', {
         }
         if (legend) {
             this.getItems();
-            legend.setStore(this.getLegendStore());
+            this.legendStore = new Ext.data.Store({
+                autoDestroy: true,
+                fields: [
+                    'id', 'name', 'mark', 'disabled', 'series', 'index'
+                ]
+            });
+            legend.setStore(this.legendStore);
+            this.refreshLegendStore();
+            this.legendStore.on('update', 'onUpdateLegendStore', this);
         }
     },
 
@@ -1100,7 +1106,11 @@ Ext.define('Ext.chart.AbstractChart', {
             }
         }
         if (newStore) {
-            newStore.on('refresh', 'onRefresh', me, null, 'after');
+            newStore.onAfter({
+                refresh: 'onRefresh',
+                update: 'onRefresh',
+                scope: me
+            });
         }
 
         me.fireEvent('storechange', newStore, oldStore);
@@ -1119,6 +1129,8 @@ Ext.define('Ext.chart.AbstractChart', {
             size = me.innerElement.getSize(),
             chartRect = [0, 0, size.width, size.height],
             background = me.getBackground();
+
+        me.hasFirstLayout = true;
         me.cancelLayout();
         me.getSurface('background').setRect(chartRect);
         me.getSurface('chart').setRect(chartRect);
@@ -1128,12 +1140,9 @@ Ext.define('Ext.chart.AbstractChart', {
         });
     },
 
+    // Converts page coordinates into chart's 'main' surface coordinates.
     getEventXY: function (e) {
-        e = (e.changedTouches && e.changedTouches[0]) || e.event || e.browserEvent || e;
-        var me = this,
-            xy = me.element.getXY(),
-            rect = me.getMainRect() || [0,0,0,0];
-        return [e.pageX - xy[0] - rect[0], e.pageY - xy[1] - rect[1]];
+        return this.getSurface().getEventXY(e);
     },
 
     /**
@@ -1150,11 +1159,14 @@ Ext.define('Ext.chart.AbstractChart', {
             l = items.length,
             series, item;
 
-        for (; i < l; i++) {
-            series = items[i];
-            item = series.getItemForPoint(x, y);
-            if (item) {
-                return item;
+        // If we haven't drawn yet, don't attempt to find any items
+        if (me.hasFirstLayout) {
+            for (; i < l; i++) {
+                series = items[i];
+                item = series.getItemForPoint(x, y);
+                if (item) {
+                    return item;
+                }
             }
         }
 

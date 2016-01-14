@@ -1,4 +1,8 @@
 describe("Ext.data.Store", function() {
+    function customSort(v) {
+        return v * -1;
+    }
+    
     var fakeScope = {},
         abeRec, aaronRec, edRec, tommyRec, 
         abeRaw, aaronRaw, edRaw, tommyRaw,
@@ -20,11 +24,7 @@ describe("Ext.data.Store", function() {
                     sortType: customSort
                 }
             ]
-        });;
-        
-    function customSort(v) {
-        return v * -1;
-    }
+        });
         
     function addStoreData() {
         store.add(edRaw, abeRaw, aaronRaw, tommyRaw);
@@ -59,6 +59,13 @@ describe("Ext.data.Store", function() {
             responseText: Ext.JSON.encode(data)
         });
     }
+
+    function complete(status, text) {
+        Ext.Ajax.mockComplete({
+            status: status,
+            responseText: ''
+        });
+    }
     
     beforeEach(function() {
         MockAjaxManager.addMethods();
@@ -71,7 +78,7 @@ describe("Ext.data.Store", function() {
     afterEach(function() {
         MockAjaxManager.removeMethods();
         Ext.data.Model.schema.clear();
-        store.destroyStore();
+        store.destroy();
         store = null;
     });
     
@@ -182,7 +189,9 @@ describe("Ext.data.Store", function() {
                         autoLoad: true
                     });
                     spyOn(store, 'load').andReturn();
-                    waits(50);
+                    waitsFor(function() {
+                        return store.load.callCount > 0;
+                    }, 'Load never called');
                     runs(function() {
                         expect(store.load).toHaveBeenCalled();
                     });
@@ -194,7 +203,9 @@ describe("Ext.data.Store", function() {
                         autoLoad: o
                     });
                     spyOn(store, 'load').andReturn();
-                    waits(50);
+                    waitsFor(function() {
+                        return store.load.callCount > 0;
+                    });
                     runs(function() {
                         expect(store.load).toHaveBeenCalledWith(o);
                     });
@@ -1370,10 +1381,13 @@ describe("Ext.data.Store", function() {
                     expect(spy).not.toHaveBeenCalled();
                 });
                 
-                it("should fire the clear event", function() {
+                it("should fire the clear event and pass the current records", function() {
+                    var range = store.getRange();
                     store.on('clear', spy);
                     store.removeAll();
                     expect(spy).toHaveBeenCalled();
+                    expect(spy.mostRecentCall.args[0]).toBe(store);
+                    expect(spy.mostRecentCall.args[1]).toEqual(range);
                 });
                 
                 it("should fire the datachanged event", function() {
@@ -1400,6 +1414,92 @@ describe("Ext.data.Store", function() {
     });
     
     describe("loading", function() {
+
+        describe("loadCount", function() {
+            it("should default to 0", function() {
+                createStore();
+                expect(store.loadCount).toBe(0);
+            });
+
+            describe("construction", function() {
+                it("should increment the loadCount when passing data with no proxy", function() {
+                    createStore({
+                        data: [abeRaw]
+                    });
+                    expect(store.loadCount).toBe(1);
+                });
+
+                it("should increment the loadCount when passing data with a memory proxy", function() {
+                    createStore({
+                        proxy: {
+                            type: 'memory'
+                        },
+                        data: [abeRaw]
+                    });
+                    expect(store.loadCount).toBe(1);
+                });
+            });
+
+            describe("with no proxy", function() {
+                beforeEach(function() {
+                    createStore();
+                });
+
+                it("should increment when using loadRecords", function() {
+                    store.loadRecords([makeUser('foo@sencha.com')]);
+                    expect(store.loadCount).toBe(1);
+                });
+
+                it("should increment when using loadData", function() {
+                    store.loadData([tommyRaw]);
+                    expect(store.loadCount).toBe(1);
+                });
+            });
+
+            describe("with a proxy", function() {
+                beforeEach(function() {
+                    createStore({
+                        proxy: {
+                            type: 'ajax',
+                            url: '/foo'
+                        }
+                    });
+                });
+
+                it("should increment on a successful load with no records", function() {
+                    store.load();
+                    completeWithData([]);
+                    expect(store.loadCount).toBe(1);
+                });
+
+                it("should increment on a successful load with records", function() {
+                    store.load();
+                    completeWithData([abeRaw, aaronRaw]);
+                    expect(store.loadCount).toBe(1);
+                });
+
+                it("should not increment on an unsuccessful load", function() {
+                    store.load();
+                    complete(500);
+                    expect(store.loadCount).toBe(0);
+                });
+            });
+
+            it("should increment for each load", function() {
+                createStore({
+                    proxy: {
+                        type: 'ajax',
+                        url: '/foo'
+                    }
+                });
+                for (var i = 0; i < 5; ++i) {
+                    store.load();
+                    completeWithData([]);
+                }
+                expect(store.loadCount).toBe(5);
+            });
+        });
+
         describe("local data", function() {
             describe("loadData", function() {
                 beforeEach(function() {
@@ -2559,6 +2659,14 @@ describe("Ext.data.Store", function() {
                 expect(store.getSorters().getCount()).toBe(1);
                 expect(sorter.getProperty()).toBe('evilness');
             });
+
+            it("should not throw an error when the store has no model", function() {
+                store.destroy();
+                store = new Ext.data.Store();
+                expect(function() {
+                    store.sort('something', 'ASC');
+                }).not.toThrow();
+            });
         });
         
         describe("isSorted", function() {
@@ -3088,6 +3196,32 @@ describe("Ext.data.Store", function() {
                 value: value
             });
         }
+
+        describe('groupDir and the group() method', function () {
+            it('should default to "ASC"', function () {
+                createStore();
+
+                expect(store.getGroupDir()).toBe('ASC');
+            });
+
+            it('should default to "ASC" when calling group()', function () {
+                createStore();
+
+                store.group('name');
+
+                expect(store.getGrouper().getDirection()).toBe('ASC');
+            });
+
+            it('should use whatever was set in the config when calling group()', function () {
+                createStore({
+                    groupDir: 'DESC'
+                });
+
+                store.group('email');
+
+                expect(store.getGrouper().getDirection()).toBe('DESC');
+            });
+        });
         
         describe("getGroupField", function() {
             beforeEach(function() {
@@ -3286,6 +3420,96 @@ describe("Ext.data.Store", function() {
 
                         store.remove(abeRec);
                     });
+
+                    describe('using removeAt', function () {
+                        it('should remove the record from its group', function () {
+                            var admins;
+
+                            groupBy();
+                            admins = store.getGroups().get('admin');
+
+                            expect(admins.contains(abeRec)).toBe(true);
+
+                            store.removeAt(0);
+
+                            expect(admins.contains(abeRec)).toBe(false);
+                        });
+
+                        it('should remove a range of records from their groups', function () {
+                            var admins, codes;
+
+                            groupBy();
+                            admins = store.getGroups().get('admin');
+                            codes = store.getGroups().get('code');
+
+                            expect(codes.contains(edRec)).toBe(true);
+                            expect(codes.contains(tommyRec)).toBe(true);
+                            expect(admins.contains(aaronRec)).toBe(true);
+
+                            store.removeAt(1, 3);
+
+                            expect(codes.contains(edRec)).toBe(false);
+                            expect(codes.contains(tommyRec)).toBe(false);
+                            expect(admins.contains(aaronRec)).toBe(false);
+                            // The second group has been removed because all its items were removed.
+                            expect(store.getGroups().length).toBe(1);
+                        });
+                    });
+
+                    describe('using removeAll', function () {
+                        it('should remove the groups', function () {
+                            var admins, groups;
+
+                            groupBy();
+                            groups = store.getGroups();
+
+                            admins = groups.get('admin');
+
+                            expect(groups.length).toBe(2);
+
+                            store.removeAll();
+
+                            expect(groups.length).toBe(0);
+                        });
+                    });
+
+                    describe('phantom group records', function () {
+                        it('should remove phantoms from their groups', function () {
+                            var admins;
+
+                            groupBy();
+                            admins = store.getGroups().get('admin');
+
+                            var data = [
+                                { name: 'Phil' },
+                                { name: 'Evan' },
+                                { name: 'Nige' },
+                                { name: 'Alex' }
+                            ],
+                            record;
+
+                            // Destroy the store created in the beforeEach(). We need a store of phantom records.
+                            store.destroy();
+
+                            // Use an ajax proxy with local data to so it doesn't go through the reader and marked as non-phantom.
+                            store = new Ext.data.Store({
+                                fields: ['name'],
+                                data: data,
+                                groupField: 'name',
+                                proxy: {
+                                    type: 'ajax'
+                                }
+                            });
+
+                            record = store.getAt(0);
+
+                            expect(record.phantom).toBe(true);
+
+                            store.remove(record);
+
+                            expect(store.getGroups().getAt(0).contains(record)).toBe(false);
+                        });
+                    });
                 });
 
                 describe("updating", function() {
@@ -3323,6 +3547,7 @@ describe("Ext.data.Store", function() {
                 });
 
                 it("should sort the groups according to the group direction", function() {
+                    store.removeAll();
                     store.add(abeRec, aaronRec, tommyRec, edRec);
                     groupBy('group', 'DESC');
                     expectOrder([tommyRec, edRec, abeRec, aaronRec]);
@@ -4665,39 +4890,151 @@ describe("Ext.data.Store", function() {
         });
         
         describe("via erase", function() {
-            describe("non phantom record", function() {
-                describe("on success", function() {
-                    it("should remove the record", function() {
-                        edRec.erase();
-                        completeWithData({
-                            success: true
-                        });
-                        expect(store.indexOf(edRec)).toBe(-1);
-                    });
-                });
-                
-                describe("on failure", function() {
-                    it("should not remove the record", function() {
-                        edRec.erase();
-                        completeWithData({
-                            success: false
-                        });
-                        expect(store.indexOf(edRec)).toBe(0);
-                    });
-                });
+            it("should remove the record from the store", function() {
+                edRec.erase();
+                expect(store.indexOf(edRec)).toBe(-1);
             });
-            
-            describe("phantom record", function() {
-                it("should remove the record", function() {
-                    var rec = makeUser(null);
-                    store.add(rec);
-                    rec.erase();
-                    expect(store.indexOf(rec)).toBe(-1);
-                });
+        });
+
+        describe("via drop", function() {
+            it("should remove the record from the store", function() {
+                edRec.drop();
+                expect(store.indexOf(edRec)).toBe(-1);
             });
         });
     });
     
+    describe("metachange event", function () {
+        var wasCalled = false,
+            successData = {
+                success: true,
+                data: [
+                    {name: 'alex'},
+                    {name: 'ben'},
+                    {name: 'don'},
+                    {name: 'evan'},
+                    {name: 'nige'},
+                    {name: 'phil'}
+                ],
+                metaData: {
+                    root: 'data'
+                }
+            },
+            args, storeArg, metaArg;
+
+        beforeEach(function () {
+            createStore({
+                proxy: {
+                    type: "ajax",
+                    url: "foo"
+                },
+                listeners: {
+                    metachange: function (store, meta) {
+                        wasCalled = true;
+                        args = arguments;
+                        storeArg = store;
+                        metaArg = meta;
+                    }
+                }
+            });
+
+            store.load();
+            completeWithData(successData);
+        });
+
+        afterEach(function () {
+            wasCalled = false;
+            args = storeArg = metaArg = null;
+        });
+
+        it("should call the listener", function () {
+            expect(wasCalled).toBe(true);
+        });
+
+        it("should return the store", function () {
+            expect(storeArg).toBe(store);
+        });
+
+        it("should return the meta data", function () {
+            expect(metaArg).toEqual(successData.metaData);
+        });
+
+        it("should return the store as the first arg", function () {
+            expect(args[0]).toBe(store);
+        });
+
+        it("should return the meta data as the second arg", function () {
+            expect(args[1]).toBe(metaArg);
+        });
+
+        describe("disableMetaChangeEvent (for associated models)", function () {
+            var wasCalled = false;
+
+            afterEach(function () {
+                wasCalled = false;
+            });
+
+            it("should not be set by default", function () {
+                createStore({
+                    proxy: {
+                        type: "ajax",
+                        url: "foo"
+                    },
+                    listeners: {
+                        metachange: function (store, meta) {
+                            wasCalled = true;
+                        }
+                    }
+                });
+
+                store.load();
+                completeWithData(successData);
+
+                expect(wasCalled).toBe(true);
+            });
+
+            it("should not fire the event if `true`", function () {
+                createStore({
+                    disableMetaChangeEvent: true,
+                    proxy: {
+                        type: "ajax",
+                        url: "foo"
+                    },
+                    listeners: {
+                        metachange: function (store, meta) {
+                            wasCalled = true;
+                        }
+                    }
+                });
+
+                store.load();
+                completeWithData(successData);
+
+                expect(wasCalled).toBe(false);
+            });
+
+            it("should fire the event if `false`", function () {
+                createStore({
+                    disableMetaChangeEvent: false,
+                    proxy: {
+                        type: "ajax",
+                        url: "foo"
+                    },
+                    listeners: {
+                        metachange: function (store, meta) {
+                            wasCalled = true;
+                        }
+                    }
+                });
+
+                store.load();
+                completeWithData(successData);
+
+                expect(wasCalled).toBe(true);
+            });
+        });
+    });
+
     describe("with a session", function() {
         var session;
 
@@ -4710,7 +5047,7 @@ describe("Ext.data.Store", function() {
 
         describe("loading data", function() {
             it("should pass the session record creator when using load", function() {
-                session = new Ext.data.session.Session();
+                session = new Ext.data.Session();
                 createStore({
                     session: session,
                     proxy: {
@@ -4723,7 +5060,7 @@ describe("Ext.data.Store", function() {
             });
             
             it("should pass the record creator when using loadRawData", function() {
-                session = new Ext.data.session.Session();
+                session = new Ext.data.Session();
                 createStore({
                     session: session,
                     proxy: {

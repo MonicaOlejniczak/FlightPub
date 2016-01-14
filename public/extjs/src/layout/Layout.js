@@ -33,7 +33,7 @@ Ext.define('Ext.layout.Layout', {
      * items into its layout calculations.  Layouts that handle the size of their children
      * as a group (autocontainer, form) can set this to false for an additional performance
      * optimization.  When `false` the layout system will not recurse into the child
-     * items if {@link #activeItemCount} is `0`, which will be the case if all child items
+     * items if {@link Ext.layout.container.Container#activeItemCount} is `0`, which will be the case if all child items
      * use "liquid" CSS layout, e.g. form fields.  (See Ext.Component#liquidLayout)
      */
     needsItemSize: true,
@@ -55,11 +55,16 @@ Ext.define('Ext.layout.Layout', {
         setsHeight: 0
     },
 
+    $configPrefixed: false,
+    $configStrict: false,
+
     constructor : function(config) {
         var me = this;
 
         me.id = Ext.id(null, me.type + '-');
-        Ext.apply(me, config);
+
+        me.initConfig(config);
+
         // prevent any "type" that was passed as the alias from overriding the "type"
         // property from the prototype
         delete me.type;
@@ -347,8 +352,6 @@ Ext.define('Ext.layout.Layout', {
 
                 // Tell the item at which index in the Container it is
                 item.finishRender(i);
-
-                this.afterRenderItem(item);
             }
         }
     },
@@ -394,18 +397,8 @@ Ext.define('Ext.layout.Layout', {
      * @protected
      */
     isValidParent : function(item, target, position) {
-        var itemDom = item.el ? item.el.dom : Ext.getDom(item),
-            targetDom = (target && target.dom) || target,
-            parentNode = itemDom.parentNode,
-            className;
-
-        // If it's resizable+wrapped, the position element is the wrapper.
-        if (parentNode) {
-            className = parentNode.className;
-            if (className && className.indexOf(Ext.baseCSSPrefix + 'resizable-wrap') !== -1) {
-                itemDom = itemDom.parentNode;
-            }
-        }
+        var targetDom = (target && target.dom) || target,
+            itemDom = this.getItemLayoutEl(item);
 
         // Test DOM nodes for equality using "===" : http://jsperf.com/dom-equality-test
         if (itemDom && targetDom) {
@@ -417,6 +410,29 @@ Ext.define('Ext.layout.Layout', {
         }
 
         return false;
+    },
+
+    /**
+     * For a given item, returns the element that participates in the childNodes array
+     * of the layout's target element.  This is usually the component's "el", but can
+     * also be a wrapper
+     * @private
+     * @param {Ext.Component} item
+     * @return {HTMLElement}
+     */
+    getItemLayoutEl: function(item) {
+        var dom = item.el ? item.el.dom : Ext.getDom(item),
+            parentNode = dom.parentNode,
+            className;
+
+        if (parentNode) {
+            className = parentNode.className;
+            if (className && className.indexOf(Ext.baseCSSPrefix + 'resizable-wrap') !== -1) {
+                dom = dom.parentNode;
+            }
+        }
+
+        return dom;
     },
     
     getPositionOffset: function(position){
@@ -441,10 +457,11 @@ Ext.define('Ext.layout.Layout', {
      */
     renderItem : function(item, target, position) {
         var me = this;
+
         if (!item.rendered) {
             me.configureItem(item);
+
             item.render(target, position);
-            me.afterRenderItem(item);
         }
     },
 
@@ -498,7 +515,7 @@ Ext.define('Ext.layout.Layout', {
     onAdd: function (item) {
         item.ownerLayout = this;
     },
-    afterRenderItem: Ext.emptyFn,
+
     onRemove : Ext.emptyFn,
     onDestroy : Ext.emptyFn,
 

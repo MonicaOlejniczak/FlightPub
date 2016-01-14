@@ -89,9 +89,6 @@
  */
 Ext.define('Ext.data.schema.ManyToOne', {
     extend: 'Ext.data.schema.Association',
-    uses: [
-        'Ext.data.session.AssociatedEntitiesStub'
-    ],
 
     isManyToOne: true,
 
@@ -104,28 +101,91 @@ Ext.define('Ext.data.schema.ManyToOne', {
 
         isMany: true,
 
+        processUpdate: function(session, associationData) {
+            var me = this,
+                entityType = me.inverse.cls,
+                items = associationData.R,
+                id, record, store;
+
+            if (items) {
+                for (id in items) {
+                    record = session.peekRecord(entityType, id);
+                    if (record) {
+                        records = session.getEntityList(me.cls, items[id]);
+                        store = me.getAssociatedItem(record);
+                        if (store) {
+                            records = me.validateAssociationRecords(session, record, records);
+                            store.loadRecords(records);
+                            store.complete = true;
+                        } else {
+                            // We don't have a store. Create it and add the records.
+                            record[me.getterName](null, null, records);
+                        }
+                    } else {
+                        session.onInvalidAssociationEntity(entityType, id);
+                    }
+                }
+            }
+        },
+
+        validateAssociationRecords: function(session, associatedEntity, records) {
+            var refs = session.getEntry(associatedEntity.self, associatedEntity.id).refs,
+                ret = [],
+                key = this.association.getFieldName(),
+                seen, rec, id;
+
+            refs = refs && refs[this.role];
+            if (refs) {
+                if (records) {
+                    seen = {};
+                    // Loop over the records returned by the server and
+                    // check they all still belong
+                    for (i = 0, len = records.length; i < len; ++i) {
+                        rec = records[i];
+                        id = rec.id;
+                        if (refs[id]) {
+                            ret.push(rec);
+                        }
+                        seen[id] = true;
+                    }
+                }
+
+                // Loop over the expected set and include any missing records.
+                for (id in refs) {
+                    if (!seen || !seen[id]) {
+                        ret.push(refs[id]);
+                    }
+                }
+            }
+            return ret;
+        },
+
         createGetter: function() {
             var me = this;
-            return function (data) {
+            return function (options, scope, records) {
                 // 'this' refers to the Model instance inside this function
-                return me.getAssociatedStore(this, data);
+                var session = this.session,
+                    hadRecords;
+
+                if (session) {
+                    hadRecords = !!records;
+                    records = me.validateAssociationRecords(session, this, records);
+                    if (!hadRecords && !records.length) {
+                        records = null;
+                    }
+                }
+                return me.getAssociatedStore(this, options, scope, records, hadRecords);
             };
         },
 
         createSetter: null, // no setter for an isMany side
 
-        createStub: function (session, id, options) {
-            // This role refers to Ticket (with the key), so we want to get tickets here, so in this case
-            // we want to create multiple items.
-            return new Ext.data.session.AssociatedEntitiesStub(session, id, options);
-        },
-
         onAddToMany: function (store, records) {
-            this.syncFK(records, store.associatedEntity || store.foreignKeyValue, false);
+            this.syncFK(records, store.associatedEntity, false);
         },
 
         onRemoveFromMany: function (store, records) {
-            this.syncFK(records, store.foreignKeyValue, true);
+            this.syncFK(records, store.associatedEntity, true);
         },
 
         read: function(record, node, fromReader, readOptions) {
@@ -138,7 +198,7 @@ Ext.define('Ext.data.schema.ManyToOne', {
             
             // Did the root exist in the data?
             if (result.getReadRoot()) {
-                store = record[me.getterName](result.getRecords());
+                store = record[me.getterName](null, null, result.getRecords());
                 items = store.data.items;
                 len = items.length;
 
@@ -146,7 +206,42 @@ Ext.define('Ext.data.schema.ManyToOne', {
                     items[i][key] = record;
                 }
             }
-            
+        },
+
+        syncFK: function (records, foreignKeyValue, clearing) {
+            // We are called to set things like the FK (ticketId) of an array of Comment
+            // entities. The best way to do that is call the setter on the Comment to set
+            // the Ticket. Since we are setting the Ticket, the name of that setter is on
+            // our inverse role.
+
+            var foreignKeyName = this.association.getFieldName(),
+                setter = this.inverse.setterName, // setTicket
+                i = records.length,
+                newVal = clearing ? null : foreignKeyValue.getId(),
+                different, rec;
+
+            while (i-- > 0) {
+                rec = records[i];
+                different = !rec.isEqual(foreignKeyValue.getId(), rec.get(foreignKeyName));
+
+                if (different !== clearing) {
+                    // clearing === true
+                    //      different === true  :: leave alone (not associated anymore)
+                    //   ** different === false :: null the value (no longer associated)
+                    //
+                    // clearing === false
+                    //   ** different === true  :: set the value (now associated)
+                    //      different === false :: leave alone (already associated)
+                    //
+                    rec.changingKey = true;
+                    if (setter) {
+                        rec[setter](newVal);
+                    } else {
+                        rec.set(foreignKeyName, newVal);
+                    }
+                    rec.changingKey = false;
+                }
+            }
         }
     }),
 
@@ -176,10 +271,50 @@ Ext.define('Ext.data.schema.ManyToOne', {
             };
         },
 
-        createStub: function (session, id, options) {
-            // This role refers to Creator (without a key), so we want to get a creator here, so in this case
-            // we only want to create a single item.
-            return new Ext.data.session.AssociatedEntityStub(session, id, options);
+        onValueChange: function(leftRecord, session, newValue, oldValue) {
+            // If we have a session, we may be able to find the new store this belongs to
+            // If not, the best we can do is to remove the record from the associated store/s.
+            var joined, store, i, len, associated;
+
+            if (leftRecord.changingKey) {
+                return;
+            }
+
+            if (session) {
+                // Find the store that holds this record and remove it if possible.
+                store = this.getSessionStore(session, oldValue);
+                if (store) {
+                    store.remove(leftRecord);
+                }
+                // If we have a new value, try and find it and push it into the new store.
+                if (newValue || newValue === 0) {
+                    store = this.getSessionStore(session, newValue);
+                    if (store && !store.isLoading()) {
+                        store.add(leftRecord);
+                    }
+                }
+            } else {
+                joined = leftRecord.joined;
+                if (joined) {
+                    for (i = 0, len = joined.length; i < len; ++i) {
+                        store = joined[i];
+                        if (store.isStore) {
+                            associated = store.getAssociatedEntity();
+                            if (associated && associated.self === this.cls && associated.getId() === oldValue) {
+                                store.remove(leftRecord);
+                            }
+                        }
+                    }
+                }
+            }
+        },
+
+        getSessionStore: function(session, value) {
+            var rec = session.peekRecord(this.cls, value);
+
+            if (rec) {
+                return this.inverse.getAssociatedItem(rec);
+            }
         },
         
         read: function(record, node, fromReader, readOptions) {

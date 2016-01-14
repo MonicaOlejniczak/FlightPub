@@ -137,7 +137,7 @@ Ext.define('Ext.data.writer.Json', {
     writeRecords: function(request, data) {
         var me = this,
             root = me.getRootProperty(),
-            json, single;
+            json, single, transform;
         
         if (me.getExpandData()) {
             data = me.getExpandedData(data);
@@ -147,6 +147,12 @@ Ext.define('Ext.data.writer.Json', {
             // convert to single object format
             data = data[0];
             single = true;
+        }
+        
+        transform = this.getTransform();
+        if (transform) {
+            data = transform(data, request);
+            request.setJsonData(data);
         }
         
         if (me.getEncode()) {

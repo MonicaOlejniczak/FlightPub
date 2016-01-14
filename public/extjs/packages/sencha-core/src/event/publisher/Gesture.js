@@ -14,12 +14,6 @@ Ext.define('Ext.event.publisher.Gesture', {
         recognizers: {}
     },
 
-    isMouseEvent: {
-        mousedown: 1,
-        mousemove: 1,
-        mouseup: 1
-    },
-
     isCancelEvent: {
         touchcancel: 1,
         pointercancel: 1,
@@ -291,76 +285,38 @@ Ext.define('Ext.event.publisher.Gesture', {
         e.changedTouches = changedTouches;
     },
 
-    isEmulatedEvent: function(e) {
-        var me = this;
-
-        return Ext.supports.TouchEvents && me.isMouseEvent[e.type] &&
-            // some browsers (e.g. webkit on Windows 8 with touch screen) emulate mouse
-            // events after touch events have fired.  This only seems to happen when there
-            // is no movement present, so, for example, a touchstart followed immediately
-            // by a touchend would result in the following sequence of events:
-            // "touchstart, touchend, mousemove, mousedown, mouseup"
-            // yes, you read that right, the emulated mousemove fires before mousedown.
-            // However, touch events with movement (touchstart, touchmove, then touchend)
-            // do not trigger the emulated mouse events.
-            // The side effect of this behavior is that single-touch gestures that expect
-            // no movement (e.g. tap) can double-fire - once when the touchstart/touchend
-            // occurs, and then again when the emulated mousedown/up occurs.
-            // We cannot solve the problem by only listening for touch events and ignoring
-            // mouse events, since we may be on a multi-input device that supports both
-            // touch and mouse events and we want gestures to respond to both kinds of
-            // events.  Instead we have to detect if the mouse event is a "dupe" by
-            // checking if its coordinates are near the last touchstart's coordinates,
-            // and if it's timestamp is within a certain threshold of the last touchend
-            // event's timestamp.  This is because when dealing with multi-touch events,
-            // the emulated mousedown event (when it does fire) will fire with approximately
-            // the same coordinates as the first touchstart, but within a short time after
-            // the last touchend.  We use 15px as the distance threshold, to be on the safe
-            // side because the difference in coordinates can sometimes be up to 6px.
-                Math.abs(e.pageX - me.lastTouchStartX) < 15 &&
-                Math.abs(e.pageY - me.lastTouchStartY) < 15 &&
-                // in the majority of cases, the emulated mousedown is observed within
-                // 5ms of touchend, however, to be certain we avoid a situation where a
-                // gesture handler gets executed twice we use a threshold of 1000ms.  The
-                // side effect of this is that if a user touches the screen and then quickly
-                // clicks screen in the same spot, the mousedown/mouseup sequence that
-                // ensues will not trigger any gesture recognizers.
-                (Ext.now() - me.lastTouchEndTime) < 1000;
-    },
-
     onDelegatedEvent: function(e) {
         var me = this;
 
-        if (!me.isEmulatedEvent(e)) {
-            // call parent method to dispatch the browser event (e.g. touchstart, mousemove)
-            // before proceeding to the gesture recognition step.
-            e = me.callParent([e]);
+        // call parent method to dispatch the browser event (e.g. touchstart, mousemove)
+        // before proceeding to the gesture recognition step.
+        e = me.callParent([e, false]);
 
+        // superclass method will return false if the event being handled is a
+        // "emulated" event.  This may include emulated mouse events on browsers that
+        // support touch events, or "compatibility" mouse events on browsers that
+        // support pointer events.  If this is the case, do not proceed with gesture
+        // recognition.
+        if (e) {
             if (!e.button || e.button < 1) {
                 // mouse gestures (and pointer gestures triggered by a mouse) can only be
                 // initiated using the left button (0).  button value < 0 is also acceptable
                 // (e.g. pointermove has a button value of -1)
                 me.handlers[e.type].call(me, e);
             }
-        }
-    },
 
-    onDirectEvent: function(e) {
-        if (!this.isEmulatedEvent(e)) {
-            this.callParent([e]);
+            // wait until after handlers have been dispatched before calling afterEvent.
+            // this ensures that timestamps captured in afterEvent represent the time
+            // that event handling completed for this event.
+            me.afterEvent(e);
         }
     },
 
     onTouchStart: function(e) {
         var me = this,
-            // capture the true "type" of the event to determine if it is a touch event
-            // (use browserEvent.type because e.type may have been translated to reflect
-            // the type of event that was listened for (e.g. possibly mousedown).
-            isTouch = (e.browserEvent.type === 'touchstart'),
-            target = e.target,
-            touch;
+            target = e.target;
 
-        if (isTouch) {
+        if (e.browserEvent.type === 'touchstart') {
             // When using touch events, if the target is removed from the dom mid-gesture
             // the touchend event cannot be handled normally because it will not bubble
             // to the top of the dom since the target el is no longer attached to the dom.
@@ -385,14 +341,6 @@ Ext.define('Ext.event.publisher.Gesture', {
             // until the gesture is complete
             if (Ext.enableGarbageCollector) {
                 Ext.dom.GarbageCollector.pause();
-            }
-
-            if (isTouch) {
-                // capture the coordinates of the first touchstart event so we can use
-                // them to eliminate duplicate mouse events if needed, (see onDelegatedEvent).
-                touch = e.touches[0];
-                me.lastTouchStartX = touch.pageX;
-                me.lastTouchStartY = touch.pageY;
             }
         }
         me.invokeRecognizers('onTouchStart', e);
@@ -431,14 +379,6 @@ Ext.define('Ext.event.publisher.Gesture', {
             if (Ext.enableGarbageCollector) {
                 Ext.dom.GarbageCollector.resume();
             }
-
-            // Capture a time stamp so we can use it to eliminate potential duplicate
-            // emulated mouse events (see onTouchStart).  It is important that the capture
-            // of this time stamp occurs after the recognizers have been invoked, just in
-            // case one of the handlers took a while to return.  We avoid using e.timeStamp
-            // because it reflects the time when the event was fired, and we need to
-            // capture the "exit" time - after all handlers have been invoked.
-            me.lastTouchEndTime = Ext.now();
         }
     },
 

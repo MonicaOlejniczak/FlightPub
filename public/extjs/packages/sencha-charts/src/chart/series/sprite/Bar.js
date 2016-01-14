@@ -46,7 +46,6 @@ Ext.define('Ext.chart.series.sprite.Bar', {
         }
     },
 
-    // TODO: design this more carefully
     drawLabel: function (text, dataX, dataStartY, dataY, labelId) {
         var me = this,
             attr = me.attr,
@@ -137,7 +136,7 @@ Ext.define('Ext.chart.series.sprite.Bar', {
     },
 
     //@inheritdoc
-    renderClipped: function (surface, ctx, clip) {
+    renderClipped: function (surface, ctx, clip, rect) {
         if (this.cleanRedraw) {
             return;
         }
@@ -150,31 +149,33 @@ Ext.define('Ext.chart.series.sprite.Bar', {
             groupCount = attr.groupCount,
             groupOffset = attr.groupOffset - (groupCount - 1) * 0.5,
             inGroupGapWidth = attr.inGroupGapWidth,
-            yLow, yHi,
             lineWidth = ctx.lineWidth,
             matrix = attr.matrix,
             xx = matrix.elements[0],
             yy = matrix.elements[3],
             dx = matrix.elements[4],
             dy = surface.roundPixel(matrix.elements[5]) - 1,
-            maxBarWidth = xx - attr.minGapWidth,
-            barWidth = surface.roundPixel(Math.max(attr.minBarWidth, (Math.min(maxBarWidth, attr.maxBarWidth) - inGroupGapWidth * (groupCount - 1)) / groupCount)),
+            maxBarWidth = (xx < 0 ? -1 : 1) * xx - attr.minGapWidth,
+            minBarWidth = ( Math.min(maxBarWidth, attr.maxBarWidth) - inGroupGapWidth * (groupCount - 1) ) / groupCount,
+            barWidth = surface.roundPixel( Math.max(attr.minBarWidth, minBarWidth) ),
             surfaceMatrix = this.surfaceMatrix,
             left, right, bottom, top, i, center,
             halfLineWidth = 0.5 * attr.lineWidth,
-            start = Math.max(0, Math.floor(clip[0])),
-            end = Math.min(dataX.length - 1, Math.ceil(clip[2])),
-            drawMarkers = dataText && !!this.getBoundMarker('labels');
+            min = Math.min(clip[0], clip[2]),
+            max = Math.max(clip[0], clip[2]),
+            start = Math.max(0, Math.floor(min)),
+            end = Math.min(dataX.length - 1, Math.ceil(max)),
+            drawMarkers = dataText && this.getBoundMarker('labels'),
+            yLow, yHi;
 
         for (i = start; i <= end; i++) {
             yLow = dataStartY ? dataStartY[i] : 0;
             yHi = dataY[i];
-
             center = dataX[i] * xx + dx + groupOffset * (barWidth + inGroupGapWidth);
             left = surface.roundPixel(center - barWidth / 2) + halfLineWidth;
-            top = surface.roundPixel(yHi * yy + lineWidth + dy);
+            top = surface.roundPixel(yHi * yy + dy + lineWidth);
             right = surface.roundPixel(center + barWidth / 2) - halfLineWidth;
-            bottom = surface.roundPixel(yLow * yy + lineWidth + dy);
+            bottom = surface.roundPixel(yLow * yy + dy + lineWidth);
 
             me.drawBar(ctx, surface, clip, left, top - halfLineWidth, right, bottom - halfLineWidth, i);
 
@@ -193,26 +194,30 @@ Ext.define('Ext.chart.series.sprite.Bar', {
         var sprite = this,
             attr = sprite.attr,
             dataX = attr.dataX,
-            surface = sprite.getParent(),
+            surface = sprite.getSurface(),
             surfaceRect = surface.getRect() || [0,0,0,0],
             surfaceHeight = surfaceRect[3],
-            hitX, hitY, index = -1;
+            hitX, hitY,
+            i, bbox,
+            index = -1;
 
         // The "items" sprites that draw the bars work in a reverse vertical coordinate system
         // starting with 0 at the bottom and increasing the Y coordinate toward the top.
-        // See also Ext.chart.series.Bar.getItemForPoint(x,y) regarding the chart's InnerPadding.
-        //
-        // TODO: Cleanup the bar sprites.
+        // See also Ext.chart.series.Bar.getItemForPoint(x,y) regarding the chart's innerPadding.
         if (attr.flipXY) {
             hitX = surfaceHeight - y;
-            hitY = x;
+            if (surface.getInherited().rtl) {
+                hitY = surfaceRect[2] - x;
+            } else {
+                hitY = x;
+            }
         } else {
             hitX = x;
             hitY = surfaceHeight - y;
         }
 
-        for (var i = 0; i < dataX.length; i++) {
-            var bbox = sprite.getMarkerBBox('items', i);
+        for (i = 0; i < dataX.length; i++) {
+            bbox = sprite.getMarkerBBox('items', i);
             if (bbox && hitX >= bbox.x && hitX <= (bbox.x + bbox.width) && hitY >= bbox.y && hitY <= (bbox.y + bbox.height)) {
                 index = i;
             }

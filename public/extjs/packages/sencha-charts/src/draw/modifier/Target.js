@@ -70,8 +70,7 @@ Ext.define('Ext.draw.modifier.Target', {
             return;
         }
 
-        // This can prevent sub objects to set duplicated attributes to
-        // context.
+        // This can prevent sub objects to set duplicated attributes to context.
         if (dirtyFlags.canvas) {
             canvasNames = dirtyFlags.canvas;
             delete dirtyFlags.canvas;

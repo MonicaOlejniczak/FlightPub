@@ -113,7 +113,7 @@ Ext.define('Ext.util.Sorter', {
          * content of the collection or array, and not based on the content at the time of
          * this call.
          *
-         * @param {Ext,util.Sorter[]/Ext.util.Collection} sorters The `Sorter` instances.
+         * @param {Ext.util.Sorter[]/Ext.util.Collection} sorters The `Sorter` instances.
          * @param [nextFn] The next comparator function to call if all the `sorters` end
          * with equality.
          * @return {Function} The comparator function.
@@ -147,7 +147,7 @@ Ext.define('Ext.util.Sorter', {
 
     constructor: function(config) {
         //<debug>
-        if (config) {
+        if (config && !this.isGrouper) {
             if (!config.property === !config.sorterFn) {
                 // the above is a "not XOR" - both true or both false
                 Ext.Error.raise("A Sorter requires either a property or a sorterFn.");
@@ -231,10 +231,26 @@ Ext.define('Ext.util.Sorter', {
     toggle: function() {
         this.setDirection(Ext.String.toggle(this.getDirection(), "ASC", "DESC"));
     },
-    
+
+    /**
+     * Returns this filter's state.
+     * @return {Object}
+     */
     getState: function() {
         return {
             root: this.getRoot(),
+            property: this.getProperty(),
+            direction: this.getDirection()
+        };
+    },
+
+    /**
+     * Returns this sorter's serialized state. This is used when transmitting this sorter
+     * to a server.
+     * @return {Object}
+     */
+    serialize: function () {
+        return {
             property: this.getProperty(),
             direction: this.getDirection()
         };

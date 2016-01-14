@@ -139,13 +139,13 @@ Ext.define('Ext.chart.Chart', {
 
     alias: 'widget.chart',
     
-    mixins: {
-        themeManager: 'Ext.chart.theme.Theme',
-        mask: 'Ext.chart.Mask',
-        navigation: 'Ext.chart.Navigation',
-        bindable: 'Ext.util.Bindable',
-        observable: 'Ext.util.Observable'
-    },
+    mixins: [
+        'Ext.chart.theme.Theme',
+        'Ext.chart.Mask',
+        'Ext.chart.Navigation',
+        'Ext.util.StoreHolder',
+        'Ext.util.Observable'
+    ],
 
     uses: [
         'Ext.chart.series.Series'
@@ -537,7 +537,7 @@ Ext.define('Ext.chart.Chart', {
 
         if (me.surface.engine === 'Vml') {
             me.on('added', me.onAddedVml, me);
-            me.mon(me.hierarchyEventSource, 'added', me.onContainerAddedVml, me);
+            me.mon(Ext.GlobalEvents, 'added', me.onContainerAddedVml, me);
         }
     },
 
@@ -755,7 +755,7 @@ Ext.define('Ext.chart.Chart', {
     
     setShowListeners: function(method){
         var me = this;
-        me[method](me.hierarchyEventSource, {
+        me[method](Ext.GlobalEvents, {
             scope: me,
             single: true,
             show: me.forceRefresh,
@@ -782,7 +782,7 @@ Ext.define('Ext.chart.Chart', {
 
     bindStore: function(store, initial) {
         var me = this;
-        me.mixins.bindable.bindStore.apply(me, arguments);
+        me.mixins.storeholder.bindStore.apply(me, arguments);
         if (me.store && !initial) {
             me.refresh();
         }
@@ -795,7 +795,7 @@ Ext.define('Ext.chart.Chart', {
         return {
             refresh: refresh,
             add: delayRefresh,
-            bulkremove: delayRefresh,
+            remove: delayRefresh,
             update: delayRefresh,
             clear: refresh
         };

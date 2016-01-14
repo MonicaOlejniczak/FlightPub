@@ -43,7 +43,7 @@
  */
 Ext.define('Ext.data.Connection', {
     mixins: {
-        observable: 'Ext.util.Observable'
+        observable: 'Ext.mixin.Observable'
     },
 
     requires: [
@@ -170,8 +170,8 @@ Ext.define('Ext.data.Connection', {
     },
 
     constructor : function(config) {
-        var me = this;
-        me.initConfig(config);
+        // Will call initConfig
+        this.mixins.observable.constructor.call(this, config);
 
         /**
          * @event beforerequest
@@ -198,8 +198,7 @@ Ext.define('Ext.data.Connection', {
          * See [The XMLHttpRequest Object](http://www.w3.org/TR/XMLHttpRequest/) for details.
          * @param {Object} options The options config object passed to the {@link #request} method.
          */
-        me.requests = {};
-        me.mixins.observable.constructor.call(me);
+        this.requests = {};
     },
 
     /**
@@ -431,7 +430,7 @@ Ext.define('Ext.data.Connection', {
 
     /**
      * Uploads a form using a hidden iframe.
-     * @param {String/HTMLElement/Ext.Element} form The form to upload
+     * @param {String/HTMLElement/Ext.dom.Element} form The form to upload
      * @param {String} url The url to post to
      * @param {String} params Any extra parameters to pass
      * @param {Object} options The initial options

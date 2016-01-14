@@ -25,12 +25,14 @@ Ext.define('Ext.slider.Single', {
     ],
 
     /**
-     * @cfg {Boolean} publishOnComplete
+     * @cfg {Boolean} [publishOnComplete=true]
      * This controls when the value of the slider is published to the `ViewModel`. By
-     * default this is done on every change of the thumb position. To cause this to happen
-     * only when the thumb is released (the change is complete), specify `true`.
+     * default this is done only when the thumb is released (the change is complete). To
+     * cause this to happen on every change of the thumb position, specify `false`. This
+     * setting is `true` by default for improved performance on slower devices (such as
+     * older browsers or tablets).
      */
-    publishOnComplete: false,
+    publishOnComplete: true,
 
     /**
      * Returns the current value of the slider

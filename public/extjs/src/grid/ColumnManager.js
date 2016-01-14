@@ -35,6 +35,22 @@ Ext.define('Ext.grid.ColumnManager', {
         return this.columns;
     },
 
+    hasVariableRowHeight: function() {
+        var me = this,
+            columns = me.getColumns(),
+            len = columns.length,
+            i;
+
+        if (me.variableRowHeight == null) {
+            me.variableRowHeight = false;
+            for (i = 0; !me.variableRowHeight && i < len; i++) {
+                me.variableRowHeight = !!columns[i].variableRowHeight;
+            }
+        }
+
+        return me.variableRowHeight;
+    },
+
     /**
      * If called from a root header, returns the index of a leaf level header regardless of what the nesting
      * structure is.
@@ -82,7 +98,7 @@ Ext.define('Ext.grid.ColumnManager', {
         return col;
     },
     
-    getNextSibling: function(header){
+    getNextSibling: function(header) {
         var index = this.getHeaderIndex(header),
             col;
             
@@ -96,7 +112,7 @@ Ext.define('Ext.grid.ColumnManager', {
      * Get the first column.
      * @return {Ext.grid.column.Column} The header. `null` if it doesn't exist
      */
-    getFirst: function(){
+    getFirst: function() {
         var columns = this.getColumns();
         return columns.length > 0 ? columns[0] : null;
     },
@@ -112,6 +128,26 @@ Ext.define('Ext.grid.ColumnManager', {
         return len > 0 ? columns[len - 1] : null;
     },
     
+    /**
+     * Get a leaf level header by data index regardless of what the nesting
+     * structure is.
+     * @param {String} dataIndex The data index
+     * @return {Ext.grid.column.Column} The header. `null` if it doesn't exist.
+     */
+    getHeaderByDataIndex: function (dataIndex) {
+        var columns = this.getColumns(),
+            len = columns.length,
+            i, header;
+            
+        for (i = 0; i < len; ++i) {
+            header = columns[i];
+            if (header.dataIndex === dataIndex) {
+                return header;
+            }
+        }
+        return null;
+    },
+
     /**
      * Get a leaf level header by index regardless of what the nesting
      * structure is.
@@ -166,7 +202,7 @@ Ext.define('Ext.grid.ColumnManager', {
 
     invalidate: function() {
         var root = this.rootColumns;
-        this.columns = null;
+        this.columns = this.variableRowHeight = null;
 
         // If we are part of a lockable assembly, invalidate the root column manager
         if (root) {

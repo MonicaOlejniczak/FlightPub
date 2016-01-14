@@ -17,9 +17,9 @@
  * order. If this is required, then use a {@link Ext.util.MixedCollection}.
  */
 Ext.define('Ext.util.HashMap', {
-    mixins: {
-        observable: 'Ext.util.Observable'
-    },
+    mixins: [
+        'Ext.mixin.Observable'
+    ],
 
     /**
      * @private Mutation counter which is incremented upon add and remove.
@@ -74,7 +74,7 @@ Ext.define('Ext.util.HashMap', {
         var me = this,
             fn;
         
-        me.initConfig(config);
+        // Will call initConfig
         me.mixins.observable.constructor.call(me, config);
         me.clear(true);
 

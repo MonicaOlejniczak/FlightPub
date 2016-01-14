@@ -1,3 +1,6 @@
+/**
+ * @author Brendan Annable
+ */
 Ext.define('FB.store.Itinerary', {
 	extend: 'Ext.data.Store',
     requires: 'FB.model.Flight',

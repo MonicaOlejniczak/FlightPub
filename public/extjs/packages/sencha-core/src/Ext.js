@@ -50,6 +50,7 @@ Ext._startTime = Date.now ? Date.now() : (+ new Date());
         enumerables = [//'hasOwnProperty', 'isPrototypeOf', 'propertyIsEnumerable',
                        'valueOf', 'toLocaleString', 'toString', 'constructor'],
         emptyFn = function () {},
+        privateFn = function () {},
         identityFn = function(o) { return o; },
         // This is the "$previous" method of a hook function on an instance. When called, it
         // calls through the class prototype by the name of the called method.
@@ -65,7 +66,13 @@ Ext._startTime = Date.now ? Date.now() : (+ new Date());
     Ext.global = global;
 
     // Mark these special fn's for easy identification:
-    emptyFn.$nullFn = identityFn.$nullFn = emptyFn.$emptyFn = identityFn.$identityFn = true;
+    emptyFn.$nullFn = identityFn.$nullFn = emptyFn.$emptyFn = identityFn.$identityFn =
+        privateFn.$nullFn = true;
+    privateFn.$privacy = 'framework';
+
+    // These are emptyFn's in core and are redefined only in Ext JS (we use this syntax
+    // so Cmd does not detect them):
+    Ext['suspendLayouts'] = Ext['resumeLayouts'] = emptyFn;
 
     for (i in { toString: 1 }) {
         enumerables = null;
@@ -161,6 +168,21 @@ Ext._startTime = Date.now ? Date.now() : (+ new Date());
 
         /**
          * @property {Function}
+         * A reusable empty function for use as `privates` members.
+         *
+         *      Ext.define('MyClass', {
+         *          nothing: Ext.emptyFn,
+         *
+         *          privates: {
+         *              privateNothing: Ext.privateFn
+         *          }
+         *      });
+         *
+         */
+        privateFn: privateFn,
+
+        /**
+         * @property {Function}
          * A reusable empty function.
          */
         emptyFn: emptyFn,
@@ -215,9 +237,7 @@ Ext._startTime = Date.now ? Date.now() : (+ new Date());
          *
          *      Ext.debugConfig = {
          *          hooks: {
-         *              '*': true,
-         *              'Ext.layout': false,
-         *              'Ext.event.gesture': false
+         *              '*': true
          *          }
          *      };
          *
@@ -259,9 +279,7 @@ Ext._startTime = Date.now ? Date.now() : (+ new Date());
          */
         debugConfig: Ext.debugConfig || manifest.debug || {
             hooks: {
-                '*': true,
-                'Ext.layout': false,
-                'Ext.event.gesture': false
+                '*': true
             }
         },
         //</debug>
@@ -351,6 +369,14 @@ Ext._startTime = Date.now ? Date.now() : (+ new Date());
         baseCSSPrefix: Ext.buildSettings.baseCSSPrefix,
 
         /**
+         * @property {Object} $eventNameMap
+         * A map of event names which contained the lower-cased verions of any mixed
+         * case event names.
+         * @private
+         */
+        $eventNameMap: {},
+
+        /**
          * Copies all the properties of config to object if they don't already exist.
          * @param {Object} object The receiver of the properties
          * @param {Object} config The source of the properties
@@ -388,7 +414,6 @@ Ext._startTime = Date.now ? Date.now() : (+ new Date());
          * What it means to "destroy" an object depends on the type of object.
          *
          *  * `Array`: Each element of the array is destroyed recursively.
-         *  * `Ext.data.Store`: The `destroyStore` method is called.
          *  * `Object`: Any object with a `destroy` method will have that method called.
          *
          * @param {Mixed...} args Any number of objects or arrays.
@@ -402,8 +427,6 @@ Ext._startTime = Date.now ? Date.now() : (+ new Date());
                 if (arg) {
                     if (Ext.isArray(arg)) {
                         this.destroy.apply(this, arg);
-                    } else if (arg.isStore) {
-                        arg.destroyStore();
                     } else if (Ext.isFunction(arg.destroy)) {
                         arg.destroy();
                     }
@@ -419,10 +442,12 @@ Ext._startTime = Date.now ? Date.now() : (+ new Date());
          * @param {String...} args One or more names of the properties to destroy and remove from the object.
          */
         destroyMembers: function (object) {
-            for (var name, i = 1, a = arguments, len = a.length; i < len; i++) {
-                name = a[i];
-                if (object[name] != null) { // avoid adding the property if it does not already exist
-                    object[name] = Ext.destroy(object[name]);
+            for (var ref, name, i = 1, a = arguments, len = a.length; i < len; i++) {
+                ref = object[name = a[i]];
+
+                // Avoid adding the property if it does not already exist
+                if (ref != null) {
+                    object[name] = Ext.destroy(ref);
                 }
             }
         },
@@ -717,7 +742,7 @@ Ext._startTime = Date.now ? Date.now() : (+ new Date());
          */
         isDebugEnabled:
             //<debug>
-            function (className) {
+            function (className, defaultEnabled) {
                 var debugConfig = Ext.debugConfig.hooks;
 
                 if (debugConfig.hasOwnProperty(className)) {
@@ -726,6 +751,10 @@ Ext._startTime = Date.now ? Date.now() : (+ new Date());
 
                 var enabled = debugConfig['*'],
                     prefixLength = 0;
+
+                if (defaultEnabled !== undefined) {
+                    enabled = defaultEnabled;
+                }
                 if (!className) {
                     return enabled;
                 }
@@ -917,7 +946,45 @@ Ext._startTime = Date.now ? Date.now() : (+ new Date());
         // private
         getElementById: function(id) {
             return document.getElementById(id);
-        }
+        },
+
+        /**
+         * @member Ext
+         * @private
+         */
+        splitAndUnescape: (function() {
+            var cache = {};
+    
+            return function(origin, delimiter) {
+                if (!origin) {
+                    return [];
+                }
+                else if (!delimiter) {
+                    return [origin];
+                }
+    
+                var replaceRe = cache[delimiter] || (cache[delimiter] = new RegExp('\\\\' + delimiter, 'g')),
+                    result = [],
+                    parts, part;
+    
+                parts = origin.split(delimiter);
+    
+                while ((part = parts.shift()) !== undefined) {
+                    // If any of the parts ends with the delimiter that means
+                    // the delimiter was escaped and the split was invalid. Roll back.
+                    while (part.charAt(part.length - 1) === '\\' && parts.length > 0) {
+                        part = part + delimiter + parts.shift();
+                    }
+    
+                    // Now that we have split the parts, unescape the delimiter char
+                    part = part.replace(replaceRe, delimiter);
+    
+                    result.push(part);
+                }
+    
+                return result;
+            }
+        })()
     }); // Ext.apply(Ext
 
     Ext.returnTrue.$nullFn = Ext.returnId.$nullFn = true;

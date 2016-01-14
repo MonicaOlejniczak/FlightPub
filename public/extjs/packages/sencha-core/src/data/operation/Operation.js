@@ -268,7 +268,7 @@ Ext.define('Ext.data.operation.Operation', {
      * 
      * @param {Ext.data.ResultSet} resultSet The result set
      * @param {Ext.data.Request} request The request
-     * @param {Ext.data.Response} response The response
+     * @param {Object} response The response
      * @protected
      */
     doProcess: function(resultSet, request, response) {
@@ -378,12 +378,16 @@ Ext.define('Ext.data.operation.Operation', {
         // Call internal callback first (usually the Store's onProxyLoad method)
         if (callback) {
             callback.call(me.getInternalScope() || me, me);
+            me.setInternalCallback(null);
+            me.setInternalScope(null);
         }
 
         // Call the user's callback as passed to Store's read/write
         if (callback = me.getCallback()) {
             // Maintain the public API for callback
             callback.call(me.getScope() || me, me.getRecords(), me, me.wasSuccessful());
+            me.setCallback(null);
+            me.setScope(null);
         }
     },
 

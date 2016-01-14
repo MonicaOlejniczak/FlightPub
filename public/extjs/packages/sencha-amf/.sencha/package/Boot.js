@@ -27,6 +27,7 @@ Ext.Boot = Ext.Boot || (function (emptyFn) {
              */
             disableCaching:
                 (/[?&](?:cache|disableCacheBuster)\b/i.test(location.search) ||
+                    (location.href.substring(0,5) === 'file:') ||
                     /(^|[ ;])ext-cache=1/.test(doc.cookie)) ? false :
                     true,
 

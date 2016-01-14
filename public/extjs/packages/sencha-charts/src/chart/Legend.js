@@ -1,3 +1,6 @@
+/**
+ * @class Ext.chart.Legend
+ */
 Ext.define('Ext.chart.Legend', {
     xtype: 'legend',
     extend: 'Ext.chart.LegendBase',

@@ -1,3 +1,6 @@
+/**
+ * @author Brendan Annable
+ */
 Ext.define('FB.model.Flight', {
     extend: 'Ext.data.Model',
     fields: [

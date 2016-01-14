@@ -116,12 +116,13 @@ Ext.define('Ext.container.ButtonGroup', {
         this.callParent(arguments);
     },
 
-    //private
-    applyDefaults: function(c) {
-        if (!Ext.isString(c)) {
-            c = this.callParent(arguments);
+    privates: {
+        applyDefaults: function (c) {
+            if (!Ext.isString(c)) {
+                c = this.callParent(arguments);
+            }
+            return c;
         }
-        return c;
     }
 
     /**

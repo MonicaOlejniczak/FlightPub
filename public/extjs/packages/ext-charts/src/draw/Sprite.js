@@ -558,8 +558,15 @@ Ext.define('Ext.draw.Sprite', {
         return this.surface.getBBox(this);
     },
 
+    /**
+     * Set the text of a Text Sprite.
+     * @param {String} text The text to display.
+     * @return {Ext.draw.Sprite} this
+     */
     setText: function(text) {
-        return this.surface.setText(this, text);
+        this.attr.text = text; 
+        this.surface.applyAttrs(this);
+        return this;
     },
 
     /**

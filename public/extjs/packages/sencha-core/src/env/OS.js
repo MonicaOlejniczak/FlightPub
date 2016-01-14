@@ -93,7 +93,7 @@ Ext.env.OS = function(userAgent, platform, browserScope) {
             browserScope.setFlag("AndroidStock4");
         }
     }
-}
+};
 
 Ext.env.OS.prototype = {
     constructor: Ext.env.OS,

@@ -19,7 +19,7 @@ Ext.Configurator = function (cls) {
         zuper = cls.superclass ? cls.superclass.self.$config : null;
 
     /**
-     * @property {Class} cls The class to which this instance is associated.
+     * @property {Ext.Class} cls The class to which this instance is associated.
      * @private
      * @readonly
      */
@@ -112,37 +112,36 @@ Ext.Configurator.prototype = {
      * defined that target the class.
      * 
      * @param {Object} config The config object containing the new config properties.
-     * @param {Boolean} [isMixin=false] `true` if the config is being added from a mixin.
+     * @param {Class} [mixinClass] The mixin class if the configs are from a mixin.
      * @private
      */
-    add: function (config, isMixin) {
+    add: function (config, mixinClass) {
         var me = this,
             Cls = me.cls,
             configs = me.configs,
             cachedConfigs = me.cachedConfigs,
             initMap = me.initMap,
             prototype = Cls.prototype,
+            mixinConfigs = mixinClass && mixinClass.$config.configs,
             values = me.values,
             isObject, meta, isCached, merge,
             cfg, currentValue, name, names, s, value;
 
-        isMixin = !!isMixin;
-        
         for (name in config) {
             value = config[name];
             isObject = value && value.constructor === Object;
             meta = isObject && '$value' in value ? value : null;
             if (meta) {
                 isCached = !!meta.cached;
-                merge = meta.merge;
                 value = meta.$value;
-                delete meta.$value;
             }
+
+            merge = meta && meta.merge;
 
             cfg = configs[name];
             if (cfg) {
                 // Only proceed with a mixin if we have a custom merge.
-                if (isMixin) {
+                if (mixinClass) {
                     merge = cfg.merge;
                     if (!merge) {
                         continue;
@@ -152,12 +151,11 @@ Ext.Configurator.prototype = {
                 } else {
                     merge = merge || cfg.merge;
                 }
-                
-                
+
                 //<debug>
                 // This means that we've already declared this as a config in a superclass
                 // Let's not allow us to change it here.
-                if (!isMixin && isCached && !cachedConfigs[name]) {
+                if (!mixinClass && isCached && !cachedConfigs[name]) {
                     Ext.Error.raise('Redefining config as cached: ' + name + ' in class: ' + Cls.$className);
                 }
                 //</debug>
@@ -168,7 +166,7 @@ Ext.Configurator.prototype = {
                 currentValue = values[name];
 
                 if (merge) {
-                    value = merge.call(Cls, value, currentValue, isMixin);
+                    value = merge.call(cfg, value, currentValue, Cls, mixinClass);
                 } else if (isObject) {
                     if (currentValue && currentValue.constructor === Object) {
                         // We favor moving the cost of an "extra" copy here because this
@@ -185,9 +183,19 @@ Ext.Configurator.prototype = {
                 // This is a new property value, so add it to the various maps "as is".
                 // In the majority of cases this value will not be overridden or need to
                 // be forked.
-                configs[name] = cfg = ExtConfig.get(name);
-                if (isCached) {
-                   cachedConfigs[name] = true;
+                if (mixinConfigs) {
+                    // Since this is a config from a mixin, we don't want to apply its
+                    // meta-ness because it already has. Instead we want to use its cfg
+                    // instance:
+                    cfg = mixinConfigs[name];
+                    meta = null;
+                } else {
+                    cfg = ExtConfig.get(name);
+                }
+
+                configs[name] = cfg;
+                if (cfg.cached || isCached) {
+                    cachedConfigs[name] = true;
                 }
 
                 // Ensure that the new config has a getter and setter. Because this method
@@ -229,6 +237,7 @@ Ext.Configurator.prototype = {
                     cfg.owner = Cls;
                 }
                 Ext.apply(cfg, meta);
+                delete cfg.$value;
             }
 
             // If the value is non-null, we need to initialize it.
@@ -278,6 +287,7 @@ Ext.Configurator.prototype = {
             // bound we take a bit to plan for instance 2+.
             me.initList = initList = [];
             me.initListMap = initListMap = {};
+            instance.isFirstInstance = true;
 
             for (name in initMap) {
                 needsInit = initMap[name];
@@ -319,23 +329,35 @@ Ext.Configurator.prototype = {
             }
         }
 
-        if (cachedInitList) {
+        ln = cachedInitList && cachedInitList.length;
+        if (ln) {
             // This is only ever done on the first instance we configure. Any config in
             // cachedInitList has to be set to the default value to allow any side-effects
             // or transformations to occur. The resulting values can then be elevated to
             // the prototype and this property need not be initialized on each instance.
 
-            for (i = 0, ln = cachedInitList.length; i < ln; ++i) {
-                names = (cfg = cachedInitList[i]).names;
-                name = cfg.name;
-                getter = names.get;
-                internalName = cfg.getInternalName(prototype);
+            for (i = 0; i < ln; ++i) {
+                internalName = cachedInitList[i].getInternalName(prototype);
+                // Since these are cached configs the base class will potentially have put
+                // its cached values on the prototype so we need to hide these while we
+                // run the inits for our cached configs.
                 instance[internalName] = null;
+            }
 
-                instance[names.set](values[name]);
-                delete instance[getter];
+            for (i = 0; i < ln; ++i) {
+                names = (cfg = cachedInitList[i]).names;
+                getter = names.get;
 
+                if (instance.hasOwnProperty(getter)) {
+                    instance[names.set](values[cfg.name]);
+                    delete instance[getter];
+                }
+            }
+
+            for (i = 0; i < ln; ++i) {
+                internalName = cachedInitList[i].getInternalName(prototype);
                 prototype[internalName] = instance[internalName];
+                delete instance[internalName];
             }
 
             // The cachedConfigs have all been set to the default values including any of
@@ -350,6 +372,9 @@ Ext.Configurator.prototype = {
                 instance.afterCachedConfig(instanceConfig);
             }
         }
+
+        // Let apply/update methods know that the initConfig is currently running.
+        instance.isConfiguring = true;
 
         // Now that the cachedConfigs have been processed we can apply the instanceConfig
         // and hide the "configs" on the prototype. This will serve as the source for any
@@ -374,6 +399,11 @@ Ext.Configurator.prototype = {
         for (i = 0, ln = initList.length; i < ln; ++i) {
             cfg = initList[i];
             instance[cfg.names.get] = cfg.initGetter || cfg.getInitGetter();
+        }
+
+        // Give the class a chance to transform the configs.
+        if (instance.transformInstanceConfig) {
+            instanceConfig = instance.transformInstanceConfig(instanceConfig);
         }
 
         // Important: We are looping here twice on purpose. This first loop serves 2 purposes:
@@ -410,7 +440,7 @@ Ext.Configurator.prototype = {
 
                     merge = cfg.merge;
                     if (merge) {
-                        value = merge.call(instance, value, values[name], false);
+                        value = merge.call(cfg, value, values[name], instance);
                     } else if (value && value.constructor === Object) {
                         valuesKey = values[name];
                         if (valuesKey && valuesKey.constructor === Object) {
@@ -477,6 +507,9 @@ Ext.Configurator.prototype = {
                 delete instance[getter];
             }
         }
+
+        // Expose the value from the prototype chain (false):
+        delete instance.isConfiguring;
     },
 
     getCurrentConfig: function (instance) {
@@ -493,10 +526,10 @@ Ext.Configurator.prototype = {
 
     reconfigure: function (instance, instanceConfig, onlyIfNotSet) {
         var currentConfig = instance.config,
-            defaultConfig = instance.defaultConfig,
             initialConfig = instance.initialConfig,
             configList = [],
-            cfg, getter, i, len, name, names;
+            strict = instance.$configStrict,
+            cfg, getter, i, len, name, names, setter;
 
         for (name in instanceConfig) {
             if (onlyIfNotSet && (name in initialConfig)) {
@@ -504,26 +537,52 @@ Ext.Configurator.prototype = {
             }
 
             currentConfig[name] = instanceConfig[name];
+            cfg = configPropMap[name];
 
-            if (name in defaultConfig) {
-                configList.push(name);
-                cfg = configPropMap[name];
+            if (cfg) {
                 instance[cfg.names.get] = cfg.initGetter || cfg.getInitGetter();
+            } else if (strict) {
+                //<debug>
+                if (name !== 'type') {
+                    Ext.log.error('No such config "' + name + '" for class ' +
+                                  instance.$className);
+                }
+                //</debug>
+                continue;
             }
+
+            configList.push(name);
         }
 
         for (i = 0, len = configList.length; i < len; i++) {
             name = configList[i];
-            names = configPropMap[name].names;
-            getter = names.get;
+            cfg = configPropMap[name];
 
-            if (instance.hasOwnProperty(getter)) {
-                // Since the instance still hasOwn the getter, that means we've set an initGetter
-                // and it hasn't been cleared by calling any setter. Since we've never set the value
-                // because it wasn't passed in the instance, we go and set it here, taking the value
-                // from our definition config and passing it through finally clear off the getter.
-                instance[names.set](instanceConfig[name]);
-                delete instance[getter];
+            if (cfg) {
+                names = cfg.names;
+                getter = names.get;
+
+                if (instance.hasOwnProperty(getter)) {
+                    // Since the instance still hasOwn the getter, that means we've set an initGetter
+                    // and it hasn't been cleared by calling any setter. Since we've never set the value
+                    // because it wasn't passed in the instance, we go and set it here, taking the value
+                    // from our definition config and passing it through finally clear off the getter.
+                    instance[names.set](instanceConfig[name]);
+                    delete instance[getter];
+                }
+            } else if (!strict) {
+                cfg = Ext.Config.get(name);
+                names = cfg.names;
+
+                if (instance[names.set]) {
+                    instance[names.set](instanceConfig[name]);
+                }
+                //<debug>
+                else if (name !== 'type') {
+                    Ext.Error.raise('Config "' + name + '" has no setter on class ' +
+                                    instance.$className);
+                }
+                //</debug>
             }
         }
     }

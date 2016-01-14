@@ -198,9 +198,11 @@ Ext.define('Ext.sparkline.VmlCanvas', {
         this.group.dom.innerHTML = this.prerender.join('');
     }
 }, function() {
-    var doc = document;
-
-    if (doc.namespaces && !doc.namespaces.svml) {
-        doc.namespaces.add("svml", "urn:schemas-microsoft-com:vml", '#default#VML');
-    }
+    Ext.onReady(function() {
+        var doc = document;
+    
+        if (doc.namespaces && !doc.namespaces.svml) {
+            doc.namespaces.add("svml", "urn:schemas-microsoft-com:vml", '#default#VML');
+        }
+    });
 });

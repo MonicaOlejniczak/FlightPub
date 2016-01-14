@@ -5,6 +5,11 @@ Ext.define('Ext.draw.ContainerBase', {
         WATERMARK: 'Powered by <span style="color:#22E962; font-weight: 900">Sencha Touch</span> <span style="color:#75cdff; font-weight: 900">GPLv3</span>'
     },
 
+    constructor: function(config) {
+        this.callParent([config]);
+        this.initAnimator();
+    },
+
     initialize: function () {
         this.callParent();
         this.element.on('resize', 'onElementResize', this);
@@ -13,12 +18,6 @@ Ext.define('Ext.draw.ContainerBase', {
     onElementResize: function () {
         // TODO: get body element size here
         this.onBodyResize(width, height);
-    },
-
-    updateBackground: function (background) {
-        this.element.setStyle({
-            background: background
-        });
     },
 
     getElementConfig: function () {

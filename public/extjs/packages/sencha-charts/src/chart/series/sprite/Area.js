@@ -4,9 +4,9 @@
  *
  * Area series sprite.
  */
-Ext.define("Ext.chart.series.sprite.Area", {
+Ext.define('Ext.chart.series.sprite.Area', {
     alias: 'sprite.areaSeries',
-    extend: "Ext.chart.series.sprite.StackedCartesian",
+    extend: 'Ext.chart.series.sprite.StackedCartesian',
 
     inheritableStatics: {
         def: {
@@ -29,19 +29,24 @@ Ext.define("Ext.chart.series.sprite.Area", {
             dataY = attr.dataY,
             dataStartY = attr.dataStartY,
             matrix = attr.matrix,
-            x, y, i, lastX, lastY,
+            x, y, i, lastX, lastY, startX, startY,
             xx = matrix.elements[0],
             dx = matrix.elements[4],
             yy = matrix.elements[3],
             dy = matrix.elements[5],
             surfaceMatrix = me.surfaceMatrix,
             markerCfg = {},
-            start = Math.max(0, this.binarySearch(clip[0])),
-            end = Math.min(dataX.length - 1, this.binarySearch(clip[2]) + 1);
-        ctx.beginPath();
+            min = Math.min(clip[0], clip[2]),
+            max = Math.max(clip[0], clip[2]),
+            start = Math.max(0, this.binarySearch(min)),
+            end = Math.min(dataX.length - 1, this.binarySearch(max) + 1);
 
+        ctx.beginPath();
+        startX = dataX[start] * xx + dx;
+        startY = dataY[start] * yy + dy;
+        ctx.moveTo(startX, startY);
         if (attr.step) {
-            lastY = dataY[start] * yy + dy;
+            lastY = startY;
             for (i = start; i <= end; i++) {
                 x = dataX[i] * xx + dx;
                 y = dataY[i] * yy + dy;
@@ -73,20 +78,21 @@ Ext.define("Ext.chart.series.sprite.Area", {
                 }
             }
         } else {
-            // dataStartY[i] == 0;
             ctx.lineTo(dataX[end] * xx + dx, y);
             ctx.lineTo(dataX[end] * xx + dx, dy);
-            ctx.lineTo(dataX[start] * xx + dx, dy);
-            ctx.lineTo(dataX[start] * xx + dx, dataY[i] * yy + dy);
+            ctx.lineTo(startX, dy);
+            ctx.lineTo(startX, dataY[i] * yy + dy);
         }
         if (attr.transformFillStroke) {
             attr.matrix.toContext(ctx);
         }
         ctx.fill();
+
         if (attr.transformFillStroke) {
             attr.inverseMatrix.toContext(ctx);
         }
         ctx.beginPath();
+        ctx.moveTo(startX, startY);
         if (attr.step) {
             for (i = start; i <= end; i++) {
                 x = dataX[i] * xx + dx;
@@ -95,7 +101,7 @@ Ext.define("Ext.chart.series.sprite.Area", {
                 ctx.lineTo(x, lastY = y);
                 markerCfg.translationX = surfaceMatrix.x(x, y);
                 markerCfg.translationY = surfaceMatrix.y(x, y);
-                me.putMarker("markers", markerCfg, i, !attr.renderer);
+                me.putMarker('markers', markerCfg, i, !attr.renderer);
             }
         } else {
             for (i = start; i <= end; i++) {
@@ -104,7 +110,7 @@ Ext.define("Ext.chart.series.sprite.Area", {
                 ctx.lineTo(x, y);
                 markerCfg.translationX = surfaceMatrix.x(x, y);
                 markerCfg.translationY = surfaceMatrix.y(x, y);
-                me.putMarker("markers", markerCfg, i, !attr.renderer);
+                me.putMarker('markers', markerCfg, i, !attr.renderer);
             }
         }
 

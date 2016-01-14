@@ -209,15 +209,6 @@ Ext.define('Ext.tree.Panel', {
     treeCls: Ext.baseCSSPrefix + 'tree-panel',
 
     /**
-     * @cfg {Boolean} [deferRowRender=false]
-     * Defaults to true to enable deferred row rendering.
-     *
-     * This allows the View to execute a refresh quickly, with the expensive update of the row structure deferred so
-     * that layouts with GridPanels appear, and lay out more quickly.
-     */
-    deferRowRender: false,
-
-    /**
      * @cfg {Boolean} [rowLines=false]
      * Configure as true to separate rows with visible horizontal lines (depends on theme).
      */
@@ -351,6 +342,7 @@ Ext.define('Ext.tree.Panel', {
                 root: me.root,
                 fields: me.fields,
                 model: me.model,
+                proxy: 'memory',
                 folderSort: me.folderSort
             }, store);
             store = me.store = Ext.StoreMgr.lookup(store);
@@ -370,10 +362,6 @@ Ext.define('Ext.tree.Panel', {
         if (!store.getRoot()) {
             store.setRoot({});
         }
-
-        // The TreeStore needs to know about ths singleExpand constrain so that it can ensure compliance.
-        // Otherwise it would have to have knowledge of an owning TreePanel.
-        me.store.singleExpand = me.singleExpand;
 
         me.viewConfig = Ext.apply({
             rootVisible: me.rootVisible,
@@ -443,6 +431,9 @@ Ext.define('Ext.tree.Panel', {
             view = me.getView();
 
         me.store = store;
+
+        // The TreeStore needs to know about this TreePanel's singleExpand constraint so that it can ensure compliance.
+        store.singleExpand = me.singleExpand;
 
         // Connect to store. Return a Destroyable object
         me.storeListeners = me.mon(store, {
@@ -568,7 +559,7 @@ Ext.define('Ext.tree.Panel', {
         store.ownerTree = me;
         
         if (!initial) {
-            me.view.setRootNode(root);
+            me.view.setRootNode(root, true);
         }
     },
 
@@ -580,6 +571,7 @@ Ext.define('Ext.tree.Panel', {
         if (store) {
             Ext.destroy(me.storeListeners, me.storeRelayers, me.rootRelayers);
             delete store.ownerTree;
+            store.singleExpand = null;
         }
     },
 

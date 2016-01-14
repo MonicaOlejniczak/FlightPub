@@ -1,5 +1,8 @@
-/*
- * Tristate charts
+/**
+ * @class Ext.sparkline.TriState
+ *
+ * Plots bars based upon "win"/"draw" or "lose" status of the input {@link #values} array. Positive values mean
+ * a win, zero a draw, and negative a lose. 
  */
 Ext.define('Ext.sparkline.TriState', {
     extend: 'Ext.sparkline.BarBase',
@@ -10,12 +13,48 @@ Ext.define('Ext.sparkline.TriState', {
     alias: 'widget.sparklinetristate',
 
     config: {
+
+        /**
+         * @cfg {Number} [barWidth=4] The pixel width of each bar.
+         */
         barWidth: 4,
+        
+        /**
+         * @cfg {Number} [barSpacing=1] The pixel spacing between each bar.
+         */
         barSpacing: 1,
+        
+        /**
+         * @cfg {String} [posBarColor=#6f6] The color for positive value bars.
+         */
         posBarColor: '#6f6',
+        
+        /**
+         * @cfg {String} [negBarColor=#f44] The color for negative value bars.
+         */
         negBarColor: '#f44',
+        
+        /**
+         * @cfg {String} [zeroBarColor=#999] The color for zero value bars.
+         */
         zeroBarColor: '#999',
+        
+        /**
+         * @cfg {Object} [colorMap] An object which uses range specifiers as keys to indicate bar color values
+         * for range of values. A range specifier is of the form `[number]:[number]` indicating start and end range.
+         * Omitting aither means an open ended range. For example to render green bars on all values less than -1
+         * and red on values higher than 1 use:
+         *
+         *    {
+         *        // Open ended range, with max value -1
+         *        ":-1": "green",
+         *
+         *        // Open ended range, with min value 1
+         *        "1:": "red"
+         *    }
+         */
         colorMap: {},
+        
         tipTpl: new Ext.XTemplate('&#9679; {value:this.states}', {
             states: function(v) {
                 var value = Number(v);

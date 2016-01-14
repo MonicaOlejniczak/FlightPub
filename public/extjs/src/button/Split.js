@@ -40,6 +40,8 @@ Ext.define('Ext.button.Split', {
     extend: 'Ext.button.Button',
     alternateClassName: 'Ext.SplitButton',
     /* End Definitions */
+
+    isSplitButton: true,
     
     /**
      * @cfg {Function} arrowHandler
@@ -76,10 +78,10 @@ Ext.define('Ext.button.Split', {
     // @private
     onClick : function(e) {
         var me = this;
-        
+
         me.doPreventDefault(e);
         if (!me.disabled) {
-            if (e.type === 'tap' ? me.isWithinTrigger(e) : me.overMenuTrigger) {
+            if (me.isWithinTrigger(e)) {
                 // Force prevent default here, if we click on the arrow part
                 // we want to trigger the menu, not any link if we have it
                 e.preventDefault();

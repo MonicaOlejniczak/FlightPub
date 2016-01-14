@@ -1,7 +1,9 @@
+/**
+ * @author Monica Olejniczak
+ */
 Ext.define('FB.view.booking.flights.filters.Filter', {
 	extend: 'Ext.container.Container',
 	requires: [
-		'Ext.container.Container',
 		'Ext.button.Button',
 		'FB.view.booking.flights.filters.FilterController'
 	],

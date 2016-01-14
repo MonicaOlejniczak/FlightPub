@@ -1,4 +1,4 @@
-/**
+/** 
  * This class is used as a set of methods that are applied to the prototype of a
  * Model to decorate it with a Node API. This means that models used in conjunction with a tree
  * will have all of the tree related methods available on the model. In general this class will
@@ -576,7 +576,7 @@ Ext.define('Ext.data.NodeInterface', {
                 triggerUIUpdate: function() {
                     // This isn't ideal, however none of the underlying fields have changed
                     // but we still need to update the UI
-                    this.callStore('afterEdit', []); 
+                    this.callJoined('afterEdit', []); 
                 },
 
                 /**
@@ -600,20 +600,23 @@ Ext.define('Ext.data.NodeInterface', {
                             parentId: me.getId(),
                             depth: (me.data.depth||0) + 1
                         },
-                                result;
+                        result;
+
+                    // Coalesce all layouts caused by node append
+                    Ext.suspendLayouts();
 
                     // if passed an array do them one by one
                     if (Ext.isArray(node)) {
                         ln = node.length;
                         result = new Array(ln);
                         // Suspend view updating and data syncing during update
-                        me.callStore('beginFill');
+                        me.callJoined('beginFill');
                         for (i = 0; i < ln; i++) {
                             result[i] = me.appendChild(node[i], suppressEvents, commit);
                         }
                         // Resume view updating and data syncing after appending all new children.
                         // This will fire the add event to any views (if its the top level append)
-                        me.callStore('endFill', [result]);
+                        me.callJoined('endFill', [result]);
                     } else {
                         // Make sure it is a record
                         node = me.createNode(node);
@@ -632,9 +635,6 @@ Ext.define('Ext.data.NodeInterface', {
                             }
                             oldParent.removeChild(node, false, false, oldParent.getTreeStore() === me.getTreeStore());
                         }
-
-                        // Coalesce all layouts caused by node append
-                        me.suspendUIChanges();
 
                         index = me.childNodes.length;
                         if (index === 0) {
@@ -698,13 +698,15 @@ Ext.define('Ext.data.NodeInterface', {
 
                         // Inform the TreeStore so that the node can be inserted
                         // and registered.
-                        me.callStore('onNodeAppend', [node, index]);
+                        me.callJoined('onNodeAppend', [node, index]);
 
-                        // Flush layouts caused by updating of the UI
-                        me.resumeUIChanges(true);
-
-                        return node;
+                        result = node;
                     }
+
+                    // Flush layouts caused by updating of the UI
+                    Ext.resumeLayouts(true);
+
+                    return result;
                 },
 
                 /**
@@ -724,7 +726,7 @@ Ext.define('Ext.data.NodeInterface', {
                  * 
                  */
                 getTreeStore: function() {
-                    return this.stores && this.stores[0];
+                    return this.store;
                 },
 
                 /**
@@ -745,7 +747,7 @@ Ext.define('Ext.data.NodeInterface', {
                     }
 
                     // Coalesce all layouts caused by node removal
-                    me.suspendUIChanges();
+                    Ext.suspendLayouts();
 
                     // remove it from childNodes collection
                     Ext.Array.erase(me.childNodes, index, 1);
@@ -807,19 +809,19 @@ Ext.define('Ext.data.NodeInterface', {
                     }
 
                     // Flush layouts caused by updating the UI
-                    me.resumeUIChanges(true);
+                    Ext.resumeLayouts(true);
 
                     if (suppressEvents !== true) {
 
                         // Inform the TreeStore so that descendant nodes can be removed.
-                        me.callStore('beforeNodeRemove', [[node], !!isMove]);
+                        me.callJoined('beforeNodeRemove', [[node], !!isMove]);
 
                         node.previousSibling = node.nextSibling = node.parentNode = null;
 
                         me.fireEventArgs('remove', [me, node, !!isMove]);
 
                         // Inform the TreeStore so that the node unregistered and unjoined.
-                        me.callStore('onNodeRemove', [[node], !!isMove]);
+                        me.callJoined('onNodeRemove', [[node], !!isMove]);
                     }
 
                     // Update removed node's pointers *after* firing event so that listsners
@@ -899,14 +901,14 @@ Ext.define('Ext.data.NodeInterface', {
                         me.callParent([options]);
                     } else {
                         me.destroyOptions = silent;
-                        // overridden method will be called, since remove will end up calling destroy(true);
+                        // overridden method will be called, since remove will end up calling erase(true);
                         me.remove(true);
                     }
                 },
 
                 /**
                  * Inserts the first node before the second node in this nodes childNodes collection.
-                 * @param {Ext.data.NodeInterface} node The node to insert
+                 * @param {Ext.data.NodeInterface/Ext.data.NodeInterface[]/Object} node The node to insert
                  * @param {Ext.data.NodeInterface} refNode The node to insert before (if null the node is appended)
                  * @return {Ext.data.NodeInterface} The inserted node
                  */
@@ -1004,7 +1006,7 @@ Ext.define('Ext.data.NodeInterface', {
                     }
 
                     // Inform the TreeStore so that the node can be registered and added
-                    me.callStore('onNodeInsert', [node, refIndex]);
+                    me.callJoined('onNodeInsert', [node, refIndex]);
 
                     return node;
                 },
@@ -1093,7 +1095,7 @@ Ext.define('Ext.data.NodeInterface', {
                     }
 
                     // Inform the TreeStore so that descendant nodes can be removed.
-                    me.callStore('beforeNodeRemove', [childNodes, false]);
+                    me.callJoined('beforeNodeRemove', [childNodes, false]);
 
                     for (; i < len; ++i) {
                         node = childNodes[i];
@@ -1112,7 +1114,7 @@ Ext.define('Ext.data.NodeInterface', {
                     }
 
                     // Inform the TreeStore so that the node unregistered and unjoined.
-                    me.callStore('onNodeRemove', [childNodes, false]);
+                    me.callJoined('onNodeRemove', [childNodes, false]);
 
                     me.firstChild = me.lastChild = null;
 
@@ -1399,7 +1401,7 @@ Ext.define('Ext.data.NodeInterface', {
                             me.fireEventArgs('sort', [me, childNodes]);
 
                             // Inform the TreeStore that this node is sorted
-                            me.callStore('onNodeSort', [childNodes]);
+                            me.callJoined('onNodeSort', [childNodes]);
                         }
                     }
                 },
@@ -1481,7 +1483,7 @@ Ext.define('Ext.data.NodeInterface', {
 
                                     // Inform the TreeStore that we intend to expand, and that it should call onChildNodesAvailable
                                     // when the child nodes are available
-                                    me.callStore('onBeforeNodeExpand', [me.onChildNodesAvailable, me, [recursive, callback, scope]]);
+                                    me.callJoined('onBeforeNodeExpand', [me.onChildNodesAvailable, me, [recursive, callback, scope]]);
                                 }
 
                             } else if (recursive) {
@@ -1506,13 +1508,13 @@ Ext.define('Ext.data.NodeInterface', {
 
                     // Bracket expansion with layout suspension.
                     // In optimum case, when recursive, child node data are loaded and expansion is synchronous within the suspension.
-                    me.suspendUIChanges();
+                    Ext.suspendLayouts();
 
                     // Not structural. The TreeView's onUpdate listener just updates the [+] icon to [-] in response.
                     me.set('expanded', true);
 
                     // TreeStore's onNodeExpand inserts the child nodes below the parent
-                    me.callStore('onNodeExpand', [records, false]);
+                    me.callJoined('onNodeExpand', [records, false]);
 
                     me.fireEventArgs('expand', [me, records]);
 
@@ -1523,7 +1525,7 @@ Ext.define('Ext.data.NodeInterface', {
                         Ext.callback(callback, scope || me, [me.childNodes]);
                     }
 
-                    me.resumeUIChanges(true);
+                    Ext.resumeLayouts(true);
                 },
 
                 /**
@@ -1588,10 +1590,9 @@ Ext.define('Ext.data.NodeInterface', {
                     //   or
                     //      the collapse is not vetoed by a listener
                     if (!me.isLeaf() && ((!expanded && recursive) || me.fireEventArgs('beforecollapse', [me]) !== false)) {
-
                         // Bracket collapsing with layout suspension.
                         // Collapsing is synchronous within the suspension.
-                        me.suspendUIChanges();
+                        Ext.suspendLayouts();
 
                         // Inform listeners of a collapse event if we are still expanded.
                         if (me.isExpanded()) {
@@ -1622,7 +1623,7 @@ Ext.define('Ext.data.NodeInterface', {
                             // Call the TreeStore's onNodeCollapse which removes all descendant nodes to achieve UI collapse
                             // and passes callback on in its beforecollapse event which is poked into the animWrap for
                             // final calling in the animation callback.
-                            me.callStore('onNodeCollapse', [me.childNodes, callback, scope]);
+                            me.callJoined('onNodeCollapse', [me.childNodes, callback, scope]);
 
                             me.fireEventArgs('collapse', [me, me.childNodes]);
 
@@ -1640,7 +1641,7 @@ Ext.define('Ext.data.NodeInterface', {
                             }
                         }
 
-                        me.resumeUIChanges(true);
+                        Ext.resumeLayouts(true);
                     }
 
                     // Call the passed callback
@@ -1720,10 +1721,10 @@ Ext.define('Ext.data.NodeInterface', {
 
                 /**
                 * Fires the specified event with the passed parameters (minus the event name, plus the `options` object passed
-                * to {@link #addListener}).
+                * to {@link Ext.mixin.Observable#addListener addListener}).
                 *
                 * An event may be set to bubble up an Observable parent hierarchy (See {@link Ext.Component#getBubbleTarget}) by
-                * calling {@link #enableBubble}.
+                * calling {@link Ext.mixin.Observable#enableBubble enableBubble}.
                 *
                 * @param {String} eventName The name of the event to fire.
                 * @param {Object...} args Variable number of parameters are passed to handlers.
@@ -1775,12 +1776,7 @@ Ext.define('Ext.data.NodeInterface', {
                         result.children = children;
                     }
                     return result;
-                },
-                
-                suspendUIChanges: Ext.emptyFn,
-                resumeUIChanges: Ext.emptyFn
-                
-                
+                }
             };
         }
     }

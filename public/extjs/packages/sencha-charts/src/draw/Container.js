@@ -51,7 +51,7 @@ Ext.define('Ext.draw.Container', {
     engine: 'Ext.draw.engine.Canvas',
 
     config: {
-        cls: 'x-draw-container',
+        cls: Ext.baseCSSPrefix + 'draw-container',
 
         /**
          * @cfg {Function} [resizeHandler] The resize function that can be configured to have a behavior.
@@ -110,8 +110,34 @@ Ext.define('Ext.draw.Container', {
         gradients: []
     },
 
-    constructor: function (config) {
-        this.callParent([config]);
+    /**
+     * @property {String} [defaultDownloadServerUrl="http://svg.sencha.io"]
+     * The default URL used by {@link #download}.
+     */
+    defaultDownloadServerUrl: 'http://svg.sencha.io',
+
+    /**
+     * @property {Array} [supportedFormats=["png", "pdf", "jpeg", "gif"]]
+     * A list of export types supported by the server.
+     * @private
+     */
+    supportedFormats: ['png', 'pdf', 'jpeg', 'gif'],
+
+    supportedOptions: {
+        version: Ext.isNumber,
+        data: Ext.isString,
+        format: function (format) {
+            return Ext.Array.indexOf(this.supportedFormats, format) >= 0;
+        },
+        filename: Ext.isString,
+        width: Ext.isNumber,
+        height: Ext.isNumber,
+        scale: Ext.isNumber,
+        pdf: Ext.isObject,
+        jpeg: Ext.isObject
+    },
+
+    initAnimator: function() {
         this.frameCallbackId = Ext.draw.Animator.addFrameCallback('renderFrame', this);
     },
 
@@ -279,65 +305,145 @@ Ext.define('Ext.draw.Container', {
     },
 
     /**
-     * @deprecated Consistent behavior across devices cannot be guaranteed.
-     * Use {@link #download} or {@link #preview} methods instead.
-     * Saves the chart by either triggering a download or returning a string containing the chart data
-     * as a DataURL.
+     * Downloads an image or PDF of the chart or opens it in a separate browser tab/window
+     * if the download can't be triggered. The exact behavior is platform and browser
+     * specific.
      *
-     * Example usage:
+     * @param {Object} [config] The following config options are supported:
      *
-     *     chart.save({
-     *          type: 'image/png'
-     *     });
+     * @param {String} config.url The url to post the data to. Defaults to
+     * the {@link #defaultUrl} configuration on the class.
      *
-     * Note: the method is only preserved for backward compatibility with Ext Charts,
-     * and will disregard the value of the 'type' parameter. The actual type of the data will
-     * depend on the draw engine used. When type is omitted, or no config is provided, calling
-     * this method is equivalent to calling {@link #getImage} with no format specified.
-     * @param {Object} [config]
-     * @return {Object}
+     * @param {String} config.format The format of image to export. See the
+     * {@link #supportedFormats}. Defaults to 'png' on the Sencha IO server.
+     *
+     * @param {Number} config.width A width to send to the server for
+     * configuring the image width. Defaults to natural image width on
+     * the Sencha IO server.
+     *
+     * @param {Number} config.height A height to send to the server for
+     * configuring the image height. Defaults to natural image height on
+     * the Sencha IO server.
+     *
+     * @param {String} config.filename The filename of the downloaded image.
+     * Defaults to 'chart' on the Sencha IO server. The config.format is used
+     * as a filename extension.
+     *
+     * @param {Number} config.scale The scaling of the downloaded image.
+     * Defaults to the value of window.devicePixelRatio on the client.
+     * This parameter is ignored by the Sencha IO server if config.format is set to 'svg'.
+     *
+     * @param {Object} config.pdf PDF specific options.
+     * This config is only used if config.format is set to 'pdf'.
+     * The given object should be in either this format:
+     *
+     *     {
+     *       width: '200px',
+     *       height: '300px',
+     *       border: '0px'
+     *     }
+     *
+     * or this format:
+     *
+     *     {
+     *       format: 'A4',
+     *       orientation: 'portrait',
+     *       border: '1cm'
+     *     }
+     *
+     * Supported dimension units are: 'mm', 'cm', 'in', 'px'. No unit means 'px'.
+     * Supported formats are: 'A3', 'A4', 'A5', 'Legal', 'Letter', 'Tabloid'.
+     * Orientation ('portrait', 'landscape') is optional and defaults to 'portrait'.
+     *
+     * @param {Object} config.jpeg JPEG specific options.
+     * This config is only used if config.format is set to 'jpeg'.
+     * The given object should be in this format:
+     *
+     *     {
+     *       quality: 80
+     *     }
+     *
+     * Where quality is an integer between 0 and 100.
+     *
+     * @return {Boolean} True if request was successfully sent to the server.
      */
-    save: function (config) {
-        if (config && config.type) {
-            if (Ext.os.is.Desktop) {
-                this.download();
-            } else {
-                this.preview();
-            }
-        } else {
-            return this.getImage();
-        }
-    },
+    download: function (config) {
+        var me = this,
+            inputs = [],
+            markup, name, value;
 
-    /**
-     * Downloads an image of the chart.
-     * Note: when running on a mobile device use {@link #preview} instead,
-     *       since many mobile browsers won't let users download files.
-     */
-    download: function () {
-        var a = document.createElement('a'),
-            image = this.getImage('stream'),
-            click;
-        if (Ext.isString(a.download)) {
-            a.href = image.data;
-            a.download = 'chart-' + this.getId() + '.' + image.type;
-            a.click();
-        } else {
-            window.open(image.data);
+        config = Ext.apply({
+            version: 2,
+            data: me.getImage().data
+        }, config);
+
+        for (name in config) {
+            if (config.hasOwnProperty(name)) {
+                value = config[name];
+                if (name in me.supportedOptions) {
+                    if (me.supportedOptions[name].call(me, value)) {
+                        inputs.push({
+                            tag: 'input',
+                            type: 'hidden',
+                            name: name,
+                            value: Ext.isObject(value) ? Ext.JSON.encode(value) : value
+                        });
+                    }
+                    //<debug>
+                    else {
+                        Ext.log.error('Invalid value for image download option "' + name + '": ' + value);
+                    }
+                    //</debug>
+                }
+                //<debug>
+                else {
+                    Ext.log.error('Invalid image download option: "' + name + '"');
+                }
+                //</debug>
+            }
         }
+
+        markup = Ext.dom.Helper.markup({
+            tag: 'html',
+            children: [
+                {tag: 'head'},
+                {
+                    tag: 'body',
+                    children: [
+                        {
+                            tag: 'form',
+                            method: 'POST',
+                            action: config.url || me.defaultDownloadServerUrl,
+                            children: inputs
+                        },
+                        {
+                            tag: 'script',
+                            type: 'text/javascript',
+                            children: 'document.getElementsByTagName("form")[0].submit();'
+                        }
+                    ]
+                }
+            ]
+        });
+
+        window.open('', 'ImageDownload_' + Date.now()).document.write(markup);
     },
 
     /**
      * @method preview
-     * Displays an image of the chart on screen.
+     * Displays an image of a Ext.draw.Container on screen.
      * On mobile devices this lets users tap-and-hold to bring up the menu
      * with image saving options.
-     * TODO: iOS Safari won't download SVGs. Android's Chrome will,
-     * TODO: but there are no means of viewing them anyway.
+     * Note: some browsers won't save the preview image if it's SVG based
+     * (i.e. generated from a draw container that uses 'Ext.draw.engine.Svg' engine).
+     * And some platforms may not have the means of viewing successfully saved SVG images.
      */
 
     destroy: function () {
-        Ext.draw.Animator.removeFrameCallback(this.frameCallbackId);
+        var callbackId = this.frameCallbackId;
+        if (callbackId) {
+            Ext.draw.Animator.removeFrameCallback(callbackId);
+        }
         this.callParent();
     }
 

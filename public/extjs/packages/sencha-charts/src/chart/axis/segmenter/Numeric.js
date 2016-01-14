@@ -7,6 +7,7 @@
 Ext.define('Ext.chart.axis.segmenter.Numeric', {
     extend: 'Ext.chart.axis.segmenter.Segmenter',
     alias: 'segmenter.numeric',
+    isNumeric: true,
 
     renderer: function (value, context) {
         return value.toFixed(Math.max(0, context.majorTicks.unit.fixes));
@@ -66,6 +67,20 @@ Ext.define('Ext.chart.axis.segmenter.Numeric', {
                 scale: 1
             },
             step: estStepSize
+        }
+    },
+
+    adjustByMajorUnit: function (step, scale, range) {
+        var min = range[0],
+            max = range[1],
+            increment = step * scale,
+            remainder = min % increment;
+        if (remainder !== 0) {
+            range[0] = min - remainder - increment;
+        }
+        remainder = max % increment;
+        if (remainder !== 0) {
+            range[1] = max - remainder + increment;
         }
     }
 });

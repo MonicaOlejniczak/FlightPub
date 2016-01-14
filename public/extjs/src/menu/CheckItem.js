@@ -85,7 +85,7 @@ Ext.define('Ext.menu.CheckItem', {
     ariaRole: 'menuitemcheckbox',
 
     childEls: [
-        'itemEl', 'iconEl', 'textEl', 'checkEl'
+        'checkEl'
     ],
     
     showCheckbox: true,

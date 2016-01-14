@@ -356,6 +356,18 @@ describe("Ext.util.Collection", function() {
                     expect(item).toBeUndefined();
                 });
             });
+
+            describe("when filtered", function() {
+                it("should remove the correct item with an all inclusive filter", function() {
+                    collection.getFilters().add(function() {
+                        return true;
+                    });
+                    collection.removeAt(1);
+                    expect(collection.getAt(0)).toBe(item1);
+                    expect(collection.getAt(1)).toBe(item3);
+                    expect(collection.getCount()).toBe(8);
+                });
+            });
         });
         
         describe("bulkRemove", function(){

@@ -13,7 +13,15 @@ Ext.define('Ext.data.ChainedStore', {
          * The backing data source for this chained store.
          */
         source: null,
+
+        /**
+         * @inheritdoc
+         */
         remoteFilter: false,
+
+        /**
+         * @inheritdoc
+         */
         remoteSort: false
     },
 
@@ -180,6 +188,12 @@ Ext.define('Ext.data.ChainedStore', {
         }
         this.callObservers('AfterRemoveAll', [silent]);
     },
+
+    onSourceFilter: function() {
+        var me = this;
+        me.fireEvent('refresh', me);
+        me.fireEvent('datachanged', me);
+    },
     
     // inherit docs
     hasPendingLoad: function() {
@@ -192,7 +206,7 @@ Ext.define('Ext.data.ChainedStore', {
     },
     
     // inherit docs
-    onDestroyStore: function() {
+    onDestroy: function() {
         var me = this,
             data = me.data;
 

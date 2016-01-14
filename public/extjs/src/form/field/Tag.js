@@ -237,11 +237,11 @@ Ext.define('Ext.form.field.Tag', {
      * @private
      */
     fieldSubTpl: [
-        '<div id="{cmpId}-listWrapper" class="' + Ext.baseCSSPrefix + 'tagfield {fieldCls} {typeCls}">',
-            '<ul id="{cmpId}-itemList" class="' + Ext.baseCSSPrefix + 'tagfield-list">',
-                '<li id="{cmpId}-inputElCt" class="' + Ext.baseCSSPrefix + 'tagfield-input">',
-                    '<div id="{cmpId}-emptyEl" class="{emptyCls}">{emptyText}</div>',
-                    '<input id="{cmpId}-inputEl" type="{type}" ',
+        '<div id="{cmpId}-listWrapper" data-ref="listWrapper" class="' + Ext.baseCSSPrefix + 'tagfield {fieldCls} {typeCls} {typeCls}-{ui}">',
+            '<ul id="{cmpId}-itemList" data-ref="itemList" class="' + Ext.baseCSSPrefix + 'tagfield-list">',
+                '<li id="{cmpId}-inputElCt" data-ref="inputElCt" class="' + Ext.baseCSSPrefix + 'tagfield-input">',
+                    '<div id="{cmpId}-emptyEl" data-ref="emptyEl" class="{emptyCls}">{emptyText}</div>',
+                    '<input id="{cmpId}-inputEl" data-ref="inputEl" type="{type}" ',
                     '<tpl if="name">name="{name}" </tpl>',
                     '<tpl if="value"> value="{[Ext.util.Format.htmlEncode(values.value)]}"</tpl>',
                     '<tpl if="size">size="{size}" </tpl>',
@@ -336,7 +336,7 @@ Ext.define('Ext.form.field.Tag', {
      * Create a store for the records of our current value based on the main store's model
      * @protected
      */
-    onBindStore: function(store, initial) {
+    onBindStore: function(store) {
         var me = this;
 
         if (store) {
@@ -381,7 +381,7 @@ Ext.define('Ext.form.field.Tag', {
                 remove: me.onValueStoreRemove,
                 scope: me
             });
-            valueStore.destroyStore();
+            valueStore.destroy();
         }
         if (me.selectionModel) {
             me.selectionModel.destroy();
@@ -526,7 +526,7 @@ Ext.define('Ext.form.field.Tag', {
             return false;
         }
 
-        matches = ds.queryBy(function(rec, id) {
+        matches = ds.queryBy(function(rec) {
             return rec.isEqual(rec.get(field), value);
         });
 
@@ -896,7 +896,7 @@ Ext.define('Ext.form.field.Tag', {
      * a list of values in to the field (e.g., for email addresses)
      * @protected
      */
-    onPaste: function(e, t) {
+    onPaste: function(e) {
         var me = this,
             rawValue = me.inputEl.dom.value,
             clipboard = (e && e.browserEvent && e.browserEvent.clipboardData) ? e.browserEvent.clipboardData : false;
@@ -945,7 +945,7 @@ Ext.define('Ext.form.field.Tag', {
      * Delegation control for selecting and removing labelled items or triggering list collapse/expansion
      * @protected
      */
-    onItemListClick: function(evt, el, o) {
+    onItemListClick: function(evt) {
         var me = this,
             itemEl = evt.getTarget('.' + Ext.baseCSSPrefix + 'tagfield-item'),
             closeEl = itemEl ? evt.getTarget('.' + Ext.baseCSSPrefix + 'tagfield-item-close') : false;
@@ -1204,8 +1204,8 @@ Ext.define('Ext.form.field.Tag', {
         var me = this,
             valueStore = me.valueStore,
             valueField = me.valueField,
-            record, len, i, valueRecord, h,
-            unknownValues = [];
+            unknownValues = [],
+            record, len, i, valueRecord, cls;
 
         if (Ext.isEmpty(value)) {
             value = null;
@@ -1230,7 +1230,9 @@ Ext.define('Ext.form.field.Tag', {
                             valueRecord = {};
                             valueRecord[me.valueField] = record;
                             valueRecord[me.displayField] = record;
-                            valueRecord = new me.valueStore.getModel()(valueRecord);
+
+                            cls = me.valueStore.getModel();
+                            valueRecord = new cls(valueRecord);
                         }
                     }
                     if (valueRecord) {

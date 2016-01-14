@@ -106,7 +106,7 @@ Ext.define('Ext.app.route.Router', {
      * Create the {@link Ext.app.route.Route} instance and connect to the
      * {@link Ext.app.route.Router} singleton.
      *
-     * @param {String} url The rul to recognize.
+     * @param {String} url The url to recognize.
      * @param {String} action The action on the controller to execute when the url is
      * matched.
      * @param {Ext.app.Controller} controller The controller associated with the
@@ -127,7 +127,7 @@ Ext.define('Ext.app.route.Router', {
     
     /**
      * Disconnects all routes for a controller.
-     * @param {Ext.app.Controller} The controller
+     * @param {Ext.app.Controller} controller The controller to disconnect routes from.
      */
     disconnectAll: function(controller) {
         var routes = this.routes,

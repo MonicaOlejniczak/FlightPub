@@ -48,7 +48,6 @@ Ext.define('Ext.draw.sprite.Sprite', {
         'Ext.draw.Draw',
         'Ext.draw.gradient.Gradient',
         'Ext.draw.sprite.AttributeDefinition',
-        'Ext.draw.sprite.AttributeParser',
         'Ext.draw.modifier.Target',
         'Ext.draw.modifier.Animation',
         'Ext.draw.modifier.Highlight'
@@ -133,6 +132,12 @@ Ext.define('Ext.draw.sprite.Sprite', {
                  * @cfg {Number} [globalAlpha=1] The opacity of the sprite. Limited from 0 to 1.
                  */
                 globalAlpha: "limited01",
+
+                /**
+                 * @cfg {String} [globalCompositeOperation=source-over]
+                 * Indicates how source images are drawn onto a destination image.
+                 * globalCompositeOperation attribute is not supported by the SVG and VML (excanvas) engines.
+                 */
                 globalCompositeOperation: "enums(source-over,destination-over,source-in,destination-in,source-out,destination-out,source-atop,destination-atop,lighter,xor,copy)",
 
                 /**
@@ -329,7 +334,12 @@ Ext.define('Ext.draw.sprite.Sprite', {
     attr: {},
 
     config: {
-        parent: null
+        parent: null,
+        /**
+         * @cfg {Ext.draw.Surface} surface
+         * The surface that this sprite is rendered into.
+         */
+        surface: null
     },
 
     onClassExtended: function (subClass, data) {
@@ -355,8 +365,9 @@ Ext.define('Ext.draw.sprite.Sprite', {
             throw 'Ext.draw.sprite.Sprite is an abstract class';
         }
         //</debug>
-        config = config || {};
         var me = this;
+
+        config = Ext.isObject(config) ? config : {};
 
         me.id = config.id || Ext.id(null, 'ext-sprite-');
         me.attr = {};
@@ -366,6 +377,15 @@ Ext.define('Ext.draw.sprite.Sprite', {
         me.prepareModifiers(modifiers);
         me.initializeAttributes();
         me.setAttributes(me.self.def.getDefaults(), true);
+        //<debug>
+        var processors = me.self.def.getProcessors();
+        for (var name in config) {
+            if (name in processors && me['get' + name.charAt(0).toUpperCase() + name.substr(1)]) {
+                Ext.Error.raise('The ' + me.$className +
+                    ' sprite has both a config and an attribute with the same name: ' + name + '.');
+            }
+        }
+        //</debug>
         me.setAttributes(config);
     },
 
@@ -619,7 +639,7 @@ Ext.define('Ext.draw.sprite.Sprite', {
             }
         }
 
-        if(attrs.constrainGradients) {
+        if (attrs.constrainGradients) {
             ctx.setGradientBBox({x: rect[0], y: rect[1], width: rect[2], height: rect[3]});
         } else {
             ctx.setGradientBBox(this.getBBox(attrs.transformFillStroke));
@@ -687,7 +707,7 @@ Ext.define('Ext.draw.sprite.Sprite', {
      * Render method.
      * @param {Ext.draw.Surface} surface The surface.
      * @param {Object} ctx A context object compatible with CanvasRenderingContext2D.
-     * @param {Array} rect The clip rect (or called dirty rect) of the current rendering. Not be confused
+     * @param {Array} rect The clip rect (or called dirty rect) of the current rendering. Not to be confused
      * with `surface.getRect()`.
      *
      * @return {*} returns `false` to stop rendering in this frame. All the sprite haven't been rendered
@@ -696,12 +716,9 @@ Ext.define('Ext.draw.sprite.Sprite', {
     render: Ext.emptyFn,
 
     repaint: function () {
-        var parent = this.getParent();
-        while (parent && !(parent instanceof Ext.draw.Surface)) {
-            parent = parent.getParent();
-        }
-        if (parent) {
-            parent.renderFrame();
+        var surface = this.getSurface();
+        if (surface) {
+            surface.renderFrame();
         }
     },
 

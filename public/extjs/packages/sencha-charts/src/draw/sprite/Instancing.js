@@ -4,10 +4,11 @@
  *
  * Sprite that represents multiple instances based on the given template.
  */
-Ext.define("Ext.draw.sprite.Instancing", {
-    extend: "Ext.draw.sprite.Sprite",
+Ext.define('Ext.draw.sprite.Instancing', {
+    extend: 'Ext.draw.sprite.Sprite',
     alias: 'sprite.instancing',
     type: 'instancing',
+    isInstancing: true,
     config: {
         
         /**
@@ -16,27 +17,39 @@ Ext.define("Ext.draw.sprite.Instancing", {
         template: null
     },
     instances: null,
-    constructor: function (config) {
-        this.instances = [];
-        this.callParent([config]);
-        if (config && config.template) {
-            this.setTemplate(config.template);
-        }
-    },
 
     applyTemplate: function (template) {
-        if (!(template instanceof Ext.draw.sprite.Sprite)) {
+        //<debug>
+        if (!Ext.isObject(template)) {
+            Ext.Error.raise("A template of an instancing sprite must either be a sprite instance " +
+                " or a valid config object from which a template sprite will be created.");
+        } else if (template.isInstancing) {
+            Ext.Error.raise("Can't use an instancing sprite as a template for an instancing sprite.");
+        }
+        //</debug>
+        if (!template.isSprite) {
             if (!template.xclass && !template.type) {
                 // For compatibility with ExtJS
                 template.type = 'circle';
             }
-            template = Ext.create(template.xclass || "sprite." + template.type, template);
+            template = Ext.create(template.xclass || 'sprite.' + template.type, template);
         }
         template.setParent(this);
         template.attr.children = [];
+        return template;
+    },
+
+    updateTemplate: function (template) {
+        template.setSurface(this.getSurface());
         this.instances = [];
         this.position = 0;
-        return template;
+    },
+
+    updateSurface: function (surface) {
+        var template = this.getTemplate();
+        if (template) {
+            template.setSurface(surface);
+        }
     },
 
     /**
@@ -88,9 +101,14 @@ Ext.define("Ext.draw.sprite.Instancing", {
     },
 
     render: function (surface, ctx, clipRect, rect) {
+        //<debug>
+        if (!this.getTemplate()) {
+            Ext.Error.raise('An instancing sprite must have a template.');
+        }
+        //</debug>
         var me = this,
-            mat = me.attr.matrix,
             template = me.getTemplate(),
+            mat = me.attr.matrix,
             originalAttr = template.attr,
             instances = me.instances,
             i, ln = me.position;

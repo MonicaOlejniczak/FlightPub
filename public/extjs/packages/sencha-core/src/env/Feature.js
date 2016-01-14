@@ -332,15 +332,17 @@ Ext.feature = {
          */
         name: 'Touch',
         fn: function() {
+            // IE10 uses a vendor-prefixed maxTouchPoints property
+            var maxTouchPoints = navigator.msMaxTouchPoints || navigator.maxTouchPoints;
             // if the browser has touch events we can be reasonably sure the device has
             // a touch screen
-            return this.isEventSupported('touchend') ||
-                    // browsers that use pointer event have maxTouchPoints > 0 if the
-                    // device supports touch input
-                    // http://www.w3.org/TR/pointerevents/#widl-Navigator-maxTouchPoints
-                    navigator.maxTouchPoints ||
-                    // IE10 uses a vendor-prefixed maxTouchPoints property
-                    navigator.msMaxTouchPoints;
+            // browsers that use pointer event have maxTouchPoints > 1 if the
+            // device supports touch input
+            // Chrome Desktop reports maxTouchPoints === 1 even if there is no
+            // touch support on the device
+            // http://www.w3.org/TR/pointerevents/#widl-Navigator-maxTouchPoints
+            return (this.isEventSupported('touchend') && maxTouchPoints !== 1) ||
+                maxTouchPoints > 1;
         }
     },{
         name: 'PointerEvents',
@@ -827,11 +829,11 @@ Ext.feature = {
                 style = el.style;
 
             if (el.getBoundingClientRect) {
-                style.WebkitTransform = style.MozTransform =
+                style.WebkitTransform = style.MozTransform = style.msTransform =
                     style.OTransform = style.transform = 'rotate(90deg)';
                 style.width = '100px';
                 style.height = '30px';
-                body.appendChild(el)
+                body.appendChild(el);
 
                 supports = el.getBoundingClientRect().height !== 100;
                 body.removeChild(el);
@@ -1016,7 +1018,7 @@ Ext.feature = {
      * In Chrome, in RTL mode, horizontal overflow only into the vertical scrollbar does NOT trigger horizontal scrollability.
      * See https://code.google.com/p/chromium/issues/detail?id=179332
      * We need to detect this for when a grid header needs to have exactly the same horizontal scrolling range as its table view.
-     * @see {Ext.grid.ColumnLayout#publishInnerCtSize}
+     * See {@link Ext.grid.ColumnLayout#publishInnerCtSize}
      * TODO: Remove this when all supported Chrome versions are fixed.
      *
      * @private
@@ -1061,7 +1063,7 @@ Ext.feature = {
                 catch (ex) {
                     return null;
                 }
-            }
+            };
             return false;
         }
     },
@@ -1112,13 +1114,13 @@ Ext.feature = {
     },
 
     /**
-     * @property MinWidthTableCellBug
+     * @property FixedTableWidthBug
      * @private
      * @type {Boolean}
      * `true` if the browser has this bug: https://bugs.webkit.org/show_bug.cgi?id=130239
      */
     {
-        name: 'MinWidthTableCellBug',
+        name: 'FixedTableWidthBug',
         ready: true,
         fn: function() {
             if (Ext.isIE8) {

@@ -71,15 +71,15 @@ Ext.define('Ext.chart.series.sprite.Aggregative', {
 
     renderClipped: function (surface, ctx, clip, rect) {
         var me = this,
+            min = Math.min(clip[0], clip[2]),
+            max = Math.max(clip[0], clip[2]),
             aggregates = me.getAggregator() && me.getAggregator().getAggregation(
-                clip[0],
-                clip[2],
-                (clip[2] - clip[0]) / rect[2] * me.getGapWidth()
+                min, max, (max - min) / rect[2] * me.getGapWidth()
             );
         if (aggregates) {
             me.dataStart = aggregates.data.startIdx[aggregates.start];
             me.dataEnd = aggregates.data.endIdx[aggregates.end - 1];
-            
+
             me.renderAggregates(aggregates.data, aggregates.start, aggregates.end, surface, ctx, clip, rect);
         }
     }

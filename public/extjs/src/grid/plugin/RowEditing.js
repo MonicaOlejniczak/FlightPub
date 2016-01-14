@@ -117,10 +117,15 @@ Ext.define('Ext.grid.plugin.RowEditing', {
         }
     },
 
+    shouldStartEdit: function(editor) {
+        return true;
+    },
+
     /**
      * Starts editing the specified record, using the specified Column definition to define which field is being edited.
      * @param {Ext.data.Model} record The Store data record which backs the row to be edited.
-     * @param {Ext.grid.column.Column/Number} columnHeader The Column object defining the column field to be focused, or index of the column.
+     * @param {Ext.grid.column.Column/Number} [columnHeader] The Column object defining the column field to be focused, or index of the column.
+     * If not specified, it will default to the first visible column.
      * @return {Boolean} `true` if editing was started, `false` otherwise.
      */
     startEdit: function(record, columnHeader) {

@@ -5,16 +5,15 @@
  * This class may be used to compare the document regions occupied by elements.
  */
 Ext.define('Ext.util.Region', {
-
-    /* Begin Definitions */
-
     requires: ['Ext.util.Offset'],
+
+    isRegion: true,
 
     statics: {
         /**
          * @static
          * Retrieves an Ext.util.Region for a particular element.
-         * @param {String/HTMLElement/Ext.Element} el An element ID, htmlElement or Ext.Element representing an element in the document.
+         * @param {String/HTMLElement/Ext.dom.Element} el An element ID, htmlElement or Ext.Element representing an element in the document.
          * @returns {Ext.util.Region} region
          */
         getRegion: function(el) {

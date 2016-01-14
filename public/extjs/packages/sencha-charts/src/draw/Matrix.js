@@ -1,12 +1,15 @@
 /**
  * Utility class to calculate [affine transformation](http://en.wikipedia.org/wiki/Affine_transformation) matrix.
  *
- * This class is compatible with SVGMatrix except:
+ * This class is compatible with SVGMatrix (http://www.w3.org/TR/SVG11/coords.html#InterfaceSVGMatrix) except:
  *
  *   1. Ext.draw.Matrix is not read only.
  *   2. Using Number as its components rather than floats.
  *
- * Using this class to reduce the severe numeric problem with HTML Canvas and SVG transformation.
+ * Using this class to reduce the severe numeric problem with HTML Canvas and SVG transformation:
+ * http://stackoverflow.com/questions/8784405/large-numbers-in-html-canvas-translate-result-in-strange-behavior
+ * There's also no way to get current transformation matrix in Canvas:
+ * http://stackoverflow.com/questions/7395813/html5-canvas-get-transform-matrix
  *
  */
 Ext.define('Ext.draw.Matrix', {
@@ -773,8 +776,7 @@ Ext.define('Ext.draw.Matrix', {
         };
     }
 
-    // Compatibility with SVGMatrix
-    // https://developer.mozilla.org/en/DOM/SVGMatrix
+    // Compatibility with SVGMatrix.
     if (Object.defineProperties) {
         var properties = {};
         /**
@@ -782,8 +784,6 @@ Ext.define('Ext.draw.Matrix', {
          * Use {@link #getXX} instead.
          */
         registerName(properties, 'a', 0);
-
-        // TODO: Help me finish this.
         registerName(properties, 'b', 1);
         registerName(properties, 'c', 2);
         registerName(properties, 'd', 3);
@@ -793,7 +793,7 @@ Ext.define('Ext.draw.Matrix', {
     }
 
     /**
-     * Postpend a matrix onto the current.
+     * Performs matrix multiplication. This matrix is post-multiplied by another matrix.
      *
      * __Note:__ The given transform will come before the current one.
      *
@@ -802,8 +802,4 @@ Ext.define('Ext.draw.Matrix', {
      * @return {Ext.draw.Matrix} this
      */
     this.prototype.multiply = this.prototype.appendMatrix;
-    // <deprecated product=touch since=2.2>
-    this.prototype.postpend = this.prototype.append;
-    this.prototype.postpendMatrix = this.prototype.appendMatrix;
-    // </deprecated>
 });

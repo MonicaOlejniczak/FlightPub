@@ -12,9 +12,9 @@ Ext.define('Ext.selection.Model', {
     extend: 'Ext.util.Observable',
     alternateClassName: 'Ext.AbstractSelectionModel',
     requires: ['Ext.data.StoreManager'],
-    mixins: {
-        bindable: 'Ext.util.Bindable'    
-    },
+    mixins: [
+        'Ext.util.StoreHolder'
+    ],
     // lastSelected
 
     /**
@@ -107,8 +107,8 @@ Ext.define('Ext.selection.Model', {
     // binds the store to the selModel.
     bindStore: function(store, initial){
         var me = this;
-        me.mixins.bindable.bindStore.apply(me, arguments);
-        if(me.store && !initial) {
+        me.mixins.storeholder.bindStore.apply(me, arguments);
+        if (me.store && !initial) {
             me.refresh();
         }
     },

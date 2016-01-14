@@ -14,6 +14,8 @@ Ext.define('Ext.app.bindinspector.Inspector', {
     autoShow: true,
     maximized: true,
     maximizable: true,
+    width: 960,
+    height: 575,
 
     initComponent: function() {
         var snapshot = (new Ext.app.bindinspector.Environment()).captureSnapshot(),

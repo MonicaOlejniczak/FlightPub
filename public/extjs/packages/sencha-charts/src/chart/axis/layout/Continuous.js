@@ -20,10 +20,9 @@ Ext.define('Ext.chart.axis.layout.Continuous', {
     snapEnds: function (context, min, max, estStepSize) {
         var segmenter = context.segmenter,
             axis = this.getAxis(),
-            minimum = axis.getMinimum(),
-            maximum = axis.getMaximum(),
             majorTickSteps = axis.getMajorTickSteps(),
-            out = majorTickSteps && Ext.isNumber(minimum) && Ext.isNumber(maximum) && segmenter.exactStep ?
+            // if specific number of steps requested and the segmenter can do such segmentation
+            out = majorTickSteps && segmenter.exactStep ?
                 segmenter.exactStep(min, (max - min) / majorTickSteps) :
                 segmenter.preferredStep(min, estStepSize),
             unit = out.unit,

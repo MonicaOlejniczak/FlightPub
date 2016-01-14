@@ -50,7 +50,7 @@
  * {@link Ext.layout.container.Auto Auto} scheme which only renders child components, appending them one after the other
  * inside the Container, and **does not apply any sizing** at all.
  *
- * A common mistake is when a developer neglects to specify a `{@link #layout}` (e.g. widgets like GridPanels or
+ * A common mistake is when a developer neglects to specify a `{@link #layout}` (e.g. GridPanels or
  * TreePanels are added to Containers for which no `{@link #layout}` has been specified). If a Container is left to
  * use the default {@link Ext.layout.container.Auto Auto} scheme, none of its child components will be resized, or changed in
  * any way when the Container is resized.
@@ -79,7 +79,7 @@
  * directly to a Container. If the wrapping Panel has no `{@link #layout}` configuration, then the overnested
  * GridPanel will not be sized as expected.
  * 
- * ## {@link Ext.Component#reference References} and {@link #referenceHolder Reference Holders} ##
+ * ## {@link Ext.Component#reference References} and {@link #referenceHolder Reference Holders}
  * 
  * Reference holders are used to keep references to child components inside a hierarchy.
  * 
@@ -88,7 +88,14 @@
  * 
  *     Ext.define('Login', {
  *         extend: 'Ext.window.Window',
- *         referenceHolder: true, // Declare this is a root for holding references
+ *
+ *         // This config is not compatible with the more common "controller" config
+ *         // used to specify a ViewController for the view. When a ViewController is
+ *         // specified it effectively acts as the "reference holder" for the view. In
+ *         // this example we simply mark this container as the reference holder for
+ *         // demonstration purposes.
+ *         referenceHolder: true,
+ *
  *         title: 'Login',
  *         items: [{
  *             xtype: 'form',
@@ -106,7 +113,7 @@
  *         }] 
  *     });
  *     var w = new Login();
- *     console.log(w.getReference('password')); // The password field
+ *     console.log(w.lookupReference('password')); // The password field
  * 
  * Reference holders are also encapsulated, so a reference will only be put on the closest
  * reference holder above it in the component hierarchy:
@@ -142,12 +149,12 @@
  *         }]
  *     });
  *     // The main container will not have references to a/b, each innerCt will
- *     console.log(ct.getReference('a'), ct.getReference('b'));
- *     var inner1 = ct.getReference('innerCt1');
- *     var inner2 = ct.getReference('innerCt2');
+ *     console.log(ct.lookupReference('a'), ct.lookupReference('b'));
+ *     var inner1 = ct.lookupReference('innerCt1');
+ *     var inner2 = ct.lookupReference('innerCt2');
  * 
- *     console.log(inner1.getReference('a').id, inner1.getReference('b').id);
- *     console.log(inner2.getReference('a').id, inner2.getReference('b').id);
+ *     console.log(inner1.lookupReference('a').id, inner1.lookupReference('b').id);
+ *     console.log(inner2.lookupReference('a').id, inner2.lookupReference('b').id);
  *     
  * If the view has a controller attached, it will automatically become a {@link #referenceHolder}.
  * References will be available in both the view and the controller:
@@ -157,7 +164,7 @@
  *         alias: 'controller.profile',
  *   
  *         init: function() {
- *             console.log(this.getReference('firstName'));
+ *             console.log(this.lookupReference('firstName'));
  *         }
  *     });
  *
@@ -200,11 +207,11 @@
  *         }],
  * 
  *         onButtonAClick: function() {
- *             this.getReference('myfield').setValue('A');
+ *             this.lookupReference('myfield').setValue('A');
  *         },
  * 
  *         onButtonBClick: function() {
- *             this.getReference('myfield').setValue('B');
+ *             this.lookupReference('myfield').setValue('B');
  *         }
  *     });
  *     
@@ -232,12 +239,12 @@
  *         }]
  *     });
  *     // The main container will not have references to a/b, each innerCt will
- *     console.log(ct.getReference('a'), ct.getReference('b'));
- *     var inner1 = ct.getReference('innerCt1');
- *     var inner2 = ct.getReference('innerCt2');
+ *     console.log(ct.lookupReference('a'), ct.lookupReference('b'));
+ *     var inner1 = ct.lookupReference('innerCt1');
+ *     var inner2 = ct.lookupReference('innerCt2');
  * 
- *     console.log(inner1.getReference('a').id, inner1.getReference('b').id);
- *     console.log(inner2.getReference('a').id, inner2.getReference('b').id);
+ *     console.log(inner1.lookupReference('a').id, inner1.lookupReference('b').id);
+ *     console.log(inner2.lookupReference('a').id, inner2.lookupReference('b').id);
  * 
  * Similar to references, if a {@link Ext.app.ViewController} is attached to this view, it becomes
  * the {@link #defaultListenerScope}, which means un-scoped, late bound events will be directed to the
@@ -262,8 +269,8 @@
  *         },
  *
  *         login : function() {
- *            var form = this.getReference('form');
- *             this.getReference('error').hide();
+ *            var form = this.lookupReference('form');
+ *             this.lookupReference('error').hide();
  *             if (form.isValid()) {
  *                 console.log('Do the login!');
  *                 // Server responded...
@@ -281,7 +288,7 @@
  *         },
  *   
  *         onServerFailure: function() {
- *             var error = this.getReference('error');
+ *             var error = this.lookupReference('error');
  *             error.update('Invalid username/password');
  *             error.show();
  *         }
@@ -836,6 +843,10 @@ Ext.define('Ext.container.Container', {
             if (!item) {
                 Ext.Error.raise("Cannot add null item to Container with itemId/id: " + me.getItemId());
             }
+
+            if (item.isDestroyed) {
+                Ext.Error.raise("Cannot add destroyed item '" + item.getId() + "' to Container '" + me.getId() + "'");
+            }
             //</debug>
 
             pos = (index < 0) ? me.items.length : (index + i);
@@ -893,7 +904,7 @@ Ext.define('Ext.container.Container', {
             refHolder = this.lookupReferenceHolder();
             if (refHolder) {
                 // Clear any references here, they will be reset after the 
-                // next call to getReference after being marked dirty.  
+                // next call to lookupReference after being marked dirty.
                 // It's easier to wipe & re-establish them than attempt to 
                 // track what changed and prune the collection
                 
@@ -944,34 +955,11 @@ Ext.define('Ext.container.Container', {
         }
     },
 
-    // @private
-    applyDefaults: function(config) {
-        var defaults = this.defaults;
-
-        if (defaults) {
-            if (Ext.isFunction(defaults)) {
-                defaults = defaults.call(this, config);
-            }
-
-            if (Ext.isString(config)) {
-                config = Ext.ComponentManager.get(config);
-            }
-            Ext.applyIf(config, defaults);
-        }
-        return config;
+    onDestroy: function() {
+        this.callParent();
+        this.refs = null;
     },
 
-    // The targetCls is a CSS class that the layout needs added to the targetEl. The targetEl is where the container's
-    // children are rendered and is usually just the main el. Some containers (e.g. panels) use a body instead.
-    //
-    // In general, if a class overrides getTargetEl it will also need to override this method. This is necessary to
-    // avoid a post-render step to add the targetCls.
-    applyTargetCls: function(targetCls) {
-        this.addCls(targetCls);
-    },
-
-    // @private
-    // @since 2.3.0
     beforeDestroy: function() {
         var me = this,
             items = me.items,
@@ -994,11 +982,6 @@ Ext.define('Ext.container.Container', {
             me.layout
         );
         me.callParent();
-    },
-    
-    onDestroy: function() {
-        this.callParent();
-        this.refs = null;
     },
 
     beforeRender: function () {
@@ -1049,7 +1032,7 @@ Ext.define('Ext.container.Container', {
                     c.cascade(fn, scope, origArgs);
                 } else {
                     args[componentIndex] = c;
-                    fn.apply(scope || cs, args);
+                    fn.apply(scope || c, args);
                 }
             }
         }
@@ -1080,11 +1063,6 @@ Ext.define('Ext.container.Container', {
         }
     },
 
-    // Detach a component from the DOM
-    detachComponent: function(component){
-        Ext.getDetachedBody().appendChild(component.getEl());
-    },
-
     /**
      * @override
      * Disables all child input fields and buttons.
@@ -1109,61 +1087,14 @@ Ext.define('Ext.container.Container', {
     },
 
     /**
-     * Manually force this container's layout to be recalculated. The framework uses this internally to refresh layouts
-     * form most cases.
+     * Manually force this container's layout to be recalculated.
      * @return {Ext.container.Container} this
      * @since 2.3.0
+     * @deprecated 4.1 Use `{@link #updateLayout}` instead.
      */
     doLayout: function() {
         this.updateLayout();
         return this;
-    },
-
-    // @private
-    doRemove: function(component, doDestroy) {
-        // Ensure the flag is set correctly
-        doDestroy = doDestroy === true || (doDestroy !== false && this.autoDestroy);
-
-        var me = this,
-            layout = me.layout,
-            hasLayout = layout && me.rendered,
-
-            // isDestroying flag is true if the removal is taking place as part of destruction, OR if removal is intended to *cause* destruction
-            isDestroying = component.destroying || doDestroy,
-            floating = component.floating;
-
-        if (floating) {
-            me.floatingItems.remove(component);
-        } else {
-            me.items.remove(component);
-        }
-
-        // Inform ownerLayout of removal before deleting the ownerLayout & ownerCt references in the onRemoved call
-        if (hasLayout && !floating) {
-            // Removing a component from a running layout has to cancel the layout
-            if (layout.running) {
-                Ext.Component.cancelLayout(component, isDestroying);
-            }
-            layout.onRemove(component, isDestroying);
-        }
-
-        component.onRemoved(isDestroying);
-
-        me.onRemove(component, isDestroying);
-
-        // Destroy if we were explicitly told to, or we're defaulting to our autoDestroy configuration
-        if (doDestroy) {
-            component.destroy();
-        }
-        // Only have the layout perform remove postprocessing if the Component is not being destroyed
-        else {
-            if (hasLayout && !floating) {
-                layout.afterRemove(component);
-            }
-            if (me.detachOnRemove && component.rendered) {
-                me.detachComponent(component);
-            }
-        }
     },
 
     /**
@@ -1188,19 +1119,9 @@ Ext.define('Ext.container.Container', {
         return this;
     },
 
-    finishRenderChildren: function () {
-        this.callParent();
-
-        var layout = this.getLayout();
-
-        if (layout) {
-            layout.finishRender();
-        }
-    },
-
     /**
      * Return the immediate child Component in which the passed element is located.
-     * @param {Ext.Element/HTMLElement/String} el The element to test (or ID of element).
+     * @param {Ext.dom.Element/HTMLElement/String} el The element to test (or ID of element).
      * @param {Boolean} deep If `true`, returns the deepest descendant Component which contains the passed element.
      * @return {Ext.Component} The child item which contains the passed element.
      */
@@ -1220,16 +1141,6 @@ Ext.define('Ext.container.Container', {
             }
         }
         return null;
-    },
-
-    /**
-     * Gets a list of child components to enable/disable when the container is
-     * enabled/disabled
-     * @private
-     * @return {Ext.Component[]} Items to be enabled/disabled
-     */
-    getChildItemsToDisable: function(){
-        return this.query('[isFormField],button');
     },
 
     /**
@@ -1264,42 +1175,17 @@ Ext.define('Ext.container.Container', {
         return c;
     },
 
-    // @private - used as the key lookup function for the items collection
-    getComponentId: function(comp) {
-        return comp.getItemId && comp.getItemId();
-    },
-
-    // @private
-    getContentTarget: function(){
-        return this.getLayout().getContentTarget();
-    },
-
-    // @private
-    getDefaultContentTarget: function() {
-        return this.el;
-    },
-
-    /**
-     * @private
-     * Returns the focus holder element associated with this Container. By default, this is the Container's target
-     * element. Subclasses which use embedded focusable elements (such as Window and Button) should override this for use
-     * by the {@link #method-focus} method.
-     * @returns {Ext.Element} the focus holding element.
-     */
-    getFocusEl: function() {
-        return this.getTargetEl();
-    },
-
     /**
      * Returns the {@link Ext.layout.container.Container layout} instance currently associated with this Container.
      * If a layout has not been instantiated yet, that is done first
      * @return {Ext.layout.container.Container} The layout
      */
     getLayout: function() {
-        var me = this;
-        if (!me.layout || !me.layout.isLayout) {
-            // Pass any configured in layout property, defaulting to the prototype's layout property, falling back to Auto.
-            me.setLayout(Ext.layout.Layout.create(me.layout, me.self.prototype.layout));
+        var me = this,
+            layout = me.layout;
+
+        if (!layout || !layout.isLayout) {
+            me.setLayout(layout);
         }
 
         return me.layout;
@@ -1348,12 +1234,8 @@ Ext.define('Ext.container.Container', {
         return result;
     },
 
-    // @private
     initComponent: function(){
-        var me = this,
-            reference = me.reference,
-            controller,
-            len;
+        var me = this;
 
         me.callParent();
 
@@ -1362,99 +1244,66 @@ Ext.define('Ext.container.Container', {
         // to know during construction time to save work
         me.constructing = true;
 
-        if (reference && reference.charAt(len = reference.length - 1) === '>') {
-            me.isParentReference = true;
-            me.reference = reference.substring(0, len);
-            //<debug>
-            if (!me.validIdRe.test(me.reference)) {
-                Ext.Error.raise('Invalid component "reference": "' + me.reference + '"');
-            }
-            //</debug>
-        }
-
         me.initItems();
+
         delete me.constructing;
     },
 
     /**
-     * Gets a reference to a child specified using the {@link #reference} configuration.
-     * 
-     * @param {String} key The name of the reference.
-     * @return {Ext.Component} The referenced component or `null` if it is not found.
+     * Returns an object holding the descendants of this view keyed by their
+     * `{@link Ext.Component#cfg-reference reference}`. This object should not be held
+     * past the scope of the function calling this method. It will not be valid if items
+     * are added or removed from this or any sub-container.
+     *
+     * The intended usage is shown here (assume there are 3 components with reference
+     * values of "foo", "bar" and "baz" at some level below this container):
+     *
+     *      onClick: function () {
+     *          var refs = this.getReferences();
+     *
+     *          // using "refs" we can access any descendant by its "reference"
+     *
+     *          refs.foo.getValue() + refs.bar.getValue() + refs.baz.getValue();
+     *      }
+     *
+     * If `this` component has a `{@link Ext.Component#cfg-reference reference}` assigned
+     * to it, that is **not** included in this object. That reference is understood to
+     * belong to the ancestor container configured as the `referenceHolder`.
+     *
+     * @return {Object} An object with each child reference. This will be `null` if this
+     * container has no descendants with a `{@link Ext.Component#cfg-reference reference}`
+     * specified.
+     * @since 5.0.0
      */
-    getReference: function(key) {
-        var ComponentManager = Ext.ComponentManager,
-            refs, ref;
+    getReferences: function () {
+        var ComponentManager = Ext.ComponentManager;
 
         if (ComponentManager.referencesDirty) {
             ComponentManager.fixReferences();
         }
 
-        ref = (refs = this.refs) && refs[key];
-
-        return ref || null;
+        return this.refs || null;
     },
 
-    getScrollerEl: function() {
-        return this.layout.getScrollerEl() || this.callParent();
-    },
-    
     /**
-     * Sets up a component. reference.
-     * @param {Ext.Component} ref The component to reference.
-     * 
-     * @private
+     * Gets a reference to a child specified using the {@link #reference} configuration.
+     *
+     * @param {String} key The name of the reference.
+     * @return {Ext.Component} The referenced component or `null` if it is not found.
      */
-    setReference: function(ref) {
-        var me = this,
-            key,
-            refs;
-            
-        // Cleaning all this up later anyway
-        if (me.destroying || me.isDestroyed) {
-            return;
-        }
+    lookupReference: function (key) {
+        var refs = this.getReferences();
 
-        refs = me.refs || (me.refs = {});
-        key = ref.referenceKey;
-        //<debug>
-        if (refs[key] && refs[key] !== ref) {
-            Ext.log.warn('Duplicate reference: "' + key + '" on ' + me.id);
-        }
-        //</debug>
-        refs[key] = ref;
-    },
-    
-    /**
-     * Clear a component reference.
-     * @param {Ext.Component} ref The component to reference.
-     * 
-     * @private
-     */
-    clearReference: function(ref) {
-        var refs = this.refs,
-            key = ref.referenceKey;
-        
-        if (refs && key) {
-            // viewModelKey would be better placed in app.Container however
-            // it's not really worth introducing a second method call to clear
-            // a single property.
-            ref.viewModelKey = ref.referenceKey = refs[key] = null;
-        }
-    },
-    
-    /**
-     * Invalidates the references collection. Typically called when
-     * removing a container from this container, since it's difficult
-     * to know what references got removed.
-     * 
-     * @private
-     */
-    clearReferences: function() {
-        this.refs = null;
+        return (refs && refs[key]) || null;
     },
 
-    // @private
+    /**
+     * This method is called to initialize the `items` collection. A derived class can
+     * override this method to do any last minute manipulation of `items` and then call
+     * this method using `callParent`. Upon return, the `items` will no longer be a simple
+     * array.
+     * @protected
+     */
     initItems: function() {
         var me = this,
             items = me.items;
@@ -1479,13 +1328,12 @@ Ext.define('Ext.container.Container', {
                 me.add(items);
             }
         }
-
     },
 
     /**
      * Called by `getInherited` to initialize the inheritedState the first time it is
      * requested.
-     * @private
+     * @protected
      */
     initInheritedState: function (inheritedState, inheritedStateInner) {
         var me = this,
@@ -1560,15 +1408,15 @@ Ext.define('Ext.container.Container', {
      *
      * @since 2.3.0
      */
-    insert: function(index, comp) {
+    insert: function(index, component) {
         var compIdx;
-        if (comp && comp.isComponent) {
-            compIdx = this.items.indexOf(comp);
+        if (component && component.isComponent) {
+            compIdx = this.items.indexOf(component);
             if (compIdx !== -1) {
                 return this.move(compIdx, index);
             }
         }
-        return this.add(index, comp);
+        return this.add(index, component);
     },
 
     /**
@@ -1600,10 +1448,14 @@ Ext.define('Ext.container.Container', {
     },
 
     /**
-     * Moves a Component within the Container
+     * Moves a Component within the Container. This method does **not** account for things
+     * like splitter components added by a layout. To better handle these situations, it
+     * is recommended to use `{@link #moveBefore}` or `{@link moveAfter}` instead.
+     *
      * @param {Number/Ext.Component} fromIdx The index/component to move.
      * @param {Number} toIdx The new index for the Component.
      * @return {Ext.Component} component The Component that was moved.
+     * @deprecated 5.0 Use `{@link #moveBefore}` or `{@link moveAfter}` instead.
      */
     move: function(fromIdx, toIdx) {
         var me = this,
@@ -1613,23 +1465,44 @@ Ext.define('Ext.container.Container', {
         if (fromIdx.isComponent) {
             fromIdx = items.indexOf(fromIdx);
         }
-        item = items.removeAt(fromIdx);
-        if (item === false) {
-            return false;
+        item = items.getAt(fromIdx);
+        if (fromIdx !== toIdx) {
+            item = items.removeAt(fromIdx);
+            if (item === false) {
+                return false;
+            }
+            items.insert(toIdx, item);
+            me.onMove(item, fromIdx, toIdx);
+            if (me.hasListeners.move) {
+                me.fireEvent('move', me, item, fromIdx, toIdx);
+            }
+            me.updateLayout();
         }
-        items.insert(toIdx, item);
-        me.onMove(item, fromIdx, toIdx);
-        if (me.hasListeners.move) {
-            me.fireEvent('move', me, item, fromIdx, toIdx);
-        }
-        me.updateLayout();
         return item;
     },
 
+    /**
+     * Moves the given `item` into this container in front of `before`. This method will
+     * account for layout-generated components like splitters and should be used instead
+     * of index based `{@link #move}`. If `before` is `null` then the `item` will be the
+     * last item in this container.
+     * @param {Ext.Component} item
+     * @param {Ext.Component} before
+     * @since 5.0.0
+     */
     moveBefore: function (item, before) {
         this.layout.moveItemBefore(item, before);
     },
-        
+
+    /**
+     * Moves the given `item` into this container following `after`. This method will
+     * account for layout-generated components like splitters and should be used instead
+     * of index based `{@link #move}`. If `after` is `null` then the `item` will be the
+     * first item in this container.
+     * @param {Ext.Component} item
+     * @param {Ext.Component} after
+     * @since 5.0.0
+     */
     moveAfter: function (item, after) {
         var me = this,
             items = me.items,
@@ -1735,51 +1608,6 @@ Ext.define('Ext.container.Container', {
         this.repositionFloatingItems();
     },
 
-    // @private
-    prepareItems: function(items, applyDefaults) {
-        // Create an Array which does not refer to the passed array.
-        // The passed array is a reference to a user's config object and MUST NOT be mutated.
-        if (Ext.isArray(items)) {
-            items = items.slice();
-        } else {
-            items = [items];
-        }
-
-        // Make sure defaults are applied and item is initialized
-        var me = this,
-            i = 0,
-            len = items.length,
-            item;
-
-        for (; i < len; i++) {
-            item = items[i];
-            if (item == null) {
-                Ext.Array.erase(items, i, 1);
-                --i;
-                --len;
-            } else {
-                if (applyDefaults) {
-                    item = this.applyDefaults(item);
-                }
-
-                // Tell the item we're in a container during construction
-                item.initOwnerCt = me;
-                if (item.isComponent) {
-                    // When this was passed to us, it's an already constructed component
-                    // This is useful to know because we can make decisions regarding the
-                    // state of the component if it's newly created
-                    item.instancedCmp = true;
-                }
-                items[i] = me.lookupComponent(item);
-                // delete here because item may have been a config, so we don't
-                // want to mutate it
-                delete item.initOwnerCt;
-            }
-        }
-
-        return items;
-    },
-
     /**
      * A method to find a child component before the passed child parameter. If a selector is also provided,
      * the first child component matching the selector will be returned.
@@ -1831,9 +1659,9 @@ Ext.define('Ext.container.Container', {
      * @return {Ext.Component} component The Component that was removed.
      * @since 2.3.0
      */
-    remove: function(comp, autoDestroy) {
+    remove: function(component, autoDestroy) {
         var me = this,
-            c = me.getComponent(comp);
+            c = me.getComponent(component);
         //<debug>
             if (Ext.isDefined(Ext.global.console) && !c) {
                 Ext.global.console.warn("Attempted to remove a component that does not exist. Ext.container.Container: remove takes an argument of the component to remove. cmp.remove() is incorrect usage.");
@@ -1887,35 +1715,57 @@ Ext.define('Ext.container.Container', {
         return items;
     },
 
-    repositionFloatingItems: function() {
-        var floaters = this.floatingItems.items,
-            floaterCount = floaters.length,
-            i, floater;
-
-        // Ensure correct positioning of floated children before calling superclass
-        for (i = 0; i < floaterCount; i++) {
-            floater = floaters[i];
-            if (floater.el && !floater.hidden) {
-                floater.setPosition(floater.x, floater.y);
-            }
-        }
-    },
-
-    // @private
+    /**
+     * Reconfigures the initially configured {@link #layout}.
+     *
+     * NOTE: this method cannot be used to change the "type" of layout after the component
+     * has been rendered to the DOM. After rendering, this method can only modify the
+     * existing layout's configuration properties. The reason for this restriction is that
+     * many container layouts insert special wrapping elements into the dom, and the
+     * framework does not currently support dynamically changing these elements once
+     * rendered.
+     * @param {Object} configuration object for the layout
+     */
     setLayout: function(layout) {
-        var currentLayout = this.layout;
+        var me = this,
+            currentLayout = me.layout,
+            currentIsLayout = currentLayout && currentLayout.isLayout,
+            protoLayout, type;
 
-        if (currentLayout && currentLayout.isLayout && currentLayout !== layout) {
-            currentLayout.setOwner(null);
+        if (typeof layout === 'string') {
+            layout = {
+                type: layout
+            };
         }
 
-        this.layout = layout;
-        layout.setOwner(this);
-    },
+        type = layout.type;
 
-    setupRenderTpl: function (renderTpl) {
-        this.callParent(arguments);
-        this.getLayout().setupRenderTpl(renderTpl);
+        if (currentIsLayout && (!type || (type === currentLayout.type))) {
+            // no type passed, or same type as existing layout - reconfigure current layout
+            delete layout.type;
+            currentLayout.setConfig(layout);
+        } else {
+            // no current layout, or different type passed - create new layout
+            if (currentIsLayout) {
+                currentLayout.setOwner(null);
+            }
+
+            protoLayout = me.self.prototype.layout;
+
+            if (typeof protoLayout === 'string') {
+                layout.type = type || protoLayout;
+            } else {
+                // use protoLayout as default values
+                Ext.merge(Ext.merge({}, protoLayout), layout);
+            }
+
+            layout = this.layout = Ext.Factory.layout(layout);
+            layout.setOwner(this);
+        }
+
+        if (me.rendered) {
+            me.updateLayout();
+        }
     },
 
     /**
@@ -1940,10 +1790,296 @@ Ext.define('Ext.container.Container', {
      */
     setActiveItem: function(item) {
         return this.getLayout().setActiveItem(item);
-    }
+    },
 
     // ***********************************************************************************
     // End Methods
     // ***********************************************************************************
     // </editor-fold>
+
+    privates: {
+        // @private
+        applyDefaults: function(config) {
+            var defaults = this.defaults;
+
+            if (defaults) {
+                if (Ext.isFunction(defaults)) {
+                    defaults = defaults.call(this, config);
+                }
+
+                if (Ext.isString(config)) {
+                    config = Ext.ComponentManager.get(config);
+                }
+                Ext.applyIf(config, defaults);
+            }
+            return config;
+        },
+
+        applyReference: function (reference) {
+            var len;
+
+            if (reference && reference.charAt(len = reference.length - 1) === '>') {
+                this.isParentReference = true;
+                reference = reference.substring(0, len);
+            }
+
+            //<debug>
+            if (reference && !this.validIdRe.test(reference)) {
+                Ext.Error.raise('Invalid reference "' + reference + '" for ' + this.getId() +
+                    ' - not a valid identifier');
+            }
+            //</debug>
+
+            return reference;
+        },
+
+        // The targetCls is a CSS class that the layout needs added to the targetEl. The targetEl is where the container's
+        // children are rendered and is usually just the main el. Some containers (e.g. panels) use a body instead.
+        //
+        // In general, if a class overrides getTargetEl it will also need to override this method. This is necessary to
+        // avoid a post-render step to add the targetCls.
+        applyTargetCls: function(targetCls) {
+            this.addCls(targetCls);
+        },
+
+        /**
+         * Sets up a component reference.
+         * @param {Ext.Component} component The component to reference.
+         * @private
+         */
+        attachReference: function (component) {
+            var me = this,
+                key, refs;
+
+            // Cleaning all this up later anyway
+            if (me.destroying || me.isDestroyed) {
+                return;
+            }
+
+            refs = me.refs || (me.refs = {});
+            key = component.referenceKey;
+            //<debug>
+            if (refs[key] && refs[key] !== component) {
+                Ext.log.warn('Duplicate reference: "' + key + '" on ' + me.id);
+            }
+            //</debug>
+            refs[key] = component;
+        },
+
+        /**
+         * Clear a component reference.
+         * @param {Ext.Component} component The component to remove.
+         * @private
+         */
+        clearReference: function (component) {
+            var refs = this.refs,
+                key = component.referenceKey;
+
+            if (refs && key) {
+                // viewModelKey would be better placed in app.Container however
+                // it's not really worth introducing a second method call to clear
+                // a single property.
+                component.viewModelKey = component.referenceKey = refs[key] = null;
+            }
+        },
+
+        /**
+         * Invalidates the references collection. Typically called when
+         * removing a container from this container, since it's difficult
+         * to know what references got removed.
+         *
+         * @private
+         */
+        clearReferences: function () {
+            this.refs = null;
+        },
+
+        // Detach a component from the DOM
+        detachComponent: function(component){
+            Ext.getDetachedBody().appendChild(component.getEl());
+        },
+
+        // @private
+        doRemove: function(component, doDestroy) {
+            // Ensure the flag is set correctly
+            doDestroy = doDestroy === true || (doDestroy !== false && this.autoDestroy);
+
+            var me = this,
+                layout = me.layout,
+                hasLayout = layout && me.rendered,
+
+            // isDestroying flag is true if the removal is taking place as part of destruction, OR if removal is intended to *cause* destruction
+                isDestroying = component.destroying || doDestroy,
+                floating = component.floating;
+
+            if (floating) {
+                me.floatingItems.remove(component);
+            } else {
+                me.items.remove(component);
+            }
+
+            // Inform ownerLayout of removal before deleting the ownerLayout & ownerCt references in the onRemoved call
+            if (hasLayout && !floating) {
+                // Removing a component from a running layout has to cancel the layout
+                if (layout.running) {
+                    Ext.Component.cancelLayout(component, isDestroying);
+                }
+                layout.onRemove(component, isDestroying);
+            }
+
+            component.onRemoved(isDestroying);
+
+            me.onRemove(component, isDestroying);
+
+            // Destroy if we were explicitly told to, or we're defaulting to our autoDestroy configuration
+            if (doDestroy) {
+                component.destroy();
+            }
+            // Only have the layout perform remove postprocessing if the Component is not being destroyed
+            else {
+                if (hasLayout && !floating) {
+                    layout.afterRemove(component);
+                }
+                if (me.detachOnRemove && component.rendered) {
+                    me.detachComponent(component);
+                }
+            }
+        },
+
+        finishRenderChildren: function () {
+            this.callParent();
+
+            var layout = this.getLayout();
+
+            if (layout) {
+                layout.finishRender();
+            }
+        },
+
+        /**
+         * Gets a list of child components to enable/disable when the container is
+         * enabled/disabled
+         * @private
+         * @return {Ext.Component[]} Items to be enabled/disabled
+         */
+        getChildItemsToDisable: function(){
+            return this.query('[isFormField],button');
+        },
+
+        // @private - used as the key lookup function for the items collection
+        getComponentId: function(comp) {
+            return comp.getItemId && comp.getItemId();
+        },
+
+        // @private
+        getContentTarget: function(){
+            return this.getLayout().getContentTarget();
+        },
+
+        // @private
+        getDefaultContentTarget: function() {
+            return this.el;
+        },
+
+        /**
+         * @private
+         * Returns the focus holder element associated with this Container. By default, this is the Container's target
+         * element. Subclasses which use embedded focusable elements (such as Window and Button) should override this for use
+         * by the {@link #method-focus} method.
+         * @returns {Ext.dom.Element} the focus holding element.
+         */
+        getFocusEl: function() {
+            return this.getTargetEl();
+        },
+
+        getScrollerEl: function() {
+            return this.layout.getScrollerEl() || this.callParent();
+        },
+
+        // @private
+        prepareItems: function(items, applyDefaults) {
+            // Create an Array which does not refer to the passed array.
+            // The passed array is a reference to a user's config object and MUST NOT be mutated.
+            if (Ext.isArray(items)) {
+                items = items.slice();
+            } else {
+                items = [items];
+            }
+
+            // Make sure defaults are applied and item is initialized
+            var me = this,
+                i = 0,
+                len = items.length,
+                item;
+
+            for (; i < len; i++) {
+                item = items[i];
+                if (item == null) {
+                    Ext.Array.erase(items, i, 1);
+                    --i;
+                    --len;
+                } else {
+                    if (applyDefaults) {
+                        item = this.applyDefaults(item);
+                    }
+
+                    // Tell the item we're in a container during construction
+                    item.initOwnerCt = me;
+                    if (item.isComponent) {
+                        // When this was passed to us, it's an already constructed component
+                        // This is useful to know because we can make decisions regarding the
+                        // state of the component if it's newly created
+                        item.instancedCmp = true;
+                    }
+                    items[i] = me.lookupComponent(item);
+                    // delete here because item may have been a config, so we don't
+                    // want to mutate it
+                    delete item.initOwnerCt;
+                }
+            }
+
+            return items;
+        },
+
+        repositionFloatingItems: function() {
+            var floaters = this.floatingItems.items,
+                floaterCount = floaters.length,
+                i, floater;
+
+            // Ensure correct positioning of floated children before calling superclass
+            for (i = 0; i < floaterCount; i++) {
+                floater = floaters[i];
+                if (floater.el && !floater.hidden) {
+                    floater.setPosition(floater.x, floater.y);
+                }
+            }
+        },
+
+        _noMargin: {
+            'margin-top': '',
+            'margin-right': '',
+            'margin-bottom': '',
+            'margin-left': ''
+        },
+
+        // Removes inline margins set by the layout system (see ContextItem#getMarginInfo)
+        // TODO: fix EXTJS-13359 and remove this method
+        resetItemMargins: function() {
+            var items = this.items.items,
+                i = items.length,
+                noMargin = this._noMargin,
+                item;
+
+            while (i--) {
+                item = items[i];
+                item.margin$ = null;
+                item.el.setStyle(noMargin);
+            }
+        },
+
+        setupRenderTpl: function (renderTpl) {
+            this.callParent(arguments);
+            this.getLayout().setupRenderTpl(renderTpl);
+        }
+    } // private
 });

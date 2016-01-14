@@ -72,12 +72,11 @@ Ext.define('Ext.chart.interactions.Rotate', {
         },
 
         /**
-         * @cfg {Number} currentRotation
+         * @cfg {Number} rotation
          * Saves the current rotation of the series. Accepts negative values and values > 360 ( / 180 * Math.PI)
          * @private
-TODO - This should probably be just 'rotation' and updateRotation should do the deed
          */
-        currentRotation: 0
+        rotation: 0
     },
 
     oldRotations: null,
@@ -121,62 +120,61 @@ TODO - This should probably be just 'rotation' and updateRotation should do the 
 
     onGesture: function(e) {
         var me = this,
-            chart = me.getChart(),
-            angle = me.getAngle(e) - me.angle,
-            axes = chart.getAxes(),
-            series = chart.getSeries(), seriesItem,
-            oldRotations = me.oldRotations,
-            axis, oldRotation, i, ln;
+            angle = me.getAngle(e) - me.angle;
 
         if (me.getLocks().drag === me) {
-            chart.suspendAnimation();
-
-            for (i = 0, ln = axes.length; i < ln; i++) {
-                axis = axes[i];
-                oldRotation = oldRotations[axis.getId()] || (oldRotations[axis.getId()] = axis.getRotation());
-                axis.setRotation(angle + oldRotation);
-            }
-
-            for (i = 0, ln = series.length; i < ln; i++) {
-                seriesItem = series[i];
-                oldRotation = oldRotations[seriesItem.getId()] || (oldRotations[seriesItem.getId()] = seriesItem.getRotation());
-
-                seriesItem.setRotation(angle + oldRotation);
-            }
-
-            me.setCurrentRotation(angle + oldRotation);
-
-            me.fireEvent('rotate', me, me.getCurrentRotation());
-
-            me.sync();
-            chart.resumeAnimation();
+            me.doRotateTo(angle, true);
             return false;
         }
     },
 
-    rotateTo: function(angle) {
+    /**
+     * @private
+     */
+    doRotateTo: function(angle, relative, animate) {
         var me = this,
             chart = me.getChart(),
             axes = chart.getAxes(),
             series = chart.getSeries(),
+            oldRotations = me.oldRotations,
+            axis, seriesItem, oldRotation,
             i, ln;
 
-        chart.suspendAnimation();
+        if (!animate) {
+            chart.suspendAnimation();
+        }
 
         for (i = 0, ln = axes.length; i < ln; i++) {
-            axes[i].setRotation(angle);
+            axis = axes[i];
+            oldRotation = oldRotations[axis.getId()] || (oldRotations[axis.getId()] = axis.getRotation());
+            axis.setRotation( angle + (relative ? oldRotation : 0) );
         }
 
         for (i = 0, ln = series.length; i < ln; i++) {
-            series[i].setRotation(angle);
+            seriesItem = series[i];
+            oldRotation = oldRotations[seriesItem.getId()] || (oldRotations[seriesItem.getId()] = seriesItem.getRotation());
+            seriesItem.setRotation( angle + (relative ? oldRotation : 0) );
         }
 
-        me.setCurrentRotation(angle);
+        me.setRotation(angle + (relative ? oldRotation : 0));
 
-        me.fireEvent('rotate', me, me.getCurrentRotation());
+        me.fireEvent('rotate', me, me.getRotation());
 
         me.sync();
-        chart.resumeAnimation();
+        if (!animate) {
+            chart.resumeAnimation();
+        }
+    },
+
+    /**
+     * Rotates a polar chart about its center point to the specified angle.
+     * @param {Number} angle The angle to rotate to.
+     * @param {Boolean} [relative=false] Whether the rotation is relative to the current angle or not.
+     * @param {Boolean} [animate=false] Whether to animate the rotation or not.
+     */
+    rotateTo: function (angle, relative, animate) {
+        this.doRotateTo(angle, relative, animate);
+        this.oldRotations = {};
     },
 
     onGestureEnd: function(e) {
@@ -185,7 +183,7 @@ TODO - This should probably be just 'rotation' and updateRotation should do the 
             me.onGesture(e);
             me.unlockEvents('drag');
 
-            me.fireEvent('rotationEnd', me, me.getCurrentRotation());
+            me.fireEvent('rotationEnd', me, me.getRotation());
 
             return false;
         }

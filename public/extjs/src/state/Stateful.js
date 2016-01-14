@@ -5,12 +5,9 @@
  * @private
  */
 Ext.define('Ext.state.Stateful', {
-
-    /* Begin Definitions */
+    mixinId: 'state',
 
     requires: ['Ext.state.Manager'],
-
-    /* End Definitions */
 
     /**
      * @cfg {Boolean} stateful
@@ -219,15 +216,15 @@ Ext.define('Ext.state.Stateful', {
         if (id) {
             state = me.getState() || {};    //pass along for custom interactions
 
-            /**
+            /*
              * Gather state from those plugins that implement a getState method
              */
             plugins = me.getPlugins() || [];
             for (i = 0, len = plugins.length; i < len; i++) {
                 plugin = plugins[i];
-                if(plugin && plugin.getState) {
+                if (plugin && plugin.getState) {
                     pluginState = plugin.getState(state);
-                    if(pluginState && !state[plugin.ptype]) {  //first duplicate plugin wins
+                    if (pluginState && !state[plugin.ptype]) {  //first duplicate plugin wins
                         state[plugin.ptype] = pluginState;
                     }
                 }
@@ -298,9 +295,9 @@ Ext.define('Ext.state.Stateful', {
                     plugins = me.getPlugins() || [];
                     for (i = 0, len = plugins.length; i < len; i++) {
                         plugin = plugins[i];
-                        if(plugin) {
+                        if (plugin) {
                             pluginType = plugin.ptype;
-                            if(plugin.applyState) {
+                            if (plugin.applyState) {
                                 plugin.applyState(state[pluginType], combinedState);
                             }
                             delete state[pluginType];  //clean to prevent unwanted props on the component in final phase

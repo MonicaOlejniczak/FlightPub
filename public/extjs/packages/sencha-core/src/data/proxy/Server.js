@@ -1,13 +1,7 @@
 /**
- * @author Ed Spencer
- *
  * ServerProxy is a superclass of {@link Ext.data.proxy.JsonP JsonPProxy} and {@link Ext.data.proxy.Ajax AjaxProxy}, and
  * would not usually be used directly.
- *
- * ServerProxy should ideally be named HttpProxy as it is a superclass for all HTTP proxies - for Ext JS 4.x it has been
- * called ServerProxy to enable any 3.x applications that reference the HttpProxy to continue to work (HttpProxy is now
- * an alias of AjaxProxy).
- * @private
+ * @protected
  */
 Ext.define('Ext.data.proxy.Server', {
     extend: 'Ext.data.proxy.Proxy',
@@ -162,6 +156,15 @@ Ext.define('Ext.data.proxy.Server', {
         extraParams: {}
     },
 
+    /**
+     * @event exception
+     * Fires when the server returns an exception. This event may also be listened
+     * to in the event that a request has timed out or has been aborted.
+     * @param {Ext.data.proxy.Proxy} this
+     * @param {Ext.data.Request} request The request that was sent
+     * @param {Ext.data.operation.Operation} operation The operation that triggered the request
+     */
+
     //in a ServerProxy all four CRUD operations are executed in the same manner, so we delegate to doRequest in each case
     create: function() {
         return this.doRequest.apply(this, arguments);
@@ -175,7 +178,7 @@ Ext.define('Ext.data.proxy.Server', {
         return this.doRequest.apply(this, arguments);
     },
 
-    destroy: function() {
+    erase: function() {
         return this.doRequest.apply(this, arguments);
     },
 
@@ -213,7 +216,7 @@ Ext.define('Ext.data.proxy.Server', {
         // specifies the id parameter name of the node being loaded.
         operationId = operation.getId();
         idParam = me.getIdParam();
-        if (operationId !== undefined && params[me.idParam] === undefined) {
+        if (operationId !== undefined && params[idParam] === undefined) {
             params[idParam] = operationId;
         }
 
@@ -275,7 +278,8 @@ Ext.define('Ext.data.proxy.Server', {
     setException: function(operation, response) {
         operation.setException({
             status: response.status,
-            statusText: response.statusText
+            statusText: response.statusText,
+            response: response
         });
     },
 
@@ -290,7 +294,7 @@ Ext.define('Ext.data.proxy.Server', {
 
     /**
      * Encode any values being sent to the server. Can be overridden in subclasses.
-     * @private
+     * @protected
      * @param {Array} value An array of sorters/filters.
      * @return {Object} The encoded value
      */
@@ -308,17 +312,13 @@ Ext.define('Ext.data.proxy.Server', {
     encodeSorters: function(sorters, preventArray) {
         var out = [],
             length = sorters.length, 
-            i, sorter;
+            i;
         
         for (i = 0; i < length; i++) {
-            sorter = sorters[i];
-            out[i] = {
-                property : sorter.getProperty(),
-                direction: sorter.getDirection()
-            };
+            out[i] = sorters[i].serialize();
         }
-        return this.applyEncoding(preventArray ? out[0] : out);
 
+        return this.applyEncoding(preventArray ? out[0] : out);
     },
 
     /**
@@ -330,19 +330,12 @@ Ext.define('Ext.data.proxy.Server', {
     encodeFilters: function(filters) {
         var out = [],
             length = filters.length,
-            i, op, filter;
+            i, op;
 
         for (i = 0; i < length; i++) {
-            filter = filters[i];
-            out[i] = {
-                property: filter.getProperty(),
-                value   : filter.getValue()
-            };
-            op = filter.getOperator();
-            if (op) {
-                out[i].operator = op;
-            }
+            out[i] = filters[i].serialize();
         }
+
         return this.applyEncoding(out);
     },
 
@@ -379,7 +372,7 @@ Ext.define('Ext.data.proxy.Server', {
             params[pageParam] = page;
         }
 
-        if (startParam && start) {
+        if (startParam && (start || start === 0)) {
             params[startParam] = start;
         }
 
@@ -461,7 +454,7 @@ Ext.define('Ext.data.proxy.Server', {
     },
 
     /**
-     * In ServerProxy subclasses, the {@link #create}, {@link #read}, {@link #update} and {@link #destroy} methods all
+     * In ServerProxy subclasses, the {@link #create}, {@link #read}, {@link #update} and {@link #erase} methods all
      * pass through to doRequest. Each ServerProxy subclass must implement the doRequest method - see {@link
      * Ext.data.proxy.JsonP} and {@link Ext.data.proxy.Ajax} for examples. This method carries the same signature as
      * each of the methods that delegate to it.

@@ -19,7 +19,7 @@
  *            type: 'memory',
  *            reader: {
  *                type: 'json',
- *                root: 'items'
+ *                rootProperty: 'items'
  *            }
  *        }
  *     });
@@ -69,6 +69,8 @@ Ext.define('Ext.grid.column.Boolean', {
      */
     undefinedText: '&#160;',
 
+    defaultFilterType: 'boolean',
+
     /**
      * @cfg {Object} renderer
      * @hide
@@ -78,6 +80,8 @@ Ext.define('Ext.grid.column.Boolean', {
      * @cfg {Object} scope
      * @hide
      */
+
+    producesHTML: false,
 
     defaultRenderer: function(value){
         if (value === undefined) {

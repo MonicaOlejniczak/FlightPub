@@ -2,11 +2,10 @@ Ext.define('Ext.rtl.view.Table', {
     override: 'Ext.view.Table',
 
     rtlCellTpl: [
-        '<td class="' + Ext.baseCSSPrefix + 'rtl {tdCls}" {tdAttr} {ariaCellAttr}>',
-            '<div {unselectableAttr} {ariaCellInnerAttr} class="' + Ext.baseCSSPrefix + 'rtl ' + Ext.baseCSSPrefix + 'grid-cell-inner {innerCls}"',
-                ' style="text-align:{[this.getAlign(values.align)]};<tpl if="style">{style}</tpl>">{value}</div>',
-        '</td>',
-        {
+        '<td class="' + Ext.baseCSSPrefix + 'rtl {tdCls}" {tdAttr} {[Ext.aria ? "id=\\"" + Ext.id() + "\\"" : ""]} style="width:{column.cellWidth}px;<tpl if="tdStyle">{tdStyle}</tpl>" {ariaCellAttr}>',
+            '<div {unselectableAttr} class="' + Ext.baseCSSPrefix + 'rtl ' + Ext.baseCSSPrefix + 'grid-cell-inner {innerCls}" ',
+        'style="text-align:{[this.getAlign(values.align)]};<tpl if="style">{style}</tpl>" {ariaCellInnerAttr}>{value}</div>',
+        '</td>', {
             priority: 0,
             rtlAlign: {
                 right: 'left',

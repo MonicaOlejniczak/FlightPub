@@ -7,6 +7,23 @@
 Ext.define('Ext.data.PageMap', {
     extend: 'Ext.util.LruCache',
 
+    config: {
+        /**
+         * @cfg {Number} pageSize
+         * The size of pages in this map.
+         */
+        pageSize: 0,
+
+        /**
+         * @cfg {String} rootProperty
+         * The root property to use for aggregation, filtering and sorting. By default
+         * this is `null` but when containing things like {@link Ext.data.Model records}
+         * this config would likely be set to "data" so that property names are applied
+         * to the fields of each record.
+         */
+        rootProperty: ''
+    },
+
     // Maintain a generation counter, so that the Store can reject incoming pages destined for the previous generation
     clear: function(initial) {
         var me = this;
@@ -18,10 +35,11 @@ Ext.define('Ext.data.PageMap', {
         var me = this,
             pageNumbers = Ext.Object.getKeys(me.map),
             pageCount = pageNumbers.length,
+            pageSize = me.getPageSize(),
             i, j,
             pageNumber,
             page,
-            pageSize;
+            len;
 
         for (i = 0; i < pageCount; i++) {
             pageNumbers[i] = Number(pageNumbers[i]);
@@ -31,9 +49,9 @@ Ext.define('Ext.data.PageMap', {
         for (i = 0; i < pageCount; i++) {
             pageNumber = pageNumbers[i];
             page = me.getPage(pageNumber);
-            pageSize = page.length;
-            for (j = 0; j < pageSize; j++) {
-                if (fn.call(scope, page[j], (pageNumber - 1) * me.pageSize + j) === false) {
+            len = page.length;
+            for (j = 0; j < len; j++) {
+                if (fn.call(scope, page[j], (pageNumber - 1) * pageSize + j) === false) {
                     return;
                 }
             }
@@ -112,7 +130,7 @@ Ext.define('Ext.data.PageMap', {
         }
 
         var regex = Ext.String.createRegex(value, startsWith, endsWith, ignoreCase),
-            root = this.rootProperty;
+            root = this.getRootProperty();
 
         return this.findBy(function (item) {
             return item && regex.test((root ? item[root] : item)[property]);
@@ -125,15 +143,15 @@ Ext.define('Ext.data.PageMap', {
         }
 
         var regex = Ext.String.createRegex(value, startsWith, endsWith, ignoreCase),
-            root = this.rootProperty;
+            root = this.getRootProperty();
 
         return this.findIndexBy(function (item) {
             return item && regex.test((root ? item[root] : item)[property]);
         }, null, start);
     },
 
-    getPageFromRecordIndex: function() {
-        return Ext.data.BufferedStore.prototype.getPageFromRecordIndex.apply(this, arguments);
+    getPageFromRecordIndex: function(index) {
+        return Math.floor(index / this.getPageSize()) + 1;
     },
 
     addAll: function(records) {
@@ -147,23 +165,24 @@ Ext.define('Ext.data.PageMap', {
 
     addPage: function(pageNumber, records) {
         var me = this,
-            lastPage = pageNumber + Math.floor((records.length - 1) / me.pageSize),
+            pageSize = me.getPageSize(),
+            lastPage = pageNumber + Math.floor((records.length - 1) / pageSize),
             startIdx,
             page;
 
         // Account for being handed a block of records spanning several pages.
         // This can happen when loading from a MemoryProxy before a viewSize has been determined.
-        for (startIdx = 0; pageNumber <= lastPage; pageNumber++, startIdx += me.pageSize) {
-            page = Ext.Array.slice(records, startIdx, startIdx + me.pageSize);
+        for (startIdx = 0; pageNumber <= lastPage; pageNumber++, startIdx += pageSize) {
+            page = Ext.Array.slice(records, startIdx, startIdx + pageSize);
             me.add(pageNumber, page);
-            me.fireEvent('pageAdded', pageNumber, page);
+            me.fireEvent('pageadded', pageNumber, page);
         }
     },
 
     getCount: function() {
         var result = this.callParent();
         if (result) {
-            result = (result - 1) * this.pageSize + this.last.value.length;
+            result = (result - 1) * this.getPageSize() + this.last.value.length;
         }
         return result;
     },
@@ -233,10 +252,11 @@ Ext.define('Ext.data.PageMap', {
             Ext.Error.raise('PageMap asked for range which it does not have');
         }
         var me = this,
+            pageSize = me.getPageSize(),
             startPageNumber = me.getPageFromRecordIndex(start),
             endPageNumber = me.getPageFromRecordIndex(end),
-            dataStart = (startPageNumber - 1) * me.pageSize,
-            dataEnd = (endPageNumber * me.pageSize) - 1,
+            dataStart = (startPageNumber - 1) * pageSize,
+            dataEnd = (endPageNumber * pageSize) - 1,
             pageNumber = startPageNumber,
             result = [],
             sliceBegin, sliceEnd, doSlice,
@@ -253,7 +273,7 @@ Ext.define('Ext.data.PageMap', {
                 doSlice = false;
             }
             if (pageNumber === endPageNumber) {
-                sliceEnd = me.pageSize - (dataEnd - end);
+                sliceEnd = pageSize - (dataEnd - end);
                 doSlice = true;
             }
 

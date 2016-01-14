@@ -1,3 +1,7 @@
+/**
+ * @private
+ * @class Ext.app.bindinspector.Util
+ */
 Ext.define('Ext.app.bindinspector.Util', {
     singleton: true,
     
@@ -20,7 +24,7 @@ Ext.define('Ext.app.bindinspector.Util', {
         } else if (v === null) {
             return 'null';
         } else if (Ext.isString(v)) {
-            return '\'' + v + '\'';
+            return v;
         } else if (Ext.isDate(v)) {
             return Ext.Date.format(v, 'c');
         } else if (v && v.isModel) {
@@ -31,5 +35,22 @@ Ext.define('Ext.app.bindinspector.Util', {
             return 'Store{' + s.replace('noconflict.', '') + '}';
         }
         return v;
+    },
+
+    buildBindData: function(bind) {
+        var out = [],
+            key, o;
+        
+        for (key in bind) {
+            o = bind[key];
+            out.push({
+                key: key,
+                descriptor: o.descriptor,
+                tokens: o.tokens,
+                value: o.value,
+                binding: o
+            });
+        }
+        return out;
     }
 });

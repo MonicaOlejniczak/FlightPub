@@ -166,7 +166,7 @@ Ext.define('Ext.data.reader.Reader', {
     ],
 
     mixins: [
-        'Ext.util.Observable',
+        'Ext.mixin.Observable',
         'Ext.mixin.Factoryable'
     ],
 
@@ -246,11 +246,28 @@ Ext.define('Ext.data.reader.Reader', {
         * the error string returned in the response.
         */
        messageProperty: '',
-       
-       // TODO: better description
+
        /**
         * @cfg {String} [typeProperty]
-        * Indicates the type of the model to be read inside the data node itself. Useful for heterogenous trees.
+        * The name of the property in a node raw data block which indicates the type of the model to be created from that raw data. Useful for heterogenous trees.
+        *
+        * For example, hierarchical geographical data may look like this:
+        *
+        *     {
+        *         nodeType: 'Territory',
+        *         name: 'EMEA',
+        *         children: [{
+        *             nodeType: 'Country',
+        *             name: 'United Kingdon',
+        *             children: [{
+        *                 nodeType: 'City',
+        *                 name: 'London'
+        *             }]
+        *         }]
+        *     }
+        *
+        * You would configure the typeProperty in this case to be `"nodeType"` which would cause the models named "Territory", "Country" and "City" to
+        * be used.
         */
        typeProperty: '',
     
@@ -280,7 +297,35 @@ Ext.define('Ext.data.reader.Reader', {
          * we can set the new model on the proxy.
          * @private
          */
-        proxy: null
+        proxy: null,
+        
+        /**
+         * @cfg {Function|Object} [transform]
+         * If a transform function is set, it will be invoked just before {@link #readRecords} executes.
+         * It is passed the raw (deserialized) data object. The transform function returns a data object, which can be
+         * a modified version of the original data object, or a completely new data object. The transform can
+         * be a function, or an object with a 'fn' key and an optional 'scope' key. Example usage:
+         *
+         *     Ext.create('Ext.data.Store', {
+         *         model: 'User',
+         *         proxy: {
+         *             type: 'ajax',
+         *             url : 'users.json',
+         *             reader: {
+         *                 type: 'json',
+         *                 transform: {
+         *                     fn: function(data) {
+         *                         // do some manipulation of the raw data object
+         *                         return data;
+         *                     },
+         *                     scope: this
+         *                 }
+         *             }
+         *         },
+         *     });
+         *
+         */ 
+        transform: null
     },
     
     /**
@@ -310,7 +355,7 @@ Ext.define('Ext.data.reader.Reader', {
     isReader: true,
     
     /**
-     * @event
+     * @event exception
      * Fires when the reader receives improperly encoded data from the server
      * @param {Ext.data.reader.Reader} reader A reference to this reader
      * @param {XMLHttpRequest} response The XMLHttpRequest response object
@@ -333,15 +378,24 @@ Ext.define('Ext.data.reader.Reader', {
 
         var me = this;
         me.duringInit = true;
-        me.initConfig(config);
-        delete me.duringInit;
-        
+        // Will call initConfig
         me.mixins.observable.constructor.call(me, config);
+        delete me.duringInit;
         me.buildExtractors();
     },
     
     applyModel: function (model) {
         return Ext.data.schema.Schema.lookupEntity(model);
+    },
+    
+    applyTransform: function(transform) {
+        if (transform) {
+            if (Ext.isFunction(transform)) {
+                transform = {fn:transform};
+            }
+            return transform.fn.bind(transform.scope || this);
+        }
+        return transform;
     },
     
     forceBuildExtractors: function() {
@@ -427,9 +481,14 @@ Ext.define('Ext.data.reader.Reader', {
             root,
             total,
             value,
-            message;
+            message,
+            transform;
         
-
+        transform = this.getTransform();
+        if (transform) {
+            data = transform(data);
+        }
+          
         me.buildExtractors();
         
         /**
@@ -536,7 +595,9 @@ Ext.define('Ext.data.reader.Reader', {
                                               fieldExtractorInfo);
                 }
             }
-
+            if (record.onLoad) {
+                record.onLoad();
+            }
             records[i] = record;
         }
 
@@ -574,15 +635,15 @@ Ext.define('Ext.data.reader.Reader', {
         // Populate that data object by extracting and converting field values from raw data.
         // Must pass the ID to use because we pass no data for the constructor to pluck an ID from
         modelData = me.extractModelData(node, fieldExtractorInfo);
-        record = creatorFn.call(me, modelData, entityType || me.getModel());
-        if (includes) {
+        record = creatorFn.call(me, modelData, entityType || me.getModel(), readOptions);
+        if (includes && record.isModel) {
             me.readAssociated(record, node, readOptions);
         }
         return record;
     },
     
     getFieldExtractorInfo: function(extractors) {
-        var type = this.type,
+        var type = this.$className,
             extractor = extractors[type];
             
         // If we have no extractors, buildFieldExtractors will return null,
@@ -648,21 +709,24 @@ Ext.define('Ext.data.reader.Reader', {
     },
 
     /**
+     * Loads the record associations from the data object.
+     * @param {Ext.data.Model} record The record to load associations for.
+     * @param {Object} data The raw data object.
+     * @param {Object} readOptions See {@link #read}.
+     *
      * @private
-     * Loads a record's associations from the data object. This prepopulates hasMany and belongsTo associations
-     * on the record provided.
-     * @param {Ext.data.Model} record The record to load associations for
-     * @param {Object} node The data object
-     * @return {String} Return value description
      */
-    readAssociated: function(record, node, readOptions) {
+    readAssociated: function(record, data, readOptions) {
         var roles = record.associations,
             key, role;
             
         for (key in roles) {
             if (roles.hasOwnProperty(key)) {
                 role = roles[key];
-                role.read(record, node, this, readOptions);
+                // The class for the other role may not have loaded yet
+                if (role.cls) {
+                    role.read(record, data, this, readOptions);
+                }
             }
         }
     },
@@ -787,7 +851,7 @@ Ext.define('Ext.data.reader.Reader', {
     
     createFieldAccessor: Ext.emptyFn,
 
-    destroyReader: function() {
+    destroy: function() {
         var me = this;
         delete me.model;
         delete me.getTotal;

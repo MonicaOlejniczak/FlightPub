@@ -195,11 +195,6 @@ Ext.define('Ext.button.Cycle', {
         me.callParent(arguments);
         me.on('click', me.toggleSelected, me);
         me.setActiveItem(checked, me);
-
-        // If configured with a fixed width, the cycling will center a different child item's text each click. Prevent this.
-        if (me.width && me.showText) {
-            me.addCls(Ext.baseCSSPrefix + 'cycle-fixed-width');
-        }
     },
 
     // @private

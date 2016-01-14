@@ -54,8 +54,8 @@ describe("Ext.data.soap.Proxy", function() {
 
         function makeRequest(action, proxyConfig, requestParams) {
             makeProxy(proxyConfig);
-            callback = function() {},
-            createdCallback = function() {},
+            callback = function() {};
+            createdCallback = function() {};
             scope = {};
 
             spyOn(Ext.Ajax, 'request');

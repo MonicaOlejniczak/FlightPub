@@ -60,6 +60,8 @@ Ext.define('Ext.event.gesture.Recognizer', {
     },
 
     debugHooks: {
+        $enabled: false,  // Disable by default
+
         fail: function(msg) {
             Ext.log.info(this.$className + ' Gesture Failed: ' + msg);
             return false;

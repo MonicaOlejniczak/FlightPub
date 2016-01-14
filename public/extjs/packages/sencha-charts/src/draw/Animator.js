@@ -66,7 +66,7 @@ Ext.define('Ext.draw.Animator', {
      * @return {Boolean}
      */
     contains: function (animation) {
-        return this.animations.indexOf(animation) > -1;
+        return Ext.Array.indexOf(this.animations, animation) > -1;
     },
 
     /**

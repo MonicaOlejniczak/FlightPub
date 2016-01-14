@@ -120,7 +120,7 @@ Ext.define('Ext.event.Event', {
      */
 
     /**
-     * @property {DomEvent} browserEvent
+     * @property {Event} browserEvent
      * The raw browser event which this object wraps.
      */
 
@@ -131,18 +131,72 @@ Ext.define('Ext.event.Event', {
     statics: {
         resolveTextNode: function(node) {
             return (node && node.nodeType === 3) ? node.parentNode : node;
+        },
+
+        // private
+        pointerEvents: {
+            pointerdown: 1,
+            pointermove: 1,
+            pointerup: 1,
+            pointercancel: 1,
+            pointerover: 1,
+            pointerout: 1,
+            pointerenter: 1,
+            pointerleave: 1,
+            MSPointerDown: 1,
+            MSPointerMove: 1,
+            MSPointerUp: 1,
+            MSPointerOver: 1,
+            MSPointerOut: 1,
+            MSPointerCancel: 1,
+            MSPointerEnter: 1,
+            MSPointerLeave: 1
+        },
+
+        // private
+        mouseEvents: {
+            mousedown: 1,
+            mousemove: 1,
+            mouseup: 1,
+            mouseover: 1,
+            mouseout: 1,
+            mouseenter: 1,
+            mouseleave: 1
+        },
+
+        // private
+        touchEvents: {
+            touchstart: 1,
+            touchmove: 1,
+            touchend: 1,
+            touchcancel: 1
+        },
+
+        // msPointerTypes in IE10 are numbers, in the w3c spec they are strings.
+        // this map allows us to normalize the pointerType for an event
+        // http://www.w3.org/TR/pointerevents/#widl-PointerEvent-pointerType
+        // http://msdn.microsoft.com/en-us/library/ie/hh772359(v=vs.85).aspx
+        pointerTypes: {
+            2: 'touch',
+            3: 'pen',
+            4: 'mouse',
+            touch: 'touch',
+            pen: 'pen',
+            mouse: 'mouse'
         }
     },
 
     constructor: function(event) {
         var me = this,
+            self = me.self,
             resolveTextNode = me.self.resolveTextNode,
             changedTouches = event.changedTouches,
             // The target object from which to obtain the coordinates (pageX, pageY). For
             // mouse and pointer events this is simply the event object itself, but touch
             // events have their coordinates on the "Touch" object(s) instead.
             coordinateOwner = changedTouches ? changedTouches[0] : event,
-            relatedTarget;
+            type = event.type,
+            pointerType, relatedTarget;
 
         me.pageX = coordinateOwner.pageX;
         me.pageY = coordinateOwner.pageY;
@@ -154,7 +208,7 @@ Ext.define('Ext.event.Event', {
         }
 
         me.browserEvent = me.event = event;
-        me.type = event.type;
+        me.type = type;
         // set button to 0 if undefined so that touchstart, touchend, and tap will quack
         // like left mouse button mousedown mouseup, and click
         me.button = event.button || 0;
@@ -164,6 +218,18 @@ Ext.define('Ext.event.Event', {
         me.altKey = event.altKey;
         me.charCode = event.charCode;
         me.keyCode = event.keyCode;
+
+        if (self.mouseEvents[type]) {
+            pointerType = 'mouse';
+        } else if (self.pointerEvents[type]) {
+            pointerType = self.pointerTypes[event.pointerType];
+        } else if (self.touchEvents[type]) {
+            pointerType = 'touch';
+        }
+
+        if (pointerType) {
+            me.pointerType = pointerType;
+        }
 
         me.timeStamp = me.time = +(event.timeStamp || new Date());
     },
@@ -353,8 +419,9 @@ Ext.define('Ext.event.Event', {
     * Returns true if the control, meta, shift or alt key was pressed during this event.
     * @return {Boolean}
     */
-    hasModifier: function(){
-        return this.ctrlKey || this.altKey || this.shiftKey || this.metaKey;
+    hasModifier: function() {
+        var me = this;
+        return !!(me.ctrlKey || me.altKey || me.shiftKey || me.metaKey);
     },
 
     /**
@@ -419,20 +486,6 @@ Ext.define('Ext.event.Event', {
         (k === this.BACKSPACE) || // Backspace
         (k >= 16 && k <= 20) ||   // Shift, Ctrl, Alt, Pause, Caps Lock
         (k >= 44 && k <= 46);     // Print Screen, Insert, Delete
-    },
-
-    /**
-     * @private
-     * @return {Boolean} `true` if this event was triggered by a touch on the screen.
-     * This is true for touch events (touchstart/touchend etc.) as well as pointer events
-     * that have a pointerType of `touch`.
-     */
-    isTouch: function() {
-        var e = this.browserEvent;
-
-        return !!e.touches // all touch events
-            || e.pointerType === 'touch' // w3c standard
-            || (e.MSPOINTER_TYPE_TOUCH && e.pointerType === e.MSPOINTER_TYPE_TOUCH); // IE10
     },
 
     makeUnpreventable: function() {
@@ -521,7 +574,7 @@ Ext.define('Ext.event.Event', {
      *         }
      *     });
      * 
-     * @param {String/HTMLElement/Ext.Element} el The id, DOM element or Ext.Element to check
+     * @param {String/HTMLElement/Ext.dom.Element} el The id, DOM element or Ext.Element to check
      * @param {Boolean} [related] `true` to test if the related target is within el instead
      * of the target
      * @param {Boolean} [allowEl] `true` to also check if the passed element is the target

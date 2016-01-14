@@ -98,6 +98,64 @@ describe("Ext.data.reader.Reader", function() {
                 expect(doRead()).toBe(nullSet);
             });
         });
+        
+        describe("transform", function() {
+            it("should invoke the transform function", function() {
+                var o = {
+                    id: 1
+                };
+                
+                var transformFn = function(data) {
+                    data[0] = {id: 2};
+                    return data;
+                };
+                
+                var readerWithTransform = new Ext.data.reader.Reader({
+                    rootProperty: null,
+                    totalProperty: null,
+                    messageProperty: null,
+                    successProperty: null,
+                    model: 'spec.User',
+                    transform: transformFn
+                });
+                
+                readerWithTransform.extractData = function(root, readOptions) {return root;};
+                var rec = readerWithTransform.readRecords([o]).getRecords()[0];
+                expect(rec.id).not.toEqual(o.id);
+                expect(rec.id).toEqual(2);
+            });
+            
+            it("should invoke the transform function with the specified scope", function() {
+                var o = {
+                    id: 1
+                };
+                
+                var mockScope = {};
+                
+                var transformFn = function(data) {
+                    expect(this).toEqual(mockScope);
+                    data[0] = {id: 2}
+                    return data;
+                };
+                
+                var readerWithTransform = new Ext.data.reader.Reader({
+                    rootProperty: null,
+                    totalProperty: null,
+                    messageProperty: null,
+                    successProperty: null,
+                    model: 'spec.User',
+                    transform: {
+                        fn: transformFn,
+                        scope: mockScope
+                    }
+                });
+                
+                readerWithTransform.extractData = function(root, readOptions) {return root;};
+                var rec = readerWithTransform.readRecords([o]).getRecords()[0];
+                expect(rec.id).not.toEqual(o.id);
+                expect(rec.id).toEqual(2);
+            });
+        });
     });
 
     describe("onMetaChange", function() {

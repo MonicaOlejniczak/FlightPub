@@ -1,62 +1,62 @@
 /**
- * @private
  * Ext.Widget is a light-weight Component that consists of nothing more than a template
  * Element that can be cloned to quickly and efficiently replicate many instances.
  * Ext.Widget is typically not instantiated directly, because the default template is
- * just a single element with no listeners.  Instead Ext.Widget should be extended to
- * create Widgets that have a useful markup structure and event listeners.  For example:
+ * just a single element with no listeners. Instead Ext.Widget should be extended to
+ * create Widgets that have a useful markup structure and event listeners.
  *
- *     Ext.define('MyWidget', {
- *         extend: 'Ext.Widget',
+ * For example:
  *
- *         // The element template - a Ext.Element.create() config.
- *         element: {
- *             reference: 'element',
- *             listeners: {
- *                 click: 'onClick'
- *             },
- *             children: [{
- *                 reference: 'innerElement',
- *                 listeners: {
- *                     click: 'onInnerClick'
- *                 }
- *             }]
- *         },
+ *      Ext.define('MyWidget', {
+ *          extend: 'Ext.Widget',
  *
- *         constructor: function(config) {
- *             // It is important to remember to call the Widget superclass constructor
- *             // when overriding the constructor in a derived class.  This ensures that
- *             // The element is initialized from the template, and that initConfig() is
- *             // is called.
- *             this.callParent([config]);
- *             // after calling the superclass constructor, the Element is available and
- *             // can safely be manipulated.  Reference Elements are instances of
- *             // Ext.Element, and are cached on each Widget instance by reference name.
- *             Ext.getBody().appendChild(this.element);
- *         },
+ *          // The element template passed to Ext.Element.create()
+ *          element: {
+ *              reference: 'element',
+ *              listeners: {
+ *                  click: 'onClick'
+ *              },
+ *              children: [{
+ *                  reference: 'innerElement',
+ *                  listeners: {
+ *                      click: 'onInnerClick'
+ *                  }
+ *              }]
+ *          },
  *
- *         onClick: function() {
- *            // listeners use this Widget instance as their scope
- *             console.log('element clicked', this);
- *         },
+ *          constructor: function(config) {
+ *              // It is important to remember to call the Widget superclass constructor
+ *              // when overriding the constructor in a derived class. This ensures that
+ *              // the element is initialized from the template, and that initConfig() is
+ *              // is called.
+ *              this.callParent([config]);
  *
- *         onInnerClick: function() {
- *             // access the innerElement reference by name
- *             console.log('inner element clicked', this.innerElement);
- *         }
- *     });
+ *              // After calling the superclass constructor, the Element is available and
+ *              // can safely be manipulated. Reference Elements are instances of
+ *              // Ext.Element, and are cached on each Widget instance by reference name.
+ *              Ext.getBody().appendChild(this.element);
+ *          },
  *
- * In Sencha Touch Ext.Widget is used as the base class for Ext.Component.  Users who wish
- * to create custom Sencha Touch Components should extend Ext.Component, not Ext.Widget,
- * because Ext.Component contains all the logic needed to participate in the Component
- * hierarchy and layout system of a Sencha Touch application.
+ *          onClick: function() {
+ *              // listeners use this Widget instance as their scope
+ *              console.log('element clicked', this);
+ *          },
+ *
+ *          onInnerClick: function() {
+ *              // access the innerElement reference by name
+ *              console.log('inner element clicked', this.innerElement);
+ *          }
+ *      });
+ *
+ * @since 5.0.0
  */
 Ext.define('Ext.Widget', {
     extend: 'Ext.Evented',
     xtype: 'widget',
 
     mixins: [
-        'Ext.mixin.Inheritable'
+        'Ext.mixin.Inheritable',
+        'Ext.mixin.Bindable'
     ],
 
     isWidget: true,
@@ -65,7 +65,7 @@ Ext.define('Ext.Widget', {
      * @property {Object} element
      * @private
      * A configuration object for Ext.Element.create() that is used to create the Element
-     * template.  Supports all the standard options of a Ext.Elment.create() config and
+     * template.  Supports all the standard options of a Ext.Element.create() config and
      * adds 2 additional options:
      *
      * 1. `reference` - this option specifies a name for Element references.  These
@@ -190,7 +190,7 @@ Ext.define('Ext.Widget', {
      * Adds an element reference to this Widget instance.
      * @param {String} name The name of the reference
      * @param {HTMLElement} domNode
-     * @return {Ext.Element}
+     * @return {Ext.dom.Element}
      */
     addElementReference: function (name, domNode) {
         var me = this,
@@ -293,11 +293,16 @@ Ext.define('Ext.Widget', {
 
     destroy: function() {
         var me = this,
-            element = me.element;
+            referenceList = me.referenceList,
+            i, ln, reference;
 
-        if (me.hasOwnProperty('element')) {
-            element.destroy();
-            element.component = null;
+        // Destroy all element references
+        for (i = 0, ln = referenceList.length; i < ln; i++) {
+            reference = referenceList[i];
+            if (me.hasOwnProperty(reference)) {
+                me[reference].destroy();
+                me[reference] = null;
+            }
         }
 
         me.callParent();
@@ -460,7 +465,7 @@ Ext.define('Ext.Widget', {
      *
      *     _elementListeners: {
      *         element: {
-     *             click: ‘onClick’
+     *             click: 'onClick'
      *             scope: this
      *         },
      *         fooReference: {

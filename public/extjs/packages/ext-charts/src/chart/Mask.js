@@ -32,6 +32,8 @@
  * 
  */
 Ext.define('Ext.chart.Mask', {
+    mixinId: 'mask',
+
     requires: [
         'Ext.chart.MaskLayer'
     ],

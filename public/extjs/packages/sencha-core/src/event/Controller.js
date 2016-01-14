@@ -125,12 +125,13 @@ Ext.define('Ext.event.Controller', {
     },
 
     doFire: function() {
-        var firingListeners = this.firingListeners,
-            firingArguments = this.firingArguments,
+        var me = this,
+            firingListeners = me.firingListeners,
+            firingArguments = me.firingArguments,
             arg1 = firingArguments[1],
             optionsArgumentIndex = firingArguments.length - 2,
             observable = firingListeners[0].observable,
-            info = this.info,
+            info = me.info,
             event, i, ln, listener, options, fn, firingFn,
             boundFn, isLateBinding, scope, args, result, type, beforeFn;
 
@@ -138,10 +139,8 @@ Ext.define('Ext.event.Controller', {
             event = firingArguments[0];
         }
 
-        this.isPausing = false;
-        this.isPaused = false;
-        this.isStopped = false;
-        this.isFiring = true;
+        me.isPausing = me.isPaused = me.isStopped = false;
+        me.isFiring = true;
 
         for (i = 0,ln = firingListeners.length; i < ln; i++) {
             listener = firingListeners[i];
@@ -218,15 +217,16 @@ Ext.define('Ext.event.Controller', {
                 args = options.args.concat(args);
             }
 
-            // If using the delegate option, fix the target to be the delegate element
-            if (options.delegate) {
+            // If using the delegate option, fix the target to be the delegate element,
+            // however we only want to do this for element delegates.
+            if (options.delegate && me.info.targetType === 'element') {
                 firingArguments[1] = Ext.fly(arg1).findParent(options.delegate, arg1);
             }
 
             if (options.single) {
                 // need to call the dispatcher, instead of just removing from the stack
                 // here because we need to also tell the publisher to unsubscribe
-                this.dispatcher.removeListener(info.targetType, info.target, info.eventName,
+                me.dispatcher.removeListener(info.targetType, info.target, info.eventName,
                     fn, scope, options, listener.order, listener.observable);
             }
 
@@ -250,15 +250,15 @@ Ext.define('Ext.event.Controller', {
             }
 
             if (result === false) {
-                this.stop();
+                me.stop();
             }
 
-            if (this.isStopped) {
+            if (me.isStopped) {
                 break;
             }
 
-            if (this.isPausing) {
-                this.isPaused = true;
+            if (me.isPausing) {
+                me.isPaused = true;
                 firingListeners.splice(0, i + 1);
                 return;
             }
@@ -269,11 +269,10 @@ Ext.define('Ext.event.Controller', {
             }
         }
 
-        this.isFiring = false;
-        this.listenerStacks = null;
-        firingListeners.length = 0;
-        firingArguments.length = 0;
-        this.connectingController = null;
+        me.isFiring = false;
+        me.listenerStacks = null;
+        firingListeners.length = firingArguments.length = 0;
+        me.connectingController = null;
     },
 
     connect: function(controller) {

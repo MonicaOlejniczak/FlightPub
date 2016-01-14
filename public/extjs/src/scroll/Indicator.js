@@ -79,7 +79,7 @@ Ext.define('Ext.scroll.Indicator', {
 
         axis = me.getAxis();
 
-        me.names = me.names[axis]
+        me.names = me.names[axis];
 
         me.el = me.getContainerEl().createChild({
             cls: me.cls + ' ' + me.cls + '-' + axis

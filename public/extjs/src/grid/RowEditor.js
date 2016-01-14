@@ -97,7 +97,7 @@ Ext.define('Ext.grid.RowEditor', {
             delete me.fields;
         }
 
-        me.mon(me.hierarchyEventSource, {
+        me.mon(Ext.GlobalEvents, {
             scope: me,
             show: me.repositionIfVisible
         });
@@ -362,50 +362,33 @@ Ext.define('Ext.grid.RowEditor', {
 
     onColumnMove: function(column, fromIdx, toIdx) {
         var me = this,
-            i, incr = 1, len, field, fieldIdx,
-            fieldContainer = column.isLocked() ? me.lockedColumnContainer : me.normalColumnContainer;
+            locked = column.isLocked(),
+            fieldContainer = locked ? me.lockedColumnContainer : me.normalColumnContainer,
+            columns, i, len, after, offset;
 
         // If moving a group, move each leaf header
         if (column.isGroupHeader) {
             Ext.suspendLayouts();
-            column = column.getGridColumns();
-
-            if (toIdx > fromIdx) {
-                toIdx--;
-                incr = 0;
-            }
-
-            this.addFieldsForColumn(column);
-            for (i = 0, len = column.length; i < len; i++, fromIdx += incr, toIdx += incr) {
-                field = column[i].getEditor();
-                fieldIdx = fieldContainer.items.indexOf(field);
-
-                // If the field is not in the container (moved from the main headerCt, INTO a group header)
-                // then insert it into the correct place
-                if (fieldIdx === -1) {
-                    fieldContainer.insert(toIdx, field);
+            after = toIdx > fromIdx;
+            offset = after ? 1 : 0;
+            columns = column.getGridColumns();
+            for (i = 0, len = columns.length; i < len; ++i) {    
+                column = columns[i];
+                toIdx = column.getIndex();
+                if (after) {
+                    ++offset;
                 }
-
-                // If the field has not already been processed by an onColumnAdd (move from a group header INTO the main headerCt), then move it
-                else if (fieldIdx != toIdx) {
-                    fieldContainer.move(fromIdx, toIdx);
-                }
+                me.setColumnEditor(column, toIdx + offset, fieldContainer);
             }
             Ext.resumeLayouts(true);
         } else {
-            if (toIdx > fromIdx) {
-                toIdx--;
-            }
-            this.addFieldsForColumn(column);
-            field = column.getEditor();
-            fieldIdx = fieldContainer.items.indexOf(field);
-            if (fieldIdx === -1) {
-                fieldContainer.insert(toIdx, field);
-            }
-            else if (fieldIdx != toIdx) {
-                fieldContainer.move(fromIdx, toIdx);
-            }
+            me.setColumnEditor(column, column.getIndex(), fieldContainer);
         }
+    },
+
+    setColumnEditor: function(column, idx, fieldContainer) {
+        this.addFieldsForColumn(column);
+        fieldContainer.insert(idx, column.getEditor());
     },
 
     onColumnAdd: function(column) {
@@ -422,8 +405,6 @@ Ext.define('Ext.grid.RowEditor', {
 
     insertColumnEditor: function(column) {
         var me = this,
-            plugin = me.editingPlugin,
-            grid = plugin.grid,
             fieldContainer,
             len, i;
 
@@ -441,7 +422,8 @@ Ext.define('Ext.grid.RowEditor', {
         fieldContainer = column.isLocked() ? me.lockedColumnContainer : me.normalColumnContainer;
 
         // Insert the column's field into the editor panel.
-        fieldContainer.insert(grid.getColumnManager().getHeaderIndex(column), column.getEditor());
+        fieldContainer.insert(column.getIndex(), column.getEditor());
+        me.needsSyncFieldWidths = true;
     },
 
     destroyColumnEditor: function(column) {
@@ -479,13 +461,20 @@ Ext.define('Ext.grid.RowEditor', {
 
         // If we're showing ourselves, jump out
         // If the component we're showing doesn't contain the view
-        if (c && (c == me || !c.el.isAncestor(view.el))) {
+        if (c && (c === me || !c.el.isAncestor(view.el))) {
             return;
         }
 
         if (me.isVisible() && view.isVisible(true)) {
             me.reposition();
         }
+    },
+
+    // Because we implement getRefOwner to return the grid, this makes this a descendant of the grid and the layout system
+    // does not queue an independent layout for this while it's a descendant of a component which itself is pending a layout.
+    // This is floating and not a descendant of anything.
+    isDescendantOf: function() {
+        return false;
     },
 
     getRefOwner: function() {
@@ -545,7 +534,7 @@ Ext.define('Ext.grid.RowEditor', {
                         me.scrollingViewEl.scrollBy(0, deltaY, true);
                     }
                     me.focusContextCell();
-                }
+                };
             }
 
             me.syncEditorClip();
@@ -659,7 +648,7 @@ Ext.define('Ext.grid.RowEditor', {
             }
 
             if (column.xtype === 'actioncolumn') {
-                field.fieldCls += ' ' + Ext.baseCSSPrefix + 'form-action-col-field'
+                field.fieldCls += ' ' + Ext.baseCSSPrefix + 'form-action-col-field';
             }
 
             if (me.isVisible() && me.context) {
@@ -746,7 +735,8 @@ Ext.define('Ext.grid.RowEditor', {
             renderer = column.editRenderer || column.renderer,
             metaData,
             rowIdx,
-            colIdx;
+            colIdx,
+            scope = column.usingDefaultRenderer && !column.scope ? column : column.scope;
 
         // honor our column's renderer (TemplateHeader sets renderer for us!)
         if (renderer) {
@@ -755,7 +745,7 @@ Ext.define('Ext.grid.RowEditor', {
             colIdx = headerCt.getHeaderIndex(column);
 
             value = renderer.call(
-                column.scope || headerCt.ownerCt,
+                scope || headerCt.ownerCt,
                 value,
                 metaData,
                 record,
@@ -779,7 +769,7 @@ Ext.define('Ext.grid.RowEditor', {
             // Scroll the visible RowEditor that is in error state back into view
             scrollDelta = me.getScrollDelta();
             if (scrollDelta) {
-                me.scrollingViewEl.scrollBy(0, scrollDelta, true)
+                me.scrollingViewEl.scrollBy(0, scrollDelta, true);
             }
             me.showToolTip();
             return false;

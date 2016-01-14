@@ -13,7 +13,6 @@ var store = new Ext.data.JsonPStore({
 
     // reader configs
     root: 'images',
-    idProperty: 'name',
     fields: ['name', 'url', {name:'size', type: 'float'}, {name:'lastmod', type:'date'}]
 });
  * </code></pre></p>

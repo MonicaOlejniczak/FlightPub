@@ -210,9 +210,12 @@ Ext.define('Ext.draw.engine.Canvas', {
     createCanvas: function () {
         var canvas = Ext.Element.create({
                 tag: 'canvas',
-                cls: 'x-surface'
-            }),
-            overrides = Ext.draw.engine.Canvas.contextOverrides,
+                cls: Ext.baseCSSPrefix + 'surface-canvas'
+            });
+
+        window['G_vmlCanvasManager'] && G_vmlCanvasManager.initElement(canvas.dom);
+
+        var overrides = Ext.draw.engine.Canvas.contextOverrides,
             ctx = canvas.dom.getContext('2d'),
             backingStoreRatio = ctx.webkitBackingStorePixelRatio ||
                 ctx.mozBackingStorePixelRatio ||
@@ -244,15 +247,20 @@ Ext.define('Ext.draw.engine.Canvas', {
         this.contexts.push(ctx);
     },
 
-    /**
-     * Initialize the canvas element.
-     */
     initElement: function () {
         this.callParent();
         this.canvases = [];
         this.contexts = [];
-        this.createCanvas();
         this.activeCanvases = 0;
+    },
+
+    // Have to create canvas element here, instead of in the initElement,
+    // because otherwise the created canvas will be cached along with the
+    // surface's markup and used as a template for future surface
+    // instances.
+    afterCachedConfig: function () {
+        this.callParent();
+        this.createCanvas();
     },
 
     updateHighPrecision: function (pc) {

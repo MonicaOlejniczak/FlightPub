@@ -296,6 +296,14 @@ describe("Ext.data.proxy.Server", function() {
 
                     expect(params.start).toBeUndefined();
                 });
+
+                it("should send a startParam of 0", function() {
+                    params = getParams(undefined, {
+                        start: 0
+                    });
+
+                    expect(params.start).toBe(0);
+                });
             });
 
             describe("the limit param", function() {

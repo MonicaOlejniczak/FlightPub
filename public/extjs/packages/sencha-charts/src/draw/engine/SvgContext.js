@@ -426,7 +426,7 @@ Ext.define('Ext.draw.engine.SvgContext', {
                 "alignment-baseline": "middle",
                 "baseline-shift": "-50%"
             });
-            tspan.appendChild(document.createTextNode(Ext.String.htmlDecode(text)));
+            tspan.dom.appendChild(document.createTextNode(Ext.String.htmlDecode(text)));
         }
     },
 
@@ -457,7 +457,7 @@ Ext.define('Ext.draw.engine.SvgContext', {
                 "alignment-baseline": "middle",
                 "baseline-shift": "-50%"
             });
-            tspan.appendChild(document.createTextNode(Ext.String.htmlDecode(text)));
+            tspan.dom.appendChild(document.createTextNode(Ext.String.htmlDecode(text)));
         }
     },
 

@@ -9,9 +9,13 @@ Ext.define('Ext.grid.property.Store', {
 
     alternateClassName: 'Ext.grid.PropertyStore',
 
-    sortOnLoad: false,
+    remoteSort: true,
 
-    uses: ['Ext.data.reader.Reader', 'Ext.data.proxy.Proxy', 'Ext.data.ResultSet', 'Ext.grid.property.Property'],
+    requires: [
+        'Ext.grid.property.Reader', 
+        'Ext.data.proxy.Memory', 
+        'Ext.grid.property.Property'
+    ],
 
     /**
      * Creates new property store.
@@ -32,57 +36,25 @@ Ext.define('Ext.grid.property.Store', {
 
     // Return a singleton, customized Proxy object which configures itself with a custom Reader
     getProxy: function() {
-        if (!this.proxy) {
-            Ext.grid.property.Store.prototype.proxy = new Ext.data.proxy.Memory({
+        var proxy = this.proxy;
+        if (!proxy) {
+            proxy = this.proxy = new Ext.data.proxy.Memory({
                 model: Ext.grid.property.Property,
                 reader: this.getReader()
             });
         }
-        return this.proxy;
+        return proxy;
     },
 
     // Return a singleton, customized Reader object which reads Ext.grid.property.Property records from an object.
     getReader: function() {
-        if (!this.reader) {
-            Ext.grid.property.Store.prototype.reader = new Ext.data.reader.Reader({
-                model: Ext.grid.property.Property,
-
-                buildExtractors: Ext.emptyFn,
-
-                read: function(dataObject) {
-                    return this.readRecords(dataObject);
-                },
-
-                readRecords: function(dataObject) {
-                    var val,
-                        propName,
-                        result = {
-                            records: [],
-                            success: true
-                        };
-
-                    for (propName in dataObject) {
-                        if (dataObject.hasOwnProperty(propName)) {
-                            val = dataObject[propName];
-                            if (this.isEditableValue(val)) {
-                                result.records.push(new Ext.grid.property.Property({
-                                    name: propName,
-                                    value: val
-                                }));
-                            }
-                        }
-                    }
-                    result.total = result.count = result.records.length;
-                    return new Ext.data.ResultSet(result);
-                },
-
-                // @private
-                isEditableValue: function(val){
-                    return Ext.isPrimitive(val) || Ext.isDate(val) || val === null;
-                }
+        var reader = this.reader;
+        if (!reader) {
+            reader = this.reader = new Ext.grid.property.Reader({
+                model: Ext.grid.property.Property
             });
         }
-        return this.reader;
+        return reader;
     },
 
     // @protected
@@ -93,7 +65,7 @@ Ext.define('Ext.grid.property.Store', {
         me.source = dataObject;
         me.suspendEvents();
         me.removeAll();
-        me.proxy.setData(dataObject);
+        me.getProxy().setData(dataObject);
         me.load();
         me.resumeEvents();
         me.fireEvent('datachanged', me);
@@ -139,5 +111,10 @@ Ext.define('Ext.grid.property.Store', {
     // Should only be called by the grid.  Use grid.getSource instead.
     getSource : function() {
         return this.source;
+    },
+
+    onDestroy: function() {
+        Ext.destroy(this.reader, this.proxy);
+        this.callParent();
     }
 });

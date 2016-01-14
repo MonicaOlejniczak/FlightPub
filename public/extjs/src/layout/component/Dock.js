@@ -98,6 +98,8 @@ Ext.define('Ext.layout.component.Dock', {
         left: 'border-left-width'
     },
 
+    _itemCls: Ext.baseCSSPrefix + 'docked',
+
     handleItemBorders: function() {
         var me = this,
             owner = me.owner,
@@ -175,6 +177,8 @@ Ext.define('Ext.layout.component.Dock', {
                 }
                 if ((!borders[side].satisfied && !owner.bodyBorder) || owner.bodyBorder === false) {
                     owner.addBodyCls(noBorderClassesSides[side]);
+                } else {
+                    owner.removeBodyCls(noBorderClassesSides[side]);
                 }
             }
             else if (borders[side].satisfied) {
@@ -226,6 +230,7 @@ Ext.define('Ext.layout.component.Dock', {
             docked = me.getLayoutItems(),
             layoutContext = ownerContext.context,
             dockedItemCount = docked.length,
+            lastCollapsedState = me.lastCollapsedState,
             dockedItems, i, item, itemContext, offsets,
             collapsed, dock;
 
@@ -234,7 +239,7 @@ Ext.define('Ext.layout.component.Dock', {
         // Cache the children as ContextItems (like a Container). Also setup to handle
         // collapsed state:
         collapsed = owner.getCollapsed();
-        if (collapsed !== me.lastCollapsedState && Ext.isDefined(me.lastCollapsedState)) {
+        if (collapsed !== lastCollapsedState && lastCollapsedState !== undefined) {
             // If we are collapsing...
             if (me.owner.collapsed) {
                 ownerContext.isCollapsingOrExpanding = 1;
@@ -1488,7 +1493,7 @@ Ext.define('Ext.layout.component.Dock', {
     configureItem : function(item, pos) {
         this.callParent(arguments);
 
-        item.addCls(Ext.baseCSSPrefix + 'docked');
+        item.addCls(this._itemCls);
         if (!item.ignoreBorderManagement) {
             item.addClsWithUI(this.getDockCls(item.dock));
         }
@@ -1504,12 +1509,17 @@ Ext.define('Ext.layout.component.Dock', {
         return 'docked-' + dock;
     },
 
-    afterRemove : function(item) {
+    afterRemove: function(item) {
+        var dom;
+
         this.callParent(arguments);
-        if (this.itemCls) {
-            item.el.removeCls(this.itemCls + '-' + item.dock);
+
+        item.removeCls(this._itemCls);
+        if (!item.ignoreBorderManagement) {
+            item.removeClsWithUI(this.getDockCls(item.dock));
         }
-        var dom = item.el.dom;
+
+        dom = item.el.dom;
 
         if (!item.destroying && dom) {
             dom.parentNode.removeChild(dom);

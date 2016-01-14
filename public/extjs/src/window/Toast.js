@@ -13,12 +13,34 @@
  */
 
 /**
- * This class provides for lightweight, auto-dismissing popup notifications called "toasts".
- * To display a toast message, call `Ext.toast` like so:
+ * This class provides for lightweight, auto-dismissing pop-up notifications called "toasts".
+ * At the base level, you can display a toast message by calling `Ext.toast` like so:
  *
  *      Ext.toast('Data saved');
  *
- * This component is derived from the excellent work of a Sencha community member Eirik
+ * This will result in a toast message, which displays in the default location of bottom right in your viewport.
+ *
+ * You may expand upon this simple example with the following parameters: 
+ *
+ *      Ext.toast(message, title, align, iconCls);
+ *
+ * For example, the following toast will appear top-middle in your viewport.  It will display 
+ * the 'Data Saved' message with a title of 'Title'  
+ *
+ *      Ext.toast('Data Saved', 'Title', 't')
+ *
+ * It should be noted that the toast's width is determined by the message's width. 
+ * If you need to set a specific width, or any of the other available configurations for your toast, 
+ * you can create the toast object as seen below:
+ *
+ *      Ext.toast({
+ *          html: 'Data Saved',
+ *          title: 'My Title',
+ *          width: 200,
+ *          align: 't'
+ *      });
+ *
+ * This component is derived from the excellent work of a Sencha community member, Eirik
  * Lorentsen.
  */
 Ext.define('Ext.window.Toast', {
@@ -81,7 +103,7 @@ Ext.define('Ext.window.Toast', {
     slideInDuration: 1500,
     slideBackDuration: 1000,
     hideDuration: 500,
-    autoCloseDelay: 7000,
+    autoCloseDelay: 3000,
     stickOnClick: true,
     stickWhileHover: true,
     closeOnMouseDown: false,

@@ -5,9 +5,9 @@ import com.avaje.ebean.Expr;
 import com.fasterxml.jackson.databind.JsonNode;
 import models.*;
 import org.joda.time.DateTime;
+import play.api.libs.json.JsValue;
 import play.data.Form;
 import play.data.validation.Constraints;
-import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -60,23 +60,6 @@ public class BookingController extends Controller {
 		 */
 		@Constraints.Required(message = "No Flights Selected!")
 		public List<Long> recommendedItineraryIds;
-	}
-
-	/**
-	 * Inner static class defining the fields involved in the 'Review Recommendations' Form.
-	 */
-	public static class ReviewRecommendations {
-		/**
-		 * The ID of the Booking involved involved in the recommendations.
-		 */
-		@Constraints.Required(message = "No Booking Specified!")
-		public Long bookingId;
-
-		/**
-		 * The accepted recommended Itinerary.
-		 */
-		@Constraints.Required(message = "No Flight Selected!")
-		public Long acceptedItinerary;
 	}
 
 	/**
@@ -200,7 +183,7 @@ public class BookingController extends Controller {
 				booking.update();
 
 				// Once done, redirect to the booking requests page
-				return redirect(routes.BookingController.bookings());
+				return redirect(controllers.routes.BookingController.bookings());
 			}
 		} else {
 			return forbidden();
@@ -238,145 +221,6 @@ public class BookingController extends Controller {
 
 				// Once done, redirect to the booking requests page
 				return redirect(routes.BookingController.bookingRequests());
-			}
-		} else {
-			return forbidden();
-		}
-	}
-
-	/**
-	 * Recommend Flights action - displays the 'Recommend Flights' form.
-	 * @param bookingId The ID of the Booking involved in the recommendation.
-	 * @return The 'Recommend Flights' form.
-	 */
-	public static Result recommendFlights(Long bookingId) {
-		if (AuthenticatedUser.isLoggedIn() && User.find.where(Expr.eq("email", new AuthenticatedUser().getUsername(Http.Context.current()))).findUnique().userType.equals("travel")) {
-			// Pass through the booking ID to the Form
-			RecommendFlights recommendFlights = new RecommendFlights();
-			recommendFlights.bookingId = bookingId;
-
-			// Get the details of the booking
-			Booking booking = Booking.find.where(Expr.eq("id", bookingId)).fetch("itinerary").fetch("itinerary.flights").findUnique();
-			Flight source = booking.itinerary.flights.get(0);
-			Flight destination = booking.itinerary.flights.get(booking.itinerary.flights.size() - 1);
-
-			// Get a list of itineraries
-			List<Itinerary> recommendations = FlightFinder.findFlights(source.source, destination.destination, new DateTime(booking.date), new DateTime(booking.date).plusDays(5), FlightFinder.DEFAULT_SEARCH_DEPTH);
-
-			// Send the form + flights back to the user
-			return ok();
-			// return ok(views.html.recommendFlights.render(Form.form(RecommendFlights.class).fill(recommendFlights), recommendations.subList(0, 5)));
-		} else {
-			return forbidden();
-		}
-	}
-
-	/**
-	 * Send Recommendations action - validates and sends flight recommendations.
-	 * @return A redirect back to the Booking Requests page, or forbidden if no User is logged in.
-	 */
-	public static Result sendRecommendations() {
-		if (AuthenticatedUser.isLoggedIn() && User.find.where(Expr.eq("email", new AuthenticatedUser().getUsername(Http.Context.current()))).findUnique().userType.equals("travel")) {
-			// Get the request parameters
-			Form<RecommendFlights> recommendFlightsForm = Form.form(RecommendFlights.class).bindFromRequest();
-
-			// Do we have errors?
-			if (recommendFlightsForm.hasErrors()) {
-				// If we do, issue a bad-request error
-
-				// Get the details of the booking
-				Booking booking = Booking.find.where(Expr.eq("id", recommendFlightsForm.get().bookingId)).fetch("itinerary").fetch("itinerary.flights").findUnique();
-				Flight source = booking.itinerary.flights.get(0);
-				Flight destination = booking.itinerary.flights.get(booking.itinerary.flights.size() - 1);
-
-				// Get a list of itineraries
-				List<Itinerary> recommendations = FlightFinder.findFlights(source.source, destination.destination, new DateTime(booking.date), new DateTime(booking.date).plusDays(5), FlightFinder.DEFAULT_SEARCH_DEPTH);
-
-				// Send the form + flights back to the user
-				return badRequest();
-				// return badRequest(views.html.recommendFlights.render(recommendFlightsForm, recommendations.subList(0, 5)));
-			} else {
-				// Otherwise, get the form parameters' values
-				RecommendFlights details = recommendFlightsForm.get();
-
-				// First, pull down the itineraries specified by the list of IDs we received from the form
-				// TODO: This don't actually exist. Need to AJAX stuff then actually persist them in Booking.recommendations
-				List<Itinerary> itineraries = Itinerary.find.where(Expr.in("id", details.recommendedItineraryIds)).findList();
-
-				// Now get the specified booking, along with any existing recommendations
-				Booking booking = Booking.find.where(Expr.eq("id", details.bookingId)).fetch("recommendations").findUnique();
-
-				// Finally, add the itineraries as recommendations to the booking, and update its status flag
-				booking.recommendations.addAll(itineraries);
-				booking.status = Booking.Status.AWAITING_RECOMMENDATION_RESPONSE;
-				booking.update();
-
-				// Once done, redirect to the booking requests page
-				return redirect(routes.BookingController.bookingRequests());
-			}
-		} else {
-			return forbidden();
-		}
-	}
-
-	/**
-	 * Review Recommendations action - displays the 'Review Recommendations' form.
-	 * @param bookingId The ID of the Booking involved in the recommendation.
-	 * @return The 'Review Recommendations' form.
-	 */
-	public static Result reviewRecommendations(Long bookingId) {
-		if (AuthenticatedUser.isLoggedIn()) {
-			// Pass through the booking ID to the Form
-			ReviewRecommendations reviewRecommendations = new ReviewRecommendations();
-			reviewRecommendations.bookingId = bookingId;
-
-			// Get the details of the booking
-			Booking booking = Booking.find.where(Expr.eq("id", bookingId)).fetch("recommendations").findUnique();
-
-			// Send the form + flights back to the user
-			return ok();
-			//return ok(views.html.reviewRecommendations.render(Form.form(ReviewRecommendations.class).fill(reviewRecommendations), booking.recommendations));
-		} else {
-			return forbidden();
-		}
-	}
-
-	/**
-	 * Send Recommendation Response action - validates and sends flight recommendation responses.
-	 * @return A redirect back to the Bookings action.
-	 */
-	public static Result sendRecommendationResponse() {
-		if (AuthenticatedUser.isLoggedIn()) {
-			// Get the request parameters
-			Form<ReviewRecommendations> reviewRecommendationsForm = Form.form(ReviewRecommendations.class).bindFromRequest();
-
-			// Do we have errors?
-			if (reviewRecommendationsForm.hasErrors()) {
-				// If we do, issue a bad-request error
-
-				// Get the details of the booking
-				Booking booking = Booking.find.where(Expr.eq("id", reviewRecommendationsForm.get().bookingId)).fetch("recommendations").findUnique();
-
-				// Send the form + flights back to the user
-				return badRequest();
-				//return badRequest(views.html.reviewRecommendations.render(reviewRecommendationsForm, booking.recommendations));
-			} else {
-				// Otherwise, get the form parameters' values
-				ReviewRecommendations details = reviewRecommendationsForm.get();
-
-				// First, pull down the specified itinerary
-				Itinerary itinerary = Itinerary.find.where(Expr.eq("id", details.acceptedItinerary)).findUnique();
-
-				// Now get the specified booking
-				Booking booking = Booking.find.where(Expr.eq("id", details.bookingId)).findUnique();
-
-				// Finally, swap out the booking's current itinerary for the specified one, and update its status flag
-				booking.itinerary = itinerary;
-				booking.status = Booking.Status.AWAITING_CONFIRMATION;
-				booking.update();
-
-				// Finally, redirect to bookings page
-				return redirect(routes.BookingController.bookings());
 			}
 		} else {
 			return forbidden();
@@ -449,82 +293,58 @@ public class BookingController extends Controller {
 	     */
 	    @Constraints.Required(message = "Required Field!")
 	    public String paymentMethod;
-
-	    /**
-	     * Name on card
-	     */
-	    @Constraints.MaxLength(value = 30, message = "Name too long!")
-	    @Constraints.Pattern(value = "\\D*", message = "Name cannot contain numbers!")
-	    public String cardName;
-
-	    /**
-	     * Card number
-	     */
-	    public Integer cardNumber;
-
-        /**
-         * Name on card
-         */
-        /*@Constraints.MaxLength(value = 30, message = "Name too long!")
-        @Constraints.Pattern(value = "\\D*", message = "Name cannot contain numbers!")
-        public String mcardName;
-
-        /**
-         * Card number
-         */
-        /*public int mcardNum;
-
-        /**
-         * Card CVV number
-         */
-        /*public int mcardCCV;
-
-        /**
-         * Card expiry month
-         */
-        /*public String mcardExpMonth;
-
-        /**
-         * Card expiry year
-         */
-        /*public String mcardExpYear;
-
-        /**
-         * PayPal username
-         */
-        @Constraints.MaxLength(value = 130, message = "Name too long!")
-        public String ppUsername;
-
-        /**
-         * PayPal password
-         */
-        /*@Constraints.MinLength(value = 8, message = "Password too short!")
-        @Constraints.MaxLength(value = 20, message = "Password too long!")
-        public String pPalPass;*/
-
     }
 
-    public static Result submitPayment() {
-        Form<PaymentForm> paymentForm = Form.form(PaymentForm.class).bindFromRequest();
-        if (paymentForm.hasErrors()) {
-            return badRequest();
-        } else {
-            PaymentForm details = paymentForm.get();
-	        User user = User.find.where().eq("email", session().get("email")).findUnique();
-	        JsonNode params = Json.parse(details.params);
-            JsonNode flightIds = params.get("itinerary");
-            Itinerary itinerary = new Itinerary();
-            for (JsonNode flightId : flightIds) {
-                itinerary.flights.add(Flight.find.byId(flightId.asLong()));
-            }
-            Payment payment = new Payment(details.paymentMethod, details.cardName, details.cardNumber, null, null, null, details.ppUsername, null);
-	        Booking booking = new Booking(user, itinerary, payment);
-	        user.lastPayment = payment;
-	        user.bookings.add(booking);
-            itinerary.save();
-	        booking.save();
-	        user.save();
+    public static Result processBooking() {
+        // TODO: validate data!
+        User user = User.find.where().eq("email", session().get("email")).findUnique();
+	    JsonNode jData = request().body().asJson();
+        JsonNode jPayment = jData.get("payment");
+
+        Itinerary itinerary = new Itinerary();
+        for (JsonNode jFlightId : jData.get("itinerary")) {
+            itinerary.flights.add(Flight.find.byId(jFlightId.asLong()));
         }
+
+        Payment payment = new Payment(jPayment.get("paymentMethod").asText());
+
+        itinerary.save();
+        Booking booking = new Booking(user, itinerary, payment);
+        booking.save();
+
+        for (JsonNode passenger : jData.get("passengers")) {
+            Luggage.LuggageType luggageType = Luggage.getLuggageType(passenger.get("luggageType").asText());
+            String ticketType = passenger.get("ticketType").asText();
+
+            double weight = 0; // TODO: =(
+            Luggage luggage = new Luggage(luggageType, weight);
+            Person person = new Person(passenger.get("firstName").asText(), passenger.get("lastName").asText());
+            person.save();
+
+            for (JsonNode flightInfo : passenger.get("flights")) {
+                Flight flight = Flight.find.byId(flightInfo.get("flightId").asLong());
+                JsonNode seatNode = flightInfo.get("seat");
+                int row = seatNode.get("row").asInt();
+                int column = seatNode.get("column").asInt();
+                Seat seat = new Seat(row, column);
+                Ticket ticket = new Ticket(
+                       person,
+                       PassengerType.find.where().eq("typeOfPassenger", PassengerType.TypeOfPassenger.ADULT).findUnique(), // TODO: fix?
+                       DateTime.now(),
+                       flight,
+                       booking,
+                       TicketType.find.where().eq("code", ticketType).findUnique(),
+                       TicketClass.find.where().eq("code", "ECO").findUnique(), // TODO: fix?!?!
+                       luggage,
+                       seat
+                       );
+                ticket.save();
+            }
+        }
+
+        user.lastPayment = payment;
+        user.bookings.add(booking);
+        user.save();
         return ok();
     }
 }

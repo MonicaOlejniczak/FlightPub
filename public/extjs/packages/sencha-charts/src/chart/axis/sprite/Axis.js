@@ -8,6 +8,7 @@
  */
 Ext.define('Ext.chart.axis.sprite.Axis', {
     extend: 'Ext.draw.sprite.Sprite',
+    type: 'axis',
     mixins: {
         markerHolder: 'Ext.chart.MarkerHolder'
     },
@@ -264,8 +265,13 @@ Ext.define('Ext.chart.axis.sprite.Axis', {
 
     doLayout: function () {
         var me = this,
-            attr = me.attr,
+            chart = me.getAxis().getChart();
+        if (chart.isInitializing) {
+            return;
+        }
+        var attr = me.attr,
             layout = me.getLayout(),
+            isRtl = chart.getInherited().rtl,
             min = attr.dataMin + (attr.dataMax - attr.dataMin) * attr.visibleMin,
             max = attr.dataMin + (attr.dataMax - attr.dataMin) * attr.visibleMax,
             context = {
@@ -282,9 +288,13 @@ Ext.define('Ext.chart.axis.sprite.Axis', {
             attr.scalingCenterX = 0;
             me.applyTransformations(true);
         } else if (attr.position === 'top' || attr.position === 'bottom') {
-            attr.translationX = -min * attr.length / (max - min);
+            if (isRtl) {
+                attr.translationX = attr.length + min * attr.length / (max - min) + 1;
+            } else {
+                attr.translationX = -min * attr.length / (max - min);
+            }
             attr.translationY = 0;
-            attr.scalingX = attr.length / (max - min);
+            attr.scalingX = (isRtl ? -1 : 1) * attr.length / (max - min);
             attr.scalingY = 1;
             attr.scalingCenterY = 0;
             attr.scalingCenterX = 0;
@@ -446,13 +456,15 @@ Ext.define('Ext.chart.axis.sprite.Axis', {
             dy = matrix.getDY(),
             thickness = 0,
             majorTicks = layout.majorTicks,
-            padding = Math.max(attr.majorTickSize, attr.minorTickSize) + attr.lineWidth,
-            label = this.getLabel(), font, labelOffset,
+            tickPadding = Math.max(attr.majorTickSize, attr.minorTickSize) + attr.lineWidth,
+            label = me.getLabel(), font, labelOffset,
             lastLabelText = null,
             textSize = 0, textCount = 0,
             segmenter = layout.segmenter,
-            renderer = this.getRenderer(),
-            labelInverseMatrix, lastBBox = null, bbox, fly, text;
+            renderer = me.getRenderer(),
+            title = me.getAxis().getTitle(),
+            titleBBox = title && title.attr.text !== '' && title.getBBox(),
+            labelInverseMatrix, lastBBox = null, bbox, fly, text, titlePadding;
         if (majorTicks && label && !label.attr.hidden) {
             font = label.attr.font;
             if (ctx.font !== font) {
@@ -463,23 +475,27 @@ Ext.define('Ext.chart.axis.sprite.Axis', {
             labelInverseMatrix = label.attr.inverseMatrix.elements.slice(0);
             switch (docked) {
                 case 'left':
+                    titlePadding = titleBBox ? titleBBox.x + titleBBox.width : 0;
                     label.setAttributes({
-                        translationX: surface.roundPixel(clipRect[2] - padding + dx) - halfLineWidth - me.thickness / 2
+                        translationX: surface.roundPixel(titlePadding + (clipRect[2] - titlePadding - tickPadding) / 2 + dx) - halfLineWidth
                     }, true, true);
                     break;
                 case 'right':
+                    titlePadding = titleBBox ? clipRect[2] - titleBBox.x : 0;
                     label.setAttributes({
-                        translationX: surface.roundPixel(padding + dx) - halfLineWidth + me.thickness / 2
+                        translationX: surface.roundPixel(tickPadding + (clipRect[2] - tickPadding - titlePadding) / 2 + dx) + halfLineWidth
                     }, true, true);
                     break;
                 case 'top':
+                    titlePadding = titleBBox ? titleBBox.y + titleBBox.height: 0;
                     label.setAttributes({
-                        translationY: surface.roundPixel(clipRect[3] - padding) - halfLineWidth - me.thickness / 2
+                        translationY: surface.roundPixel(titlePadding + (clipRect[3] - titlePadding - tickPadding) / 2) - halfLineWidth
                     }, true, true);
                     break;
                 case 'bottom':
+                    titlePadding = titleBBox ? clipRect[3] - titleBBox.y : 0;
                     label.setAttributes({
-                        translationY: surface.roundPixel(padding) - halfLineWidth + me.thickness / 2
+                        translationY: surface.roundPixel(tickPadding + (clipRect[3] - tickPadding - titlePadding) / 2) + halfLineWidth
                     }, true, true);
                     break;
                 case 'radial' :
@@ -505,14 +521,14 @@ Ext.define('Ext.chart.axis.sprite.Axis', {
                     if (labelText === undefined) {
                         return;
                     }
-                    text = renderer ? renderer.call(this, labelText, layout, lastLabelText) : segmenter.renderer(labelText, layout, lastLabelText);
+                    text = renderer ? renderer.call(me, labelText, layout, lastLabelText) : segmenter.renderer(labelText, layout, lastLabelText);
                     lastLabelText = labelText;
                     label.setAttributes({
                         text: String(text),
                         translationY: surface.roundPixel(position * yy + dy)
                     }, true, true);
                     label.applyTransformations();
-                    thickness = Math.max(thickness, label.getBBox().width + padding);
+                    thickness = Math.max(thickness, label.getBBox().width + tickPadding);
                     if (thickness <= me.thickness) {
                         fly = Ext.draw.Matrix.fly(label.attr.matrix.elements.slice(0));
                         bbox = fly.prepend.apply(fly, labelInverseMatrix).transformBBox(label.getBBox(true));
@@ -554,7 +570,7 @@ Ext.define('Ext.chart.axis.sprite.Axis', {
                         translationX: surface.roundPixel(position * xx + dx)
                     }, true, true);
                     label.applyTransformations();
-                    thickness = Math.max(thickness, label.getBBox().height + padding);
+                    thickness = Math.max(thickness, label.getBBox().height + tickPadding);
                     if (thickness <= me.thickness) {
                         fly = Ext.draw.Matrix.fly(label.attr.matrix.elements.slice(0));
                         bbox = fly.prepend.apply(fly, labelInverseMatrix).transformBBox(label.getBBox(true));
@@ -572,7 +588,7 @@ Ext.define('Ext.chart.axis.sprite.Axis', {
                     if (labelText === undefined) {
                         return;
                     }
-                    text = renderer ? renderer.call(this, labelText, layout, lastLabelText) : segmenter.renderer(labelText, layout, lastLabelText);
+                    text = renderer ? renderer.call(me, labelText, layout, lastLabelText) : segmenter.renderer(labelText, layout, lastLabelText);
                     lastLabelText = labelText;
                     if (typeof text !== 'undefined') {
                         label.setAttributes({
@@ -597,7 +613,7 @@ Ext.define('Ext.chart.axis.sprite.Axis', {
                     if (labelText === undefined) {
                         return;
                     }
-                    text = renderer ? renderer.call(this, labelText, layout, lastLabelText) : segmenter.renderer(labelText, layout, lastLabelText);
+                    text = renderer ? renderer.call(me, labelText, layout, lastLabelText) : segmenter.renderer(labelText, layout, lastLabelText);
                     lastLabelText = labelText;
                     thickness = Math.max(thickness, Math.max(attr.majorTickSize, attr.minorTickSize) + (attr.lineCap !== 'butt' ? attr.lineWidth * 0.5 : 0));
                     if (typeof text !== 'undefined') {
@@ -624,7 +640,7 @@ Ext.define('Ext.chart.axis.sprite.Axis', {
                     if (labelText === undefined) {
                         return;
                     }
-                    text = renderer ? renderer.call(this, labelText, layout, lastLabelText) : segmenter.renderer(labelText, layout, lastLabelText);
+                    text = renderer ? renderer.call(me, labelText, layout, lastLabelText) : segmenter.renderer(labelText, layout, lastLabelText);
                     lastLabelText = labelText;
 
                     if (typeof text !== 'undefined') {
@@ -649,7 +665,7 @@ Ext.define('Ext.chart.axis.sprite.Axis', {
 
             if (attr.enlargeEstStepSizeByText && textCount) {
                 textSize /= textCount;
-                textSize += padding;
+                textSize += tickPadding;
                 textSize *= 2;
                 if (attr.estStepSize < textSize) {
                     attr.estStepSize = textSize;

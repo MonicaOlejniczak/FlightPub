@@ -1,4 +1,4 @@
-//Ext.syncRequire('FB.Application');
+Ext.syncRequire('Ext.app.Application');
 //Ext.create('FB.Application');
 //todo fix error and move to application.js
 Ext.application({
@@ -14,11 +14,16 @@ Ext.application({
 		'Adult',
 		'Airline',
 		'Airport',
+        'Booking',
 		'Child',
 		'Flight',
 		'Infant',
 		'Itinerary',
-		'PaymentType'
+		'LuggageType',
+		'PaymentType',
+		'TicketType',
+        'Route',
+        'Plane'
 	],
 	/**
 	 * This method is called when the application boots
@@ -30,14 +35,6 @@ Ext.application({
 	 * This method is called when the page has loaded
 	 */
 	launch: function () {
-		// create application wide variables for the viewport and content
-		var viewport = Ext.create('FB.view.Viewport');
-		var navigation = viewport.down('Navigation').controller;
-		var content = viewport.down('[region=center]').controller;
-		this.viewport = viewport;
-		this.content = content;
-		this.navigation = navigation;
-		// change the content to the home page
-		content.setPage('Home');
+		Ext.create('FB.view.Viewport');
 	}
 });

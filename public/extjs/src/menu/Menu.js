@@ -142,7 +142,7 @@ Ext.define('Ext.menu.Menu', {
 
     /**
      * @cfg {String} [defaultAlign="tl-bl?"]
-     * The default {@link Ext.util.Positionable#getAlignToXY Ext.Element#getAlignToXY} anchor position value for this menu
+     * The default {@link Ext.util.Positionable#getAlignToXY Ext.dom.Element#getAlignToXY} anchor position value for this menu
      * relative to its owner. Used in conjunction with {@link #showBy}.
      */
     defaultAlign: 'tl-bl?',
@@ -159,6 +159,11 @@ Ext.define('Ext.menu.Menu', {
      * 
      * See also the {@link #showSeparator} config.
      */
+
+    // private
+    baseCls: Ext.baseCSSPrefix + 'menu',
+    _iconSeparatorCls: Ext.baseCSSPrefix + 'menu-icon-separator',
+    _itemCmpCls: Ext.baseCSSPrefix + 'menu-item-cmp',
 
     /**
      * @event click
@@ -262,19 +267,21 @@ Ext.define('Ext.menu.Menu', {
                 click: me.onClick,
                 mouseover: me.onMouseOver,
                 scope: me
-            };
+            },
+            iconSeparatorCls = me._iconSeparatorCls;
 
         if (Ext.supports.Touch) {
-            listeners.touchstart = me.onMouseOver
+            listeners.pointerdown = me.onMouseOver;
+            me.mon(Ext.GlobalEvents, 'mousedown', me.onDocMouseDown, me);
         }
 
         me.callParent(arguments);
 
         // TODO: Move this to a subTemplate When we support them in the future
         if (me.showSeparator) {
-            me.iconSepEl = me.layout.getElementTarget().insertFirst({
+            me.iconSepEl = me.body.insertFirst({
                 role: 'presentation',
-                cls: Ext.baseCSSPrefix + 'menu-icon-separator',
+                cls: iconSeparatorCls + ' ' + iconSeparatorCls + '-' + me.ui,
                 html: '&#160;'
             });
         }
@@ -292,10 +299,10 @@ Ext.define('Ext.menu.Menu', {
     },
 
     getRefOwner: function() {
-        // If a submenu, this will have a parentMenu property
+        // ownerItem === owning menuItem
         // If a menu of a Button, it will have an ownerButton property
         // Else use the default method.
-        return this.parentMenu || this.ownerButton || this.callParent(arguments);
+        return this.ownerItem || this.ownerButton || this.callParent(arguments);
     },
 
     /**
@@ -327,11 +334,6 @@ Ext.define('Ext.menu.Menu', {
             focusedItem.blur();
             delete me.focusedItem;
         }
-    },
-
-    // @inheritdoc
-    getFocusEl: function() {
-        return this.focusedItem || this.items.items[0];
     },
 
     // @inheritdoc
@@ -408,19 +410,22 @@ Ext.define('Ext.menu.Menu', {
     // If there is only *one* child, then this Menu is just a vehicle for floating
     // and aligning the component, so do not do this.
     configureItem: function(cmp) {
-        var me = this,
-            owner = me.owner,
+        var me = this.owner,
             prefix = Ext.baseCSSPrefix,
-            cls;
+            ui = me.ui,
+            cls, cmpCls;
 
-        if (me.owner.items.getCount() > 1 && !cmp.rendered && !cmp.isMenuItem && !cmp.dock) {
-            cls = [prefix + 'menu-item-cmp'];
+        if (cmp.isMenuItem) {
+            cmp.setUI(ui);
+        } else if (me.items.getCount() > 1 && !cmp.rendered && !cmp.dock) {
+            cmpCls = me._itemCmpCls;
+            cls = [cmpCls + ' ' + cmpCls + '-' + ui];
 
             // The "plain" setting means that the menu does not look so much like a menu. It's more like a grey Panel.
             // So it has no vertical separator.
             // Plain menus also will not indent non MenuItem components; there is nothing to indent them to the right of.
-            if (!owner.plain && (cmp.indent !== false || cmp.iconCls === 'no-icon')) {
-                cls.push(prefix + 'menu-item-indent');
+            if (!me.plain && (cmp.indent !== false || cmp.iconCls === 'no-icon')) {
+                cls.push(prefix + 'menu-item-indent-' + ui);
             }
 
             if (cmp.rendered) {
@@ -471,6 +476,12 @@ Ext.define('Ext.menu.Menu', {
         me.callParent(arguments);
     },
 
+    onDocMouseDown: function(e) {
+        if (!this.owns(e.target)) {
+            this.deactivateActiveItem();
+        }
+    },
+
     onMouseLeave: function(e) {
         var me = this;
 
@@ -489,11 +500,11 @@ Ext.define('Ext.menu.Menu', {
             mouseEnter = !me.el.contains(fromEl),
             item = me.getItemFromEvent(e),
             parentMenu = me.parentMenu,
-            parentItem = me.parentItem;
+            ownerItem = me.ownerItem;
 
         if (mouseEnter && parentMenu) {
-            parentMenu.setActiveItem(parentItem);
-            parentItem.cancelDeferHide();
+            parentMenu.setActiveItem(ownerItem);
+            ownerItem.cancelDeferHide();
             parentMenu.mouseMonitor.mouseenter();
         }
 
@@ -558,6 +569,12 @@ Ext.define('Ext.menu.Menu', {
         // Restore configured maxHeight
         if (me.floating) {
             me.maxHeight = me.savedMaxHeight;
+        }
+    },
+
+    privates: {
+        getFocusEl: function() {
+            return this.focusedItem || this.items.items[0];
         }
     }
 });

@@ -245,4 +245,47 @@ describe("Ext.data.writer.Json", function(){
             });
         });
     });
+    
+    describe("transform", function(){
+        it("should invoke the transform function", function(){
+            var transformFn = function(data) {
+                return {id: 2};
+            };
+            
+            buildWriter({
+                transform: transformFn
+            });
+            
+            var request = writer.write(new Ext.data.Request({
+                params: {},
+                operation: makeOperation(buildRecords([simpleData]))
+            }));
+            expect(request.getJsonData()).not.toEqual(simpleData);
+            expect(request.getJsonData()).toEqual({id: 2});
+        });
+        
+        it("should invoke the transform function with the specified scope", function(){
+            var mockScope = {};
+            var transformFn = function(data) {
+                expect(this).toEqual(mockScope);
+                return {id: 2};
+            };
+            
+            buildWriter({
+                transform: {
+                    fn: transformFn,
+                    scope: mockScope
+                }
+            });
+            
+            var request = writer.write(new Ext.data.Request({
+                params: {},
+                operation: makeOperation(buildRecords([simpleData]))
+            }));
+            expect(request.getJsonData()).not.toEqual(simpleData);
+            expect(request.getJsonData()).toEqual({id: 2});
+        });
+        
+    });
+    
 });

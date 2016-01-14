@@ -39,11 +39,15 @@ Ext.define("Ext.draw.sprite.Image", {
             height = attr.height,
             loadingStub = Ext.draw.sprite.Image.imageLoaders[src],
             imageLoader,
+            image,
             i;
 
         if (loadingStub && loadingStub.done) {
             mat.toContext(ctx);
-            ctx.drawImage(loadingStub.image, x, y, width || loadingStub.width, height || loadingStub.width);
+            image = loadingStub.image;
+            ctx.drawImage(image, x, y,
+                    width || (image.naturalWidth || image.width) / surface.devicePixelRatio,
+                    height || (image.naturalHeight || image.height) / surface.devicePixelRatio);
         } else if (!loadingStub) {
             imageLoader = new Image();
             loadingStub = Ext.draw.sprite.Image.imageLoaders[src] = {

@@ -6,6 +6,7 @@
  */
 Ext.define('Ext.tip.Tip', {
     extend: 'Ext.panel.Panel',
+    alias: 'widget.tip',
 
     alternateClassName: 'Ext.Tip',
 
@@ -116,20 +117,22 @@ Ext.define('Ext.tip.Tip', {
         }
     },
 
-    /**
-     * @private
-     * Set Tip draggable using base Component's draggability.
-     */
-    initDraggable : function(){
-        var me = this;
-        me.draggable = {
-            el: me.getDragEl(),
-            delegate: me.header.el,
-            constrain: me,
-            constrainTo: me.el.dom.parentNode
-        };
-        // Important: Bypass Panel's initDraggable. Call direct to Component's implementation.
-        Ext.Component.prototype.initDraggable.call(me);
+    privates: {
+        /**
+         * @private
+         * Set Tip draggable using base Component's draggability.
+         */
+        initDraggable: function () {
+            var me = this;
+            me.draggable = {
+                el: me.getDragEl(),
+                delegate: me.header.el,
+                constrain: me,
+                constrainTo: me.el.dom.parentNode
+            };
+            // Important: Bypass Panel's initDraggable. Call direct to Component's implementation.
+            Ext.Component.prototype.initDraggable.call(me);
+        }
     },
 
     // Tip does not ghost. Drag is "live"

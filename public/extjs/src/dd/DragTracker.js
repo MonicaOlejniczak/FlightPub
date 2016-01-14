@@ -51,7 +51,7 @@ Ext.define('Ext.dd.DragTracker', {
      */
 
     /**
-     * @cfg {Ext.util.Region/Ext.Element} constrainTo
+     * @cfg {Ext.util.Region/Ext.dom.Element} constrainTo
      * A {@link Ext.util.Region Region} (Or an element from which a Region measurement will be read)
      * which is used to constrain the result of the {@link #getOffset} call.
      *
@@ -177,12 +177,11 @@ Ext.define('Ext.dd.DragTracker', {
         if (me.disabled) {
             me.disable();
         }
-
     },
 
     /**
      * Initializes the DragTracker on a given element.
-     * @param {Ext.Element/HTMLElement} el The element
+     * @param {Ext.dom.Element/HTMLElement} el The element
      */
     initEl: function(el) {
         var me = this,
@@ -242,13 +241,32 @@ Ext.define('Ext.dd.DragTracker', {
     // When the pointer enters a tracking element, fire a mouseover if the mouse entered from outside.
     // This is mouseenter functionality, but we cannot use mouseenter because we are using "delegate" to filter mouse targets
     onMouseOver: function(e, target) {
-        var me = this;
+        var me = this,
+            handleCls, el, i, len, cls;
+
         if (!me.disabled) {
+            // Note that usually `delegate` is the same as `handleCls` just with a preceding '.'
+            // Also, we're now adding the classes directly to the resizer el rather than to an ancestor since this
+            // caused unwanted scrollbar flickering in IE 9 and less (both quirks and standards) when the panel
+            // contained a textarea with auto overflow.  It would cause an unwanted recalc as the ancestor had classes
+            // added and removed. See EXTJS-11673.
             if (e.within(e.target, true, true) || me.delegate) {
+                handleCls = me.handleCls;
                 me.mouseIsOut = false;
-                if (me.overCls) {
-                    me.el.addCls(me.overCls);
+
+                if (handleCls) {
+                    for (i = 0, len = me.handleEls.length; i < len; i++) {
+                        el = me.handleEls[i];
+                        cls = el.delegateCls;
+
+                        if (!cls) {
+                            cls = el.delegateCls = [handleCls, '-', el.region, '-over'].join('');
+                        }
+
+                        el.addCls([cls, me.overCls]);
+                    }
                 }
+
                 me.fireEvent('mouseover', me, e, me.delegate ? e.getTarget(me.delegate, target) : me.handle);
             }
         }
@@ -257,14 +275,19 @@ Ext.define('Ext.dd.DragTracker', {
     // When the pointer exits a tracking element, fire a mouseout.
     // This is mouseleave functionality, but we cannot use mouseleave because we are using "delegate" to filter mouse targets
     onMouseOut: function(e) {
-        var me = this;
+        var me = this,
+            el, i, len;
 
         if (me.mouseIsDown) {
             me.mouseIsOut = true;
         } else {
-            if (me.overCls) {
-                me.el.removeCls(me.overCls);
+            if (me.handleCls) {
+                for (i = 0, len = me.handleEls.length; i < len; i++) {
+                    el = me.handleEls[i];
+                    el.removeCls([el.delegateCls, me.overCls]);
+                }
             }
+
             me.fireEvent('mouseout', me, e);
         }
     },
@@ -476,7 +499,7 @@ Ext.define('Ext.dd.DragTracker', {
      * If the {@link #delegate} option is being used, this may be a child element which matches the
      * {@link #delegate} selector.
      *
-     * @return {Ext.Element} The element currently being tracked.
+     * @return {Ext.dom.Element} The element currently being tracked.
      */
     getDragTarget : function(){
         return this.dragTarget;
@@ -484,7 +507,7 @@ Ext.define('Ext.dd.DragTracker', {
 
     /**
      * @private
-     * @returns {Ext.Element} The DragTracker's encapsulating element.
+     * @returns {Ext.dom.Element} The DragTracker's encapsulating element.
      */
     getDragCt : function(){
         return this.el;

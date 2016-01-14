@@ -862,6 +862,64 @@ describe("Ext.dom.Element", function() {
                     expect(Ext.get(document).dom).toBe(document);
                 });
             });
+
+            it("should wrap a documentFragment", function() {
+                var dom = document.createDocumentFragment(),
+                    el = Ext.get(dom);
+
+                expect(el instanceof Ext.dom.Element).toBe(true);
+                expect(el.dom).toBe(dom);
+            });
+
+            it("should wrap the window object", function() {
+                var dom = window,
+                    el = Ext.get(dom);
+
+                expect(el instanceof Ext.dom.Element).toBe(true);
+                expect(el.dom).toBe(dom);
+            });
+
+            it("should wrap the document object", function() {
+                var dom = document,
+                    el = Ext.get(dom);
+
+                expect(el instanceof Ext.dom.Element).toBe(true);
+                expect(el.dom).toBe(dom);
+            });
+
+            describe("document and window within iframe", function() {
+                var iframe;
+
+                beforeEach(function() {
+                    iframe = document.createElement('iframe');
+                    document.body.appendChild(iframe);
+                });
+
+                afterEach(function() {
+                    document.body.removeChild(iframe);
+                });
+
+                it("should wrap an iframe's window object", function() {
+                    var dom = iframe.contentWindow,
+                        el = Ext.get(dom);
+
+                    expect(el instanceof Ext.dom.Element).toBe(true);
+                    expect(el.dom).toBe(dom);
+                });
+
+                it("should wrap an iframe's document object", function() {
+                    var dom = iframe.contentWindow.document,
+                        el = Ext.get(dom);
+
+                    expect(el instanceof Ext.dom.Element).toBe(true);
+                    expect(el.dom).toBe(dom);
+
+                });
+            });
+
+            it("should not wrap a text node", function() {
+                expect(Ext.get(document.createTextNode(('foo')))).toBe(null);
+            });
         });
 
         xdescribe("garbageCollector", function() {
@@ -874,6 +932,33 @@ describe("Ext.dom.Element", function() {
             beforeEach(function() {
                 spyOn(Ext, "getDom").andCallThrough();
 
+            });
+
+            describe('use strict', function () {
+                var backup;
+
+                //TODO - See if there is a cheap enough way to avoid this replacement
+                //TODO - Oddly enough even if we wrap Ext.fly it throws an error trying
+                //TODO - to use Ext.fly.caller but the caller is the wrapper not the
+                //TODO - strict mode function (perhaps the JIT has removed the "useless"
+                //TODO - wrapper function).
+                beforeEach(function () {
+                    Ext.fly = (function (oldFly) {
+                        backup = oldFly;
+                        return function (dom, named) {
+                            return oldFly(dom, named || '_global');
+                        }
+                    }(Ext.fly));
+                });
+
+                afterEach(function () {
+                    Ext.fly = backup;
+                });
+
+                it('should work when called by strict mode function', function () {
+                    'use strict';
+                    var f = Ext.fly(domEl2);
+                });
             });
 
             describe("global flyweight", function() {
@@ -910,6 +995,64 @@ describe("Ext.dom.Element", function() {
                 it("should call Ext.getDom", function() {
                     expect(Ext.getDom).toHaveBeenCalledWith(domEl2);
                 });
+            });
+
+            it("should wrap a documentFragment", function() {
+                var dom = document.createDocumentFragment(),
+                    el = Ext.fly(dom);
+
+                expect(el instanceof Ext.dom.Fly).toBe(true);
+                expect(el.dom).toBe(dom);
+            });
+
+            it("should wrap the window object", function() {
+                var dom = window,
+                    el = Ext.fly(dom);
+
+                expect(el instanceof Ext.dom.Fly).toBe(true);
+                expect(el.dom).toBe(dom);
+            });
+
+            it("should wrap the document object", function() {
+                var dom = document,
+                    el = Ext.fly(dom);
+
+                expect(el instanceof Ext.dom.Fly).toBe(true);
+                expect(el.dom).toBe(dom);
+            });
+
+            describe("document and window within iframe", function() {
+                var iframe;
+
+                beforeEach(function() {
+                    iframe = document.createElement('iframe');
+                    document.body.appendChild(iframe);
+                });
+
+                afterEach(function() {
+                    document.body.removeChild(iframe);
+                });
+
+                it("should wrap an iframe's window object", function() {
+                    var dom = iframe.contentWindow,
+                        el = Ext.fly(dom);
+
+                    expect(el instanceof Ext.dom.Fly).toBe(true);
+                    expect(el.dom).toBe(dom);
+                });
+
+                it("should wrap an iframe's document object", function() {
+                    var dom = iframe.contentWindow.document,
+                        el = Ext.fly(dom);
+
+                    expect(el instanceof Ext.dom.Fly).toBe(true);
+                    expect(el.dom).toBe(dom);
+
+                });
+            });
+
+            it("should not wrap a text node", function() {
+                expect(Ext.fly(document.createTextNode(('foo')))).toBe(null);
             });
         });
 

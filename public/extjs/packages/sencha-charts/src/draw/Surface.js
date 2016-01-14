@@ -81,8 +81,6 @@ Ext.define('Ext.draw.Surface', {
         'Ext.draw.engine.Canvas'
     ],
 
-    defaultIdPrefix: 'ext-surface-',
-
     /**
      * The reported device pixel density.
      */
@@ -119,6 +117,7 @@ Ext.define('Ext.draw.Surface', {
     },
 
     config: {
+        cls: Ext.baseCSSPrefix + 'surface',
         /**
          * @cfg {Array}
          * The rect of the surface related to its container.
@@ -141,7 +140,16 @@ Ext.define('Ext.draw.Surface', {
          * @cfg {Boolean}
          * Indicates whether the surface needs redraw.
          */
-        dirty: false
+        dirty: false,
+
+        /**
+         * @cfg {Boolean} flipRtlText
+         * If the surface is in the RTL mode, text will render with the RTL direction,
+         * but the alignment and position of the text won't change by default.
+         * Setting this config to 'true' will get text alignment and its position
+         * within a surface mirrored.
+         */
+        flipRtlText: false
     },
 
     isSurface: true,
@@ -250,7 +258,7 @@ Ext.define('Ext.draw.Surface', {
             t = rect[1],
             r = l + rect[2],
             b = t + rect[3],
-            background = this.getBackground(),
+            background = me.getBackground(),
             element = me.element;
 
         element.setLocalXY(Math.floor(l), Math.floor(t));
@@ -319,7 +327,8 @@ Ext.define('Ext.draw.Surface', {
             sprite = sprites[i];
             me.map[sprite.getId()] = sprite;
             results.push(sprite);
-            sprite.setParent(this);
+            sprite.setParent(me);
+            sprite.setSurface(me);
             me.onAdd(sprite);
         }
 
@@ -365,6 +374,7 @@ Ext.define('Ext.draw.Surface', {
                 sprite.destroy();
             } else {
                 sprite.setParent(null);
+                sprite.setSurface(null);
                 Ext.Array.remove(this.getItems(), sprite);
             }
             this.dirtyZIndex = true;
@@ -383,14 +393,18 @@ Ext.define('Ext.draw.Surface', {
      */
     removeAll: function (destroySprites) {
         var items = this.getItems(),
-            i = items.length;
+            i = items.length,
+            item;
         if (destroySprites) {
             while (i > 0) {
                 items[--i].destroy();
             }
         } else {
             while (i > 0) {
-                items[--i].setParent(null);
+                i--;
+                item = items[i];
+                item.setParent(null);
+                item.setSurface(null);
             }
         }
         items.length = 0;
@@ -475,6 +489,36 @@ Ext.define('Ext.draw.Surface', {
             width: right - left,
             height: bottom - top
         };
+    },
+
+    emptyRect: [0, 0, 0, 0],
+
+    // Converts event's page coordinates into surface coordinates.
+    // Note: surface's x-coordinates always go LTR, regardless of RTL mode.
+    getEventXY: function (e) {
+        var me = this,
+            isRtl = me.getInherited().rtl,
+            pageXY = e.getXY(), // Event position in page coordinates.
+            container = me.el.up(),
+            xy = container.getXY(), // Surface container position in page coordinates.
+            rect = me.getRect() || me.emptyRect, // Surface position in surface container coordinates (LTR).
+            result = [],
+            width;
+
+        if (isRtl) {
+            width = container.getWidth();
+            if (Ext.isIE8) {
+                result[0] = pageXY[0] + xy[0] - rect[0] + width - document.body.clientWidth;
+            } else {
+                // The line below is actually a simplified form of
+                // rect[2] - (pageXY[0] - xy[0] - (width - (rect[0] + rect[2]))).
+                result[0] = xy[0] - pageXY[0] - rect[0] + width;
+            }
+        } else {
+            result[0] = pageXY[0] - xy[0] - rect[0];
+        }
+        result[1] = pageXY[1] - xy[1] - rect[1];
+        return result;
     },
 
     /**

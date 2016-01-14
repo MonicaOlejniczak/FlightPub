@@ -1,5 +1,7 @@
-/*
- * Line charts
+/**
+ * @class Ext.sparkline.Line
+ *
+ * Plots a line graph based upon the input {@link #values} array.
  */
 Ext.define('Ext.sparkline.Line', {
     extend: 'Ext.sparkline.Base',
@@ -10,22 +12,98 @@ Ext.define('Ext.sparkline.Line', {
     alias: 'widget.sparklineline',
 
     config: {
+
+        /**
+         * @cfg {String} [spotColor=#f80] The colour of the final value marker. Set to false or an empty string to hide it.
+         */
         spotColor: '#f80',
+        
+        /**
+         * @cfg {String} [highlightSpotColor=#5f5] The colour of value marker spots when mouseovered.
+         */
         highlightSpotColor: '#5f5',
+        
+        /**
+         * @cfg {String} [highlightLineColor=#f22] The colour of value line shown when the graph is mouseovered.
+         */
         highlightLineColor: '#f22',
+        
+        /**
+         * @cfg {Number} [spotRadius=1.5] The pixel radius of min, max and final value dots.
+         */
         spotRadius: 1.5,
+        
+        /**
+         * @cfg {String} [minSpotColor=#f80] The colour of the mimimum value marker. Set to false or an empty string to hide it.
+         */
         minSpotColor: '#f80',
+        
+        /**
+         * @cfg {String} [maxSpotColor=#f80] The colour of the maximum value marker. Set to false or an empty string to hide it.
+         */
         maxSpotColor: '#f80',
+        
+        /**
+         * @cfg {Number} [lineWidth=1] The pixel width of the line plotted.
+         */
         lineWidth: 1,
+        
+        /**
+         * @cfg {Number} [normalRangeMin] See {@link #normalRangeMax} The minimum value to overlay a "normal range bar" over the graph using the {@link #normalRangeColor}.
+         */
         normalRangeMin: null,
+        
+        /**
+         * @cfg {Number} [normalRangeMax] See {@link #normalRangeMin} The maximum value to overlay a "normal range bar" over the graph using the {@link #normalRangeColor}.
+         */
         normalRangeMax: null,
+        
+        /**
+         * @cfg {String} [normalRangeColor=#ccc] See {@link #normalRangeMin} and {@link #normalRangeMax} The color of the undererlayed "normal range bar".
+         */
         normalRangeColor: '#ccc',
+        
+        /**
+         * @cfg {Boolean} [drawNormalOnTop=false] Configure as `true` to draw the normal range overlaying the chart.
+         */
         drawNormalOnTop: false,
+        
+        /**
+         * @cfg {Number} [chartRangeMin] The minimum value to use for the range of Y values of the chart - Defaults to the minimum value supplied.
+         */
         chartRangeMin: null,
+        
+        /**
+         * @cfg {Number} [chartRangeMax] The maximum value to use for the range of Y values of the chart - Defaults to the minimum value supplied.
+         */
         chartRangeMax: null,
+        
+        /**
+         * @cfg {Number} [chartRangeMinX] The minimum value to use for the X value of the chart.
+         */
         chartRangeMinX: null,
+        
+        /**
+         * @cfg {Number} [chartRangeMaxX] The maximum value to use for the X value of the chart.
+         */
         chartRangeMaxX: null,
+        
         tipTpl: new Ext.XTemplate('&#9679; {prefix}{y}{suffix}'),
+        
+        /**
+         * @cfg {Object} [valueSpots] An object which uses range specifiers as keys to indicate spot color values
+         * for range of values. A range specifier is of the form `[number]:[number]` indicating start and end range.
+         * Omitting aither means an open ended range. For example to render green spots on all values less than 50
+         * and red on values higher than 50 use:
+         *
+         *    {
+         *        // Open ended range, with max value 49
+         *        ":49": "green",
+         *
+         *        // Open ended range, with min value 50
+         *        "50:": "red"
+         *    }
+         */
         valueSpots: null
     },
 

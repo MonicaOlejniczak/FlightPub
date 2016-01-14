@@ -871,7 +871,7 @@ describe("Ext.Class", function() {
                 expect(sub.prototype.foo).toBeUndefined();
             });
             
-            it("should favour the property on the prototype", function() {
+            it("should favour the property on the config", function() {
                 cls = Ext.define(null, {
                     constructor: defaultInitConfig,
                     foo: 'baz',
@@ -879,7 +879,22 @@ describe("Ext.Class", function() {
                         foo: 'bar'
                     }    
                 });
-                expect((new cls()).getFoo()).toBe('baz');
+                expect((new cls()).getFoo()).toBe('bar');
+            });
+
+            it("should favour the property on the prototype in a subclass", function() {
+                cls = Ext.define(null, {
+                    constructor: defaultInitConfig,
+                    config: {
+                        foo: 'bar'
+                    }
+                });
+
+                sub = Ext.define(null, {
+                    extend: cls,
+                    foo: 'baz'
+                });
+                expect((new sub()).getFoo()).toBe('baz');
             });
             
             it("should pull the property from the prototype in the subclass if it exists on the parent prototype", function() {
@@ -991,60 +1006,109 @@ describe("Ext.Class", function() {
         });
 
         describe("meta configs", function() {
-            it("should not allow mixins to modify meta configs", function() {
-                var spy = jasmine.createSpy();
+            describe('mixins', function () {
+                it("should inherit meta configs from mixins", function() {
+                    var calls = 0;
 
-                var Mix = Ext.define('spec.Mixin', {
-                    config: {
-                        foo: {
-                            lazy: false,
-                            $value: 1
+                    var Mix = Ext.define(null, {
+                        config: {
+                            foo: {
+                                lazy: true,
+                                $value: 42
+                            }
                         }
-                    }
+                    });
+
+                    var Cls = Ext.define(null, {
+                        mixins: {
+                            mix: Mix
+                        },
+                        constructor: function (config) {
+                            this.initConfig(config);
+                        },
+                        applyFoo: function (newValue, oldValue) {
+                            ++calls;
+                            return newValue;
+                        }
+                    });
+
+                    o = new Cls();
+                    expect(calls).toBe(0);
+
+                    var v = o.getFoo();
+
+                    expect(v).toBe(42);
+                    expect(calls).toBe(1);
                 });
 
-                var Cls = Ext.define(null, {
-                    mixins: [Mix],
-                    config: {
-                        foo: {
-                            lazy: true,
-                            $value: 2
-                        }
-                    },
-                    applyFoo: spy
-                });
+                it("should not allow mixins to modify meta configs", function() {
+                    var calls = 0;
 
-                o = new Cls();
-                expect(spy).not.toHaveBeenCalled();
-                Ext.undefine('spec.Mixin');
+                    var Mix = Ext.define(null, {
+                        config: {
+                            foo: {
+                                lazy: false,
+                                $value: 1
+                            }
+                        }
+                    });
+
+                    var Cls = Ext.define(null, {
+                        mixins: {
+                            mix: Mix
+                        },
+                        config: {
+                            foo: {
+                                lazy: true,
+                                $value: 2
+                            }
+                        },
+                        constructor: function (config) {
+                            this.initConfig(config);
+                        },
+                        applyFoo: function (newValue, oldValue) {
+                            ++calls;
+                            return newValue;
+                        }
+                    });
+
+                    o = new Cls();
+                    expect(calls).toBe(0);
+
+                    var v = o.getFoo();
+
+                    expect(v).toBe(2);
+                    expect(calls).toBe(1);
+                });
             });
 
             describe("cached", function() {
-                function makeCached(value) {
-                    return {
-                        foo: {
-                            cached: true,
-                            $value: value
-                        }
-                    };
-                }
-
                 describe("caching", function() {
                     it("should not attempt to initialize until the first instance", function() {
                         cls = Ext.define(null, {
-                            config: makeCached('bar')
+                            config: {
+                                foo: {
+                                    cached: true,
+                                    $value: 'bar'
+                                }
+                            }
                         });
                         expect(cls.prototype.foo).not.toBeDefined();
                     });
                     
                     it("should not attempt to cache the config if we don't call initConfig", function() {
                         cls = Ext.define(null, {
-                            config: makeCached('bar')
+                            config: {
+                                foo: {
+                                    cached: true,
+                                    $value: 'bar'
+                                }
+                            }
                         });
                         new cls();
                         expect(cls.prototype.foo).not.toBeDefined();
                     });
-                    
+
                     it("should stamp the value on the prototype after the first instance is created", function() {
                         cls = Ext.define(null, {
                             constructor: defaultInitConfig,
@@ -1057,10 +1121,58 @@ describe("Ext.Class", function() {
                         expect(o.hasOwnProperty('_foo')).toBe(false);
                     });
 
+                    it("should stamp all values on the prototype after the first instance is created", function() {
+                        var calls = 0;
+
+                        cls = Ext.define(null, {
+                            constructor: defaultInitConfig,
+                            cachedConfig: {
+                                foo: 21,
+                                bar: 1,
+                                baz: 3
+                            },
+                            applyFoo: function (foo) {
+                                ++calls;
+                                return foo * this.getBar(); // fwd dependency
+                            },
+                            applyBar: function (bar) {
+                                ++calls;
+                                return bar * 2;
+                            },
+                            applyBaz: function (baz) {
+                                ++calls;
+                                return baz * this.getFoo(); // backward dependency
+                            }
+                        });
+
+                        o = new cls();
+
+                        expect(cls.prototype._foo).toBe(42);
+                        expect(cls.prototype._bar).toBe(2);
+                        expect(cls.prototype._baz).toBe(3 * 42);
+
+                        expect(calls).toBe(3);
+                        expect(o.hasOwnProperty('_foo')).toBe(false);
+                        expect(o.hasOwnProperty('_bar')).toBe(false);
+                        expect(o.hasOwnProperty('_baz')).toBe(false);
+
+                        o = new cls();
+
+                        expect(calls).toBe(3);
+                        expect(o.hasOwnProperty('_foo')).toBe(false);
+                        expect(o.hasOwnProperty('_bar')).toBe(false);
+                        expect(o.hasOwnProperty('_baz')).toBe(false);
+                    });
+
                     it("should work with the cachedConfig notification", function() {
                         cls = Ext.define(null, {
                             constructor: defaultInitConfig,
-                            config: makeCached('bar')
+                            config: {
+                                foo: {
+                                    cached: true,
+                                    $value: 'bar'
+                                }
+                            }
                         });
                         o = new cls();
                         expect(cls.prototype._foo).toBe('bar');
@@ -1074,7 +1186,12 @@ describe("Ext.Class", function() {
                             
                         cls = Ext.define(null, {
                             constructor: defaultInitConfig,
-                            config: makeCached('bar'),
+                            config: {
+                                foo: {
+                                    cached: true,
+                                    $value: 'bar'
+                                }
+                            },
                             applyFoo: function(foo) {
                                 ++count;
                                 o.foo = foo;
@@ -1096,7 +1213,12 @@ describe("Ext.Class", function() {
                             
                         cls = Ext.define(null, {
                             constructor: defaultInitConfig,
-                            config: makeCached('bar'),
+                            config: {
+                                foo: {
+                                    cached: true,
+                                    $value: 'bar'
+                                }
+                            },
                             updateFoo: function(foo) {
                                 ++count;
                             }
@@ -1111,7 +1233,12 @@ describe("Ext.Class", function() {
                     it("should allow the value to be updated from the config", function() {
                         cls = Ext.define(null, {
                             constructor: defaultInitConfig,
-                            config: makeCached('bar')
+                            config: {
+                                foo: {
+                                    cached: true,
+                                    $value: 'bar'
+                                }
+                            }
                         });
                         
                         o = new cls({
@@ -1124,7 +1251,12 @@ describe("Ext.Class", function() {
                     it("should allow the value to be updated from the setter", function() {
                         cls = Ext.define(null, {
                             constructor: defaultInitConfig,
-                            config: makeCached('bar')
+                            config: {
+                                foo: {
+                                    cached: true,
+                                    $value: 'bar'
+                                }
+                            }
                         });
                         
                         o = new cls();
@@ -1138,7 +1270,12 @@ describe("Ext.Class", function() {
                     it("should initialize the value on the subclass prototype", function() {
                         cls = Ext.define(null, {
                             constructor: defaultInitConfig,
-                            config: makeCached('bar')
+                            config: {
+                                foo: {
+                                    cached: true,
+                                    $value: 'bar'
+                                }
+                            }
                         });
                         
                         sub = Ext.define(null, {
@@ -1153,12 +1290,22 @@ describe("Ext.Class", function() {
                     it("should be able to override the default value", function() {
                         cls = Ext.define(null, {
                             constructor: defaultInitConfig,
-                            config: makeCached('bar')
+                            config: {
+                                foo: {
+                                    cached: true,
+                                    $value: 'bar'
+                                }
+                            }
                         });
                         
                         sub = Ext.define(null, {
                             extend: cls,
-                            config: makeCached('baz')
+                            config: {
+                                foo: {
+                                    cached: true,
+                                    $value: 'baz'
+                                }
+                            }
                         });
                         
                         o = new sub();
@@ -1172,7 +1319,12 @@ describe("Ext.Class", function() {
                             
                         cls = Ext.define(null, {
                             constructor: defaultInitConfig,
-                            config: makeCached('bar'),
+                            config: {
+                                foo: {
+                                    cached: true,
+                                    $value: 'bar'
+                                }
+                            },
                             
                             applyFoo: function(foo) {
                                 if (this.self === cls) {
@@ -1205,7 +1357,12 @@ describe("Ext.Class", function() {
                         cls = Ext.define(null, {
                             constructor: defaultInitConfig,
                             
-                            config: makeCached('bar')
+                            config: {
+                                foo: {
+                                    cached: true,
+                                    $value: 'bar'
+                                }
+                            }
                         });
                         
                         sub = Ext.define(null, {
@@ -1225,7 +1382,12 @@ describe("Ext.Class", function() {
                         expect(function() {
                             Ext.define(null, {
                                 extend: cls,
-                                config: makeCached(2)
+                                config: {
+                                    foo: {
+                                        cached: true,
+                                        $value: 2
+                                    }
+                                }
                             });
                         }).toThrow();
                     });
@@ -1233,12 +1395,22 @@ describe("Ext.Class", function() {
                     describe("nulls", function() {
                         it("should allow null overrides in child classes", function() {
                             cls = Ext.define(null, {
-                                config: makeCached(1),
+                                config: {
+                                    foo: {
+                                        cached: true,
+                                        $value: 1
+                                    }
+                                },
                                 constructor: defaultInitConfig
                             });
                             sub = Ext.define(null, {
                                 extend: cls,
-                                config: makeCached(null)
+                                config: {
+                                    foo: {
+                                        cached: true,
+                                        $value: null
+                                    }
+                                }
                             });    
                             
                             new cls();
@@ -1249,12 +1421,22 @@ describe("Ext.Class", function() {
                         
                         it("should allow null in the base class and value overrides in child classes", function() {
                             cls = Ext.define(null, {
-                                config: makeCached(null),
+                                config: {
+                                    foo: {
+                                        cached: true,
+                                        $value: null
+                                    }
+                                },
                                 constructor: defaultInitConfig
                             });
                             sub = Ext.define(null, {
                                 extend: cls,
-                                config: makeCached(1)
+                                config: {
+                                    foo: {
+                                        cached: true,
+                                        $value: 1
+                                    }
+                                }
                             }); 
                             
                             new cls();
@@ -1265,18 +1447,33 @@ describe("Ext.Class", function() {
                         
                         it("should be able to return to being cached after being nulled out", function() {
                             var A = Ext.define(null, {
-                                config: makeCached(1),
+                                config: {
+                                    foo: {
+                                        cached: true,
+                                        $value: 1
+                                    }
+                                },
                                 constructor: defaultInitConfig    
                             });
                             
                             var B = Ext.define(null, {
                                 extend: A,
-                                config: makeCached(null)    
+                                config: {
+                                    foo: {
+                                        cached: true,
+                                        $value: null
+                                    }
+                                }
                             });
                             
                             var C = Ext.define(null, {
                                 extend: B,
-                                config: makeCached(2) 
+                                config: {
+                                    foo: {
+                                        cached: true,
+                                        $value: 2
+                                    }
+                                }
                             });
                             
                             new A();
@@ -1787,27 +1984,36 @@ describe("Ext.Class", function() {
                     describe("merging", function() {
                         it("should pass the sub value, then super value and whether it is from a mixin", function() {
                             var o1 = {},
-                                o2 = {},
-                                args;
+                                o2 = {};
 
                             defineInherit(o1, o2);
-                            args = spy.mostRecentCall.args;
+
+                            var call = spy.mostRecentCall;
+                            var args = call.args;
+
+                            // When merge is called the "this" pointer should be the
+                            // Ext.Config instance (which may have meta-level configs on
+                            // it).
+                            expect(call.object).toBe(B.$config.configs.foo);
+
                             expect(args[0]).toBe(o2);
                             expect(args[1]).toBe(o1);
-                            expect(args[2]).toBe(false);
+                            expect(args[2]).toBe(B);
+                            expect(args[3]).toBeFalsy();
                         });
 
                         describe("with a mixin", function() {
-                            it("should pass the isMixin flag", function() {
+                            it("should pass the mixinClass", function() {
                                 defineMixin({}, {});
                                 var args = spy.mostRecentCall.args;
-                                expect(args[2]).toBe(true);
+                                expect(args[2]).toBe(A);
+                                expect(args[3]).toBe(B);
                             });
                         });
 
-                        it("should pass the scope as the child class", function() {
+                        it("should pass the scope as the Config instance", function() {
                             defineInherit({}, {});
-                            expect(spy.mostRecentCall.object).toBe(B);
+                            expect(spy.mostRecentCall.object).toBe(B.$config.configs.foo);
                         });
 
                         it("should set the returned value", function() {
@@ -1877,9 +2083,9 @@ describe("Ext.Class", function() {
                             });
                         });
 
-                        it("should pass the scope as the instance", function() {
+                        it("should pass the instance", function() {
                             defineAndInstance({}, {});
-                            expect(spy.mostRecentCall.object).toBe(o);
+                            expect(spy.mostRecentCall.args[2]).toBe(o);
                         });
 
                         it("should set the returned value", function() {
@@ -2184,53 +2390,105 @@ describe("Ext.Class", function() {
         var Base;
 
         beforeEach(function () {
-            if (!Base) {
-                Base = Ext.define(null, {
-                    privates: {
-                        foo: function () {}
-                    }
-                });
-            }
-        });
+            Base = Ext.define(null, {
+                bar: function () {},
 
-        it('should throw when derived class overrides a private method', function () {
-            expect(function () {
-                Ext.define(null, {
-                    extend: Base,
-
+                privates: {
                     foo: function () {}
-                });
-            }).toThrow();
+                }
+            });
         });
 
-        it('should allow derived class to override a private method w/a private method', function () {
-            expect(function () {
-                Ext.define(null, {
-                    extend: Base,
+        describe('extend', function () {
+            it('should allow derived class to override a private method w/a private method', function () {
+                expect(function () {
+                    Ext.define(null, {
+                        extend: Base,
 
-                    privates: {
+                        privates: {
+                            foo: function () {}
+                        }
+                    });
+                }).not.toThrow();
+            });
+
+            it('should allow derived class to override a public method w/a private method', function () {
+                expect(function () {
+                    Ext.define(null, {
+                        extend: Base,
+
+                        privates: {
+                            bar: function () {}
+                        }
+                    });
+                }).not.toThrow();
+            });
+
+            it('should throw when derived class overrides a private method', function () {
+                expect(function () {
+                    Ext.define(null, {
+                        extend: Base,
+
                         foo: function () {}
-                    }
-                });
-            }).not.toThrow();
+                    });
+                }).toThrow();
+            });
+
+            it('should throw when derived class overrides a private method w/a foreign private method', function () {
+                expect(function () {
+                    Ext.define(null, {
+                        extend: Base,
+
+                        privates: {
+                            privacy: 'user',
+
+                            foo: function () {}
+                        }
+                    });
+                }).toThrow();
+            });
         });
 
-        it('should throw when overriding a private method', function () {
-            expect(function () {
-                Base.override({
-                    foo: function () {}
-                });
-            }).toThrow();
-        });
-
-        it('should allow overriding a private method w/a private method', function () {
-            expect(function () {
-                Base.override({
-                    privates: {
+        describe('override', function () {
+            it('should throw when overriding a private method', function () {
+                expect(function () {
+                    Base.override({
                         foo: function () {}
-                    }
-                });
-            }).not.toThrow();
+                    });
+                }).toThrow();
+            });
+
+            it('should allow overriding a public method w/a private method', function () {
+                expect(function () {
+                    Base.override({
+                        privates: {
+                            bar: function () {}
+                        }
+                    });
+                }).not.toThrow();
+            });
+
+            it('should allow overriding a private method w/a private method', function () {
+                expect(function () {
+                    Base.override({
+                        privates: {
+                            foo: function () {}
+                        }
+                    });
+                }).not.toThrow();
+            });
+
+            it('should throw when derived class overrides a private method w/a foreign private method', function () {
+                expect(function () {
+                    Base.override({
+                        privates: {
+                            privacy: 'user',
+
+                            foo: function () {}
+                        }
+                    });
+                }).toThrow();
+            });
         });
     });
 

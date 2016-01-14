@@ -1,5 +1,7 @@
 Ext.Loader.setConfig({
-    paths: {
+	enabled: true,
+    disableCaching: false,
+	paths: {
         'FB': '/assets/app'
     }
 });

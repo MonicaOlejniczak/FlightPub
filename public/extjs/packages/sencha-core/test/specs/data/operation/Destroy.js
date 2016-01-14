@@ -13,14 +13,14 @@ describe("Ext.data.operation.Destroy", function() {
     });
     
     describe("execute", function() {
-        it("should call the proxy destroy method and pass itself", function() {
+        it("should call the proxy erase method and pass itself", function() {
             var proxy = new Ext.data.proxy.Proxy();
-            spyOn(proxy, 'destroy').andReturn(new Ext.data.Request());
+            spyOn(proxy, 'erase').andReturn(new Ext.data.Request());
             makeOperation({
                 proxy: proxy
             });
             op.execute();
-            expect(proxy.destroy).toHaveBeenCalledWith(op);
+            expect(proxy.erase).toHaveBeenCalledWith(op);
         });
     });   
     

@@ -86,13 +86,6 @@ Ext.define('Ext.data.ProxyStore', {
          * storage proxies, 'operation' is better for remote proxies, where there is a comparatively high latency.
          */
         batchUpdateMode: 'operation',
-
-        /**
-         * @cfg {Boolean} filterOnLoad
-         * If true, any filters attached to this Store will be run after loading data, before the datachanged event is fired.
-         * Defaults to true, ignored if {@link Ext.data.Store#remoteFilter remoteFilter} is true
-         */
-        filterOnLoad: true,
        
         /**
          * @cfg {Boolean} sortOnLoad
@@ -109,7 +102,7 @@ Ext.define('Ext.data.ProxyStore', {
         trackRemoved: true,
         
         /**
-         * @cfg {Ext.data.session.Session} session
+         * @cfg {Ext.data.Session} session
          * The session this store interacts with
          * @private
          */
@@ -135,13 +128,6 @@ Ext.define('Ext.data.ProxyStore', {
     }, 
 
     /**
-     * @property {Number} loadCount
-     * The number of times records have been loaded into the store.
-     * @readonly
-     */
-    loadCount: 0,
-
-    /**
      * @property {Boolean} implicitModel
      * True if a model was created implicitly for this Store. This happens if a fields array is passed to the Store's
      * constructor instead of a model constructor or name.
@@ -157,8 +143,12 @@ Ext.define('Ext.data.ProxyStore', {
      * to reuse the same options. Please see {@link #method-reload} for a simple example on how to use the lastOptions property.
      */
 
-     // Private suspension counter
-     autoSyncSuspended: 0,
+    /**
+     * @property {Number} autoSyncSuspended
+     * A counter to track suspensions.
+     * @private
+     */
+    autoSyncSuspended: 0,
 
     //documented above
     constructor: function(config) {
@@ -215,8 +205,11 @@ Ext.define('Ext.data.ProxyStore', {
 
 
         /**
-         * Temporary cache in which removed model instances are kept until successfully synchronised with a Proxy,
-         * at which point this is cleared.
+         * Temporary cache in which removed model instances are kept until successfully
+         * synchronised with a Proxy, at which point this is cleared.
+         *
+         * This cache is maintained unless you set `trackRemoved` to `false`.
+         *
          * @protected
          * @property {Ext.data.Model[]} removed
          */
@@ -227,7 +220,7 @@ Ext.define('Ext.data.ProxyStore', {
         me.unblockLoad();
 
         // <debug>
-        if (!me.getModel() && me.useModelWarning !== false) {
+        if (!me.getModel() && me.useModelWarning !== false && me.getStoreId() !== 'ext-empty-store') {
             // There are a number of ways things could have gone wrong, try to give as much information as possible
             var logMsg = [
                 Ext.getClassName(me) || 'Store',
@@ -331,19 +324,14 @@ Ext.define('Ext.data.ProxyStore', {
             proxy = Ext.createByAlias('proxy.memory');
         }
         
+        if (!me.disableMetaChangeEvent) {
+             proxy.on('metachange', me.onMetaChange, me); 
+        }
+
         return proxy;
     },
 
     updateTrackRemoved: function (track) {
-        /**
-         * Temporary cache in which removed model instances are kept until successfully
-         * synchronised with a Proxy, at which point this is cleared.
-         *
-         * This cache is maintained unless you set `trackRemoved` to `false`.
-         *
-         * @protected
-         * @property {Ext.data.Model[]} removed
-         */
         this.removed = track ? [] : null;
     },
 
@@ -440,7 +428,7 @@ Ext.define('Ext.data.ProxyStore', {
 
     // tells the attached proxy to destroy the given records
     // @since 3.4.0
-    destroy: function(options) {
+    erase: function(options) {
         var me = this,
             proxy = me.getProxy(),
             operation;
@@ -521,7 +509,7 @@ Ext.define('Ext.data.ProxyStore', {
     },
 
     /**
-     * Returns all Model instances that have been updated in the Store but not yet synchronized with the Proxy
+     * Returns all valid, non-phantom Model instances that have been updated in the Store but not yet synchronized with the Proxy.
      * @return {Ext.data.Model[]} The updated Model instances
      */
     getUpdatedRecords: function() {
@@ -589,6 +577,8 @@ Ext.define('Ext.data.ProxyStore', {
      * operations in their current state after processing
      * @param {Object} options.failure.options The options argument that was originally passed into sync
      * 
+     * @param {Object} [options.params] Additional params to send during the sync Operation(s).
+     *
      * @param {Object} [options.scope] The scope in which to execute any callbacks (i.e. the `this` object inside
      * the callback, success and/or failure functions). Defaults to the store's proxy.
      * 
@@ -667,7 +657,11 @@ Ext.define('Ext.data.ProxyStore', {
     save: function() {
         return this.sync.apply(this, arguments);
     },
-    
+
+    /**
+     * @private
+     * @param {Boolean} value
+     */
     blockLoad: function (value) {
         if (value !== undefined) {
             this.blockLoadCounter = value;
@@ -675,7 +669,11 @@ Ext.define('Ext.data.ProxyStore', {
             ++this.blockLoadCounter;
         }
     },
-    
+
+    /**
+     * @private
+     * @param {Boolean} full
+     */
     unblockLoad: function (full) {
         var me = this,
             ret = me.blockLoadCounter;
@@ -869,7 +867,7 @@ Ext.define('Ext.data.ProxyStore', {
     onUpdate: Ext.emptyFn,
 
     // private
-    onDestroyStore: function() {
+    onDestroy: function() {
         var me = this;
         
         me.blockLoad();
@@ -886,7 +884,7 @@ Ext.define('Ext.data.ProxyStore', {
      * @private
      */
     hasPendingLoad: function() {
-        return !!this.loadTask;
+        return !!this.loadTask || this.isLoading();
     },
 
     /**
@@ -895,6 +893,14 @@ Ext.define('Ext.data.ProxyStore', {
      */
     isLoading: function() {
         return !!this.loading;
+    },
+
+    /**
+     * Returns `true` if the Store has been loaded.
+     * @return {Boolean} `true` if the Store has been loaded.
+     */
+    isLoaded: function() {
+        return this.loadCount > 0;
     },
 
     /**

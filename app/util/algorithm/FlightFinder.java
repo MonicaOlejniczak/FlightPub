@@ -31,12 +31,15 @@ public class FlightFinder {
      * @return A list of itineraries containing an ordered list of flights
      */
     public static List<Itinerary> findFlights(Airport source, Airport destination, DateTime start, DateTime end, int maxFlightsPerItinerary) {
-        List<List<FlightEdge>> flightEdgesList = FlightFinder.findFlightEdges(source, destination, maxFlightsPerItinerary);
+        // todo added here, move elsewhere eh? hacky hack
+	    if (FlightEdge.find.findRowCount() <= 0) {
+		    FlightFinder.genEdges();
+	    }
+	    List<List<FlightEdge>> flightEdgesList = FlightFinder.findFlightEdges(source, destination, maxFlightsPerItinerary);
 	    return findFlights(source, destination, start, end, flightEdgesList);
     }
 
-    public static List<Itinerary> findFlights(Airport source, Airport destination, DateTime start, DateTime end, List<List<FlightEdge>> flightEdgesList) {
-
+    private static List<Itinerary> findFlights(Airport source, Airport destination, DateTime start, DateTime end, List<List<FlightEdge>> flightEdgesList) {
         List<Itinerary> flights = new ArrayList<>();
         List<Flight> possibleFlights = Flight.find.where().between("departureTime", start, end).findList();
         for (List<FlightEdge> flightEdges : flightEdgesList) {
@@ -84,7 +87,7 @@ public class FlightFinder {
         }
     }
 
-    public static List<List<FlightEdge>> findFlightEdges(Airport source, Airport destination, int depth) {
+    private static List<List<FlightEdge>> findFlightEdges(Airport source, Airport destination, int depth) {
         List<List<FlightEdge>> flights = new ArrayList<>();
         List<FlightEdge> edgeList = FlightEdge.find.all();
         List<FlightEdge> path = new ArrayList<>();
@@ -123,7 +126,7 @@ public class FlightFinder {
     /**
      * Generate a unified network edges of direct flights between airports
      */
-    public static void genEdges() {
+    private static void genEdges() {
         List<Airport> airports = Airport.find.all();
         for (FlightEdge flightEdge : FlightEdge.find.all()) {
             flightEdge.delete();

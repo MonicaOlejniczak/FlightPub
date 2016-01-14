@@ -1,3 +1,6 @@
+/**
+ * @author Monica Olejniczak
+ */
 Ext.define('FB.view.PageController', {
 	extend: 'Ext.app.ViewController',
 	alias: 'controller.Page',
@@ -14,13 +17,5 @@ Ext.define('FB.view.PageController', {
 		parameters = parameters || {};
 		this.setDefault(parameters.default || this.getDefault());
 		this.setHeading(parameters.heading || this.getHeading());
-	},
-	/**
-	 * This method redirects the current page to a new one
-	 *
-	 * @param page the page to redirect to
-	 */
-	redirect: function (page) {
-		FB.app.content.setPage(page);
 	}
 });

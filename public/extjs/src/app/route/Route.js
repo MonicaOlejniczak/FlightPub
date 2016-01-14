@@ -251,50 +251,56 @@ Ext.define('Ext.app.route.Route', {
      * has been executed.
      * @param {Object} scope The scope to execute on the callback function, defaults to
      * the {@link Ext.app.route.Route}.
-     * @return {Object} An object with the resume method on it to control to continue
+     * @return {Object} An object with the `resume` and `stop` methods on it to control to continue
      * with the action or not.
      */
     createCallback : function (args, callback, scope) {
         var me = this;
 
+        scope = scope || me;
+
         return {
-            resume : function(success) {
-                if (success == undefined) {
-                    var controller = me.controller,
-                        action = me.action,
-                        resume;
+            resume : function() {
+                var controller = me.controller,
+                    action = me.action,
+                    resume;
 
-                    if (Ext.isString(action)) {
-                        //get method from the controller
-                        action = me.action = controller[action];
-                    }
-
-                    //get the parameter arguments
-                    args = args && args.args ? args.args : [];
-
-                    //remove the action argument from the before method
-                    resume = args.pop();
-
-                    if (resume && !Ext.isObject(resume)) {
-                        args.push(resume);
-                    }
-
-                    //make sure there is an action
-                    if (action) {
-                        //execute the action on the controller scoping to the controller
-                        action.apply(controller, args);
-                    }
-                    //<debug>
-                    else {
-                        Ext.log.warn('The action: ' + me.action + ' was not found on the controller.');
-                    }
-                    //</debug>
+                if (Ext.isString(action)) {
+                    //get method from the controller
+                    action = controller[action];
                 }
 
-                if (callback) {
-                    scope = scope || me;
+                //get the parameter arguments
+                args = args && args.args ? args.args : [];
 
-                    callback.call(scope, success);
+                //remove the action argument from the before method
+                resume = args.pop();
+
+                if (resume && !Ext.isObject(resume)) {
+                    args.push(resume);
+                }
+
+                //make sure there is an action
+                if (action) {
+                    me.action = action;
+
+                    //execute the action on the controller scoping to the controller
+                    action.apply(controller, args);
+                }
+                //<debug>
+                else {
+                    Ext.log.warn('The action: ' + me.action + ' was not found on the controller.');
+                }
+                //</debug>
+
+                if (callback) {
+                    callback.call(scope);
+                }
+            },
+
+            stop : function(all) {
+                if (callback) {
+                    callback.call(scope, all);
                 }
             }
         };

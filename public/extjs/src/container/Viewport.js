@@ -66,17 +66,21 @@
  *     });
  *
  * Alternatively you can turn any normal Container (or Component) into a Viewport using
- * the `{@link Ext.container.plugin.Viewport viewport plugin}`.
+ * the `{@link Ext.plugin.Viewport viewport plugin}`.
  */
 Ext.define('Ext.container.Viewport', {
     extend: 'Ext.container.Container',
 
     requires: [
-        'Ext.container.plugin.Viewport'
+        'Ext.plugin.Viewport'
+    ],
+
+    mixins: [
+        'Ext.mixin.Responsive'
     ],
 
     alias: 'widget.viewport',
-    alternateClassName: 'Ext.Viewport'
+    alternateClassName: 'Ext.Viewport',
 
     /**
      * @property {Boolean} isViewport
@@ -100,7 +104,7 @@ Ext.define('Ext.container.Viewport', {
      */
 
     /**
-     * @cfg {String/HTMLElement/Ext.Element} renderTo
+     * @cfg {String/HTMLElement/Ext.dom.Element} renderTo
      * Always renders to document body.
      * @private
      */
@@ -116,7 +120,21 @@ Ext.define('Ext.container.Viewport', {
      * Sets itself to viewport height.
      * @private
      */
+
+    privates: {
+        updateResponsiveState: function () {
+            // By providing this method we are in sync with the layout suspend/resume as
+            // well as other changes to configs that need to happen during this pulse of
+            // size change.
+
+            // Since we are not using the Viewport plugin beyond applying its methods on
+            // to our prototype, we need to be Responsive ourselves and call this here:
+            this.handleViewportResize();
+
+            this.mixins.responsive.updateResponsiveState.call(this);
+        }
+    }
 },
 function () {
-    Ext.container.plugin.Viewport.apply(this);
+    Ext.plugin.Viewport.apply(this);
 });

@@ -43,8 +43,18 @@ Ext.define('Ext.util.translatable.Abstract', {
      * @param {Number} y The current translation on the y axis
      */
 
+    /**
+     * @property {Number} x
+     * @private
+     * The last translated x value
+     */
     x: 0,
 
+    /**
+     * @property {Number} y
+     * @private
+     * The last translated y value
+     */
     y: 0,
 
     activeEasingX: null,
@@ -57,6 +67,10 @@ Ext.define('Ext.util.translatable.Abstract', {
 
     constructor: function(config) {
         this.mixins.observable.constructor.call(this, config);
+        // this.position is simply an internal reusable object for GC purposes and should
+        // not be accessed directly as it's values are not kept in sync.  always use
+        // getPosition() to get the position
+        this.position = { x: 0, y: 0};
     },
 
     factoryEasing: function(easing) {
@@ -115,6 +129,20 @@ Ext.define('Ext.util.translatable.Abstract', {
         return this.translate(x, y, animation);
     },
 
+    /**
+     * Returns the translatable object's current position.
+     * @return {Object} position An object with x and y properties
+     */
+    getPosition: function() {
+        var me = this,
+            position = me.position;
+
+        position.x = -me.x;
+        position.y = -me.y;
+
+        return position;
+    },
+
     animate: function(easingX, easingY) {
         this.activeEasingX = easingX;
         this.activeEasingY = easingY;
@@ -130,23 +158,29 @@ Ext.define('Ext.util.translatable.Abstract', {
     },
 
     translateAnimated: function(x, y, animation) {
+        var me = this;
+
         if (!Ext.isObject(animation)) {
             animation = {};
         }
 
-        if (this.isAnimating) {
-            this.stopAnimation();
+        if (me.isAnimating) {
+            me.stopAnimation();
         }
+
+        // Callback must be called in stopAnimation
+        me.callback = animation.callback;
+        me.callbackScope = animation.scope;
 
         var now = Ext.Date.now(),
             easing = animation.easing,
-            easingX = (typeof x == 'number') ? (animation.easingX || easing || this.getEasingX() || true) : null,
-            easingY = (typeof y == 'number') ? (animation.easingY || easing || this.getEasingY() || true) : null;
+            easingX = (typeof x == 'number') ? (animation.easingX || easing || me.getEasingX() || true) : null,
+            easingY = (typeof y == 'number') ? (animation.easingY || easing || me.getEasingY() || true) : null;
 
         if (easingX) {
-            easingX = this.factoryEasing(easingX);
+            easingX = me.factoryEasing(easingX);
             easingX.setStartTime(now);
-            easingX.setStartValue(this.x);
+            easingX.setStartValue(me.x);
             easingX.setEndValue(x);
 
             if ('duration' in animation) {
@@ -155,9 +189,9 @@ Ext.define('Ext.util.translatable.Abstract', {
         }
 
         if (easingY) {
-            easingY = this.factoryEasing(easingY);
+            easingY = me.factoryEasing(easingY);
             easingY.setStartTime(now);
-            easingY.setStartValue(this.y);
+            easingY.setStartValue(me.y);
             easingY.setEndValue(y);
 
             if ('duration' in animation) {
@@ -165,7 +199,7 @@ Ext.define('Ext.util.translatable.Abstract', {
             }
         }
 
-        return this.animate(easingX, easingY);
+        return me.animate(easingX, easingY);
     },
 
     doAnimationFrame: function() {
@@ -221,17 +255,23 @@ Ext.define('Ext.util.translatable.Abstract', {
     },
 
     stopAnimation: function() {
-        if (!this.isAnimating) {
+        var me = this;
+
+        if (!me.isAnimating) {
             return;
         }
 
-        this.activeEasingX = null;
-        this.activeEasingY = null;
+        me.activeEasingX = null;
+        me.activeEasingY = null;
 
-        this.isAnimating = false;
+        me.isAnimating = false;
 
-        Ext.AnimationQueue.stop(this.doAnimationFrame, this);
-        this.fireEvent('animationend', this, this.x, this.y);
+        Ext.AnimationQueue.stop(me.doAnimationFrame, me);
+        me.fireEvent('animationend', me, me.x, me.y);
+        if (me.callback) {
+            me.callback.call(me.callbackScope);
+            me.callback = null;
+        }
     },
 
     refresh: function() {

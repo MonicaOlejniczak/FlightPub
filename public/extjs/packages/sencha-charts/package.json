@@ -10,5 +10,10 @@
     "local": true,
     "requires": ["sencha-core"],
     "classpath": "${package.dir}/src,${package.dir}/src-${framework.name}",
-    "framework": "ext"
+    "framework": "ext",
+    "js": [
+        {
+            "path": "src/draw/engine/excanvas.js"
+        }
+    ]
 }

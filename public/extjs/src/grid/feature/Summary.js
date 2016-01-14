@@ -94,6 +94,8 @@ Ext.define('Ext.grid.feature.Summary', {
 
     dockedSummaryCls: Ext.baseCSSPrefix + 'docked-summary',
 
+    summaryItemCls: Ext.baseCSSPrefix + 'grid-item-summary',
+
     panelBodyCls: Ext.baseCSSPrefix + 'summary-',
 
     scrollPadProperty: 'padding-right',
@@ -122,8 +124,8 @@ Ext.define('Ext.grid.feature.Summary', {
                     me.summaryBar = grid.addDocked({
                         childEls: ['innerCt', 'item'],
                         renderTpl: [
-                            '<div id="{id}-innerCt" role="presentation">',
-                                '<table id="{id}-item" cellPadding="0" cellSpacing="0" class="' + tableCls.join(' ') + '">',
+                            '<div id="{id}-innerCt" data-ref="innerCt" role="presentation">',
+                                '<table id="{id}-item" data-ref="item" cellPadding="0" cellSpacing="0" class="' + tableCls.join(' ') + '">',
                                     '<tr class="' + me.summaryRowCls + '"></tr>',
                                 '</table>',
                             '</div>'
@@ -159,7 +161,7 @@ Ext.define('Ext.grid.feature.Summary', {
                 innerCt.setWidth(width);
             });
         } else {
-            me.view.addFooterFn(me.renderTFoot);
+            me.view.addFooterFn(me.renderSummaryRow);
         }
 
         grid.on({
@@ -175,12 +177,14 @@ Ext.define('Ext.grid.feature.Summary', {
         });
     },
 
-    renderTFoot: function(values, out, parent) {
+    renderSummaryRow: function(values, out, parent) {
         var view = values.view,
             me = view.findFeature('summary');
 
         if (me.showSummaryRow) {
+            out.push('<table class="' + Ext.baseCSSPrefix + 'table-plain ' + me.summaryItemCls + '">');
             me.outputSummaryRecord(me.createSummaryRecord(view), values, out, parent);
+            out.push('</table>');
         }
     },
 
@@ -207,7 +211,7 @@ Ext.define('Ext.grid.feature.Summary', {
         var columns = view.headerCt.getVisibleGridColumns(),
             summaryRecord = this.summaryRecord,
             colCount = columns.length, i, column,
-            summaryValue, Model, modelData;
+            dataIndex, summaryValue, Model, modelData;
         
         if (!summaryRecord) {
             Model = view.store.getModel();
@@ -223,14 +227,12 @@ Ext.define('Ext.grid.feature.Summary', {
 
             // In summary records, if there's no dataIndex, then the value in regular rows must come from a renderer.
             // We set the data value in using the column ID.
-            if (!column.dataIndex) {
-                column.dataIndex = column.id;
-            }
+            dataIndex = column.dataIndex || column.id;
 
             // We need to capture this value because it could get overwritten when setting on the model if there
             // is a convert() method on the model.
-            summaryValue = this.getSummary(view.store, column.summaryType, column.dataIndex);
-            summaryRecord.set(column.dataIndex, summaryValue);
+            summaryValue = this.getSummary(view.store, column.summaryType, dataIndex);
+            summaryRecord.set(dataIndex, summaryValue);
 
             // Capture the columnId:value for the summaryRenderer in the summaryData object.
             this.setSummaryData(summaryRecord, column.id, summaryValue);

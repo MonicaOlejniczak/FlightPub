@@ -154,4 +154,55 @@ describe("Ext.data.writer.Xml", function(){
             expect(request.getXmlData()).toBe(content.join(''));
         });
     });
+    
+    describe("transform", function(){
+        it("should invoke the transform function", function(){
+            var transformFn = function(data) {
+                return [{
+                    id: 10,
+                    title: 'Article 10',
+                    body: 'content10'
+                }];
+            };
+            
+            buildWriter({
+                transform: transformFn
+            });
+            
+            var request = writer.write(new Ext.data.Request({
+                operation: makeOperation(buildRecords([simpleData]))
+            }));
+            
+            var expectedXml = "<xmlData><record><id>10</id><title>Article 10</title><body>content10</body></record></xmlData>"
+            expect(request.getXmlData()).not.toBe(simpleXml);
+            expect(request.getXmlData()).toEqual(expectedXml);
+        });
+        
+        it("should invoke the transform function with the specified scope", function(){
+            var mockScope = {};
+            var transformFn = function(data) {
+                expect(this).toEqual(mockScope);
+                return [{
+                    id: 10,
+                    title: 'Article 10',
+                    body: 'content10'
+                }];
+            };
+            
+            buildWriter({
+                transform: {
+                    fn: transformFn,
+                    scope: mockScope
+                }
+            });
+            
+            var request = writer.write(new Ext.data.Request({
+                operation: makeOperation(buildRecords([simpleData]))
+            }));
+            
+            var expectedXml = "<xmlData><record><id>10</id><title>Article 10</title><body>content10</body></record></xmlData>"
+            expect(request.getXmlData()).not.toBe(simpleXml);
+            expect(request.getXmlData()).toEqual(expectedXml);
+        });
+    });
 });

@@ -21,24 +21,22 @@ public class Seat extends Model {
      * Specifies the seat row.
      */
     @Constraints.Required
-    @Constraints.MaxLength(2)
-    @ManyToOne(cascade = CascadeType.ALL)
-    public String row;
+    @Constraints.Min(0)
+    public Integer seatRow;
 
     /**
      * Specifies the seat number.
      */
     @Constraints.Required
     @Constraints.Min(0)
-    @ManyToOne(cascade = CascadeType.ALL)
-    public int seatNum;
+    public Integer seatColumn;
 
     /**
      * Class constructor setting the required variables of the class
      */
-    public Seat(String row, int seatNum) {
-        this.row = row;
-        this.seatNum = seatNum;
+    public Seat(int row, int column) {
+        this.seatRow = row;
+        this.seatColumn = column;
     }
 
     /**

@@ -27,7 +27,7 @@
  *             url: 'pagingstore.js',  // url that will load data with respect to start and limit params
  *             reader: {
  *                 type: 'json',
- *                 root: 'items',
+ *                 rootProperty: 'items',
  *                 totalProperty: 'total'
  *             }
  *         }
@@ -104,12 +104,16 @@
  */
 Ext.define('Ext.toolbar.Paging', {
     extend: 'Ext.toolbar.Toolbar',
-    alias: 'widget.pagingtoolbar',
+    xtype: 'pagingtoolbar',
     alternateClassName: 'Ext.PagingToolbar',
-    requires: ['Ext.toolbar.TextItem', 'Ext.form.field.Number'],
-    mixins: {
-        bindable: 'Ext.util.Bindable'    
-    },
+    requires: [
+        'Ext.toolbar.TextItem',
+        'Ext.form.field.Number'
+    ],
+    mixins: [
+        'Ext.util.StoreHolder'
+    ],
+
     /**
      * @cfg {Ext.data.Store} store (required)
      * The {@link Ext.data.Store} the paging toolbar should use as its data source.
@@ -296,7 +300,7 @@ Ext.define('Ext.toolbar.Paging', {
             // mark it as not a field so the form will not catch it when getting fields
             isFormField: false,
             width: me.inputItemWidth,
-            margins: '-1 2 3 2',
+            margin: '-1 2 3 2',
             listeners: inputListeners
         },{
             xtype: 'tbtext',

@@ -13,8 +13,7 @@
  *             url: 'get-images.php',
  *             reader: {
  *                 type: 'json',
- *                 root: 'images',
- *                 idProperty: 'name'
+ *                 rootProperty: 'images'
  *             }
  *         },
  *

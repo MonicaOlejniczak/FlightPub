@@ -24,7 +24,7 @@ Ext.define('Ext.event.publisher.ElementSize', {
             subscribers = this.subscribers,
             id, element, sizeMonitor;
 
-        if (!match) {
+        if (!match || target === '#ext-window') {
             return false;
         }
 

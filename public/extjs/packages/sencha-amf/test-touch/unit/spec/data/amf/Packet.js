@@ -1238,8 +1238,8 @@ describe("Ext.data.amf.Packet", function() {
                         9,9,1,12,7,1,2,3,12,7,4,5,6,12,2,12,4
                     ]);
 
-                    expect(arrays[0]).toEqual([1,2,3])
-                    expect(arrays[1]).toEqual([4,5,6])
+                    expect(arrays[0]).toEqual([1,2,3]);
+                    expect(arrays[1]).toEqual([4,5,6]);
                     expect(arrays[0]).toBe(arrays[2]);
                     expect(arrays[1]).toBe(arrays[3]);
                 });

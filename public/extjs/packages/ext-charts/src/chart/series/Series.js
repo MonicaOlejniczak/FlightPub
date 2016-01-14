@@ -57,10 +57,8 @@ Ext.define('Ext.chart.series.Series', {
      *
      *     tips: {
      *       trackMouse: true,
-     *       width: 140,
-     *       height: 28,
      *       renderer: function(storeItem, item) {
-     *         this.setTitle(storeItem.get('name') + ': ' + storeItem.get('data1') + ' views');
+     *         this.setHtml(storeItem.get('name') + ': ' + storeItem.get('data1') + ' views');
      *       }
      *     },
      */

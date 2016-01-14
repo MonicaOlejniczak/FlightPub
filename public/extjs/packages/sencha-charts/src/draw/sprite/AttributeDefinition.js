@@ -145,35 +145,29 @@ Ext.define('Ext.draw.sprite.AttributeDefinition', {
         return Ext.apply(oldUpdaters || {}, updaters);
     },
 
-    batchedNormalize: function (batchedChanges, reserveUnrecognized) {
+    batchedNormalize: function (batchedChanges, keepUnrecognized) {
         if (!batchedChanges) {
             return {};
         }
         var definition = this,
             processors = definition.getProcessors(),
             aliases = definition.getAliases(),
+            translation = batchedChanges.translation || batchedChanges.translate,
             normalized = {},
             i, ln, name, val,
-            translation, rotation, scaling,
+            rotation, scaling,
             matrix, subVal, split;
+
         if ('rotation' in batchedChanges) {
             rotation = batchedChanges.rotation;
-        }
-        else {
+        } else {
             rotation = ('rotate' in batchedChanges) ? batchedChanges.rotate : undefined;
         }
 
         if ('scaling' in batchedChanges) {
             scaling = batchedChanges.scaling;
-        }
-        else {
-            scaling = ('scale' in batchedChanges) ? batchedChanges.scale : undefined;
-        }
-
-        if ('translation' in batchedChanges) {
-            translation = batchedChanges.translation;
         } else {
-            translation = ('translate' in batchedChanges) ? batchedChanges.translate : undefined;
+            scaling = ('scale' in batchedChanges) ? batchedChanges.scale : undefined;
         }
 
         if (typeof scaling !== 'undefined') {
@@ -205,7 +199,7 @@ Ext.define('Ext.draw.sprite.AttributeDefinition', {
                     normalized.rotationRads = rotation.rads;
                 } else if ('degrees' in rotation) {
                     if (Ext.isArray(rotation.degrees)) {
-                        normalized.rotationRads = rotation.degrees.map(function (deg) {
+                        normalized.rotationRads = Ext.Array.map(rotation.degrees, function (deg) {
                             return Ext.draw.Draw.rad(deg);
                         });
                     } else {
@@ -261,7 +255,7 @@ Ext.define('Ext.draw.sprite.AttributeDefinition', {
                             normalized[name][i] = subVal;
                         }
                     }
-                } else if (reserveUnrecognized){
+                } else if (keepUnrecognized){
                     normalized[name] = val;
                 }
             } else {
@@ -273,7 +267,7 @@ Ext.define('Ext.draw.sprite.AttributeDefinition', {
                     if (typeof val !== 'undefined') {
                         normalized[name] = val;
                     }
-                } else if (reserveUnrecognized){
+                } else if (keepUnrecognized){
                     normalized[name] = val;
                 }
             }
@@ -285,9 +279,10 @@ Ext.define('Ext.draw.sprite.AttributeDefinition', {
      * Normalizes the changes given via their processors before they are applied as attributes.
      *
      * @param {Object} changes The changes given.
+     * @param {Boolean} keepUnrecognized If 'true', unknown attributes will be passed through as normalized values.
      * @return {Object} The normalized values.
      */
-    normalize: function (changes, reserveUnrecognized) {
+    normalize: function (changes, keepUnrecognized) {
         if (!changes) {
             return {};
         }
@@ -300,15 +295,13 @@ Ext.define('Ext.draw.sprite.AttributeDefinition', {
 
         if ('rotation' in changes) {
             rotation = changes.rotation;
-        }
-        else {
+        } else {
             rotation = ('rotate' in changes) ? changes.rotate : undefined;
         }
 
         if ('scaling' in changes) {
             scaling = changes.scaling;
-        }
-        else {
+        } else {
             scaling = ('scale' in changes) ? changes.scale : undefined;
         }
 
@@ -389,7 +382,7 @@ Ext.define('Ext.draw.sprite.AttributeDefinition', {
                 if (typeof val !== 'undefined') {
                     normalized[name] = val;
                 }
-            } else if (reserveUnrecognized){
+            } else if (keepUnrecognized){
                 normalized[name] = val;
             }
         }

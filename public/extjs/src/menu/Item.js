@@ -168,6 +168,7 @@ Ext.define('Ext.menu.Item', {
      */
     tooltipType: 'qtip',
 
+    baseCls: Ext.baseCSSPrefix + 'menu-item',
     arrowCls: Ext.baseCSSPrefix + 'menu-item-arrow',
     baseIconCls: Ext.baseCSSPrefix + 'menu-item-icon',
     textCls: Ext.baseCSSPrefix + 'menu-item-text',
@@ -182,42 +183,41 @@ Ext.define('Ext.menu.Item', {
         'itemEl', 'iconEl', 'textEl', 'arrowEl'
     ],
 
-    renderTpl: [
-        '<tpl if="plain">',
-            '{text}',
-        '<tpl else>',
-            '<a id="{id}-itemEl"',
-                ' class="{linkCls}<tpl if="hasHref"> {linkHrefCls}</tpl>{childElCls}"',
-                ' href="{href}" role="menuitem" ',
-                '<tpl if="hrefTarget"> target="{hrefTarget}"</tpl>',
-                ' hidefocus="true"',
+    renderTpl:
+        '<tpl if="plain">' +
+            '{text}' +
+        '<tpl else>' +
+            '<a id="{id}-itemEl" data-ref="itemEl"' +
+                ' class="{linkCls}<tpl if="hasHref"> {linkHrefCls}</tpl>{childElCls}"' +
+                ' href="{href}" role="menuitem" ' +
+                '<tpl if="hrefTarget"> target="{hrefTarget}"</tpl>' +
+                ' hidefocus="true"' +
                 // For most browsers the text is already unselectable but Opera needs an explicit unselectable="on".
-                ' unselectable="on"',
-                '<tpl if="tabIndex">',
-                    ' tabIndex="{tabIndex}"',
-                '</tpl>',
-            '>',
-                '<span id="{id}-textEl" class="{textCls} {indentCls}{childElCls}" unselectable="on">{text}</span>',
-                '<tpl if="hasIcon">',
-                    '<div role="presentation" id="{id}-iconEl" class="{baseIconCls}',
-                        '{[values.rightIcon ? "-right" : ""]} {iconCls}',
-                        '{childElCls} {glyphCls}" style="<tpl if="icon">background-image:url({icon});</tpl>',
-                        '<tpl if="glyph && glyphFontFamily">font-family:{glyphFontFamily};</tpl>">',
-                        '<tpl if="glyph">&#{glyph};</tpl>',
-                    '</div>',
-                '</tpl>',
-                '<tpl if="showCheckbox">',
-                    '<div role="presentation" id="{id}-checkEl" class="{baseIconCls}',
-                        '{[(values.hasIcon && !values.rightIcon) ? "-right" : ""]} ',
-                        '{groupCls} {checkboxCls}{childElCls}">',
-                    '</div>',
-                '</tpl>',
-                '<tpl if="hasMenu">',
-                    '<div role="presentation" id="{id}-arrowEl" class="{arrowCls}{childElCls}"></div>',
-                '</tpl>',
-            '</a>',
-        '</tpl>'
-    ],
+                ' unselectable="on"' +
+                '<tpl if="tabIndex">' +
+                    ' tabIndex="{tabIndex}"' +
+                '</tpl>' +
+            '>' +
+                '<span id="{id}-textEl" data-ref="textEl" class="{textCls} {textCls}-{ui} {indentCls}{childElCls}" unselectable="on">{text}</span>' +
+                '<tpl if="hasIcon">' +
+                    '<div role="presentation" id="{id}-iconEl" data-ref="iconEl" class="{baseIconCls}-{ui} {baseIconCls}' +
+                        '{[values.rightIcon ? "-right" : ""]} {iconCls}' +
+                        '{childElCls} {glyphCls}" style="<tpl if="icon">background-image:url({icon});</tpl>' +
+                        '<tpl if="glyph && glyphFontFamily">font-family:{glyphFontFamily};</tpl>">' +
+                        '<tpl if="glyph">&#{glyph};</tpl>' +
+                    '</div>' +
+                '</tpl>' +
+                '<tpl if="showCheckbox">' +
+                    '<div role="presentation" id="{id}-checkEl" data-ref="checkEl" class="{baseIconCls}-{ui} {baseIconCls}' +
+                        '{[(values.hasIcon && !values.rightIcon) ? "-right" : ""]} ' +
+                        '{groupCls} {checkboxCls}{childElCls}">' +
+                    '</div>' +
+                '</tpl>' +
+                '<tpl if="hasMenu">' +
+                    '<div role="presentation" id="{id}-arrowEl" data-ref="arrowEl" class="{arrowCls} {arrowCls}-{ui}{childElCls}"></div>' +
+                '</tpl>' +
+            '</a>' +
+        '</tpl>',
 
     maskOnDisable: false,
 
@@ -288,10 +288,6 @@ Ext.define('Ext.menu.Item', {
         }
     },
 
-    getFocusEl: function() {
-        return this.itemEl;
-    },
-
     deactivate: function() {
         var me = this,
             parent;
@@ -358,7 +354,7 @@ Ext.define('Ext.menu.Item', {
 
         if (me.activated && (!menu.rendered || !menu.isVisible())) {
             me.parentMenu.activeChild = menu;
-            menu.parentItem = me;
+            menu.ownerItem = me;
             menu.parentMenu = me.parentMenu;
             menu.constrainTo = document.body;
             menu.showBy(me, me.menuAlign);
@@ -388,18 +384,18 @@ Ext.define('Ext.menu.Item', {
     initComponent: function() {
         var me = this,
             prefix = Ext.baseCSSPrefix,
-            cls = [prefix + 'menu-item'],
+            cls = '',
             menu;
 
         if (me.plain) {
-            cls.push(prefix + 'menu-item-plain');
+            cls += prefix + 'menu-item-plain';
         }
 
         if (me.cls) {
-            cls.push(me.cls);
+            cls += ' ' + me.cls;
         }
 
-        me.cls = cls.join(' ');
+        me.cls = cls;
 
         if (me.menu) {
             menu = me.menu;
@@ -410,15 +406,17 @@ Ext.define('Ext.menu.Item', {
         me.callParent(arguments);
     },
 
-    onClick: function(e) {
+    onClick: function (e) {
         var me = this,
-            clickHideDelay = me.clickHideDelay;
+            clickHideDelay = me.clickHideDelay,
+            browserEvent = e.browserEvent,
+            preventDefault;
 
         if (!me.href || me.disabled) {
             e.stopEvent();
         }
 
-        if (me.disabled) {
+        if (me.disabled || me.handlingClick) {
             return;
         }
 
@@ -440,6 +438,27 @@ Ext.define('Ext.menu.Item', {
 
         Ext.callback(me.handler, me.scope, [me, e], 0, me);
         me.fireEvent('click', me, e);
+
+        // If there's an href, invoke dom.click() after we've fired the click event in case a click
+        // listener wants to handle it.
+        //
+        // Note that we're having to do this because the key navigation code will blindly call stopEvent()
+        // on all key events that it handles!
+        //
+        // But, we need to check the browser event object that was passed to the listeners to determine if
+        // the default action has been prevented.  If so, we don't want to honor the .href config.
+        if (Ext.isIE9m) {
+            // Here we need to invert the value since it's meaning is the opposite of defaultPrevented.
+            preventDefault = (browserEvent.returnValue === false) ? true : false;
+        } else {
+            preventDefault = !!browserEvent.defaultPrevented;
+        }
+
+        if (me.href && !preventDefault) {
+            me.handlingClick = true;
+            me.itemEl.dom.click();
+            delete me.handlingClick;
+        }
 
         if (!me.hideOnClick) {
             me.focus();
@@ -571,7 +590,6 @@ Ext.define('Ext.menu.Item', {
             arrowEl = me.arrowEl;
             
         if (oldMenu) {
-            delete oldMenu.parentItem;
             delete oldMenu.parentMenu;
             delete oldMenu.ownerItem;
             
@@ -700,6 +718,11 @@ Ext.define('Ext.menu.Item', {
         }
 
         return me;
-    }
+    },
 
+    privates: {
+        getFocusEl: function() {
+            return this.itemEl;
+        }
+    }
 });

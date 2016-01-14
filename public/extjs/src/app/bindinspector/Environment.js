@@ -1,10 +1,14 @@
+/**
+ * @private
+ * @class Ext.app.bindinspector.Environment
+ */
 Ext.define('Ext.app.bindinspector.Environment', {
     requires: [
         'Ext.util.Collection'
     ],
     
     /*
-     * Utility methods
+    ** Utility methods
      */
     getCmp: function(id) {
         return this.components.get(id);
@@ -30,8 +34,8 @@ Ext.define('Ext.app.bindinspector.Environment', {
     },
     
     
-    /**
-     * Capture methods
+    /*
+    ** Capture methods
      */
     
     captureSnapshot: function() {
@@ -119,7 +123,6 @@ Ext.define('Ext.app.bindinspector.Environment', {
         for (key in bind) {
             o = bind[key];
             stub = o.stub;
-
             bindInfo = {
                 id: o.id,
                 value: this.serializeValue(o.getRawValue()),

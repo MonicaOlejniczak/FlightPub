@@ -37,7 +37,7 @@ Ext.define('Ext.chart.interactions.Abstract', {
     },
 
     /**
-     * Android device is emerging too many events so if we re-render every frame it will take for-ever to finish a frame.
+     * Android device is emerging too many events so if we re-render every frame it will take forever to finish a frame.
      * This throttle technique will limit the timespan between two frames.
      */
     throttleGap: 0,
@@ -201,19 +201,20 @@ Ext.define('Ext.chart.interactions.Abstract', {
     initializeDefaults: Ext.emptyFn,
 
     doSync: function () {
-        var chart = this.getChart();
-        if (this.syncTimer) {
-            clearTimeout(this.syncTimer);
-            this.syncTimer = null;
+        var me = this,
+            chart = me.getChart();
+        if (me.syncTimer) {
+            clearTimeout(me.syncTimer);
+            me.syncTimer = null;
         }
-        if (this.stopAnimationBeforeSync) {
+        if (me.stopAnimationBeforeSync) {
             chart.resizing = true;
         }
         chart.redraw();
-        if (this.stopAnimationBeforeSync) {
+        if (me.stopAnimationBeforeSync) {
             chart.resizing = false;
         }
-        this.syncThrottle = Date.now() + this.throttleGap;
+        me.syncThrottle = Date.now() + me.throttleGap;
     },
 
     sync: function () {

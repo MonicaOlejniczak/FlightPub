@@ -13,10 +13,15 @@ Ext.define('Ext.chart.interactions.RotatePie3D', {
     alias: 'interaction.rotatePie3d',
 
     getAngle: function (e) {
-        var me = this,
-            chart = me.getChart(),
+        var chart = this.getChart(),
+            rtl = chart.getInherited().rtl,
+            direction = rtl ? -1 : 1,
+            pageXY = e.getXY(),
             xy = chart.element.getXY(),
             rect = chart.getMainRect();
-        return Math.atan2(e.pageY - xy[1] - rect[3] * 0.5, e.pageX - xy[0] - rect[2] * 0.5);
+        return direction * Math.atan2(
+            pageXY[1] - xy[1] - rect[3] * 0.5,
+            pageXY[0] - xy[0] - rect[2] * 0.5
+        );
     }
 });

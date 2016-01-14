@@ -14,22 +14,26 @@ Ext.define('Ext.chart.series.sprite.PieSlice', {
         def: {
             processors: {
                 /**
-                 * @cfg {Boolean} [doCallout=true] 'true' if the pie series uses label callouts.
+                 * @cfg {Boolean} [doCallout=true]
+                 * 'true' if the pie series uses label callouts.
                  */
                 doCallout: 'bool',
 
                 /**
-                 * @cfg {Boolean} [rotateLabels=true] 'true' if the labels are rotated for easier reading.
+                 * @cfg {Boolean} [rotateLabels=true]
+                 * 'true' if the labels are rotated for easier reading.
                  */
                 rotateLabels: 'bool',
 
                 /**
-                 * @cfg {String} [label=''] Label associated with the Pie sprite.
+                 * @cfg {String} [label='']
+                 * Label associated with the Pie sprite.
                  */
                 label: 'string',
 
                 /**
-                 * @cfg {Number} [labelOverflowPadding=10] Padding around labels to determine overlap.
+                 * @cfg {Number} [labelOverflowPadding=10]
+                 * Padding around labels to determine overlap.
                  * Any negative number allows the labels to overlap.
                  */
                 labelOverflowPadding: 'number',
@@ -59,7 +63,7 @@ Ext.define('Ext.chart.series.sprite.PieSlice', {
         rendererIndex: 0
     },
 
-    render: function (ctx, surface) {
+    render: function (surface, ctx, clip, rect) {
         var me = this,
             attr = me.attr,
             itemCfg = {},
@@ -78,7 +82,8 @@ Ext.define('Ext.chart.series.sprite.PieSlice', {
                 endRho: Math.max(attr.startRho, attr.endRho)
             };
             changes = attr.renderer.call(me, me, itemCfg, me.rendererData, me.rendererIndex);
-            Ext.apply(me.attr, changes);
+            me.setAttributes(changes);
+            me.useAttributes(ctx, clip);
         }
 
         // Draw the sector
@@ -93,6 +98,7 @@ Ext.define('Ext.chart.series.sprite.PieSlice', {
     placeLabel: function () {
         var me = this,
             attr = me.attr,
+            attributeId = me.attr.attributeId,
             startAngle = Math.min(attr.startAngle, attr.endAngle),
             endAngle = Math.max(attr.startAngle, attr.endAngle),
             midAngle = (startAngle + endAngle) * 0.5,
@@ -104,7 +110,10 @@ Ext.define('Ext.chart.series.sprite.PieSlice', {
             midRho = (startRho + endRho) * 0.5,
             surfaceMatrix = me.surfaceMatrix,
             labelCfg = me.labelCfg || (me.labelCfg = {}),
-            labelTpl = me.getBoundMarker('labels')[0].getTemplate(),
+            label = me.getBoundMarker('labels')[0],
+            labelTpl = label.getTemplate(),
+            calloutLine = labelTpl.getCalloutLine(),
+            calloutLineLength = calloutLine && calloutLine.length || 40,
             labelBox, x, y, changes;
 
         surfaceMatrix.appendMatrix(attr.matrix);
@@ -121,36 +130,63 @@ Ext.define('Ext.chart.series.sprite.PieSlice', {
         labelCfg.calloutStartX = surfaceMatrix.x(x, y);
         labelCfg.calloutStartY = surfaceMatrix.y(x, y);
 
-        x = centerX + Math.cos(midAngle) * (endRho + 40);
-        y = centerY + Math.sin(midAngle) * (endRho + 40);
+        x = centerX + Math.cos(midAngle) * (endRho + calloutLineLength);
+        y = centerY + Math.sin(midAngle) * (endRho + calloutLineLength);
         labelCfg.calloutPlaceX = surfaceMatrix.x(x, y);
         labelCfg.calloutPlaceY = surfaceMatrix.y(x, y);
 
-        labelCfg.rotationRads = (attr.rotateLabels ? midAngle + Math.atan2(surfaceMatrix.y(1, 0) - surfaceMatrix.y(0, 0), surfaceMatrix.x(1, 0) - surfaceMatrix.x(0, 0)) : 0);
-        labelCfg.calloutColor = me.attr.fillStyle;
+        if (attr.rotateLabels) {
+            labelCfg.rotationRads = midAngle + Math.atan2(
+                surfaceMatrix.y(1, 0) - surfaceMatrix.y(0, 0),
+                surfaceMatrix.x(1, 0) - surfaceMatrix.x(0, 0)
+            );
+        } else {
+            labelCfg.rotationRads = 0;
+        }
+        labelCfg.calloutColor = (calloutLine && calloutLine.color) || me.attr.fillStyle;
+        if (calloutLine) {
+            if (calloutLine.width) {
+                labelCfg.calloutWidth = calloutLine.width;
+            }
+        } else {
+            labelCfg.calloutHasLine = false;
+        }
         labelCfg.globalAlpha = attr.globalAlpha * attr.fillOpacity;
 
         // If a slice is empty, don't display the label.
         // This behavior can be overridden by a renderer.
         labelCfg.hidden = (attr.startAngle == attr.endAngle);
 
-        if (attr.renderer) {
-            labelCfg.type = 'label';
-            changes = attr.renderer.call(me, me, labelCfg, me.rendererData, me.rendererIndex);
-            Ext.apply(labelCfg, changes);
+        if (labelTpl.attr.renderer) {
+            changes = labelTpl.attr.renderer.call(me, me.attr.label, label, labelCfg, me.rendererData, me.rendererIndex);
+            if (typeof changes === 'string') {
+                labelCfg.text = changes;
+            } else {
+                Ext.apply(labelCfg, changes);
+            }
         }
-        me.putMarker('labels', labelCfg, me.attr.attributeId);
+        me.putMarker('labels', labelCfg, attributeId);
 
-        labelBox = me.getMarkerBBox('labels', me.attr.attributeId, true);
+        labelBox = me.getMarkerBBox('labels', attributeId, true);
         if (labelBox) {
             if (attr.doCallout) {
                 if (labelTpl.attr.display === 'outside') {
-                    me.putMarker('labels', {callout: 1}, me.attr.attributeId);
+                    me.putMarker('labels', {
+                        callout: 1
+                    }, attributeId);
+                } else if (labelTpl.attr.display === 'inside') {
+                    me.putMarker('labels', {
+                        callout: 0
+                    }, attributeId);
                 } else {
-                    me.putMarker('labels', {callout: 1 - +me.sliceContainsLabel(attr, labelBox)}, me.attr.attributeId);
+                    me.putMarker('labels', {
+                        callout: 1 - me.sliceContainsLabel(attr, labelBox)
+                    }, attributeId);
                 }
             } else {
-                me.putMarker('labels', {globalAlpha: +me.sliceContainsLabel(attr, labelBox)}, me.attr.attributeId);
+                me.putMarker('labels', {
+                    globalAlpha: me.sliceContainsLabel(attr, labelBox)
+                }, attributeId);
             }
         }
     },

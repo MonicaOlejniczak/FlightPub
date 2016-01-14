@@ -1252,6 +1252,8 @@ Ext.define('Ext.layout.Context', {
     // Diagnostics
 
     debugHooks: {
+        $enabled: false, // off by default
+
         pageAnalyzerMode: true,
 
         logOn: {

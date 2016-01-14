@@ -99,7 +99,7 @@ Ext.define('Ext.form.field.Checkbox', {
 
     childEls: [
         /**
-         * @property {Ext.Element} boxLabelEl
+         * @property {Ext.dom.Element} boxLabelEl
          * A reference to the label element created for the {@link #boxLabel}. Only present if the component has been
          * rendered and has a boxLabel configured.
          */
@@ -111,7 +111,7 @@ Ext.define('Ext.form.field.Checkbox', {
         '<div class="{wrapInnerCls} {noBoxLabelCls}" role="presentation">',
             '<tpl if="labelAlignedBefore">',
                 '{beforeBoxLabelTpl}',
-                '<label id="{cmpId}-boxLabelEl" {boxLabelAttrTpl} class="{boxLabelCls} ',
+                '<label id="{cmpId}-boxLabelEl" data-ref="boxLabelEl" {boxLabelAttrTpl} class="{boxLabelCls} ',
                         '{boxLabelCls}-{ui} {boxLabelCls}-{boxLabelAlign} {childElCls}" for="{id}">',
                     '{beforeBoxLabelTextTpl}',
                     '{boxLabel}',
@@ -119,14 +119,14 @@ Ext.define('Ext.form.field.Checkbox', {
                 '</label>',
                 '{afterBoxLabelTpl}',
             '</tpl>',
-            '<input type="button" id="{id}" role="{role}" {inputAttrTpl}',
+            '<input type="button" id="{id}" data-ref="inputEl" role="{role}" {inputAttrTpl}',
                 '<tpl if="tabIdx"> tabIndex="{tabIdx}"</tpl>',
                 '<tpl if="disabled"> disabled="disabled"</tpl>',
                 '<tpl if="fieldStyle"> style="{fieldStyle}"</tpl>',
                 ' class="{fieldCls} {typeCls} {typeCls}-{ui} {inputCls} {inputCls}-{ui} {childElCls} {afterLabelCls}" autocomplete="off" hidefocus="true" />',
             '<tpl if="boxLabel && !labelAlignedBefore">',
                 '{beforeBoxLabelTpl}',
-                '<label id="{cmpId}-boxLabelEl" {boxLabelAttrTpl} class="{boxLabelCls} ',
+                '<label id="{cmpId}-boxLabelEl" data-ref="boxLabelEl" {boxLabelAttrTpl} class="{boxLabelCls} ',
                         '{boxLabelCls}-{ui} {boxLabelCls}-{boxLabelAlign} {childElCls}" for="{id}">',
                     '{beforeBoxLabelTextTpl}',
                     '{boxLabel}',
@@ -353,7 +353,11 @@ Ext.define('Ext.form.field.Checkbox', {
     initEvents: function() {
         var me = this;
         me.callParent();
-        me.mon(me.inputEl, 'click', me.onBoxClick, me);
+        // We rely on the labelEl to also trigger a click on the DOM element, so force
+        // a click here and never have it translate to a tap
+        me.mon(me.inputEl, 'click', me.onBoxClick, me, {
+            translate: false
+        });
     },
     
     /**
@@ -372,7 +376,7 @@ Ext.define('Ext.form.field.Checkbox', {
     /**
      * @private Handle click on the checkbox button
      */
-    onBoxClick: function(e) {
+    onBoxClick: function() {
         var me = this;
         if (!me.disabled && !me.readOnly) {
             this.setValue(!this.checked);

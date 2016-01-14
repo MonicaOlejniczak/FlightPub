@@ -39,13 +39,13 @@ Ext.define('Ext.window.Window', {
     /**
      * @cfg {Number} x
      * The X position of the left edge of the window on initial showing. Defaults to centering the Window within the
-     * width of the Window's container {@link Ext.Element Element} (The Element that the Window is rendered to).
+     * width of the Window's container {@link Ext.dom.Element Element} (The Element that the Window is rendered to).
      */
 
     /**
      * @cfg {Number} y
      * The Y position of the top edge of the window on initial showing. Defaults to centering the Window within the
-     * height of the Window's container {@link Ext.Element Element} (The Element that the Window is rendered to).
+     * height of the Window's container {@link Ext.dom.Element Element} (The Element that the Window is rendered to).
      */
 
     /**
@@ -55,7 +55,7 @@ Ext.define('Ext.window.Window', {
      */
 
     /**
-     * @cfg {String/Ext.Element} [animateTarget=null]
+     * @cfg {String/Ext.dom.Element} [animateTarget=null]
      * Id or element from which the window should animate while opening.
      */
 
@@ -473,29 +473,6 @@ Ext.define('Ext.window.Window', {
         }
     },
 
-    // Override. Windows are always simple draggable, they do not use Ext.Panel.DDs
-    // The dd property in a Window is always a ComponentDragger
-    initDraggable: function() {
-        /**
-         * @property {Ext.util.ComponentDragger} dd
-         * If this Window is configured {@link #cfg-draggable}, this property will contain an instance of
-         * {@link Ext.util.ComponentDragger} (A subclass of {@link Ext.dd.DragTracker DragTracker}) which handles dragging
-         * the Window's DOM Element, and constraining according to the {@link #constrain} and {@link #constrainHeader} .
-         *
-         * This has implementations of `onBeforeStart`, `onDrag` and `onEnd` which perform the dragging action. If
-         * extra logic is needed at these points, use {@link Ext.Function#createInterceptor createInterceptor} or
-         * {@link Ext.Function#createSequence createSequence} to augment the existing implementations.
-         */
-        this.initSimpleDraggable();
-    },
-
-    initResizable: function(){
-        this.callParent(arguments);
-        if (this.maximized) {
-            this.resizer.disable();
-        }
-    },
-
     // @private
     onEsc: function(k, e) {
         var mgr = Ext['FocusManager'];
@@ -511,6 +488,7 @@ Ext.define('Ext.window.Window', {
     beforeDestroy: function() {
         var me = this;
         if (me.rendered) {
+            Ext.un('resize', me.onWindowResize, me);
             delete me.animateTarget;
             me.hide();
             Ext.destroy(
@@ -558,15 +536,6 @@ Ext.define('Ext.window.Window', {
                 hidden: true
             });
         }
-    },
-
-    /**
-     * @private
-     * Returns the focus holder element associated with this Window. By default, this is the Window's element.
-     * @returns {Ext.Element/Ext.Component} the focus holding element or Component.
-     */
-    getFocusEl: function() {
-        return this.getDefaultFocus();
     },
 
     /**
@@ -931,6 +900,39 @@ Ext.define('Ext.window.Window', {
         var ghost = this.callParent(arguments);
         ghost.xtype = 'window';
         return ghost;
-    }
+    },
 
+    privates: {
+        /**
+         * @private
+         * Returns the focus holder element associated with this Window. By default, this is the Window's element.
+         * @return {Ext.dom.Element/Ext.Component} the focus holding element or Component.
+         */
+        getFocusEl: function() {
+            return this.getDefaultFocus();
+        },
+
+        // Override. Windows are always simple draggable, they do not use Ext.Panel.DDs
+        // The dd property in a Window is always a ComponentDragger
+        initDraggable: function() {
+            /**
+             * @property {Ext.util.ComponentDragger} dd
+             * If this Window is configured {@link #cfg-draggable}, this property will contain an instance of
+             * {@link Ext.util.ComponentDragger} (A subclass of {@link Ext.dd.DragTracker DragTracker}) which handles dragging
+             * the Window's DOM Element, and constraining according to the {@link #constrain} and {@link #constrainHeader} .
+             *
+             * This has implementations of `onBeforeStart`, `onDrag` and `onEnd` which perform the dragging action. If
+             * extra logic is needed at these points, use {@link Ext.Function#createInterceptor createInterceptor} or
+             * {@link Ext.Function#createSequence createSequence} to augment the existing implementations.
+             */
+            this.initSimpleDraggable();
+        },
+
+        initResizable: function(){
+            this.callParent(arguments);
+            if (this.maximized) {
+                this.resizer.disable();
+            }
+        }
+    }
 });

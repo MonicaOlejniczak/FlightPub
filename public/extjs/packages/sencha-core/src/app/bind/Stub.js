@@ -4,46 +4,72 @@
  * @private
  */
 Ext.define('Ext.app.bind.Stub', {
-    extend: 'Ext.data.session.AbstractStub',
+    extend: 'Ext.app.bind.AbstractStub',
 
     requires: [
-        'Ext.data.session.Binding'
+        'Ext.app.bind.Binding'
     ],
 
     isStub: true,
 
+    dirty: true,
+
     formula: null,
 
-    constructor: function (owner, name, parent) {
-        this.callParent([ owner, name ]);
+    validationKey: 'validation',
 
-        if (parent) {
-            parent.add(this);
+    statics: {
+        populateValues: function(value, owner, path, stub) {
+            var children = stub && stub.children,
+                child, key;
+
+            // Keep track of the fact that we've had a value set. We may get set
+            // to undefined in the future, we only need to know whether we
+            // are initially in an undefined state
+            owner.hadValue[path] = true;
+            if (stub) {
+                stub.hadValue = true;
+            }
+
+            if (value && value.constructor === Object) {
+                for (key in value) {
+                    Ext.app.bind.Stub.populateValues(value[key], owner, path + '.' + key, children && children[key]);
+                }
+            }
         }
+    },
+
+    constructor: function (owner, name, parent) {
+        var me = this,
+            path = name;
+
+        me.callParent([ owner, name ]);
+        me.boundValue = null;
+        if (parent) {
+            parent.add(me);
+            if (!parent.isRootStub) {
+                path = parent.path + '.' + name;
+            }
+        }
+        me.hadValue = owner.hadValue[path];
+        me.path = name;
     },
     
     destroy: function() {
         var me = this,
             formula = me.formula,
             parent = me.parent,
-            assocBinding = me.assocBinding,
-            storeBinding = me.storeBinding,
-            recordBinding = me.recordBinding;
+            storeBinding = me.storeBinding;
 
-        if (assocBinding) {
-            assocBinding.destroy();
-        }
         if (formula) {
             formula.destroy();
         }
         if (storeBinding) {
             storeBinding.destroy();
         }
-        if (recordBinding) {
-            recordBinding.destroy();
-        }
+        me.detachBound();
 
-        me.formula = me.storeBinding = me.assocBinding = me.recordBinding = null;
+        me.parentValue = me.formula = me.storeBinding = null;
         
         me.callParent();
     },
@@ -51,16 +77,14 @@ Ext.define('Ext.app.bind.Stub', {
     collect: function() {
         var me = this,
             result = me.callParent(),
-            assocBinding = me.assocBinding ? 1 : 0,
-            storeBinding = me.storeBinding ? 1 : 0,
-            recordBinding = me.recordBinding ? 1 : 0;
+            storeBinding = me.storeBinding ? 1 : 0;
         
-        return result + assocBinding + storeBinding + recordBinding;
+        return result + storeBinding;
     },
 
     bindValidation: function (callback, scope) {
         var parent = this.parent;
-        return parent && parent.descend(['validation', this.name]).bind(callback, scope);
+        return parent && parent.descend([this.validationKey, this.name]).bind(callback, scope);
     },
 
     descend: function (path, index) {
@@ -81,76 +105,33 @@ Ext.define('Ext.app.bind.Stub', {
         return ret;
     },
 
-    getAssociationBinding: function (rec, role) {
-        // If getting a validation binding, role will be true.
-        var me = this,
-            old = me.assocBinding,
-            stub = old ? old.stub : null,
-            changed = !stub,
-            stubRole,
-            bind;
-
-        if (stub) {
-            stubRole = stub.role;
-            if (stub.isValidationStub) {
-                stubRole = true;
-            }
-            
-            changed = stub.entityId !== rec.id ||
-                      stub.entityType !== rec.self ||
-                      stubRole !== role;
-        }
-
-        if (changed) {
-            Ext.destroy(old);
-
-            bind = {
-                reference: rec.entityName,
-                id: rec.getId()
-            };
-
-            if (role === true) {
-                bind.validation = true;
-            } else {
-                bind.association = role.role;
-            }
-
-            me.assocBinding = me.owner.bind(bind, me.onAssociationLoad, me);
-        }
-
-        return me.assocBinding;
-    },
-
     getChildValue: function (parentData) {
         var me = this,
             name = me.name,
-            associations, ret;
+            ret;
 
         if (!parentData && !Ext.isString(parentData)) {
             // since these forms of falsey values (0, false, etc.) are not things we
             // can index into, this child stub must be null.
-            ret = parentData === null ? undefined : null;
-        } else if (parentData.isEntity) {
-            associations = parentData.associations;
-
-            if (associations && (name in associations)) {
-                ret = me.getAssociationBinding(parentData, associations[name]).getValue();
-            } else if (name === 'validation') {
-                ret = me.getAssociationBinding(parentData, true).getValue();
-            } else {
-                // If not an association then it is a data field
-                ret = parentData.data[name];
-            }
+            ret = me.hadValue ? null : undefined;
         } else {
-            ret = parentData[name];
+            ret = me.inspectValue(parentData);
+            if (!ret) {
+                if (parentData.isEntity) {
+                    // If we get here, we know it's not an association
+                    ret = parentData.data[name];
+                } else {
+                    ret = parentData[name];
+                }
+            }
         }
-
         return ret;
     },
 
     getDataObject: function () {
-        var parentData = this.parent.getDataObject(), // RootStub does not get here
-            name = this.name,
+        var me = this,
+            parentData = me.parent.getDataObject(), // RootStub does not get here
+            name = me.name,
             ret = parentData ? parentData[name] : null;
 
         if (!ret || !(ret.$className || Ext.isObject(ret))) {
@@ -159,21 +140,16 @@ Ext.define('Ext.app.bind.Stub', {
             }
             parentData[name] = ret = {};
             // We're implicitly setting a value on the object here
-            this.hadValue = true;
+            me.hadValue = me.owner.hadValue[me.path] = true;
         }
 
         return ret;
     },
 
-    onAssociationLoad: function (rec) {
-        // Our association has just presented, kick off any related children
-        this.scheduleDeep();
-    },
-
     getRawValue: function () {
         // NOTE: The RootStub class does not call here so we will *always* have a parent
         // unless dark energy has won and the laws of physics have broken down.
-        return this.getChildValue(this.parent.getValue());
+        return this.getChildValue(this.getParentValue());
     },
 
     graft: function (replacement) {
@@ -204,22 +180,13 @@ Ext.define('Ext.app.bind.Stub', {
         var me = this,
             parent = me.parent,
             loading = false,
-            name = me.name,
-            value, associations, binding;
+            value;
         
         if (parent && !(loading = parent.isLoading())) {
-            value = parent.getRawValue();
-
-            if (value && value.isEntity) {
-                associations = value.associations;
-                if (associations && (name in associations)) {
-                    binding = me.getAssociationBinding(value, associations[name]);
-                } else if (name === 'validation') {
-                    binding = me.getAssociationBinding(value, true);
-                }
-                if (binding) {
-                    loading = binding.isLoading();
-                }
+            value = me.inspectValue(me.getParentValue());
+            // If we get a value back, it's something we can ask for the loading state
+            if (value) {
+                loading = value.isLoading();
             } else {
                 loading = !me.hadValue && me.getRawValue() === undefined;
             }
@@ -228,23 +195,22 @@ Ext.define('Ext.app.bind.Stub', {
         return loading;
     },
 
-    scheduleDeep: function () {
+    invalidate: function (deep) {
         var me = this,
             children = me.children,
-            child, name;
-            
+            name;
+
+        me.dirty = true;
         if (!me.isLoading()) {
             if (!me.scheduled) {
                 // If we have no children, we're a leaf
                 me.schedule();
             }
+        }
 
-            if (children) {
-                for (name in children) {
-                    if (!(child = children[name]).scheduled) {
-                        child.scheduleDeep();
-                    }
-                }
+        if (deep && children) {
+            for (name in children) {
+                children[name].invalidate(deep);
             }
         }
     },
@@ -255,13 +221,7 @@ Ext.define('Ext.app.bind.Stub', {
             name = me.name,
             // To set a child property, the parent must be an object...
             parentData = parent.getDataObject(),
-            recordBinding = me.recordBinding,
-            associations, recordStub;
-        
-        if (recordBinding) {
-            recordBinding.destroy();
-            me.recordBinding = null;
-        }
+            associations;
 
         if (parentData.isEntity) {
             associations = parentData.associations;
@@ -281,24 +241,58 @@ Ext.define('Ext.app.bind.Stub', {
                     delete parentData[name];
                 } else {
                     parentData[name] = value;
-                    // Keep track of the fact that we've had a value set. We may get set
-                    // to undefined in the future, we only need to know whether we
-                    // are initially in an undefined state
-                    me.hadValue = true;
+                    Ext.app.bind.Stub.populateValues(value, me.owner, me.path, me);
                 }
 
+                me.inspectValue(parentData);
                 // We have children, but we're overwriting the value with something else, so
                 // we need to schedule our children
-                me.scheduleDeep();
-                
-                if (value && value.isModel) {
-                    recordStub = value.$stub;
-                    if (recordStub) {
-                        me.recordBinding = recordStub.bind(me.onRecordChange, me);
+                me.invalidate(true);
+            }
+        }
+    },
+
+    onStoreLoad: function() {
+        this.invalidate(true);
+    },
+
+    afterLoad: function(record) {
+        this.invalidate(true);
+    },
+
+    afterEdit: function(record, modifiedFieldNames) {
+        var children = this.children,
+            len = modifiedFieldNames && modifiedFieldNames.length,
+            associations = record.associations,
+            key, i, child, scheduled;
+
+        // No point checking anything if we don't have children
+        if (children) {
+            if (len) {
+                // We know what changed, check for it and schedule it.
+                for (i = 0; i < len; ++i) {
+                    child = children[modifiedFieldNames[i]];
+                    if (child) {
+                        child.invalidate();
+                    }
+                }
+            } else {
+                // We don't know what changed, so loop over everything.
+                // If the child is not an association, then it's a field so we
+                // need to trigger them so we can respond to field changes
+                for (key in children) {
+                    if (!(associations && key in associations)) {
+                        children[key].invalidate();
                     }
                 }
             }
         }
+        this.invalidate();
+    },
+
+    afterReject: function(record) {
+        // Essentially the same as an edit, but we don't know what changed.
+        this.afterEdit(record, null);
     },
 
     setByLink: function (value) {
@@ -346,54 +340,141 @@ Ext.define('Ext.app.bind.Stub', {
         // us when it sets our value).
         me.formula = new Ext.app.bind.Formula(me, formula);
     },
-    
-    setStore: function(storeBinding) {
-        this.storeBinding = storeBinding;
-    },
 
-    sort: function () {
+    react: function() {
         var me = this,
-            formula = me.formula,
-            assocBinding = me.assocBinding,
-            scheduler = me.scheduler,
-            storeBinding = me.storeBinding,
-            recordBinding = me.recordBinding;
+            bound = this.boundValue,
+            children = me.children,
+            generation;
 
-        me.callParent();
-
-        if (assocBinding) {
-            scheduler.sortItem(assocBinding);
-        }
-        
-        if (storeBinding) {
-            scheduler.sortItem(storeBinding);
-        }
-        
-        if (recordBinding) {
-            scheduler.sortItem(recordBinding);
-        }
-
-        if (formula) {
-            // Our formula must run before we do so it can set the value on us. Our
-            // bindings in turn depend on us so they will be scheduled as part of the
-            // current sweep if the formula produces a different result.
-            scheduler.sortItem(formula);
-        }
-    },
-    
-    onRecordChange: function(rec) {
-        var children = this.children,
-            key, associations;
-        
-        // The current value is a record. Loop over all the children.
-        // If the child is not an association, then it's a field so we
-        // need to trigger them so we can respond to field changes
-        if (children && rec) {
-            for (key in children) {
-                associations = rec.associations;
-                if (!(associations && key in associations)) {
-                    children[key].schedule();
+        if (bound) {
+            if (bound.isValidation) {
+                bound.refresh();
+                generation = bound.generation;
+                // Don't react if we haven't changed
+                if (me.lastValidationGeneration === generation) {
+                    return;
                 }
+                me.lastValidationGeneration = generation;
+            } else if (bound.isModel) {
+                // At this point we're guaranteed to have a non-validation model
+                // Check if we're interested in it, if so, validate it and let
+                // the record fire off any changes
+                if (children && children[me.validationKey]) {
+                    // Trigger validity checks
+                    bound.isValid();
+                }
+            } else if (bound.isStore) {
+                // If we're loading and never delivered, don't do it here
+                if (bound.isLoading() && !bound.loadCount) {
+                    return;
+                }
+            }
+        }
+
+        this.callParent();
+    },
+
+    privates: {
+        getParentValue: function() {
+            var me = this;
+            // Cache the value of the parent here. Inside onSchedule we clear the value
+            // because it may be invalidated.
+            if (me.dirty) {
+                me.parentValue = me.parent.getValue();
+                me.dirty = false;
+            }
+            return me.parentValue;
+        },
+
+        setStore: function(storeBinding) {
+          this.storeBinding = storeBinding;
+        },
+
+        inspectValue: function(parentData) {
+            var me = this,
+                name = me.name,
+                current = me.boundValue,
+                boundValue = null,
+                associations, association, raw, changed;
+
+            if (parentData && parentData.isEntity) {
+                associations = parentData.associations;
+                if (associations && (name in associations)) {
+                    association = associations[name];
+                    boundValue = parentData[association.getterName]();
+                    if (boundValue && boundValue.isStore) {
+                        boundValue.$associatedStore = true;
+                    }
+                } else if (name === me.validationKey) {
+                    boundValue = parentData.getValidation(true);
+                    // Binding a new one, reset the generation
+                    me.lastValidationGeneration = null;
+                }
+            } else if (parentData) {
+                raw = parentData[name];
+                if (raw && (raw.isModel || raw.isStore)) {
+                    boundValue = raw;
+                }
+            }
+
+            // Check if we have a current binding that changed. If so, we need
+            // to detach ourselves from it
+            changed = current !== boundValue;
+            if (changed) {
+                if (current) {
+                    me.detachBound();
+                }
+
+                if (boundValue) {
+                    if (boundValue.isModel) {
+                        boundValue.join(me);
+                    } else {
+                        // Only want to trigger automatic loading if we've come from an association. Otherwise leave
+                        // the user in charge of that.
+                        if (boundValue.$associatedStore && !boundValue.getCount() && !boundValue.loadCount && !boundValue.hasPendingLoad()) {
+                            boundValue.load();
+                        }
+                        // We only want to listen for the first load, since the actual
+                        // store object won't change from then on
+                        boundValue.on('load', me.onStoreLoad, me, {single: true});
+                    }
+                }
+                me.boundValue = boundValue;
+            }
+            return boundValue;
+        },
+
+        detachBound: function() {
+            var me = this,
+                current = me.boundValue;
+
+            if (current) {
+                if (current.isModel) {
+                    current.unjoin(me);
+                } else {
+                    current.un('load', me.onStoreLoad, me);
+                }
+            }
+        },
+
+        sort: function () {
+            var me = this,
+                formula = me.formula,
+                scheduler = me.scheduler,
+                storeBinding = me.storeBinding;
+
+            me.callParent();
+        
+            if (storeBinding) {
+                scheduler.sortItem(storeBinding);
+            }
+
+            if (formula) {
+                // Our formula must run before we do so it can set the value on us. Our
+                // bindings in turn depend on us so they will be scheduled as part of the
+                // current sweep if the formula produces a different result.
+                scheduler.sortItem(formula);
             }
         }
     }

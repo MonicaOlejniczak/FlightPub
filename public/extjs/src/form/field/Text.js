@@ -60,7 +60,8 @@ Ext.define('Ext.form.field.Text', {
     alias: 'widget.textfield',
     requires: [
         'Ext.form.field.VTypes',
-        'Ext.form.trigger.Trigger'
+        'Ext.form.trigger.Trigger',
+        'Ext.util.TextMetrics'
     ],
     alternateClassName: ['Ext.form.TextField', 'Ext.form.Text'],
 
@@ -348,6 +349,7 @@ Ext.define('Ext.form.field.Text', {
 
     inputWrapFocusCls: Ext.baseCSSPrefix + 'form-text-wrap-focus',
     inputWrapInvalidCls: Ext.baseCSSPrefix + 'form-text-wrap-invalid',
+    growCls: Ext.baseCSSPrefix + 'form-text-grow',
 
     // private
     monitorTab: true,
@@ -356,18 +358,23 @@ Ext.define('Ext.form.field.Text', {
 
     childEls: [
         /**
-         * @property {Ext.Element} triggerWrap
+         * @property {Ext.dom.Element} triggerWrap
          * A reference to the element which encapsulates the input field and all
          * trigger button(s). Only set after the field has been rendered.
          */
         'triggerWrap',
 
+        /**
+         * @property {Ext.dom.Element} inputWrap
+         * A reference to the element that wraps the input element. Only set after the
+         * field has been rendered.
+         */
         'inputWrap'
     ],
 
     preSubTpl: [
-        '<div id="{cmpId}-triggerWrap" class="{triggerWrapCls} {triggerWrapCls}-{ui}">',
-            '<div id={cmpId}-inputWrap class="{inputWrapCls} {inputWrapCls}-{ui}">'
+        '<div id="{cmpId}-triggerWrap" data-ref="triggerWrap" class="{triggerWrapCls} {triggerWrapCls}-{ui}">',
+            '<div id={cmpId}-inputWrap data-ref="inputWrap" class="{inputWrapCls} {inputWrapCls}-{ui}">'
     ],
 
     postSubTpl: [
@@ -421,7 +428,9 @@ Ext.define('Ext.form.field.Text', {
         //</debug>
         // In Ext JS 4.x the layout system used the following magic formula for converting
         // the "size" config into a pixel value.
-        me.defaultBodyWidth = me.size * 6.5 + 20;
+        if (me.size) {
+            me.defaultBodyWidth = me.size * 6.5 + 20;
+        }
 
         if (!me.onTrigger1Click) {
             // for compat with 4.x TriggerField
@@ -541,10 +550,11 @@ Ext.define('Ext.form.field.Text', {
             elements = [],
             id, triggerEl;
 
-        if (Ext.supports.MinWidthTableCellBug) {
-            // Workaround for https://bugs.webkit.org/show_bug.cgi?id=130239
+        if (Ext.supports.FixedTableWidthBug) {
+            // Workaround for https://bugs.webkit.org/show_bug.cgi?id=130239 and
+            // https://code.google.com/p/chromium/issues/detail?id=377190
             // See styleHooks for more details
-            me.el._needsMinWithFix = true;
+            me.el._needsTableWidthFix = true;
         }
 
         me.callParent();
@@ -566,7 +576,7 @@ Ext.define('Ext.form.field.Text', {
         }
 
         /**
-         * @property {Ext.Element} inputCell
+         * @property {Ext.dom.Element} inputCell
          * A reference to the element that wraps the input element. Only set after the
          * field has been rendered.
          * @deprecated 5.0 use {@link #inputWrap} instead
@@ -582,7 +592,7 @@ Ext.define('Ext.form.field.Text', {
         this.invokeTriggers('afterFieldRender');
     },
 
-    onMouseDown: function(e){
+    onMouseDown: function(){
         var me = this;
         if(!me.hasFocus){
             me.mon(me.inputEl, 'mouseup', Ext.emptyFn, me, { single: true, preventDefault: true });
@@ -1204,29 +1214,40 @@ Ext.define('Ext.form.field.Text', {
     },
 
     /**
-     * Automatically grows the field to accommodate the width of the text up to the maximum field width allowed. This
-     * only takes effect if {@link #grow} = true, and fires the {@link #autosize} event if the width changes.
+     * Automatically grows the field to accommodate the width of the text up to the maximum
+     * field width allowed. This only takes effect if {@link #grow} = true, and fires the
+     * {@link #autosize} event if the width changes.
      */
     autoSize: function() {
-        var me = this;
-        if (me.grow && me.rendered) {
-            me.autoSizing = true;
-            me.updateLayout();
-        }
-    },
-
-    afterComponentLayout: function() {
         var me = this,
-            width;
+            triggers, triggerId, trigger, triggerWidth, inputEl, inputWidth, width, value;
 
-        me.callParent(arguments);
-        if (me.autoSizing) {
-            width = me.inputEl.getWidth();
-            if (width !== me.lastInputWidth) {
-                me.fireEvent('autosize', me, width);
-                me.lastInputWidth = width;
-                delete me.autoSizing;
+        if (me.grow && me.rendered) {
+            inputEl = me.inputEl;
+            triggers = me.getTriggers();
+            triggerWidth = 0;
+
+            value = Ext.util.Format.htmlEncode(
+                inputEl.dom.value || (me.hasFocus ? '' : me.emptyText) || ''
+            );
+            value += me.growAppend;
+
+            for (triggerId in triggers) {
+                triggerWidth += triggers[triggerId].el.getWidth();
             }
+
+            width = inputEl.getTextWidth(value) +  triggerWidth +
+                // The element that has the border depends on theme - inputWrap (classic)
+                // or triggerWrap (neptune)
+                me.inputWrap.getBorderWidth('lr') + me.triggerWrap.getBorderWidth('lr');
+
+            width = Math.min(Math.max(width, me.growMin), me.growMax);
+
+            me.bodyEl.setWidth(width);
+
+            me.updateLayout();
+
+            me.fireEvent('autosize', me, width);
         }
     },
 
@@ -1245,6 +1266,16 @@ Ext.define('Ext.form.field.Text', {
     },
 
     onTriggerClick: Ext.emptyFn,
+
+    privates: {
+        /**
+         * @private
+         * @override
+         */
+        getTdType: function () {
+            return 'textfield';
+        }
+    },
 
     deprecated: {
         5: {

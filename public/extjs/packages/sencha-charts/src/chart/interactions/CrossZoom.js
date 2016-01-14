@@ -128,7 +128,7 @@ Ext.define('Ext.chart.interactions.CrossZoom', {
             dragstart: 'onGestureStart',
             drag: 'onGesture',
             dragend: 'onGestureEnd',
-            doubletap: 'onDoubleTap'
+            dblclick: 'onDoubleTap'
         },
 
         undoButton: {}
@@ -209,9 +209,9 @@ Ext.define('Ext.chart.interactions.CrossZoom', {
             rect = chart.getInnerRect(),
             chartWidth = rect[2],
             chartHeight = rect[3],
-            xy = chart.element.getXY(),
-            x = e.getX() - xy[0] - rect[0],
-            y = e.getY() - xy[1] - rect[1];
+            xy = chart.getEventXY(e),
+            x = xy[0],
+            y = xy[1];
 
         if (me.zoomAnimationInProgress) {
             return;
@@ -249,9 +249,9 @@ Ext.define('Ext.chart.interactions.CrossZoom', {
                 rect = chart.getInnerRect(),
                 chartWidth = rect[2],
                 chartHeight = rect[3],
-                xy = chart.element.getXY(),
-                x = e.getX() - xy[0] - rect[0],
-                y = e.getY() - xy[1] - rect[1];
+                xy = chart.getEventXY(e),
+                x = xy[0],
+                y = xy[1];
 
             if (x < 0) {
                 x = 0;
@@ -288,9 +288,9 @@ Ext.define('Ext.chart.interactions.CrossZoom', {
                 rect = chart.getInnerRect(),
                 chartWidth = rect[2],
                 chartHeight = rect[3],
-                xy = chart.element.getXY(),
-                x = e.getX() - xy[0] - rect[0],
-                y = e.getY() - xy[1] - rect[1];
+                xy = chart.getEventXY(e),
+                x = xy[0],
+                y = xy[1];
 
             if (x < 0) {
                 x = 0;
@@ -356,10 +356,20 @@ Ext.define('Ext.chart.interactions.CrossZoom', {
     zoomBy: function (rect) {
         var me = this,
             axisConfigs = me.getAxes(),
-            axes = me.getChart().getAxes(),
+            chart = me.getChart(),
+            axes = chart.getAxes(),
+            isRtl = chart.getInherited().rtl,
             config,
-            zoomMap = {};
+            zoomMap = {},
+            x1, x2;
 
+        if (isRtl) {
+            rect = rect.slice();
+            x1 =  1 - rect[0];
+            x2 =  1 - rect[2];
+            rect[0] = Math.min(x1, x2);
+            rect[2] = Math.max(x1, x2);
+        }
         for (var i = 0; i < axes.length; i++) {
             var axis = axes[i];
             config = axisConfigs[axis.getPosition()];

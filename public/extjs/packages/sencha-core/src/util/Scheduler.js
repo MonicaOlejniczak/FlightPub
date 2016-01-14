@@ -359,7 +359,9 @@ Ext.define('Ext.util.Scheduler', {
             } else {
                 me.firing = null;
                 //<debug>
-                Ext.Error.raise('Exceeded cycleLimit ' + me.getCycleLimit());
+                if (me.onCycleLimitExceeded) {
+                    me.onCycleLimitExceeded();
+                }
                 //</debug>
                 break;
             }
@@ -434,12 +436,6 @@ Ext.define('Ext.util.Scheduler', {
     scheduleItem: function (item) {
         var me = this;
 
-        //<debug>
-        if (item.order <= me.notifyIndex) {
-            Ext.log.warn('Suboptimal order: ' + item.order + ' < ' + me.notifyIndex);
-        }
-        //</debug>
-
         ++me.scheduledCount;
         //Ext.log('Schedule: ' + item.getFullName());
 
@@ -474,11 +470,6 @@ Ext.define('Ext.util.Scheduler', {
         if (this.scheduledCount) {
             --this.scheduledCount;
         }
-        //<debug>
-        else {
-            Ext.Error.raise('Invalid scheduleCount');
-        }
-        //</debug>
     },
 
     // </editor-fold>
@@ -532,7 +523,34 @@ Ext.define('Ext.util.Scheduler', {
      */
     isIdle: function () {
         return !(this.busyCounter + this.lastBusyCounter);
-    }
+    },
 
     // </editor-fold>
+
+    debugHooks: {
+        $enabled: false, // Disable by default
+
+        onCycleLimitExceeded: function () {
+            Ext.Error.raise('Exceeded cycleLimit ' + this.getCycleLimit());
+        },
+
+        scheduleItem: function (item) {
+            if (!item) {
+                Ext.Error.raise('scheduleItem: Invalid argument');
+            }
+            Ext.log('Schedule item: ' + item.getFullName() + ' - ' + (this.scheduledCount+1));
+            if (item.order <= this.notifyIndex) {
+                Ext.log.warn('Suboptimal order: ' + item.order + ' < ' + this.notifyIndex);
+            }
+            this.callParent([item]);
+        },
+
+        unscheduleItem: function (item) {
+            if (!this.scheduledCount) {
+                Ext.Error.raise('Invalid scheduleCount');
+            }
+            this.callParent([item]);
+            Ext.log('Unschedule item: ' + item.getFullName() + ' - ' + this.scheduledCount);
+        }
+    }
 });

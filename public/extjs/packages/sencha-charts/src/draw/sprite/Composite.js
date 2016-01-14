@@ -20,9 +20,10 @@ Ext.define('Ext.draw.sprite.Composite', {
      * @param {Ext.draw.sprite.Sprite|Object} sprite
      */
     add: function (sprite) {
-        if (!(sprite instanceof Ext.draw.sprite.Sprite)) {
+        if (!sprite.isSprite) {
             sprite = Ext.create('sprite.' + sprite.type, sprite);
             sprite.setParent(this);
+            sprite.setSurface(this.getSurface());
         }
         var oldTransformations = sprite.applyTransformations,
             me = this,
@@ -41,6 +42,12 @@ Ext.define('Ext.draw.sprite.Composite', {
         attr.bbox.plain.dirty = true;
         attr.bbox.transform.dirty = true;
         return sprite;
+    },
+
+    updateSurface: function (surface) {
+        for (var i = 0, ln = this.sprites.length; i < ln; i++) {
+            this.sprites[i].setSurface(surface);
+        }
     },
 
     /**

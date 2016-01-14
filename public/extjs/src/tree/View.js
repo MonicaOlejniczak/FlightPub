@@ -43,12 +43,6 @@ Ext.define('Ext.tree.View', {
     rootVisible: true,
 
     /**
-     * @cfg {Boolean} deferInitialRefresh
-     * Must be false for Tree Views because the root node must be rendered in order to be updated with its child nodes.
-     */
-    deferInitialRefresh: false,
-
-    /**
      * @cfg {Boolean} animate
      * True to enable animated expand/collapse (defaults to the value of {@link Ext#enableFx Ext.enableFx})
      */
@@ -74,7 +68,6 @@ Ext.define('Ext.tree.View', {
                 var record = rowValues.record,
                     view = rowValues.view;
 
-                rowValues.rowAttr = {};
                 // We always need to set the qtip/qtitle, because they may have been
                 // emptied, which means we still need to flush that change to the DOM
                 // so the old values are overwritten
@@ -232,10 +225,11 @@ Ext.define('Ext.tree.View', {
         this.store.removeAll();
     },
 
-    setRootNode: function(node) {
-        var me = this;
-        me.store.setNode(node);
-        me.node = node;
+    setRootNode: function(node, preventSetOnStore) {
+        if (!preventSetOnStore) {
+            this.store.setNode(node);
+        }
+        this.node = node;
     },
 
     onCheckboxChange: function(e, t) {
@@ -317,7 +311,7 @@ Ext.define('Ext.tree.View', {
      * If the passed parent has no wrap (or there is no valid ancestor wrap after bubbling), this function
      * will return null and the calling code should then call {@link #createAnimWrap} if needed.
      *
-     * @return {Ext.Element} The wrapping element as created in {@link #createAnimWrap}, or null
+     * @return {Ext.dom.Element} The wrapping element as created in {@link #createAnimWrap}, or null
      */
     getAnimWrap: function(parent, bubble) {
         if (!this.animate) {
@@ -531,7 +525,7 @@ Ext.define('Ext.tree.View', {
                 // Only process if the collapsing node is in the UI.
                 // A node may be collapsed as part of a recursive ancestor collapse, and if it
                 // has already been removed from the UI by virtue of an ancestor being collapsed, we should not do anything.
-                if (Ext.Array.contains(parent.stores, me.store)) {
+                if (Ext.Array.contains(parent.joined, me.store)) {
                     animWrap = me.getAnimWrap(parent);
                     if (!animWrap) {
                         animWrap = me.animWraps[parent.internalId] = me.createAnimWrap(parent, index);
@@ -566,7 +560,7 @@ Ext.define('Ext.tree.View', {
         // If the collapsed node is already removed from the UI
         // by virtue of being a descendant of a collapsed node, then
         // we have nothing to do here.
-        if (!me.all.getCount() || !Ext.Array.contains(parent.stores, me.store)) {
+        if (!me.all.getCount() || !Ext.Array.contains(parent.joined, me.store)) {
             return;
         }
 

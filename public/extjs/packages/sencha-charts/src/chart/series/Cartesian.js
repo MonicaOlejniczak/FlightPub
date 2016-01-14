@@ -89,20 +89,20 @@ Ext.define('Ext.chart.series.Cartesian', {
             var me = this,
                 sprite = me.getSprites()[0],
                 store = me.getStore(),
-                item;
+                item, index;
 
-            if(me.getHidden()) {
+            if (me.getHidden()) {
                 return null;
             }
             if (sprite) {
-                var index = sprite.getIndexNearPoint(x, y);
+                index = sprite.getIndexNearPoint(x, y);
                 if (index !== -1) {
                     item = {
-                        series: this,
-                        category: this.getItemInstancing() ? 'items' : 'markers',
+                        series: me,
+                        category: me.getItemInstancing() ? 'items' : 'markers',
                         index: index,
                         record: store.getData().items[index],
-                        field: this.getYField(),
+                        field: me.getYField(),
                         sprite: sprite
                     };
                     return item;

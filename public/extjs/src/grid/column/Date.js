@@ -41,6 +41,10 @@ Ext.define('Ext.grid.column.Date', {
     requires: ['Ext.Date'],
     alternateClassName: 'Ext.grid.DateColumn',
 
+    isDateColumn: true,
+
+    defaultFilterType: 'date',
+
     /**
      * @cfg {String} format
      * A formatting string as used by {@link Ext.Date#format} to format a Date for this Column.
@@ -58,6 +62,8 @@ Ext.define('Ext.grid.column.Date', {
      * @cfg {Object} scope
      * @hide
      */
+
+    producesHTML: false,
 
     initComponent: function(){
         if (!this.format) {

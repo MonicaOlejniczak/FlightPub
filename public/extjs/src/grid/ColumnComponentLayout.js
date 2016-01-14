@@ -51,7 +51,7 @@ Ext.define('Ext.grid.ColumnComponentLayout', {
         availableHeight = innerHeight;
 
         // We do not have enough information to get the height of the titleEl
-        if (!owner.noWrap && !ownerContext.hasDomProp('width')) {
+        if (owner.headerWrap && !ownerContext.hasDomProp('width')) {
             me.done = false;
             return;
         }
@@ -94,12 +94,13 @@ Ext.define('Ext.grid.ColumnComponentLayout', {
 
     // Push content height outwards when we are shrinkwrapping
     calculateOwnerHeightFromContentHeight: function (ownerContext, contentHeight) {
-        var result = this.callParent(arguments);
+        var result = this.callParent(arguments),
+            owner = this.owner;
 
         // If we are NOT a group header, we just use the auto component's measurement
         if (!ownerContext.hasRawContent) {
-            if (this.owner.noWrap || ownerContext.hasDomProp('width')) {
-                return contentHeight + this.owner.titleEl.getHeight() + ownerContext.getBorderInfo().height;
+            if (!owner.headerWrap || ownerContext.hasDomProp('width')) {
+                return contentHeight + owner.titleEl.getHeight() + ownerContext.getBorderInfo().height;
             }
 
             // We do not have the information to return the height yet because we cannot know

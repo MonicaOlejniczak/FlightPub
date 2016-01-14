@@ -4216,7 +4216,7 @@ SenchaTestRunner.Reporter.prototype = {
             }
         }
 
-        length = blocks.length,
+        length = blocks.length;
         i = 0;
         for (; i < length; i++) {
             block = blocks[i];

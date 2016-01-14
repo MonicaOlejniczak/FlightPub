@@ -5,15 +5,15 @@
  * Creates a Bar Chart.
  * 
  *     @example preview
- *     var chart = new Ext.chart.Chart({
+ *     var chart = new Ext.chart.CartesianChart({
  *         store: {
- *           fields: ['name', 'data1', 'data2', 'data3', 'data4', 'data5'],
+ *           fields: ['name', 'value'],
  *           data: [
- *               {'name':'metric one', 'data1':10, 'data2':12, 'data3':14, 'data4':8, 'data5':13},
- *               {'name':'metric two', 'data1':7, 'data2':8, 'data3':16, 'data4':10, 'data5':3},
- *               {'name':'metric three', 'data1':5, 'data2':2, 'data3':14, 'data4':12, 'data5':7},
- *               {'name':'metric four', 'data1':2, 'data2':14, 'data3':6, 'data4':1, 'data5':23},
- *               {'name':'metric five', 'data1':27, 'data2':38, 'data3':36, 'data4':13, 'data5':33}
+ *               {name: 'metric one', value: 10},
+ *               {name: 'metric two', value: 7},
+ *               {name: 'metric three', value: 5},
+ *               {name: 'metric four', value: 2},
+ *               {name: 'metric five', value: 27}
  *           ]
  *         },
  *         axes: [{
@@ -23,7 +23,7 @@
  *                 text: 'Sample Values',
  *                 fontSize: 15
  *             },
- *             fields: 'data1'
+ *             fields: 'value'
  *         }, {
  *             type: 'category',
  *             position: 'bottom',
@@ -36,7 +36,7 @@
  *         series: [{
  *             type: 'bar',
  *             xField: 'name',
- *             yField: 'data1',
+ *             yField: 'value',
  *             style: {
  *               fill: 'blue'
  *             }
@@ -81,13 +81,12 @@ Ext.define('Ext.chart.series.Bar', {
         if (this.getSprites()) {
             var me = this,
                 chart = me.getChart(),
-                padding = chart.getInnerPadding();
+                padding = chart.getInnerPadding(),
+                isRtl = chart.getInherited().rtl;
 
             // Convert the coordinates because the "items" sprites that draw the bars ignore the chart's InnerPadding.
-            // See also Ext.chart.series.sprite.Bar.getItemForPoint(x,y) regarding the series's vertical coordinate system.
-            //
-            // TODO: Cleanup the bar sprites.
-            arguments[0] = x - padding.left;
+            // See also Ext.chart.series.sprite.Bar.getIndexNearPoint(x,y) regarding the series's vertical coordinate system.
+            arguments[0] = x + (isRtl ? padding.right : -padding.left);
             arguments[1] = y + padding.bottom;
             return me.callParent(arguments);
         }

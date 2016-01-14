@@ -70,18 +70,20 @@ Ext.define('Ext.grid.RowEditorButtons', {
         });
     },
 
-    getFramingInfoCls: function(){
-        return this.baseCls + '-' + this.ui + '-' + this.position;
-    },
+    privates: {
+        getFramingInfoCls: function(){
+            return this.baseCls + '-' + this.ui + '-' + this.position;
+        },
 
-    getFrameInfo: function() {
-        var frameInfo = this.callParent();
+        getFrameInfo: function() {
+            var frameInfo = this.callParent();
 
-        // Trick Renderable into rendering the top framing elements, even though they
-        // are not needed in the default "bottom" position.  This allows us to flip the
-        // buttons into "top" position without re-rendering.
-        frameInfo.top = true;
+            // Trick Renderable into rendering the top framing elements, even though they
+            // are not needed in the default "bottom" position.  This allows us to flip the
+            // buttons into "top" position without re-rendering.
+            frameInfo.top = true;
 
-        return frameInfo;
+            return frameInfo;
+        }
     }
 });

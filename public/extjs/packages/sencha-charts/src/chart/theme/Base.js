@@ -71,7 +71,7 @@ Ext.define('Ext.chart.theme.Base', {
 
             colorDefaults = [ "#94ae0a", "#115fa6", "#a61120", "#ff8809", "#ffd13e", "#a61187", "#24ad9a", "#7c7474", "#a66111" ],
 
-            darkerColorDefaults = colorDefaults.map(function(colorString) {
+            darkerColorDefaults = Ext.Array.map(colorDefaults, function(colorString) {
                 var color = Ext.draw.Color.fromString(colorString);
                 return color.getDarker(0.15).toString();
             });

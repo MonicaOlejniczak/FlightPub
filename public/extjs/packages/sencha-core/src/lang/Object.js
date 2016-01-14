@@ -39,11 +39,9 @@ var TemplateClass = function(){},
      * @return {Object} The given object.
      */
     clear: function (object) {
-        var keys = ExtObject.getKeys(object),
-            n = keys.length;
-
-        while (n--) {
-            delete object[keys[n]];
+        // Safe to delete during iteration
+        for (var key in object) {
+            delete object[key];
         }
 
         return object;
@@ -352,12 +350,25 @@ var TemplateClass = function(){},
      * @param {Object} [scope] The execution scope (`this`) of the callback function
      */
     each: function(object, fn, scope) {
+        var enumerables = Ext.enumerables,
+            i, property;
+
         scope = scope || object;
 
-        for (var property in object) {
+        for (property in object) {
             if (object.hasOwnProperty(property)) {
                 if (fn.call(scope, property, object[property], object) === false) {
                     return;
+                }
+            }
+        }
+
+        if (enumerables) {
+            for (i = enumerables.length; i--; ) {
+                if (object.hasOwnProperty(property = enumerables[i])) {
+                    if (fn.call(scope, property, object[property], object) === false) {
+                        return;
+                    }
                 }
             }
         }
@@ -385,12 +396,25 @@ var TemplateClass = function(){},
      * @param {Object} [scope] The execution scope (`this`) of the callback function
      */
     eachValue: function(object, fn, scope) {
+        var enumerables = Ext.enumerables,
+            i, property;
+
         scope = scope || object;
 
-        for (var property in object) {
+        for (property in object) {
             if (object.hasOwnProperty(property)) {
                 if (fn.call(scope, object[property]) === false) {
                     return;
+                }
+            }
+        }
+
+        if (enumerables) {
+            for (i = enumerables.length; i--; ) {
+                if (object.hasOwnProperty(property = enumerables[i])) {
+                    if (fn.call(scope, object[property]) === false) {
+                        return;
+                    }
                 }
             }
         }

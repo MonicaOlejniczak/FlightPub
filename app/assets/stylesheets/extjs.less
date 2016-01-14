@@ -1,21 +1,35 @@
 @import 'globalVariables';
 
+.x-body {
+	font-size: 1.1em;
+}
+
 .x-form-trigger-wrap {
 	border: 0;
 }
 
+.x-panel-body-default, .x-form-item-label, .x-toolbar-text {
+	color: @mainFontColor;
+}
+
+.x-panel-body-default, .x-form-item-label, .x-list-plain {
+    font: 1em 'Ubuntu' @nextFont;
+}
+
 .x-form-item-label {
-	font: 1.2em 'Ubuntu' @nextFont;
 	text-align: right;
 	padding: 0 1em 0 0;
 }
 
-.x-toolbar {
+.x-toolbar, .x-panel-body-default {
 	background: none;
 }
 
-.x-boundlist-item, .x-boundlist-selected, .x-boundlist-item-over, .x-form-field {
+.x-boundlist-item, .x-boundlist-selected, .x-boundlist-item-over, .x-form-field, .x-toolbar-text {
 	font: 0.9em 'Ubuntu' @nextFont;
+}
+
+.x-boundlist-item, .x-boundlist-selected, .x-boundlist-item-over, .x-form-field {
 	text-indent: 1em;
 	border: 0;
 }
@@ -26,9 +40,25 @@
 
 .x-boundlist-selected, .x-boundlist-item-over {
 	background: @buttonBackgroundColor;
-	color: #fff;
+	color: @mainFontColor;
 }
 
 .x-form-invalid-under {
 	margin: 0.2em 0 0 0;
+}
+
+.x-message-box .x-window-body {
+	overflow-x: hidden !important;
+}
+
+.x-title-text {
+	font: 1.5em 'Ubuntu' @nextFont;
+}
+
+.x-panel-header-default {
+	background-color: @buttonBackgroundColor;
+}
+
+.x-panel {
+	border-radius: @borderWidth;
 }

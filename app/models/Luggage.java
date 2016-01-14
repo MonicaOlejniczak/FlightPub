@@ -60,4 +60,15 @@ public class Luggage extends Model {
 	 */
 	public static Model.Finder<Long, Luggage> find = new Model.Finder<>(Long.class, Luggage.class);
 
+    public static LuggageType getLuggageType(String luggageType) {
+        switch (luggageType) {
+            case "CARRY_ON":
+                return LuggageType.CARRY_ON;
+            case "CHECKED":
+                return LuggageType.CHECKED;
+            default:
+                throw new RuntimeException("Bad luggage type");
+        }
+    }
+
 }

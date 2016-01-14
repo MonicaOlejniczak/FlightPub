@@ -78,7 +78,7 @@ Ext.define('Ext.panel.Tool', {
     ],
 
     renderTpl: [
-        '<img id="{id}-toolEl" src="{blank}" class="{baseCls}-img {baseCls}-{type}' +
+        '<img id="{id}-toolEl" data-ref="toolEl" src="{blank}" class="{baseCls}-img {baseCls}-{type}' +
             '{childElCls}" role="presentation"/>'
     ],
 
@@ -242,10 +242,6 @@ Ext.define('Ext.panel.Tool', {
         }
     },
 
-    getFocusEl: function() {
-        return this.el;
-    },
-
     tipAttrs: {
         qtip: 'data-qtip'
     },
@@ -305,46 +301,6 @@ Ext.define('Ext.panel.Tool', {
         return me;
     },
 
-    /**
-     * Called when the tool element is clicked
-     * @private
-     * @param {Ext.event.Event} e
-     * @param {HTMLElement} target The target element
-     */
-    onClick: function(e, target) {
-        var me = this;
-
-        if (me.disabled) {
-            return false;
-        }
-
-        //remove the pressed + over class
-        me.el.removeCls(me.toolPressedCls + ' ' + me.toolOverCls);
-
-        if (me.stopEvent !== false) {
-            e.stopEvent();
-        }
-
-        if (me.handler) {
-            Ext.callback(me.handler, me.scope, [e, target, me.ownerCt, me], 0, me);
-        } else if (me.callback) {
-            Ext.callback(me.callback, me.scope, [me.toolOwner || me.ownerCt, me, e], 0, me);
-        }
-
-        /**
-         * @event click
-         * Fires when the tool is clicked
-         * @param {Ext.panel.Tool} this
-         * @param {Ext.event.Event} e The event object
-         * @param {Ext.Component} owner The logical owner of the tool. In a typical
-         * `Ext.panel.Panel`, this is set to the owning panel. This value comes from the
-         * `toolOwner` config. ** Added in v5.0 **
-         */
-        me.fireEvent('click', me, e, me.toolOwner || me.ownerCt);
-
-        return true;
-    },
-
     // inherit docs
     onDestroy: function(){
         var me = this,
@@ -363,37 +319,83 @@ Ext.define('Ext.panel.Tool', {
         me.callParent();
     },
 
-    /**
-     * Called when the user presses their mouse button down on a tool
-     * Adds the press class ({@link #toolPressedCls})
-     * @private
-     */
-    onMouseDown: function() {
-        if (this.disabled) {
-            return false;
+    privates: {
+        getFocusEl: function () {
+            return this.el;
+        },
+
+        /**
+         * Called when the tool element is clicked
+         * @private
+         * @param {Ext.event.Event} e
+         * @param {HTMLElement} target The target element
+         */
+        onClick: function(e, target) {
+            var me = this;
+
+            if (me.disabled) {
+                return false;
+            }
+
+            //remove the pressed + over class
+            me.el.removeCls(me.toolPressedCls + ' ' + me.toolOverCls);
+
+            if (me.stopEvent !== false) {
+                e.stopEvent();
+            }
+
+            if (me.handler) {
+                Ext.callback(me.handler, me.scope, [e, target, me.ownerCt, me], 0, me);
+            } else if (me.callback) {
+                Ext.callback(me.callback, me.scope, [me.toolOwner || me.ownerCt, me, e], 0, me);
+            }
+
+            /**
+             * @event click
+             * Fires when the tool is clicked
+             * @param {Ext.panel.Tool} this
+             * @param {Ext.event.Event} e The event object
+             * @param {Ext.Component} owner The logical owner of the tool. In a typical
+             * `Ext.panel.Panel`, this is set to the owning panel. This value comes from the
+             * `toolOwner` config. ** Added in v5.0 **
+             */
+            me.fireEvent('click', me, e, me.toolOwner || me.ownerCt);
+
+            return true;
+        },
+
+        /**
+         * Called when the user presses their mouse button down on a tool
+         * Adds the press class ({@link #toolPressedCls})
+         * @private
+         */
+        onMouseDown: function() {
+            if (this.disabled) {
+                return false;
+            }
+
+            this.el.addCls(this.toolPressedCls);
+        },
+
+        /**
+         * Called when the user rolls over a tool
+         * Adds the over class ({@link #toolOverCls})
+         * @private
+         */
+        onMouseOver: function() {
+            if (this.disabled) {
+                return false;
+            }
+            this.el.addCls(this.toolOverCls);
+        },
+
+        /**
+         * Called when the user rolls out from a tool.
+         * Removes the over class ({@link #toolOverCls})
+         * @private
+         */
+        onMouseOut: function() {
+            this.el.removeCls(this.toolOverCls);
         }
-
-        this.el.addCls(this.toolPressedCls);
-    },
-
-    /**
-     * Called when the user rolls over a tool
-     * Adds the over class ({@link #toolOverCls})
-     * @private
-     */
-    onMouseOver: function() {
-        if (this.disabled) {
-            return false;
-        }
-        this.el.addCls(this.toolOverCls);
-    },
-
-    /**
-     * Called when the user rolls out from a tool.
-     * Removes the over class ({@link #toolOverCls})
-     * @private
-     */
-    onMouseOut: function() {
-        this.el.removeCls(this.toolOverCls);
     }
 });

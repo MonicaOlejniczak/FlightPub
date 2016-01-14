@@ -17,6 +17,8 @@
  * is called during the component's initialization.
  */
 Ext.define('Ext.form.field.Field', {
+    mixinId: 'field',
+
     /**
      * @property {Boolean} isFormField
      * Flag denoting that this component is a Field. Always true.
@@ -330,7 +332,7 @@ Ext.define('Ext.form.field.Field', {
      * Called when the field's value changes. Performs validation if the {@link #validateOnChange}
      * config is enabled, and invokes the dirty check.
      */
-    onChange: function (newVal, oldVal) {
+    onChange: function (newVal) {
         var me = this;
 
         if (me.validateOnChange) {
@@ -342,19 +344,8 @@ Ext.define('Ext.form.field.Field', {
     },
 
     publishValue: function (value) {
-        var me = this,
-            binds = me.bind,
-            valueBinding = binds && binds.value,
-            options = valueBinding && valueBinding.options;
-
-        if (valueBinding && !valueBinding.syncing && (!options || options.twoWay !== false)) {
-            if (!valueBinding.isReadOnly()) {
-                valueBinding.setValue(value);
-            }
-        }
-
-        if (me.rendered && me.reference) {
-            me.publishState('value', value);
+        if (this.rendered) {
+            this.publishState('value', value);
         }
     },
 

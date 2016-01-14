@@ -141,7 +141,7 @@ Ext.define('Ext.draw.Matrix', {
         return [(matrix[0][2] || 0).toFixed(4), (matrix[1][2] || 0).toFixed(4)];
     },
 
-    // Split matrix into Translate Scale, Shear, and Rotate
+    // Split matrix into Translate, Scale, Shear, and Rotate.
     split: function () {
         function norm(a) {
             return a[0] * a[0] + a[1] * a[1];

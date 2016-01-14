@@ -172,54 +172,62 @@ Ext.define('Ext.app.Application', {
     appFolder: 'app',
     // NOTE - this config has to be processed by Ext.application
 
+
     config: {
         /**
-        * @cfg {String} name
-        * The name of your application. This will also be the namespace for your views, controllers
-        * models and stores. Don't use spaces or special characters in the name. **Application name
-        * is mandatory**.
-        */
-       name: '',
+         * @cfg {String} name
+         * The name of your application. This will also be the namespace for your views, controllers
+         * models and stores. Don't use spaces or special characters in the name. **Application name
+         * is mandatory**.
+         */
+        name: '',
        
         /**
-        * @cfg {Boolean} enableQuickTips
-        * True to automatically set up Ext.tip.QuickTip support.
-        */
-        enableQuickTips: true,
+         * @cfg {Boolean} enableQuickTips
+         * True to automatically set up Ext.tip.QuickTip support.
+         */
+         enableQuickTips: true,
         
         /**
-        * @cfg {String} appProperty
-        * The name of a property to be assigned to the main namespace to gain a reference to
-        * this application. Can be set to an empty value to prevent the reference from
-        * being created
-        *
-        *     Ext.application({
-        *         name: 'MyApp',
-        *         appProperty: 'myProp',
-        *
-        *         launch: function() {
-        *             console.log(MyApp.myProp === this);
-        *         }
-        *     });
-        */
-       appProperty: 'app',
+         * @cfg {String} appProperty
+         * The name of a property to be assigned to the main namespace to gain a reference to
+         * this application. Can be set to an empty value to prevent the reference from
+         * being created
+         *
+         *     Ext.application({
+         *         name: 'MyApp',
+         *         appProperty: 'myProp',
+         *
+         *         launch: function() {
+         *             console.log(MyApp.myProp === this);
+         *         }
+         *     });
+         */
+        appProperty: 'app',
        
-       /**
-        * @cfg {Boolean/String} [autoCreateViewport=false]
-        * Set to `true` to automatically load and instantiate `AppName.view.Viewport`
-        * before firing the launch function. Otherwise this is the name of the view to
-        * create and apply the `viewport` plugin.
-        * 
-        * @cmd-auto-dependency { directRef: "Ext.container.plugin.Viewport" }
-        * 
-        */
-       autoCreateViewport: false,
+        /**
+         * @cfg {Boolean/String} [autoCreateViewport=false]
+         * Set to `true` to automatically load and instantiate `AppName.view.Viewport`
+         * before firing the launch function. Otherwise this is the name of the view to
+         * create and apply the `viewport` plugin.
+         *
+         * @cmd-auto-dependency {aliasPrefix: "view.", mvc: true, requires: ["Ext.plugin.Viewport"]}
+         *
+         */
+        autoCreateViewport: false,
 
-       /**
-        * @cfg {String} [defaultToken=null] The default token to be used at application launch
-        * if one is not present. Often this is set to something like `'home'`.
-        */
-       defaultToken : null
+        /**
+         * @cfg {String} [defaultToken=null] The default token to be used at application launch
+         * if one is not present. Often this is set to something like `'home'`.
+         */
+        defaultToken: null,
+
+        /**
+         * @cfg {String} glyphFontFamily
+         * The glyphFontFamily to use for this application.  Used as the default font-family
+         * for all components that support a `glyph` config.
+         */
+        glyphFontFamily:  null
     },
     
     onClassExtended: function(cls, data, hooks) {
@@ -273,7 +281,7 @@ Ext.define('Ext.app.Application', {
             if (viewportClass === true) {
                 viewportClass = 'Viewport';
             } else {
-                requires.push('Ext.container.plugin.Viewport');
+                requires.push('Ext.plugin.Viewport');
             }
 
             Controller.processDependencies(proto, requires, namespace, 'view', viewportClass);
@@ -385,9 +393,8 @@ Ext.define('Ext.app.Application', {
     onBeforeLaunch: function() {
         var me = this,
             History = Ext.util.History,
-            token = History.getToken(),
             defaultToken = me.getDefaultToken(),
-            controllers, c, cLen, controller;
+            controllers, c, cLen, controller, token;
 
         if (me.getEnableQuickTips()) {
             me.initQuickTips();
@@ -409,14 +416,14 @@ Ext.define('Ext.app.Application', {
             controller.onLaunch(me);
         }
 
+        if (!History.ready) {
+            History.init();
+        }
+        token = History.getToken();
         if (token) {
             me.redirectTo(token, true);
         } else if (defaultToken) {
             History.add(defaultToken);
-        }
-
-        if (!History.ready) {
-            History.init();
         }
     },
 
@@ -552,5 +559,9 @@ Ext.define('Ext.app.Application', {
         if (ns && ns[appProp] === me) {
             delete ns[appProp];
         }
+    },
+
+    updateGlyphFontFamily: function(fontFamily) {
+        Ext.setGlyphFontFamily(fontFamily);
     }
 });

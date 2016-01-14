@@ -146,7 +146,7 @@ describe("Ext.data.proxy.Memory", function() {
         }
         
         afterEach(function() {
-            store.destroyStore();
+            store.destroy();
             store = null;
         });
         

@@ -40,7 +40,7 @@
  *         },
  *       
  *         onSelectionChange: function(selModel, selections) {
- *             this.getReference('delete').setDisabled(selections.length === 0);
+ *             this.lookupReference('delete').setDisabled(selections.length === 0);
  *         },
  *       
  *         getUser: function() {
@@ -138,17 +138,26 @@ Ext.define('Ext.app.ViewController', {
         this.compDomain = new Ext.app.domain.View(this);
         this.callParent(arguments);
     },
-    
+
     /**
-     * Called when the view initializes with this controller
-     * @param {Ext.Component} The view
+     * Called before the view initializes. This is called before the view's
+     * initComponent method has been called.
+     * @param {Ext.Component} view The view
+     * @protected
+     */
+    beforeInit: Ext.emptyFn,
+
+    /**
+     * Called when the view initializes. This is called after the view's initComponent
+     * method has been called.
+     * @param {Ext.Component} view The view
      * @protected
      */
     init: Ext.emptyFn,
 
     /**
      * Called when the view model instance for an attached view is first created.
-     * @param {Ext.app.ViewModel}
+     * @param {Ext.app.ViewModel} viewModel The ViewModel
      * @protected
      */
     initViewModel: Ext.emptyFn,
@@ -204,7 +213,15 @@ Ext.define('Ext.app.ViewController', {
         }
         this.callParent([to, controller]);
     },
-    
+
+    /**
+     * @inheritdoc Ext.container.Container#getReferences
+     * @since 5.0.0
+     */
+    getReferences: function () {
+        return this.view.getReferences();
+    },
+
     /**
      * Get the view for this controller.
      * @return {Ext.Component} The view.
@@ -224,24 +241,41 @@ Ext.define('Ext.app.ViewController', {
      * @param {String} key The key for the reference
      * @return {Ext.Component} The component, `null` if the reference doesn't exist.
      */
-    getReference: function(key) {
+    lookupReference: function (key) {
         var view = this.view;
-        return view && view.getReference(key);
+        return view && view.lookupReference(key);
     },
 
     getSession: function () {
         var view = this.view;
-        return view && view.getInheritedSession();
+        return view && view.lookupSession();
     },
 
     getViewModel: function () {
         var view = this.view;
-        return view && view.getInheritedViewModel();
+        return view && view.lookupViewModel();
     },
 
     getStore: function(name) {
         var viewModel = this.getViewModel();
         return viewModel ? viewModel.getStore(name) : null;
+    },
+
+    /**
+     * Fires an event on the view. See {@link Ext.Component#fireEvent}.
+     * @param {String} eventName The name of the event to fire.
+     * @param {Object...} args Variable number of parameters are passed to handlers.
+     * @return {Boolean} returns false if any of the handlers return false otherwise it returns true.
+     * @protected
+     */
+    fireViewEvent: function(eventName) {
+        var view = this.view,
+            result = false;
+
+        if (view) {
+            result = view.fireEvent.apply(view, arguments);
+        }
+        return result;
     },
 
     //=========================================================================
@@ -258,19 +292,18 @@ Ext.define('Ext.app.ViewController', {
         /**
          * Set a reference to a component.
          * @param {Ext.Component} component The component to reference
-         *
          * @private
          */
-        setReference: function(ref) {
+        attachReference: function (component) {
             var view = this.view;
             if (view) {
-                view.setReference(ref);
+                view.attachReference(component);
             }
         },
         
         /**
          * Clear a reference to a component
-         * @param {Ext.Component} component The component to reference
+         * @param {Ext.Component} ref The component to reference
          * 
          * @private
          */
@@ -304,6 +337,10 @@ Ext.define('Ext.app.ViewController', {
          */
         setView: function(view) {
             this.view = view;
+
+            if (!this.beforeInit.$nullFn) {
+                this.beforeInit();
+            }
         }
     }
 });

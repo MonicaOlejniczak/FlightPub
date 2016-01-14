@@ -42,7 +42,7 @@ Ext.define('Ext.draw.modifier.Modifier', {
 
     updatePrev: function (prev) {
         if (prev) {
-            prev.setNext    (this);
+            prev.setNext(this);
         }
     },
 

@@ -981,49 +981,19 @@ Ext.define('Ext.layout.ContextItem', {
                 ownerLayoutId = ownerLayout ? ownerLayout.id : null;
                 manageMargins = ownerLayout && ownerLayout.manageMargins;
 
-                // Option #1 for configuring margins on components is the "margin" config
-                // property. When supplied, this config is written to the DOM during the
-                // render process (see Component#initStyles).
-                //
-                // Option #2 is available to some layouts (e.g., Box, Border, Fit) that
-                // handle margin calculations themselves. These layouts support a "margins"
-                // config property on their items and they have a "defaultMargins" config
-                // property. These margin values are added to the "natural" margins read
-                // from the DOM and 0's are written to the DOM after they are added.
-
-                // To avoid having to do all this on every layout, we cache the results on
-                // the component in the (private) "margin$" property. We identify the cache
-                // results as belonging to the appropriate ownerLayout in case items are
-                // moved around.
-
+                // TODO: stop caching margin$ on the component EXTJS-13359
                 info = comp.margin$;
                 if (info && info.ownerId !== ownerLayoutId) {
                     // got one but from the wrong owner
                     info = null;
-
-                    //  if (manageMargins) {
-                    //      TODO: clear inline margins (the 0's we wrote last time)???
-                    //  }
                 }
 
                 if (!info) { // if (no cache)
                     // CSS margins are only checked if there isn't a margin property on the component
                     info = me.parseMargins(comp, comp.margin) || me.checkCache('marginInfo');
 
-                    // Some layouts also support margins and defaultMargins, e.g. Fit, Border, Box
                     if (manageMargins) {
-                        margins = me.parseMargins(comp, comp.margins, ownerLayout.defaultMargins);
-
-                        if (margins) { // if (using 'margins' and/or 'defaultMargins')
-                            // margin and margins can both be present at the same time and must be combined
-                            info = {
-                                top:    info.top    + margins.top,
-                                right:  info.right  + margins.right,
-                                bottom: info.bottom + margins.bottom,
-                                left:   info.left   + margins.left
-                            };
-                        }
-
+                        // TODO: Stop zeroing out the margins EXTJS-13359
                         me.setProp('margin-top', 0);
                         me.setProp('margin-right', 0);
                         me.setProp('margin-bottom', 0);
@@ -1261,7 +1231,7 @@ Ext.define('Ext.layout.ContextItem', {
         }
     },
 
-    parseMargins: function (comp, margins, defaultMargins) {
+    parseMargins: function (comp, margins) {
         if (margins === true) {
             margins = 5;
         }
@@ -1271,12 +1241,8 @@ Ext.define('Ext.layout.ContextItem', {
 
         if (type == 'string' || type == 'number') {
             ret = comp.parseBox(margins);
-        } else if (margins || defaultMargins) {
+        } else if (margins) {
             ret = { top: 0, right: 0, bottom: 0, left: 0 }; // base defaults
-
-            if (defaultMargins) {
-                Ext.apply(ret, this.parseMargins(comp, defaultMargins)); // + layout defaults
-            }
 
             if (margins) {
                 margins = Ext.apply(ret, comp.parseBox(margins)); // + config
@@ -1562,7 +1528,7 @@ Ext.define('Ext.layout.ContextItem', {
             frameBody = me.frameBodyContext;
             if (frameBody){
                 frameInfo = me.getFrameInfo();
-                frameBody.setHeight(height - frameInfo.height, dirty);
+                frameBody[me.el.vertical ? 'setWidth' : 'setHeight'](height - frameInfo.height, dirty);
             }
         }
 
@@ -1617,9 +1583,9 @@ Ext.define('Ext.layout.ContextItem', {
                 frameBody.setWidth(width - frameInfo.width, dirty);
             }
 
-            /*if (owner.frameMC) {
+            /*if (owner.frameBody) {
                 frameContext = ownerContext.frameContext ||
-                        (ownerContext.frameContext = ownerContext.getEl('frameMC'));
+                        (ownerContext.frameContext = ownerContext.getEl('frameBody'));
                 width += (frameContext.paddingInfo || frameContext.getPaddingInfo()).width;
             }*/
         }
@@ -1773,6 +1739,8 @@ Ext.define('Ext.layout.ContextItem', {
     // Diagnostics
 
     debugHooks: {
+        $enabled: false, // Disable by default
+
         addBlock: function (name, layout, propName) {
             //Ext.log(this.id,'.',propName,' ',name,': ',this.context.getLayoutName(layout));
             (layout.blockedBy || (layout.blockedBy = {}))[

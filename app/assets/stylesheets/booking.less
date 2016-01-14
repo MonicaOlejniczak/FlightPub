@@ -1,0 +1,56 @@
+@import 'globalMethods';
+@import 'globalVariables';
+
+@bookingIconPath: "@{neptunePath}/resources/images/tools/tool-sprites.png";
+
+@labelWidth: 25%;
+
+.map {
+    width: 100%;
+    height: 500px;
+    clear: both;
+    .boxShadow(0, 0, 0.05em, 0.05em, darken(#000, 10%));
+}
+
+.map a, .map span {
+    display: none;
+}
+
+.heading {
+    color: @buttonBackgroundColor;
+    font: bold 1.5em 'Ubuntu' @nextFont;
+}
+
+.bookingItem {
+	border-radius: @borderWidth;
+}
+
+.bookingItem.x-accordion-item .x-accordion-hd {
+	background: @buttonBackgroundColor;
+}
+
+.bookingItem.x-accordion-item .x-accordion-hd .x-tool-img {
+	background-color: @buttonBackgroundColor;
+	background-image: url(@bookingIconPath) !important;
+}
+
+.bookingItem .x-title-text {
+	font: 1.5em 'Ubuntu' @nextFont;
+	color: @mainFontColor;
+	cursor: pointer;
+}
+
+.bookingContent {
+	background-color: #fff;
+	color: #000;
+	font: 0.8em 'Ubuntu' @nextFont;
+	padding: 5px;
+}
+
+.bookingContent > div {
+	padding-bottom: 2px;
+}
+
+.bookingContent .departing, .bookingContent .arriving {
+	margin-left: 3em;
+}

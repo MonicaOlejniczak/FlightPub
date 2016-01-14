@@ -93,58 +93,65 @@ Ext.define('Ext.data.NodeStore', {
         this.remove([node].concat(this.retrieveChildNodes(node)));
     },
 
+    onNodeExpand: function(parent, records) {
+        this.loadRecords(records);
+    },
+
     applyNode: function(node) {
         if (node) {
-            node = Ext.data.NodeInterface.decorate(node);
+            Ext.data.NodeInterface.decorate(node);
         }
         return node;
     },
 
     updateNode: function(node, oldNode) {
+        var me = this,
+            data;
+
         if (oldNode && !oldNode.isDestroyed) {
             oldNode.un({
                 append  : 'onNodeAppend',
                 insert  : 'onNodeInsert',
                 remove  : 'onNodeRemove',
                 load    : 'onNodeLoad',
-                scope: this
+                scope: me
             });
-            oldNode.unjoin(this);
+            oldNode.unjoin(me);
         }
 
         if (node) {
             node.on({
-                scope   : this,
+                scope   : me,
                 append  : 'onNodeAppend',
                 insert  : 'onNodeInsert',
                 remove  : 'onNodeRemove',
                 load    : 'onNodeLoad'
             });
 
-            node.join(this);
+            node.join(me);
 
-            var data = [];
+            data = [];
             if (node.childNodes.length) {
-                data = data.concat(this.retrieveChildNodes(node));
+                data = data.concat(me.retrieveChildNodes(node));
             }
-            if (this.getRootVisible()) {
+            if (me.getRootVisible()) {
                 data.push(node);
             } else if (node.isLoaded() || node.isLoading()) {
                 node.set('expanded', true);
             }
 
-            this.data.clear();
-            this.fireEvent('clear', this);
+            me.getData().clear();
+            me.fireEvent('clear', me);
 
-            this.suspendEvents();
-            this.add(data);
-            this.resumeEvents();
+            me.suspendEvents();
+            me.add(data);
+            me.resumeEvents();
 
             if(data.length === 0) {
-                this.loaded = node.loaded = true;
+                me.loaded = node.loaded = true;
             }
 
-            this.fireEvent('refresh', this, this.data);
+            me.fireEvent('refresh', me, me.data);
         }
     },
 

@@ -34,9 +34,9 @@ Ext.define('Ext.LoadMask', {
 
     /* Begin Definitions */
 
-    mixins: {
-        bindable: 'Ext.util.Bindable'
-    },
+    mixins: [
+        'Ext.util.StoreHolder'
+    ],
 
     uses: ['Ext.data.StoreManager'],
 
@@ -101,11 +101,11 @@ Ext.define('Ext.LoadMask', {
     ],
 
     renderTpl: [
-        '<div id="{id}-msgEl" role="{role}"',
+        '<div id="{id}-msgEl" data-ref="msgEl" role="{role}"',
             '<tpl if="ariaAttr"> {ariaAttr}</tpl>',
             ' class="{[values.$comp.msgCls]} ',
             Ext.baseCSSPrefix, 'mask-msg-inner {childElCls}">',
-            '<div id="{id}-msgTextEl" class="', Ext.baseCSSPrefix ,'mask-msg-text',
+            '<div id="{id}-msgTextEl" data-ref="msgTextEl" class="', Ext.baseCSSPrefix ,'mask-msg-text',
                 '{childElCls}">{msg}</div>',
         '</div>'
     ],
@@ -207,7 +207,7 @@ Ext.define('Ext.LoadMask', {
         // Subscribe to the observer that manages the hierarchy
         // Only needed if we had to be rendered outside of the target
         if (me.external) {
-            me.mon(me.hierarchyEventSource, {
+            me.mon(Ext.GlobalEvents, {
                 show: me.onContainerShow,
                 hide: me.onContainerHide,
                 expand: me.onContainerExpand,
@@ -338,7 +338,7 @@ Ext.define('Ext.LoadMask', {
      */
     bindStore : function(store, initial) {
         var me = this;
-        me.mixins.bindable.bindStore.apply(me, arguments);
+        me.mixins.storeholder.bindStore.apply(me, arguments);
         store = me.store;
         if (store && store.isLoading()) {
             me.onBeforeLoad();
@@ -358,7 +358,7 @@ Ext.define('Ext.LoadMask', {
 
         // Only need to mask on load if the proxy is asynchronous - ie: Ajax/JsonP
         if (!store.proxy.isSynchronous) {
-            result.beforeLoad = beforeLoad;
+            result.beforeload = beforeLoad;
             result.load = load;
         }
         return result;

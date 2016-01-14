@@ -74,9 +74,8 @@ Ext.define('Ext.grid.feature.AbstractSummary', {
         return function () {
              return column.summaryRenderer ?
                 column.summaryRenderer(record.data[dataIndex], summaryData, dataIndex) :
-                // For summary type, we just want to return the summary value that was
-                // calculated in populateRecord -> getSummary.
-                (ownerGroup ? record.data[dataIndex] : record.summaryValue);
+                // For no summaryRenderer, return the field value in the Feature record.
+                record.data[dataIndex];
         };
     },
 
@@ -107,11 +106,6 @@ Ext.define('Ext.grid.feature.AbstractSummary', {
                 column.renderer = this.createRenderer(column, summaryRecord);
             } else {
                 column.renderer = Ext.emptyFn;
-            }
-
-            // Summary records may contain values based upon the column's ID if the column is not mapped from a field
-            if (!column.dataIndex) {
-                column.dataIndex = column.id;
             }
         }
 
@@ -222,7 +216,7 @@ Ext.define('Ext.grid.feature.AbstractSummary', {
             group = groups[i];
             groupInfo = me.getGroupInfo(group);
             // Something has changed or it doesn't exist, populate it
-            if (hasRemote || groupInfo.lastGeneration !== group.generation) {
+            if (hasRemote || store.updating || groupInfo.lastGeneration !== group.generation) {
                 record = me.populateRecord(group, groupInfo, remoteData);
 
                 // Clear the dirty state of the group if this is the only Summary, or this is the right hand (normal grid's) summary
@@ -244,9 +238,9 @@ Ext.define('Ext.grid.feature.AbstractSummary', {
             if (!this.summaryData[groupName]) {
                 this.summaryData[groupName] = {};
             }
-            this.summaryData[groupName][colId] = record.summaryValue = summaryValue;
+            this.summaryData[groupName][colId] = summaryValue;
         } else {
-            this.summaryData[colId] = record.summaryValue = summaryValue;
+            this.summaryData[colId] = summaryValue;
         }
     },
 
@@ -294,7 +288,7 @@ Ext.define('Ext.grid.feature.AbstractSummary', {
                 record.set(fieldName, summaryValue);
             } else {
                 // For remote groupings, just get the value from the model.
-                summaryValue = record.get(column.dataIndex);
+                summaryValue = record.get(dataIndex);
             }
 
             // Capture the columnId:value for the summaryRenderer in the summaryData object.

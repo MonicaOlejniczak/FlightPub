@@ -18,147 +18,160 @@ Ext.define('Ext.layout.container.Box', {
 
     type: 'box',
 
-    /**
-     * @cfg {String} [align="begin"]
-     * Controls how the child items of the container are aligned. The value is used to 
-     * position items "perpendicularly". That is, for horizontal boxes (where `vertical`
-     * is `false`), then this will position items vertically. Otherwise, this will position
-     * items horizontally. The acceptable values for this property are best explained in
-     * context with the value of `vertical`.
-     * 
-     * If `vertical` is `false` then this layout is behaving as an `hbox` and this config
-     * operates as follows:
-     *
-     * - **begin** : Child items are aligned vertically at the top of the container.
-     * - **middle** : Child items are vertically centered in the container.
-     * - **end** : Child items are aligned vertically at the bottom of the container.
-     * - **stretch** : Child items are stretched vertically to fill the height of the container.
-     * - **stretchmax** : Child items are stretched vertically to the height of the largest item.
-     * 
-     * If `vertical` is `true` then this layout is behaving as an `vbox` and this config
-     * operates as follows:
-     *
-     * - **begin** : Child items are aligned horizontally at the left side of the container.
-     * - **middle** : Child items are horizontally centered in the container.
-     * - **end** : Child items are aligned horizontally at the right of the container.
-     * - **stretch** : Child items are stretched horizontally to fill the width of the container.
-     * - **stretchmax** : Child items are stretched horizontally to the size of the largest item.
-     * 
-     * For backwards compatibility, the following values are also recognized:
-     * 
-     * - **left** : Same as **begin**.
-     * - **top** : Same as **begin**.
-     * - **center** : Same as **middle**.
-     * - **right** : Samas as **end**.
-     * - **bottom** : Samas as **end**.
-     */
-    align: 'begin', // end, middle, stretch, strechmax
-    
-    /**
-     * @cfg {Boolean} constrainAlign
-     * Limits the size of {@link #align aligned} components to the size of the container
-     * under certain circumstances. Firstly, the container's height (for `hbox`) or width
-     * (for `vbox`) must not be determined by the size of the child components. Secondly,
-     * the child components must have {@link Ext.AbstractComponent#shrinkWrap shrinkwrap}
-     * enabled for this dimension.
-     */
-    constrainAlign: false,
+    config: {
+        /**
+         * @cfg {String} [align="begin"]
+         * Controls how the child items of the container are aligned. The value is used to
+         * position items "perpendicularly". That is, for horizontal boxes (where `vertical`
+         * is `false`), then this will position items vertically. Otherwise, this will position
+         * items horizontally. The acceptable values for this property are best explained in
+         * context with the value of `vertical`.
+         *
+         * If `vertical` is `false` then this layout is behaving as an `hbox` and this config
+         * operates as follows:
+         *
+         * - **begin** : Child items are aligned vertically at the top of the container.
+         * - **middle** : Child items are vertically centered in the container.
+         * - **end** : Child items are aligned vertically at the bottom of the container.
+         * - **stretch** : Child items are stretched vertically to fill the height of the container.
+         * - **stretchmax** : Child items are stretched vertically to the height of the largest item.
+         *
+         * If `vertical` is `true` then this layout is behaving as an `vbox` and this config
+         * operates as follows:
+         *
+         * - **begin** : Child items are aligned horizontally at the left side of the container.
+         * - **middle** : Child items are horizontally centered in the container.
+         * - **end** : Child items are aligned horizontally at the right of the container.
+         * - **stretch** : Child items are stretched horizontally to fill the width of the container.
+         * - **stretchmax** : Child items are stretched horizontally to the size of the largest item.
+         *
+         * For backwards compatibility, the following values are also recognized:
+         *
+         * - **left** : Same as **begin**.
+         * - **top** : Same as **begin**.
+         * - **center** : Same as **middle**.
+         * - **right** : Samas as **end**.
+         * - **bottom** : Samas as **end**.
+         */
+        align: 'begin', // end, middle, stretch, strechmax
 
-    /**
-     * @cfg {Object} defaultMargins
-     * If the individual contained items do not have a margins property specified or margin specified via CSS, the
-     * default margins from this property will be applied to each item.
-     *
-     * This property may be specified as an object containing margins to apply in the format:
-     *
-     *     {
-     *         top: (top margin),
-     *         right: (right margin),
-     *         bottom: (bottom margin),
-     *         left: (left margin)
-     *     }
-     *
-     * This property may also be specified as a string containing space-separated, numeric margin values. The order of
-     * the sides associated with each value matches the way CSS processes margin values:
-     *
-     *   - If there is only one value, it applies to all sides.
-     *   - If there are two values, the top and bottom borders are set to the first value and the right and left are
-     *     set to the second.
-     *   - If there are three values, the top is set to the first value, the left and right are set to the second,
-     *     and the bottom is set to the third.
-     *   - If there are four values, they apply to the top, right, bottom, and left, respectively.
-     */
-    defaultMargins: {
-        top: 0,
-        right: 0,
-        bottom: 0,
-        left: 0
+        /**
+         * @cfg {Boolean} constrainAlign
+         * Limits the size of {@link #align aligned} components to the size of the container
+         * under certain circumstances. Firstly, the container's height (for `hbox`) or width
+         * (for `vbox`) must not be determined by the size of the child components. Secondly,
+         * the child components must have {@link Ext.AbstractComponent#shrinkWrap shrinkwrap}
+         * enabled for this dimension.
+         */
+        constrainAlign: false,
+
+        /**
+         * @cfg {Boolean} [enableSplitters=true]
+         * This flag can be set to `false` to ignore the `split` config on box items. This is
+         * set to `false` by `Ext.layout.container.Accordion`.
+         */
+        enableSplitters: true,
+
+        /**
+         * @cfg {String/Ext.layout.container.boxOverflow.None}
+         * An overflow handler or config object for an overflow handler.  This is typically
+         * specified as one of the following strings:
+         *
+         * - `scroller` - Scroller buttons are rendered before and after the content.
+         * - `menu` - Overflowing items are rendered into a menu, and a button is rendered
+         *    after the items, which shows the menu when clicked.
+         *
+         * NOTE: This config is currently only supported when box layout is used by the
+         * following components:
+         *
+         * - {@link Ext.toolbar.Toolbar}
+         * - {@link Ext.menu.Menu}
+         * - {@link Ext.toolbar.Breadcrumb}
+         * - {@link Ext.tab.Bar}
+         *
+         * Components where `overflowHandler` is not supported should use
+         * `{@link Ext.Component#autoScroll autoScroll}:true` if they have overflowing
+         * content.
+         */
+        overflowHandler: {
+            $value: null,
+            merge: function(newValue, oldValue) {
+                if (typeof newValue == 'string') {
+                    newValue = {
+                        type: newValue
+                    };
+                }
+
+                return Ext.merge(oldValue ? Ext.Object.chain(oldValue) : {}, newValue);
+            }
+        },
+
+        /**
+         * @cfg {String} padding
+         * Sets the padding to be applied to all child items managed by this layout.
+         *
+         * This property must be specified as a string containing space-separated, numeric
+         * padding values. The order of the sides associated with each value matches the
+         * way CSS processes padding values:
+         *
+         *   - If there is only one value, it applies to all sides.
+         *   - If there are two values, the top and bottom borders are set to the first
+         *     value and the right and left are set to the second.
+         *   - If there are three values, the top is set to the first value, the left and
+         *     right are set to the second, and the bottom is set to the third.
+         *   - If there are four values, they apply to the top, right, bottom, and left,
+         *     respectively.
+         */
+        padding: 0,
+
+        /**
+         * @cfg {String} pack
+         * Controls how the child items of the container are packed together. Acceptable
+         * configuration values for this property are:
+         *
+         *   - **start** - child items are packed together at **left** (HBox) or **top**
+         *     (VBox) side of container (*default**)
+         *   - **center** - child items are packed together at **mid-width** (HBox) or
+         *     **mid-height** (VBox) of container
+         *   - **end** - child items are packed together at **right** (HBox) or **bottom**
+         *     (VBox) side of container
+         */
+        pack: 'start',
+
+        /**
+         * @cfg {String/Ext.Component} stretchMaxPartner
+         * Allows stretchMax calculation to take into account the max perpendicular size
+         * (height for HBox layout and width for VBox layout) of another Box layout when
+         * calculating its maximum perpendicular child size.
+         *
+         * If specified as a string, this may be either a known Container ID, or a
+         * ComponentQuery selector which is rooted at this layout's Container (ie, to find
+         * a sibling, use `"^>#siblingItemId`).
+         */
+        stretchMaxPartner: undefined,
+
+        /**
+         * @cfg {Boolean} [vertical=false]
+         * Set to `true` to switch the layout to `vbox`.
+         */
+        vertical: false,
+
+        /**
+         * @cfg {"round"/"floor"/"ceil"} [alignRoundingMethod='round'] The Math method to
+         * use for rounding fractional pixels when `{@link #align}:middle` is used.
+         */
+        alignRoundingMethod: 'round'
     },
 
     /**
-     * @cfg {Boolean} [enableSplitters=true]
-     * This flag can be set to `false` to ignore the `split` config on box items. This is
-     * set to `false` by `Ext.layout.container.Accordion`.
-     */
-    enableSplitters: true,
-
-    /**
-     * @cfg {String} padding
-     * Sets the padding to be applied to all child items managed by this layout.
-     *
-     * This property must be specified as a string containing space-separated, numeric padding values. The order of the
-     * sides associated with each value matches the way CSS processes padding values:
-     *
-     *   - If there is only one value, it applies to all sides.
-     *   - If there are two values, the top and bottom borders are set to the first value and the right and left are
-     *     set to the second.
-     *   - If there are three values, the top is set to the first value, the left and right are set to the second,
-     *     and the bottom is set to the third.
-     *   - If there are four values, they apply to the top, right, bottom, and left, respectively.
-     */
-    padding: 0,
-
-    /**
-     * @cfg {String} pack
-     * Controls how the child items of the container are packed together. Acceptable configuration values for this
-     * property are:
-     *
-     *   - **start** - child items are packed together at **left** (HBox) or **top** (VBox) side of container (*default**)
-     *   - **center** - child items are packed together at **mid-width** (HBox) or **mid-height** (VBox) of container
-     *   - **end** - child items are packed together at **right** (HBox) or **bottom** (VBox) side of container
-     */
-    pack: 'start',
-
-    /**
      * @cfg {Number} flex
-     * This configuration option is to be applied to **child items** of the container managed by this layout. Each child
-     * item with a flex property will be flexed (horizontally in `hbox`, vertically in `vbox`) according to each item's
-     * **relative** flex value compared to the sum of all items with a flex value specified. Any child items that have
-     * either a `flex = 0` or `flex = undefined` will not be 'flexed' (the initial size will not be changed).
+     * This configuration option is to be applied to **child items** of the container
+     * managed by this layout. Each child item with a flex property will be flexed
+     * (horizontally in `hbox`, vertically in `vbox`) according to each item's
+     * **relative** flex value compared to the sum of all items with a flex value
+     * specified. Any child items that have either a `flex = 0` or `flex = undefined`
+     * will not be 'flexed' (the initial size will not be changed).
      */
-    flex: undefined,
-
-    /**
-     * @cfg {String/Ext.Component} stretchMaxPartner
-     * Allows stretchMax calculation to take into account the max perpendicular size (height for HBox layout and width
-     * for VBox layout) of another Box layout when calculating its maximum perpendicular child size.
-     *
-     * If specified as a string, this may be either a known Container ID, or a ComponentQuery selector which is rooted
-     * at this layout's Container (ie, to find a sibling, use `"^>#siblingItemId`).
-     */
-    stretchMaxPartner: undefined,
-
-    /**
-     * @cfg {Boolean} [vertical=false]
-     * Set to `true` to switch the layout to `vbox`.
-     */
-    vertical: false,
-
-    /**
-     * @cfg {"round"/"floor"/"ceil"} [alignRoundingMethod='round'] The Math method to use
-     * for rounding fractional pixels when `{@link #align}:middle` is used.
-     */
-    alignRoundingMethod: 'round',
 
     scrollOffset: 0,
     itemCls: Ext.baseCSSPrefix + 'box-item',
@@ -183,18 +196,18 @@ Ext.define('Ext.layout.container.Box', {
     ],
 
     renderTpl: [
-        '{%var oc,l=values.$comp.layout,oh=l.overflowHandler;',
-        'if (oh.getPrefixConfig!==Ext.emptyFn) {',
-            'if(oc=oh.getPrefixConfig())dh.generateMarkup(oc, out)',
-        '}%}',
-        '<div id="{ownerId}-innerCt" class="{[l.innerCls]} {[oh.getOverflowCls()]} "',
-            'role="presentation">',
-            '<div id="{ownerId}-targetEl" class="{targetElCls}" role="presentation">',
-                '{%this.renderBody(out, values)%}',
-            '</div>',
-        '</div>',
-        '{%if (oh.getSuffixConfig!==Ext.emptyFn) {',
-            'if(oc=oh.getSuffixConfig())dh.generateMarkup(oc, out)',
+        '{%var oc,l=values.$comp.layout,oh=l.overflowHandler;' +
+        'if (oh && oh.getPrefixConfig!==Ext.emptyFn) {' +
+            'if(oc=oh.getPrefixConfig())dh.generateMarkup(oc, out)' +
+        '}%}' +
+        '<div id="{ownerId}-innerCt" data-ref="innerCt" role="presentation" class="{[l.innerCls]}' +
+            '{[oh ? (" " + oh.getOverflowCls(l.direction)) : ""]}">' +
+            '<div id="{ownerId}-targetEl" data-ref="targetEl" class="{targetElCls}" role="presentation">' +
+                '{%this.renderBody(out, values)%}' +
+            '</div>' +
+        '</div>' +
+        '{%if (oh && oh.getSuffixConfig!==Ext.emptyFn) {' +
+            'if(oc=oh.getSuffixConfig())dh.generateMarkup(oc, out)' +
         '}%}',
         {
             disableFormats: true,
@@ -212,8 +225,6 @@ Ext.define('Ext.layout.container.Box', {
 
         // The sort function needs access to properties in this, so must be bound.
         me.flexSortFn = me.flexSort.bind(me);
-
-        me.initOverflowHandler();
 
         type = typeof me.padding;
         if (type === 'string' || type === 'number') {
@@ -296,6 +307,8 @@ Ext.define('Ext.layout.container.Box', {
             infiniteValue = Infinity,
             aTarget = a.target,
             bTarget = b.target,
+            aFlex = aTarget.flex,
+            bFlex = bTarget.flex,
             result = 0,
             aMin, bMin, aMax, bMax,
             hasMin, hasMax;
@@ -318,6 +331,15 @@ Ext.define('Ext.layout.container.Box', {
             // b) The max values were the same
             if (result === 0 && hasMin) {
                 result = bMin - aMin;
+            }
+
+            // If 0, it means either the max and/or minimum was the same
+            if (result === 0) {
+                if (hasMax) {
+                    result = bFlex - aFlex;
+                } else {
+                    result = aFlex - bFlex;
+                }
             }
         }
         return result;
@@ -368,13 +390,16 @@ Ext.define('Ext.layout.container.Box', {
             owner = me.owner,
             smp = owner.stretchMaxPartner,
             style = me.innerCt.dom.style,
-            names = me.names;
+            names = me.names,
+            overflowHandler = me.overflowHandler;
 
         ownerContext.boxNames = names;
 
         // this must happen before callParent to allow the overflow handler to do its work
         // that can effect the childItems collection...
-        me.overflowHandler.beginLayout(ownerContext);
+        if (overflowHandler) {
+            overflowHandler.beginLayout(ownerContext);
+        }
 
         // get the contextItem for our stretchMax buddy:
         if (typeof smp === 'string') {
@@ -401,20 +426,22 @@ Ext.define('Ext.layout.container.Box', {
 
         // Don't allow sizes burned on to the innerCt to influence measurements.
         style.width = '';
-        style.height = '';
+        // todo style.height = '';
     },
-
     beginLayoutCycle: function (ownerContext, firstCycle) {
         var me = this,
             align = me.align,
             names = ownerContext.boxNames,
             pack = me.pack,
             centerRe = me._centerRe,
-            heightModelName = names.heightModel;
+            heightModelName = names.heightModel,
+            overflowHandler = me.overflowHandler;
 
         // this must happen before callParent to allow the overflow handler to do its work
         // that can effect the childItems collection...
-        me.overflowHandler.beginLayoutCycle(ownerContext, firstCycle);
+        if (overflowHandler) {
+            overflowHandler.beginLayoutCycle(ownerContext, firstCycle);
+        }
 
         me.callParent(arguments);
 
@@ -542,7 +569,8 @@ Ext.define('Ext.layout.container.Box', {
             names = ownerContext.boxNames,
             state = ownerContext.state,
             plan = state.boxPlan || (state.boxPlan = {}),
-            targetContext = ownerContext.targetContext;
+            targetContext = ownerContext.targetContext,
+            overflowHandler = me.overflowHandler;
 
         plan.targetSize = targetSize;
 
@@ -563,7 +591,10 @@ Ext.define('Ext.layout.container.Box', {
                 me.calculateStretchMax(ownerContext, names, plan);
                 state.stretchMaxDone = true;
             }
-            me.overflowHandler.calculate(ownerContext);
+
+            if (overflowHandler) {
+                overflowHandler.calculate(ownerContext);
+            }
         } else {
             me.done = false;
         }
@@ -720,7 +751,7 @@ Ext.define('Ext.layout.container.Box', {
         contentWidth += ownerContext.targetContext.getPaddingInfo()[widthName];
 
         // Stash the contentWidth on the state so that it can always be accessed later in the calculation
-        ownerContext.state.contentWidth = contentWidth; 
+        ownerContext.state.contentWidth = contentWidth;
 
         // if there is perpendicular overflow, the published parallel content size includes
         // the size of the perpendicular scrollbar.
@@ -1045,9 +1076,12 @@ Ext.define('Ext.layout.container.Box', {
             names = ownerContext.boxNames,
             invalidateScrollX = ownerContext.invalidateScrollX,
             invalidateScrollY = ownerContext.invalidateScrollY,
+            overflowHandler = me.overflowHandler,
             dom, el, overflowX, overflowY, styles;
 
-        me.overflowHandler.completeLayout(ownerContext);
+        if (overflowHandler) {
+            overflowHandler.completeLayout(ownerContext);
+        }
 
         if (invalidateScrollX || invalidateScrollY) {
             el = me.getTarget();
@@ -1098,7 +1132,11 @@ Ext.define('Ext.layout.container.Box', {
     },
 
     finishedLayout: function(ownerContext) {
-        this.overflowHandler.finishedLayout(ownerContext);
+        var overflowHandler = this.overflowHandler;
+
+        if (overflowHandler) {
+            overflowHandler.finishedLayout(ownerContext);
+        }
         this.callParent(arguments);
     },
 
@@ -1243,7 +1281,8 @@ Ext.define('Ext.layout.container.Box', {
         // IE needs it because of its scrollIntoView bug: https://sencha.jira.com/browse/EXTJSIV-6520
         // Webkit needs it because of its mouse drag bug: https://sencha.jira.com/browse/EXTJSIV-5962
         // FF needs it because of a vertical tab bug: https://sencha.jira.com/browse/EXTJSIV-8614
-        ownerContext.targetElContext.setWidth(ownerContext.innerCtContext.props.width - reservedSpace);
+        ownerContext.targetElContext.setWidth(ownerContext.innerCtContext.props.width -
+                (this.vertical ? 0 : (reservedSpace || 0)));
 
         // If unable to publish both dimensions, this layout needs to run again
         if (isNaN(innerCtWidth + innerCtHeight)) {
@@ -1293,6 +1332,7 @@ Ext.define('Ext.layout.container.Box', {
             names = me.names,
             owner = me.owner,
             splitter = comp.splitter,
+            overflowHandler = me.overflowHandler,
             el;
             
         me.callParent(arguments);
@@ -1301,9 +1341,11 @@ Ext.define('Ext.layout.container.Box', {
             owner.doRemove(splitter, true);
             comp.splitter = null;
         }
-        if (me.overflowHandler) {
-            me.overflowHandler.onRemove(comp);
+
+        if (overflowHandler) {
+            overflowHandler.onRemove(comp);
         }
+
         if (comp.layoutMarginCap === me.id) {
             delete comp.layoutMarginCap;
         }
@@ -1322,32 +1364,26 @@ Ext.define('Ext.layout.container.Box', {
         }
     },
 
-    /**
-     * @private
-     */
-    initOverflowHandler: function() {
-        var me = this,
-            handler = me.overflowHandler,
-            handlerType,
-            constructor;
+    applyOverflowHandler: function(overflowHandler, oldOverflowHandler) {
+        var type;
 
-        if (typeof handler === 'string') {
-            handler = {
-                type: handler
+        if (typeof overflowHandler === 'string') {
+            overflowHandler = {
+                type: overflowHandler
             };
         }
 
-        handlerType = 'None';
-        if (handler && handler.type !== undefined) {
-            handlerType = handler.type;
+        type = overflowHandler.type;
+
+        if (oldOverflowHandler && oldOverflowHandler.type === overflowHandler.type) {
+            delete overflowHandler.type;
+            oldOverflowHandler.setConfig(overflowHandler);
+            return oldOverflowHandler;
         }
 
-        constructor = Ext.layout.container.boxOverflow[handlerType];
-        if (constructor[me.type]) {
-            constructor = constructor[me.type];
-        }
+        overflowHandler.layout = this;
 
-        me.overflowHandler = Ext.create('Ext.layout.container.boxOverflow.' + handlerType, me, handler);
+        return Ext.Factory.boxOverflow(overflowHandler);
     },
 
     // Overridden method from Ext.layout.container.Container.
@@ -1386,24 +1422,29 @@ Ext.define('Ext.layout.container.Box', {
         return data;
     },
 
-    setVertical: function (vertical) {
-        var box = (vertical && "vbox") || "hbox";
-        
+    updateVertical: function (vertical) {
+        var box = (vertical && "vbox") || "hbox",
+            overflowHandler = this.overflowHandler,
+            owner = this.owner;
+
         Ext.apply(this, this._props[box]);
+
+        if (overflowHandler && owner && owner.rendered) {
+            overflowHandler.setVertical(vertical);
+        }
     },
 
     _props: {
         // HBOX - this key is produced by setVertical
         "hbox": {
             direction: 'horizontal',
+            oppositeDirection: 'vertical',
             horizontal: true,
             vertical: false,
             names: {
                 // parallel
                 beforeX: 'left',
                 beforeScrollX: 'left',
-                beforeScrollerSuffix: '-before-scroller',
-                afterScrollerSuffix: '-after-scroller',
                 leftCap: 'Left',
                 afterX: 'right',
                 width: 'width',
@@ -1497,14 +1538,13 @@ Ext.define('Ext.layout.container.Box', {
         // VBOX
         "vbox": {
             direction: 'vertical',
+            oppositeDirection: 'horizontal',
             horizontal: false,
             vertical: true,
             names: {
                 // parallel
                 beforeX: 'top',
                 beforeScrollX: 'top',
-                beforeScrollerSuffix: '-before-scroller',
-                afterScrollerSuffix: '-after-scroller',
                 leftCap: 'Top',
                 afterX: 'bottom',
                 width: 'height',

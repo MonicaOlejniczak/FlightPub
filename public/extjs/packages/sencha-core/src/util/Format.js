@@ -362,6 +362,37 @@ Ext.define('Ext.util.Format', function () {
         },
 
         /**
+         * Returns the given number as a base 16 string at least `digits` in length. If
+         * the number is fewer digits, 0's are prepended as necessary. If `digits` is
+         * negative, the absolute value is the *exact* number of digits to return. In this
+         * case, if then number has more digits, only the least significant digits are
+         * returned.
+         *
+         *      expect(Ext.util.Format.hex(0x12e4, 2)).toBe('12e4');
+         *      expect(Ext.util.Format.hex(0x12e4, -2)).toBe('e4');
+         *      expect(Ext.util.Format.hex(0x0e, 2)).toBe('0e');
+         *
+         * @param {Number} value The number to format in hex.
+         * @param {Number} digits
+         * @returns {string}
+         */
+        hex: function (value, digits) {
+            var s = parseInt(value || 0, 10).toString(16);
+            if (digits) {
+                if (digits < 0) {
+                    digits = -digits;
+                    if (s.length > digits) {
+                        s = s.substring(s.length - digits);
+                    }
+                }
+                while (s.length < digits) {
+                    s = '0' + s;
+                }
+            }
+            return s;
+        },
+
+        /**
          * Returns this result:
          *
          *      value || orValue

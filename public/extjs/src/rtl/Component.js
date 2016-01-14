@@ -9,13 +9,6 @@ Ext.define('Ext.rtl.Component', {
      * True to layout this component and its descendants in "rtl" (right-to-left) mode.
      * Can be explicitly set to false to override a true value inherited from an ancestor.
      */
-    
-    initStyles: function(){
-        if (this.getInherited().rtl) {
-            this.horizontalPosProp = 'right';
-        }
-        this.callParent(arguments);
-    },
 
     convertPositionSpec: function(posSpec) {
         // Since anchoring is done based on page level coordinates, we need to invert
@@ -72,14 +65,6 @@ Ext.define('Ext.rtl.Component', {
         } else {
             return this.callParent(arguments);
         } 
-    },
-    
-    parseBox: function(box) {
-        if (this.getInherited().rtl) {
-            return Ext.dom.Element.rtlParseBox(box); 
-        } else {
-            return this.callParent(arguments);
-        }
     },
 
     initInheritedState: function (inheritedState) {
@@ -176,35 +161,52 @@ Ext.define('Ext.rtl.Component', {
     isOppositeRootDirection: function(){
         return !this.getInherited().rtl !== !Ext.rootInheritedState.rtl;
     },
-            
-    getScrollLeft: function() {
-        var me = this,
-            rtl = me.getInherited().rtl;
 
-        return me.getOverflowEl()[rtl ? 'rtlGetScrollLeft' : 'getScrollLeft']();
-    },
+    privates: {
+        doScrollTo: function(x, y, animate) {
+            var me = this,
+                overflowEl = me.getOverflowEl();
 
-    setScrollLeft: function(left) {
-        var me = this,
-            rtl = me.getInherited().rtl;
+            overflowEl[me.getInherited().rtl ? 'rtlScrollTo' : 'scrollTo']('left', x, animate);
+            overflowEl.scrollTo('top', y, animate);
+        },
 
-        me.getOverflowEl()[rtl ? 'rtlSetScrollLeft' : 'setScrollLeft'](left);
-    },
+        doScrollBy: function(deltaX, deltaY, animate) {
+            var me = this,
+                overflowEl = me.getOverflowEl();
 
-    doScrollTo: function(x, y, animate) {
-        var me = this,
-            overflowEl = me.getOverflowEl();
+            if (overflowEl) {
+                overflowEl[me.getInherited().rtl ? 'rtlScrollBy' : 'scrollBy'](deltaX, deltaY, animate);
+            }
+        },
 
-        overflowEl[me.getInherited().rtl ? 'rtlScrollTo' : 'scrollTo']('left', x, animate);
-        overflowEl.scrollTo('top', y, animate);
-    },
+        getScrollLeft: function() {
+            var me = this,
+                rtl = me.getInherited().rtl;
 
-    doScrollBy: function(deltaX, deltaY, animate) {
-        var me = this,
-            overflowEl = me.getOverflowEl();
+            return me.getOverflowEl()[rtl ? 'rtlGetScrollLeft' : 'getScrollLeft']();
+        },
 
-        if (overflowEl) {
-            overflowEl[me.getInherited().rtl ? 'rtlScrollBy' : 'scrollBy'](deltaX, deltaY, animate);
+        setScrollLeft: function(left) {
+            var me = this,
+                rtl = me.getInherited().rtl;
+
+            me.getOverflowEl()[rtl ? 'rtlSetScrollLeft' : 'setScrollLeft'](left);
+        },
+
+        initStyles: function(){
+            if (this.getInherited().rtl) {
+                this.horizontalPosProp = 'right';
+            }
+            this.callParent(arguments);
+        },
+
+        parseBox: function(box) {
+            if (this.getInherited().rtl) {
+                return Ext.dom.Element.rtlParseBox(box);
+            } else {
+                return this.callParent(arguments);
+            }
         }
     }
 }, function() {

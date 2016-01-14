@@ -164,6 +164,7 @@ describe("Ext.event.gesture.Tap", function() {
         });
 
         it("should fire tap when there is no movement", function() {
+            waits(100);
             runs(function() {
                 start({ id: 1, x: 10, y: 10 });
                 end({ id: 1, x: 10, y: 10 });
@@ -178,6 +179,7 @@ describe("Ext.event.gesture.Tap", function() {
         });
 
         it("should fire tap if movement is within moveDistance", function() {
+            waits(100);
             runs(function() {
                 start({ id: 1, x: 10, y: 10 });
                 move({ id: 1, x: 9 + moveDistance, y: 10 });
@@ -193,6 +195,7 @@ describe("Ext.event.gesture.Tap", function() {
         });
 
         it("should not fire tap, and should fire tapcancel if movement is greater than or equal to moveDistance", function() {
+            waits(100);
             runs(function() {
                 start({ id: 1, x: 10, y: 10 });
                 move({ id: 1, x: 10, y: 10 + moveDistance });

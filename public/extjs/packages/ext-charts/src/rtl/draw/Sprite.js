@@ -19,7 +19,7 @@ Ext.define('Ext.rtl.draw.Sprite', {
      * prepend it to any text. It's the easiest solution and should cover enough
      * cases to be handled in the charting package. The RLM tells the browser to
      * interpret character groups in a RTL fashion. Text with RTL characters will
-     * display correctly whether in RTL or LTR mode, the LRM affects how other characters
+     * display correctly whether in RTL or LTR mode, the RLM affects how other characters
      * are displayed around it.
      * 
      * Let's take the string (you'll need to paste these in browsers, somewhat of
@@ -51,7 +51,7 @@ Ext.define('Ext.rtl.draw.Sprite', {
             // IE9m will display a strange visual artefact when showing
             // text with the RLM and there are no RTL characters in the string.
             // IE6 & 7 will still show the artefact, it seems to be unavoidable.
-            return me.RLM + text;    
+            return me.RLM + text;
         }
         return me.callParent(arguments);
     }    

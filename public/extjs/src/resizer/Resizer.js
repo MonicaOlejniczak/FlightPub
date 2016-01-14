@@ -42,8 +42,8 @@ Ext.define('Ext.resizer.Resizer', {
     alternateClassName: 'Ext.Resizable',
 
     handleCls:  Ext.baseCSSPrefix + 'resizable-handle',
+    overCls:  Ext.baseCSSPrefix + 'resizable-handle-over',
     pinnedCls:  Ext.baseCSSPrefix + 'resizable-pinned',
-    overCls:    Ext.baseCSSPrefix + 'resizable-over',
     wrapCls:    Ext.baseCSSPrefix + 'resizable-wrap',
     wrappedCls: Ext.baseCSSPrefix + 'resizable-wrapped',
     delimiterRe: /(?:\s*[,;]\s*)|\s+/,
@@ -134,7 +134,7 @@ Ext.define('Ext.resizer.Resizer', {
     transparent: false,
 
     /**
-     * @cfg {Ext.Element/Ext.util.Region} constrainTo
+     * @cfg {Ext.dom.Element/Ext.util.Region} constrainTo
      * An element, or a {@link Ext.util.Region Region} into which the resize operation must be constrained.
      */
 
@@ -150,12 +150,12 @@ Ext.define('Ext.resizer.Resizer', {
     },
 
     /**
-     * @cfg {Ext.Element/Ext.Component} target
+     * @cfg {Ext.dom.Element/Ext.Component} target
      * The Element or Component to resize.
      */
 
     /**
-     * @property {Ext.Element} el
+     * @property {Ext.dom.Element} el
      * Outer element for resizing behavior.
      */
     
@@ -198,6 +198,7 @@ Ext.define('Ext.resizer.Resizer', {
             len,
             i = 0,
             pos,
+            el,
             box,
             positioning,
             handleEls = [],
@@ -272,9 +273,9 @@ Ext.define('Ext.resizer.Resizer', {
         // have children and therefore must
         // be wrapped
         tag = me.el.dom.tagName.toUpperCase();
-        if (tag == 'TEXTAREA' || tag == 'IMG' || tag == 'TABLE') {
+        if (tag === 'TEXTAREA' || tag === 'IMG' || tag === 'TABLE') {
             /**
-             * @property {Ext.Element/Ext.Component} originalTarget
+             * @property {Ext.dom.Element/Ext.Component} originalTarget
              * Reference to the original resize target if the element of the original resize target was a
              * {@link Ext.form.field.Field Field}, or an IMG or a TEXTAREA which must be wrapped in a DIV.
              */
@@ -326,9 +327,10 @@ Ext.define('Ext.resizer.Resizer', {
             target: resizeTarget,
             el: me.el,
             constrainTo: me.constrainTo,
+            handleCls: me.handleCls,
             overCls: me.overCls,
             throttle: me.throttle,
-            
+
             // If we have wrapped something, instruct the ResizerTracker to use that wrapper as a proxy
             // and we should resize the wrapped target dynamically.
             proxy: me.originalTarget ? me.el : null,
@@ -384,19 +386,25 @@ Ext.define('Ext.resizer.Resizer', {
         }
         Ext.DomHelper.append(me.el, handleEls.join(''));
 
+        // Let's reuse the handleEls stack to collect the actual els.
+        handleEls.length = 0;
+
         // store a reference to each handle element in this.east, this.west, etc
         for (i = 0; i < len; i++){
             // if specified and possible, create
             if (handles[i] && possibles[handles[i]]) {
                 pos = possibles[handles[i]];
-                me[pos] = me.el.getById(me.el.id + '-' + pos + '-handle');
-                me[pos].region = pos;
+                el = me[pos] = me.el.getById(me.el.id + '-' + pos + '-handle');
+                handleEls.push(el);
+                el.region = pos;
 
                 if (me.transparent) {
-                    me[pos].setOpacity(0);
+                    el.setOpacity(0);
                 }
             }
         }
+
+        me.resizeTracker.handleEls = handleEls;
     },
 
     disable: function() {
@@ -408,40 +416,50 @@ Ext.define('Ext.resizer.Resizer', {
     },
 
     /**
-     * @private Relay the Tracker's mousedown event as beforeresize
-     * @param tracker The Resizer
-     * @param e The Event
+     * @private 
+     * Relay the Tracker's mousedown event as beforeresize
+     * @param {Ext.resizer.ResizeTracker} The tracker
+     * @param {Ext.event.Event} The event
      */
     onBeforeResize: function(tracker, e) {
-        var box = this.el.getBox();
-        return this.fireEvent('beforeresize', this, box.width, box.height, e);
+        return this.fireResizeEvent('beforeresize', tracker, e);
     },
 
     /**
-     * @private Relay the Tracker's drag event as resizedrag
-     * @param tracker The Resizer
-     * @param e The Event
+     * @private 
+     * Relay the Tracker's drag event as resizedrag
+     * @param {Ext.resizer.ResizeTracker} The tracker
+     * @param {Ext.event.Event} The event
      */
     onResize: function(tracker, e) {
+        return this.fireResizeEvent('resizedrag', tracker, e);
+    },
+
+    /**
+     * @private 
+     * Relay the Tracker's dragend event as resize
+     * @param {Ext.resizer.ResizeTracker} The tracker
+     * @param {Ext.event.Event} The event
+     */
+    onResizeEnd: function(tracker, e) {
+        return this.fireResizeEvent('resize', tracker, e);
+    },
+
+    /**
+     * @private
+     * Fire a resize event, checking if we have listeners before firing.
+     * @param {String} name The name of the event
+     * @param {Ext.resizer.ResizeTracker} The tracker
+     * @param {Ext.event.Event} The event
+     */
+    fireResizeEvent: function(name, tracker, e) {
         var me = this,
             box;
 
-        if (me.hasListeners.resizeDrag) {
-            box = tracker.getResizeTarget().getBox();
-            return me.fireEvent('resizedrag', me, box.width, box.height, e);
-        }
-    },
-
-    /**
-     * @private Relay the Tracker's dragend event as resize
-     * @param tracker The Resizer
-     * @param e The Event
-     */
-    onResizeEnd: function(tracker, e) {
-        var me = this,
+        if (me.hasListeners[name]) {
             box = me.el.getBox();
-            
-        return me.fireEvent('resize', me, box.width, box.height, e);
+            return me.fireEvent(name, me, box.width, box.height, e);
+        }
     },
 
     /**
@@ -461,7 +479,7 @@ Ext.define('Ext.resizer.Resizer', {
      *
      * Textarea and img elements will be wrapped with an additional div because these elements do not support child
      * nodes. The original element can be accessed through the originalTarget property.
-     * @return {Ext.Element} element
+     * @return {Ext.dom.Element} element
      */
     getEl : function() {
         return this.el;
@@ -472,7 +490,7 @@ Ext.define('Ext.resizer.Resizer', {
      *
      * Textarea and img elements will be wrapped with an additional div because these elements do not support child
      * nodes. The original element can be accessed through the originalTarget property.
-     * @return {Ext.Element/Ext.Component}
+     * @return {Ext.dom.Element/Ext.Component}
      */
     getTarget: function() {
         return this.target;
@@ -488,7 +506,7 @@ Ext.define('Ext.resizer.Resizer', {
 
         me.resizeTracker.destroy();
         for (i = 0; i < len; i++) {
-            if (handle = me[positions[handles[i]]]) {
+            if ((handle = me[positions[handles[i]]])) {
                 handle.destroy();
             }
         }

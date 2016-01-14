@@ -17,13 +17,13 @@
  *             xtype: 'panel',
  *             height: 100,
  *             split: true,         // enable resizing
- *             margins: '0 5 5 5'
+ *             margin: '0 5 5 5'
  *         },{
  *             // xtype: 'panel' implied by default
  *             title: 'West Region is collapsible',
  *             region:'west',
  *             xtype: 'panel',
- *             margins: '5 0 0 5',
+ *             margin: '5 0 0 5',
  *             width: 200,
  *             collapsible: true,   // make collapsible
  *             id: 'west-region-container',
@@ -33,7 +33,7 @@
  *             region: 'center',     // center region is required, no width/height specified
  *             xtype: 'panel',
  *             layout: 'fit',
- *             margins: '5 5 0 0'
+ *             margin: '5 5 0 0'
  *         }],
  *         renderTo: Ext.getBody()
  *     });
@@ -302,6 +302,20 @@ Ext.define('Ext.layout.container.Border', {
             padOnContainer = false,
             childContext, item, length, i, regions, collapseTarget,
             doShow, hidden, region;
+
+        //<debug>
+        // TODO: EXTJSIV-13015
+        if (ownerContext.heightModel.shrinkWrap) {
+            Ext.Error.raise("Border layout does not currently support shrinkWrap height. " +
+                "Please specify a height on component: " + me.owner.id +
+                ", or use a container layout that sets the component's height.");
+        }
+        if (ownerContext.widthModel.shrinkWrap) {
+            Ext.Error.raise("Border layout does not currently support shrinkWrap width. " +
+                "Please specify a width on component: " + me.owner.id +
+                ", or use a container layout that sets the component's width.");
+        }
+        //</debug>
 
         // We sync the visibility state of splitters with their region:
         if (pad) {

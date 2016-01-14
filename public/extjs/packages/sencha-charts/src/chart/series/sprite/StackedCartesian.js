@@ -4,14 +4,14 @@
  *
  * Stacked cartesian sprite.
  */
-Ext.define("Ext.chart.series.sprite.StackedCartesian", {
+Ext.define('Ext.chart.series.sprite.StackedCartesian', {
     extend: 'Ext.chart.series.sprite.Cartesian',
     inheritableStatics: {
         def: {
             processors: {
                 /**
                  * @private
-                 * @cfg {Number} [groupCount=1] The number of groups in the series.
+                 * @cfg {Number} [groupCount=1] The number of items (e.g. bars) in a group.
                  */
                 groupCount: 'number',
 

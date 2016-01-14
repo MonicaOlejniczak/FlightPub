@@ -215,5 +215,20 @@ Ext.define('Ext.util.GroupCollection', {
     
     getKey: function(item) {
         return item.getGroupKey();
+    },
+
+    getGroupByRecord: function(record) {
+        var items = this.items,
+            len = items.length,
+            item, i;
+
+        for (i = 0; i < len; i++) {
+            item = items[i];
+            if (item.indexOf(record)) {
+                return item;
+            }
+        }
+
+        return null;
     }
 });

@@ -3,18 +3,15 @@
  * configuration property.  See {@link Ext.container.Container#layout} for additional details.
  */
 Ext.define('Ext.layout.container.Container', {
-
-    /* Begin Definitions */
-
-    alias: ['layout.container'],
-
     extend: 'Ext.layout.Layout',
+
+    alias: 'layout.container',
 
     alternateClassName: 'Ext.layout.ContainerLayout',
 
-    mixins: {
-        elementCt: 'Ext.util.ElementContainer'
-    },
+    mixins: [
+        'Ext.util.ElementContainer'
+    ],
 
     requires: [
         'Ext.XTemplate'
@@ -64,14 +61,6 @@ Ext.define('Ext.layout.container.Container', {
      * tracks the number of child items that do not use "liquid" CSS layout
      */
     activeItemCount: 0,
-
-    childEls: [
-        /**
-         * @property {Ext.Element} overflowPadderEl
-         * The element used to correct body padding during overflow.
-         */
-        'overflowPadderEl'
-    ],
 
     renderTpl: [
         '{%this.renderBody(out,values)%}'
@@ -130,7 +119,7 @@ Ext.define('Ext.layout.container.Container', {
         // if we neither read nor set the size of our items, we can skip creation of
         // the childItems array
         if (me.needsItemSize || me.setsItemSize) {
-            context = ownerContext.context,
+            context = ownerContext.context;
             childItems = ownerContext.childItems = [];
             items = ownerContext.visibleItems = me.getVisibleItems();
             length = items.length;
@@ -144,7 +133,7 @@ Ext.define('Ext.layout.container.Container', {
     cacheElements: function () {
         var owner = this.owner;
 
-        this.applyChildEls(owner.el, owner.id); // from ElementContainer mixin
+        this.attachChildEls(owner.el, owner); // from ElementContainer mixin
     },
 
     calculate: function(ownerContext) {
@@ -394,7 +383,7 @@ Ext.define('Ext.layout.container.Container', {
      *
      * May be overridden in layout managers which implement an inner element.
      *
-     * @return {Ext.Element}
+     * @return {Ext.dom.Element}
      */
     getRenderTarget: function() {
         return this.owner.getTargetEl();
@@ -405,7 +394,7 @@ Ext.define('Ext.layout.container.Container', {
      *
      * May be overridden in Component layout managers which implement a {@link #getRenderTarget component render target} which must only
      * contain child components.
-     * @return {Ext.Element}
+     * @return {Ext.dom.Element}
      */
     getElementTarget: function() {
         return this.getRenderTarget();
@@ -484,7 +473,7 @@ Ext.define('Ext.layout.container.Container', {
 
     /**
      * Returns the owner component's resize element.
-     * @return {Ext.Element}
+     * @return {Ext.dom.Element}
      */
     getTarget: function() {
         return this.owner.getTargetEl();

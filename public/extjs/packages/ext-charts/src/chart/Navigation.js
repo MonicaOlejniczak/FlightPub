@@ -6,6 +6,7 @@
  * Used as mixin by Ext.chart.Chart.
  */
 Ext.define('Ext.chart.Navigation', {
+    mixinId: 'navigation',
 
     /**
      * Zooms the chart to the specified selection range.

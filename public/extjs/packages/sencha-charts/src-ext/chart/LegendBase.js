@@ -1,3 +1,6 @@
+/**
+ * @class Ext.chart.LegendBase
+ */
 Ext.define('Ext.chart.LegendBase', {
     extend: 'Ext.view.View',
     config: {

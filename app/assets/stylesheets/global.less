@@ -1,18 +1,39 @@
 @import 'globalMethods';
 @import 'globalVariables';
 
+@navigationHeight: 2.2em;
+@bannerContainerHeight: 350px;
+
+@navLineHeight: @navigationHeight;
+
+@navigationBackgroundColor: #000;
+@activeBackgroundColor: lighten(@navigationBackgroundColor, 10%);
+@footerBackgroundColor: #000;
+
+@navColor: darken(@activeColor, 10%);
+@activeColor: #fff;
+@footerColor: #ccc;
+@headerSelectionColour: #bbb;
+@footerSelectionColour: #bbb;
+
+@navBorderWeight: 0.05em;
+@navSpanBorderWeight: 0.15em;
+
+@headerBorderWidth: 0.3em;
+
+@headerBoxShadow: 0.5em;
+@footerBoxShadow: 5em;
+
 * {
 	padding: 0;
 	margin: 0;
 }
 
-html, body, .x-body {
-	height: 100%;
+html, body {
 	min-width: 1000px;
 	min-height: 800px;
 	background-color: #000;
-	color: @fontColor;
-	font: @bodyFont;
+	color: @mainFontColor;
 }
 
 h1, h1:hover {
@@ -20,32 +41,14 @@ h1, h1:hover {
 }
 
 h1 {
-	background-color: @themeBackgroundColor;
 	color: @h1Color;
 	font: bold 2em "Ubuntu", @nextFont;
-	.textShadow(@themeBackgroundColor);
 	text-align: right;
+	.textShadow(@buttonBackgroundColor);
 	border-radius: 0.1em;
 	padding: @padding 1.7em @padding @padding;
 	margin: @margin;
-	float: right;
 	position: relative;
-	.boxShadow(0, @h1BoxShadow * 2, @h1BoxShadow, -@h1BoxShadow, darken(@themeBackgroundColor, 10%));
-}
-
-h1:hover {
-	background-color: lighten(@themeBackgroundColor, 10%);
-}
-
-h1:after {
-	content: '';
-	right: 0.5em;
-	top: 0.7em;
-	width: 1em;
-	height: 1em;
-	background: url(@h1Path) no-repeat;
-	background-size: 1em;
-	position: absolute;
 }
 
 h2 {
@@ -61,17 +64,14 @@ a:hover {
 	.transition(background, 0.5s);
 }
 
-.content, .x-form-item-label {
-	color: #fff;
-}
-
-.content, .x-list-plain {
+.content, .header, .navigationLink span {
 	font: 1em 'Ubuntu' @nextFont;
 }
 
 .content {
 	min-width: @minWidth;
 	min-height: 100%;
+	color: @mainFontColor;
 	padding: 1em 0;
 	position: relative;
 	clear: both;
@@ -91,54 +91,232 @@ a:hover {
 	filter:alpha(opacity=7);
 }
 
-input {
-	border-radius: @borderWidth;
+/* Header */
+.header, .logo, .logo a, nav, nav a, .active {
+	height: 100%;
 }
 
-.button, .selectedButton, .cancelButton {
+.header {
+	overflow: hidden;
+	.boxShadow(0, -@headerBoxShadow, @headerBoxShadow, @headerBoxShadow, @navigationBackgroundColor);
+}
+
+.header::selection {
+  background-color: @headerSelectionColour;
+}
+
+.header::-moz-selection {
+	background-color: @headerSelectionColour;
+}
+
+.navigation {
+	height: @navigationHeight;
+	background-color: @navigationBackgroundColor;
+}
+
+nav a, .active {
+	height: @navigationHeight;
+	text-align: center;
+	line-height: @navLineHeight;
+	padding: 0 0.5em;
+}
+
+nav a, nav a:hover {
+	.transition(background-color, @time, linear);
+}
+
+nav a {
+	background-color: transparent;
+	color: @navColor;
+	.textShadow(@navColor);
+}
+
+nav a:hover {
+	background-color: lighten(@activeBackgroundColor, 10%);
+	color: @activeColor;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+a.active {
+	background-color: @activeBackgroundColor;
+	color: @activeColor;
+	.textShadow(@activeColor);
+}
+
+a.active:hover {
+	color: ligthen(@activeColor, 10%);
+}
+
+.bannerContainer, .bannerContainer:before {
+}
+
+.bannerContainer {
+	position: relative;
+	padding: 1em 0;
+}
+
+.bannerContainer {
+	background-color: #000;
+	.multiGradient(@bannerStart, @bannerSecond, @bannerThird, @bannerFourth, @bannerStop);
+}
+
+.bannerContainer:before {
+	content: '';
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: #555 url('@{imageFolder}/banner.png');
+	position: absolute;
+	opacity:0.30;
+	filter:alpha(opacity=30);
+}
+
+.bannerGradient () {
+	@origin: left;
+	@start: @bannerStart;
+	@startPercent: 0;
+	@second: transparent;
+	@secondPercent: 10%;
+	@third: transparent;
+	@thirdPercent: 100%;
+	@stop: transparent;
+	@stopPercent: 100%;
+	background-image: -webkit-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+	background-image: -moz-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+	background-image: -o-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+	background-image: -ms-linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+	background-image: linear-gradient(@origin, @start @startPercent, @second @secondPercent, @third @thirdPercent, @stop @stopPercent);
+}
+
+.bannerGradient:after {
+	content: '';
+	width: 100%;
+	.bannerGradient();
+}
+
+.banner {
+	padding: 3em 3em 3em 5em;
+	width: 100%;
+	display: block;
+}
+
+.logo, .logo:hover {
+	.transition(color, @time, linear);
+}
+
+.logo {
+	height: 1em;
+	color: @buttonBackgroundColorHover;
+	font: 7em 'Ubuntu' @nextFont;
+}
+
+.logo:hover {
+	color: @buttonBackgroundColor;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.subtext {
+	color: @mainFontColor;
+	font: 3em 'Ubuntu' @nextFont;
+	.textShadow(#fff);
+}
+
+
+.kiwi {
+	color: @themeBackgroundColor;
+	font: 1.5em 'Ubuntu' @nextFont;
+	.textShadow(#fff);
+}
+
+.advertisement {
+	width: 100%;
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center center;
+	background-attachment: fixed;
+	border-radius: @borderWidth;
+	margin-left: 2em;
+}
+
+/* Content */
+.contentContainer {
+	height: auto !important;
+	height: 100%;
+	background-color: #000;
+	.boxShadow(0, -@contentBoxShadow, @contentBoxShadow, @contentBoxShadow, #000);
+}
+
+.smallerContent, .booking {
+	width: @contentWidth;
+	margin: 0 auto;
+}
+
+/* Footer */
+.footer {
+	background-color: @footerBackgroundColor;
+	color: @footerColor;
+	font: 1em 'Ubuntu', @nextFont;
+	text-align: center;
+	padding: 1em 0;
+}
+
+.footer::selection {
+    background-color: @footerSelectionColour;
+}
+
+.footer::-moz-selection {
+    background-color: @footerSelectionColour;
+}
+
+input {
+	border-radius: @borderWidth 0 0 @borderWidth;
+}
+
+.button-blue, .button-green, .button-red {
 	width: @buttonWidth;
 	border: 0;
+	border-radius: 0.3em;
+	cursor: pointer;
 }
 
-.button .x-btn-inner, .selected .x-btn-inner, .cancelButton .x-btn-inner {
-	margin: -0.1em 0 0 0;
-	padding: 0.1em 0;
-}
-
-.button {
+.button-blue {
 	background: @buttonBackgroundColor;
 }
 
-.button:hover {
+.button-blue:hover {
 	background: @buttonBackgroundColorHover;
 }
 
-.selectedButton {
+.button-green {
 	background: @selectedButtonBackgroundColor;
 }
 
-.selectedButton:hover {
+.button-green:hover {
 	background: @selectedButtonBackgroundColorHover;
 }
 
-.cancelButton {
+.button-red {
 	background: @cancelButtonBackgroundColor;
 }
 
-.cancelButton:hover {
+.button-red:hover {
 	background: @cancelButtonBackgroundColorHover;
 }
 
-.button .x-btn-inner, .selectedButton .x-btn-inner, .cancelButton .x-btn-inner {
+.button-blue .x-btn-inner, .button-green .x-btn-inner, .button-red .x-btn-inner {
 	font: 1em 'Ubuntu' @nextFont;
+	padding: 0.1em 0;
 }
 
-.button a, .button:hover, .button:active, .button:visited, .selectedButton a, .selectedButton:hover, .selectedButton:active,
-.selectedButton:visited, .cancelButton a, .cancelButton:hover, .cancelButton:active, .cancelButton:visited {
+.button-blue a, .button-blue:hover, .button-blue:active, .button-blue:visited, .button-green a, .button-green:hover,
+.button-green:active, .button-green:visited, .button-red a, .button-red:hover, .button-red:active, .button-red:visited {
 	text-decoration: none;
 }
 
-.button, .button:hover, .selectedButton, .selectedButton:hover, .cancelButton, .cancelButton:hover {
+.button-blue, .button-blue:hover, .button-green, .button-green:hover, .button-red, .button-red:hover {
 	.transition(background, @time, linear);
 }
 

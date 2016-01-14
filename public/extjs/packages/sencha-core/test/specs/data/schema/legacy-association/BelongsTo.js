@@ -19,8 +19,17 @@ describe("Ext.data.association.BelongsTo_legacy", function() {
     function doGet(options, scope) {
         return rec.getUser(options, scope);
     }
+
+    function complete(data, status) {
+        Ext.Ajax.mockComplete({
+            status: status || 200,
+            responseText: Ext.JSON.encode(data)
+        });
+    }
     
     beforeEach(function() {
+        MockAjaxManager.addMethods();
+        Ext.data.Model.schema.setNamespace('spec');
         Ext.define('spec.User', {
             extend: 'Ext.data.Model',
             fields: ['id', 'name']
@@ -34,11 +43,12 @@ describe("Ext.data.association.BelongsTo_legacy", function() {
     });
     
     afterEach(function() {
+        MockAjaxManager.removeMethods();
         Ext.undefine('spec.User');
         Ext.undefine('spec.Post');
         Ext.undefine('spec.Job');
         
-        Ext.data.Model.schema.clear();
+        Ext.data.Model.schema.clear(true);
         
         rec = null;
     });
@@ -131,7 +141,15 @@ describe("Ext.data.association.BelongsTo_legacy", function() {
     });
     
     describe("getter", function() {
-        var user;
+        var user, spy;
+
+        beforeEach(function() {
+            spy = jasmine.createSpy();
+        });
+
+        afterEach(function() {
+            spy = null;
+        });
         
         describe("instance already set", function() {
             beforeEach(function() {
@@ -154,62 +172,50 @@ describe("Ext.data.association.BelongsTo_legacy", function() {
             });
             
             it("should not attempt to load", function() {
-                spyOn(spec.User, 'load');
+                spy = spyOn(spec.User.getProxy(), 'read');
                 doGet();
-                expect(spec.User.load).not.toHaveBeenCalled();
+                expect(spy).not.toHaveBeenCalled();
             });
             
             it("should attempt to reload if called with options.reload", function() {
-                spyOn(spec.User, 'load').andReturn();
+                spy = spyOn(spec.User.getProxy(), 'read').andReturn();
                 doGet({
                     reload: true
                 });    
-                expect(spec.User.load).toHaveBeenCalled();
+                expect(spy).toHaveBeenCalled();
             });
             
             describe("callbacks", function() {
                 it("should accept a function and default the scope to the model", function() {
                     var scope, item;
-                    doGet(function(arg1) {
-                        item = arg1;
-                        scope = this;
-                    });
-                    expect(item).toBe(user);
-                    expect(scope).toBe(rec);
+                    doGet(spy);
+                    var call = spy.mostRecentCall;
+                    expect(call.args[0]).toBe(user);
+                    expect(call.object).toBe(rec);
                 });
                 
                 it("should accept a function with a scope", function() {
-                    var o = {},
-                        scope; 
-                        
-                    doGet(function() {
-                        scope = this;
-                    }, o);
-                    expect(scope).toBe(o);   
+                    var o = {};
+                    doGet(spy, o);
+                    expect(spy.mostRecentCall.object).toBe(o);   
                 });
                 
                 it("should accept an options object and call success", function() {
-                    var scope, item;
                     doGet({
-                        success: function(arg1) {
-                            item = arg1;
-                            scope = this;
-                        }
+                        success: spy
                     });  
-                    expect(item).toBe(user);
-                    expect(scope).toBe(rec);  
+                    var call = spy.mostRecentCall;
+                    expect(call.args[0]).toBe(user);
+                    expect(call.object).toBe(rec);  
                 });
                 
                 it("should accept an options object and call callback", function() {
-                    var scope, item;
                     doGet({
-                        callback: function(arg1) {
-                            item = arg1;
-                            scope = this;
-                        }
+                        callback: spy
                     });  
-                    expect(item).toBe(user);
-                    expect(scope).toBe(rec);  
+                    var call = spy.mostRecentCall;
+                    expect(call.args[0]).toBe(user);
+                    expect(call.object).toBe(rec);  
                 });
             });
         });
@@ -220,7 +226,6 @@ describe("Ext.data.association.BelongsTo_legacy", function() {
                     rec = new spec.Post({
                         'user_id': 10
                     });
-                    spyOn(spec.User, 'load').andReturn();
                     user = doGet();
                     expect(user.get('id')).toBe(10);    
                 });
@@ -232,7 +237,6 @@ describe("Ext.data.association.BelongsTo_legacy", function() {
                     rec = new spec.Job({
                         'aField': 12
                     });
-                    spyOn(spec.User, 'load').andReturn();
                     user = doGet();
                     expect(user.get('id')).toBe(12); 
                 });
@@ -243,46 +247,41 @@ describe("Ext.data.association.BelongsTo_legacy", function() {
                     rec = new spec.Post({
                         'user_id': 3
                     }); 
-                    var info;
-                    spyOn(spec.User, 'load').andCallFake(function(arg1, arg2) {
-                        info = arg2;
-                    });
-                    var fn = function() {};
-                    doGet(fn);
-                    expect(info.callback).toBe(fn);
-                    expect(info.scope).toBe(rec);
+                    user = doGet(spy);
+                    complete({});
+                    var call = spy.mostRecentCall;
+                    expect(call.args[0]).toBe(user);
+                    expect(call.object).toBe(rec);
                 });
                 
                 it("should accept a function and a scope", function() {
                     rec = new spec.Post({
                         'user_id': 3
                     }); 
-                    var info;
-                    spyOn(spec.User, 'load').andCallFake(function(arg1, arg2) {
-                        info = arg2;
-                    });
-                    var fn = function() {},
-                        o = {};
-                        
-                    doGet(fn, o);
-                    expect(info.callback).toBe(fn);
-                    expect(info.scope).toBe(o);
+                    var o = {},
+                        call;
+
+                    user = doGet(spy, o);
+                    complete({});
+                    call = spy.mostRecentCall;
+                    expect(call.args[0]).toBe(user);
+                    expect(call.object).toBe(o);
                 });   
                 
-                it("should pass the options to load", function() {
+                it("should pass the options to the operation", function() {
                    rec = new spec.Post({
                         'user_id': 3
                     }); 
-                    var o = {
-                       someKey: 1 
-                    }, info;
                         
-                    spyOn(spec.User, 'load').andCallFake(function(arg1, arg2) {
-                        info = arg2;
+                    spy = spyOn(spec.User.getProxy(), 'read');
+                    doGet({
+                        params: {
+                            someKey: 1 
+                        }
                     });
-                        
-                    doGet(o);
-                    expect(info.someKey).toBe(1);
+                    expect(spy.mostRecentCall.args[0].getParams()).toEqual({
+                        someKey: 1
+                    });
                 });
             });
             
@@ -294,10 +293,16 @@ describe("Ext.data.association.BelongsTo_legacy", function() {
     });
     
     describe("setter", function() {
+        var spy;
         beforeEach(function() {
+            spy = jasmine.createSpy();
             rec = new spec.Post({
                 id: 7
             });
+        });
+
+        afterEach(function() {
+            spy = null;
         });
         
         describe("instance", function() {
@@ -340,10 +345,10 @@ describe("Ext.data.association.BelongsTo_legacy", function() {
                 });
                 doSet(user);
                 doSet(13);
-                spyOn(spec.User, 'load');
+                spy = spyOn(spec.User.getProxy(), 'read');
                 // Reference doesn't exist, so need to grab it again here
                 doGet();
-                expect(spec.User.load.mostRecentCall.args[0]).toBe(13);
+                expect(spy.mostRecentCall.args[0].getId()).toBe(13);
             });
             
             it("should set a custom foreignKey", function() {
@@ -361,44 +366,88 @@ describe("Ext.data.association.BelongsTo_legacy", function() {
         
         describe("callbacks", function() {
             it("should accept a function as the second arg, scope should default to the model", function() {
-                spyOn(rec, 'save').andCallFake(function(options) {
-                    var me  = options.scope || this;
-                    Ext.callback(options.callback, me, [this]);
-                });
-                var item, scope;
-                doSet(16, function(arg1) {
-                    item = arg1;
-                    scope = this;
-                });
-                expect(item).toBe(rec);
-                expect(scope).toBe(rec);
+                doSet(16, spy);
+                complete({});
+                var call = spy.mostRecentCall;
+                expect(call.args[0]).toBe(rec);
+                expect(call.object).toBe(rec);
             });    
             
             it("should accept a function with a scope", function() {
-                var o = {},
-                    scope;
-                    
-                spyOn(rec, 'save').andCallFake(function(options) {
-                    var scope  = options.scope || this;
-                    Ext.callback(options.callback, scope, [this]);
-                });
-                var item;
-                doSet(16, function(arg1) {
-                    item = arg1;
-                    scope = this;
-                }, o);
-                expect(scope).toBe(o);
+                var o = {};
+                doSet(16, spy, o);
+                complete({});
+                expect(spy.mostRecentCall.object).toBe(o);
             });
-            
-            it("should accept an options object and forward it to save", function() {
-                spyOn(rec, 'save').andReturn();
-                var o = {
-                    scope: {},
-                    success: function() {},
-                    failure: function() {}
-                };
-                doSet(16, o);
-                expect(rec.save).toHaveBeenCalledWith(o);
+
+            describe("options object", function() {
+                var successSpy, failureSpy, callbackSpy;
+
+                beforeEach(function() {
+                    successSpy = jasmine.createSpy();
+                    failureSpy = jasmine.createSpy();
+                    callbackSpy = jasmine.createSpy();
+                });
+
+                afterEach(function() {
+                    successSpy = failureSpy = callbackSpy = null;
+                });
+
+                describe("on success", function() {
+                    it("should call success/callback and scope should default to the model", function() {
+                        doSet(16, {
+                            success: successSpy,
+                            callback: callbackSpy,
+                            failure: failureSpy
+                        });
+                        complete({});
+                        expect(failureSpy).not.toHaveBeenCalled();
+                        expect(successSpy).toHaveBeenCalled();
+                        expect(callbackSpy).toHaveBeenCalled();
+                        expect(successSpy.mostRecentCall.object).toBe(rec);
+                        expect(callbackSpy.mostRecentCall.object).toBe(rec);
+                    });
+
+                    it("should use a passed scope", function() {
+                        var scope = {};
+                        doSet(16, {
+                            scope: scope,
+                            success: successSpy,
+                            callback: callbackSpy
+                        });
+                        complete({});
+                        expect(successSpy.mostRecentCall.object).toBe(scope);
+                        expect(callbackSpy.mostRecentCall.object).toBe(scope);
+                    });
+                });
+
+                describe("on failure", function() {
+                    it("should call failure/callback and scope should default to the model", function() {
+                        doSet(16, {
+                            success: successSpy,
+                            callback: callbackSpy,
+                            failure: failureSpy
+                        });
+                        complete(null, 500);
+                        expect(successSpy).not.toHaveBeenCalled();
+                        expect(failureSpy).toHaveBeenCalled();
+                        expect(callbackSpy).toHaveBeenCalled();
+                        expect(failureSpy.mostRecentCall.object).toBe(rec);
+                        expect(callbackSpy.mostRecentCall.object).toBe(rec);
+                    });
+
+                    it("should use a passed scope", function() {
+                        var scope = {};
+                        doSet(16, {
+                            scope: scope,
+                            failure: failureSpy,
+                            callback: callbackSpy
+                        });
+                        complete(null, 500);
+                        expect(failureSpy.mostRecentCall.object).toBe(scope);
+                        expect(callbackSpy.mostRecentCall.object).toBe(scope);
+                    });
+                });
             });
         });
     });

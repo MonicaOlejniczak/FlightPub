@@ -19,9 +19,9 @@ Ext.define('Ext.util.History', {
     /**
      * @property
      * True to use `window.top.location.hash` or false to use `window.location.hash`. Must be set before {@link #init} is called
-     * because the hashchange event listener is added to the window at initialization time.
+     * because the `hashchange` event listener is added to the window at initialization time.
      */
-    useTopWindow: true,
+    useTopWindow: false,
 
     /**
      * @property {String} currentToken The current token.

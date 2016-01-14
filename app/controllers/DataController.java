@@ -11,22 +11,77 @@ import java.util.*;
 
 public class DataController extends Controller {
 
-	public static Result flights() {
-        List<Flight> flights = Flight.find.select("flightNumber").setMaxRows(10).findList();
-//        Json..newObject();
-//        JsArray result = new JsArray();
-//        for (Flight flight : flights) {
-//            HashMap<String, JsValue> map = new HashMap<>();
-//            Seq<>
-//            map.put("test", new JsString("WHAT"));
-//            JsObject flightObj = new JsObject(map);
-//            flightObj
-//        }
-        return ok(Json.toJson(flights));
-	}
+    public static Result bookings() {
+        List<Booking> bookings = Booking.find.where().eq("user", AuthenticationController.getAuthenticatedUser()).findList();
+        List<Map<String, Object>> jBookings = new ArrayList<>();
+        for (Booking booking : bookings) {
+            HashMap<String, Object> jBooking = new HashMap<>();
+            jBooking.put("id", booking.id);
+            jBooking.put("status", booking.status);
+
+            HashMap<String, Object> jItinerary = new HashMap<>();
+            Itinerary itinerary = booking.itinerary;
+            // okay
+            Collections.sort(itinerary.flights, new Comparator<Flight>() {
+                @Override
+                public int compare(Flight flight, Flight flight2) {
+                    return flight.departureTime.compareTo(flight2.departureTime);
+                }
+            });
+
+            long jDepartureTime = itinerary.flights.get(0).departureTime.getMillis();
+            long jArrivalTime = itinerary.flights.get(itinerary.flights.size() - 1).arrivalTime.getMillis();
+            double jDuration = jArrivalTime - jDepartureTime;
+            double jStopOvers = itinerary.flights.size() - 1;
+            double jItineraryPrice = 0;
+
+            List<Map<String, Object>> jFlights = new ArrayList<>();
+            for (Flight flight : itinerary.flights) {
+                Map<String, Object> jFlight = new HashMap<>();
+                jFlight.put("id", flight.id);
+                jFlight.put("flightNumber", flight.flightNumber);
+                jFlight.put("duration", flight.duration);
+                jFlight.put("departureTime", flight.departureTime.getMillis());
+                jFlight.put("arrivalTime", flight.arrivalTime.getMillis());
+
+                Map<String, Object> jSource = new HashMap<>();
+                jSource.put("name", flight.source.name);
+                jFlight.put("source", jSource);
+
+                Map<String, Object> jDestination = new HashMap<>();
+                jDestination.put("name", flight.destination.name);
+                jDestination.put("code", flight.destination.code);
+                jFlight.put("destination", jDestination);
+
+                Map<String, Object> jAirline = new HashMap<>();
+                jAirline.put("name", flight.airline.name);
+                jFlight.put("airline", jAirline);
+
+                // todo fix price table: double price = flight.getPrice().price;
+                double price = Math.random() * 500;
+                Map<String, Object> jPrice = new HashMap<>();
+                jPrice.put("price", price);
+                jFlight.put("price", jPrice);
+                jItineraryPrice += price;
+
+                jFlights.add(jFlight);
+            }
+            jItinerary.put("flights", jFlights);
+            jItinerary.put("price", jItineraryPrice);
+            jItinerary.put("duration", jDuration);
+            jItinerary.put("stopOvers", jStopOvers);
+            jItinerary.put("departureTime", jDepartureTime);
+            jItinerary.put("arrivalTime", jArrivalTime);
+
+            jBooking.put("itinerary", jItinerary);
+            jBookings.add(jBooking);
+        }
+        return ok(Json.toJson(jBookings));
+    }
 
 	public static Result selectedFlights() {
-        String sourceName = request().getQueryString("source");
+
+		String sourceName = request().getQueryString("source");
         String destinationName = request().getQueryString("destination");
         Long departing = Long.parseLong(request().getQueryString("departing"));
 //        Long returning = Long.parseLong(request().getQueryString("returning")); // TODO: not used
@@ -44,14 +99,14 @@ public class DataController extends Controller {
 		int depth = 7;
 
 		List<Itinerary> flights = FlightFinder.findFlights(source, destination, start, end, depth);
-        flights.sort(new Comparator<Itinerary>() {
+        //TODO idea did not like
+        /*flights.sort(new Comparator<Itinerary>() {
             @Override
             public int compare(Itinerary o1, Itinerary o2) {
             return Integer.compare(o1.flights.size(), o2.flights.size());
             }
-        });
+        });*/
         flights = flights.subList(0, Math.min(flights.size(), MAX_RESULTS));
-
         // generate limited version
         // NOTE: THIS IS GREAT HAHA /WRISTS
         // TODO: use http://wiki.fasterxml.com/JacksonJsonViews
@@ -59,7 +114,6 @@ public class DataController extends Controller {
         List<Map<String, Object>> jItineraries = new ArrayList<>();
         for (Itinerary itinerary : flights) {
             Map<String, Object> jItinerary = new HashMap<>();
-
             List<Map<String, Object>> jFlights = new ArrayList<>();
 
             long jDepartureTime = itinerary.flights.get(0).departureTime.getMillis();
@@ -68,7 +122,14 @@ public class DataController extends Controller {
             double jStopOvers = itinerary.flights.size() - 1;
             double jItineraryPrice = 0;
 
-            for (Flight flight : itinerary.flights) {
+	        List<Flight> iFlights = itinerary.flights;
+            Collections.sort(iFlights, new Comparator<Flight>() {
+                @Override
+                public int compare(Flight flight, Flight flight2) {
+                    return flight.departureTime.compareTo(flight2.departureTime);
+                }
+            });
+            for (Flight flight : iFlights) {
                 Map<String, Object> jFlight = new HashMap<>();
                 jFlight.put("id", flight.id);
                 jFlight.put("flightNumber", flight.flightNumber);
@@ -89,8 +150,9 @@ public class DataController extends Controller {
                 jAirline.put("name", flight.airline.name);
                 jFlight.put("airline", jAirline);
 
-	            double price = flight.getPrice().price; //new Random().nextInt(50); // TODO
-                Map<String, Object> jPrice = new HashMap<>();
+	            // todo fix price table: double price = flight.getPrice().price;
+	            double price = Math.random() * 500;
+	            Map<String, Object> jPrice = new HashMap<>();
                 jPrice.put("price", price);
                 jFlight.put("price", jPrice);
                 jItineraryPrice += price;
@@ -120,10 +182,15 @@ public class DataController extends Controller {
         return ok(Json.toJson(airports));
     }
 
-    public static Result genEdges() {
+    public static Result planes() {
+        List<Plane> planes = Plane.find.findList();
+        return ok(Json.toJson(planes));
+    }
+
+    /*public static Result genEdges() {
         FlightFinder.genEdges();
         return ok("done");
-    }
+    }*/
 
 	public static Result accountDetails() {
 		Map<String, Object> details = new HashMap<>();
@@ -139,9 +206,6 @@ public class DataController extends Controller {
 		details.put("postcode", user.postcode);
 		if (user.lastPayment != null) {
 			details.put("paymentMethod", user.lastPayment.paymentMethod);
-			details.put("cardName", user.lastPayment.cardName);
-			details.put("cardNumber", user.lastPayment.cardNumber);
-			details.put("ppUsername", user.lastPayment.ppUsername);
 		}
 		return ok(Json.toJson(details));
 	}

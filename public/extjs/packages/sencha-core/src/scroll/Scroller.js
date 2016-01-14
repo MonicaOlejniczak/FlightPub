@@ -260,7 +260,15 @@ Ext.define('Ext.scroll.Scroller', {
          * @private
          * `true` to enable the scrolling using the mouse.
          */
-        mouseEnabled: false
+        mouseEnabled: false,
+
+        /**
+         * @private
+         * May be set to `false` to inhibit constraining scroll position to within element size boundaries.
+         * For example, during a drag operation which "overscrolls" an element in order to make room
+         * for dropping below content.
+         */
+        snapToBoundary: true
     },
 
     statics: {
@@ -315,8 +323,6 @@ Ext.define('Ext.scroll.Scroller', {
         me.minPosition = { x: 0, y: 0 };
 
         me.startPosition = { x: 0, y: 0 };
-
-        me.position = { x: 0, y: 0 };
 
         me.velocity = { x: 0, y: 0 };
 
@@ -452,13 +458,7 @@ Ext.define('Ext.scroll.Scroller', {
             };
         }
 
-        var position = this.position,
-            x, y;
-
-        position.x = x = initialOffset.x;
-        position.y = y = initialOffset.y;
-
-        this.getTranslatable().translate(-x, -y);
+        this.getTranslatable().translate(-initialOffset.x, -initialOffset.y);
     },
 
     /**
@@ -571,6 +571,14 @@ Ext.define('Ext.scroll.Scroller', {
             x: Ext.factory(easing, defaultClass),
             y: Ext.factory(easing, defaultClass)
         };
+    },
+
+    /**
+     * @private
+     * @return {Object}
+     */
+    getPosition: function() {
+        return this.getTranslatable().getPosition();
     },
 
     /**
@@ -806,7 +814,7 @@ Ext.define('Ext.scroll.Scroller', {
         //</deprecated>
 
         var translatable = me.getTranslatable(),
-            position = me.position,
+            position = me.getPosition(),
             positionChanged = false,
             translationX, translationY;
 
@@ -816,7 +824,6 @@ Ext.define('Ext.scroll.Scroller', {
             }
             else {
                 if (position.x !== x) {
-                    position.x = x;
                     positionChanged = true;
                 }
             }
@@ -830,7 +837,6 @@ Ext.define('Ext.scroll.Scroller', {
             }
             else {
                 if (position.y !== y) {
-                    position.y = y;
                     positionChanged = true;
                 }
             }
@@ -843,14 +849,14 @@ Ext.define('Ext.scroll.Scroller', {
 
                 // We need a callback to fire it after the animation
                 fireScrollCallback = function() {
-                    me.fireEvent('scroll', me, position.x, position.y);
+                    me.fireEvent('scroll', me, x, y);
                 };
 
                 // If they passed a boolean, create an object to hold the callback.
                 if (animation === true) {
                     animation = {
                         callback: fireScrollCallback
-                    }
+                    };
                 }
                 // They want a callback, so we need to create a sequence on it.
                 else if (animation.callback) {
@@ -864,7 +870,7 @@ Ext.define('Ext.scroll.Scroller', {
             }
             else {
                 translatable.translate(translationX, translationY);
-                me.fireEvent('scroll', me, position.x, position.y);
+                me.fireEvent('scroll', me, x, y);
             }
         }
 
@@ -903,7 +909,7 @@ Ext.define('Ext.scroll.Scroller', {
      * @chainable
      */
     scrollBy: function(x, y, animation) {
-        var position = this.position;
+        var position = this.getPosition();
 
         x = (typeof x == 'number') ? x + position.x : null;
         y = (typeof y == 'number') ? y + position.y : null;
@@ -940,7 +946,7 @@ Ext.define('Ext.scroll.Scroller', {
      * @private
      */
     onTouchEnd: function() {
-        var position = this.position;
+        var position = this.getPosition();
 
         this.isTouching = this.self.isTouching = false;
 
@@ -961,7 +967,7 @@ Ext.define('Ext.scroll.Scroller', {
             flickStartPosition = this.flickStartPosition,
             flickStartTime = this.flickStartTime,
             lastDragPosition = this.lastDragPosition,
-            currentPosition = this.position,
+            currentPosition = this.getPosition(),
             dragDirection = this.dragDirection,
             x = currentPosition.x,
             y = currentPosition.y,
@@ -1014,7 +1020,7 @@ Ext.define('Ext.scroll.Scroller', {
             flickStartTime = this.flickStartTime,
             lastDragPosition = this.lastDragPosition,
             dragDirection = this.dragDirection,
-            old = this.position[axis],
+            old = this.getPosition()[axis],
             min = this.getMinPosition()[axis],
             max = this.getMaxPosition()[axis],
             start = this.startPosition[axis],
@@ -1101,7 +1107,7 @@ Ext.define('Ext.scroll.Scroller', {
             return null;
         }
 
-        var currentPosition = this.position[axis],
+        var currentPosition = this.getPosition()[axis],
             minPosition = this.getMinPosition()[axis],
             maxPosition = this.getMaxPosition()[axis],
             maxAbsVelocity = this.getMaxAbsoluteVelocity(),
@@ -1172,12 +1178,9 @@ Ext.define('Ext.scroll.Scroller', {
      * @private
      */
     onAnimationFrame: function(translatable, x, y) {
-        var position = this.position;
+        var position = this.getPosition();
 
-        position.x = this.convertX(-x);
-        position.y = -y;
-
-        this.fireEvent('scroll', this, position.x, position.y);
+        this.fireEvent('scroll', this, this.convertX(position.x), position.y);
     },
 
     /**
@@ -1200,7 +1203,7 @@ Ext.define('Ext.scroll.Scroller', {
      * @private
      */
     onScrollEnd: function() {
-        var position = this.position;
+        var position = this.getPosition();
 
         if (this.isTouching || !this.snapToSlot()) {
             this.fireEvent('scrollend', this, position.x, position.y);
@@ -1238,7 +1241,7 @@ Ext.define('Ext.scroll.Scroller', {
             position, snapOffset, maxPosition, mod;
 
         if (snapSize !== 0 && this.isAxisEnabled(axis)) {
-            position = this.position[axis];
+            position = this.getPosition()[axis];
             snapOffset = this.getSlotSnapOffset()[axis];
             maxPosition = this.getMaxPosition()[axis];
 
@@ -1266,7 +1269,14 @@ Ext.define('Ext.scroll.Scroller', {
      * @private
      */
     snapToBoundary: function() {
-        var position = this.position,
+        // Snapping to boundary may be temporarily inhibited.
+        // For example, during a drag operation which "overscrolls" an element in order to make room
+        // for dropping below content.
+        if (!this.getSnapToBoundary()) {
+            return;
+        }
+
+        var position = this.getPosition(),
             minPosition = this.getMinPosition(),
             maxPosition = this.getMaxPosition(),
             minX = minPosition.x,

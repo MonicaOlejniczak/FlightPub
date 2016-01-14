@@ -33,6 +33,9 @@ Ext.define('Ext.chart.series.sprite.Radar', {
             r = dataY[i] / (rangeY ? rangeY[1] : maxY) * (endRho - startRho) + startRho;
             x = matrix.x(centerX + Math.cos(th) * r, centerY + Math.sin(th) * r);
             y = matrix.y(centerX + Math.cos(th) * r, centerY + Math.sin(th) * r);
+            if (i === 0) {
+                ctx.moveTo(x, y);
+            }
             ctx.lineTo(x, y);
             markerCfg.translationX = surfaceMatrix.x(x, y);
             markerCfg.translationY = surfaceMatrix.y(x, y);

@@ -1,13 +1,16 @@
+/**
+ * @author Monica Olejniczak
+ */
 Ext.define('FB.store.PaymentType', {
 	extend: 'Ext.data.Store',
 	fields: [
         'option'
     ],
-    data : [{
-        'option': 'Visa'
+    data: [{
+        option: 'Visa'
     },  {
-        'option': 'Mastercard'
+        option: 'Mastercard'
     },  {
-        'option': 'PayPal'
+        option: 'PayPal'
     }]
 });

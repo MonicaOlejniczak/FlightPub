@@ -357,11 +357,14 @@ Ext.define('Ext.layout.container.Accordion', {
         item.collapseDirection = item.headerPosition;
 
         // If we add to an accordion after its is has run once we need to make sure
-        // new items are collapsed on entry.
-        if (me.layoutCount) {
-            if (!me.multi && me.owner.items.items.length) {
-                item.collapse();
-            }
+        // new items are collapsed on entry. The item is also in the collection now,
+        // so only collapse it if we have more than 1.
+        if (me.layoutCount && !me.multi && me.owner.items.getCount() > 1) {
+            // If we get here, we must already have something expanded, so we don't
+            // want to react here.
+            me.processing = true;
+            item.collapse();
+            me.processing = false
         }
     },
 

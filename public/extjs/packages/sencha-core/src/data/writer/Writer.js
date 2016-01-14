@@ -22,7 +22,7 @@
  * - {@link #dateFormat Writer.dateFormat} The writer `dateFormat` will always have the
  *   highest precedence.
  * - {@link Ext.data.field.Date#dateWriteFormat} The `dateWriteFormat` given to the field
- *   instance. This is handled by {@link Ext.data.field.Date#serialize}.
+ *   instance. This is handled by {@link Ext.data.field.Date#method-serialize}.
  * - {@link Ext.data.field.Date#dateFormat Field.dateFormat} This is handled by the field's
  *   `serialize` method.
  * - {@link Ext.data.field.Date#dateReadFormat Field.dateReadFormat} Also handled by the
@@ -201,7 +201,36 @@ Ext.define('Ext.data.writer.Writer', {
          * in the data directly. For example, when using a RESTful API the record id would
          * typically be appended to the url instead.
          */
-        writeRecordId: true
+        writeRecordId: true,
+        
+        /**
+         * @cfg {Function|Object} [transform]
+         * If a transform function is set, it will be invoked just before {@link #writeRecords} 
+         * executes. It is passed the unserialized data object and the {@link #Ext.data.Request request} 
+         * object. The transform function returns a data object, which can be a modified version of the original 
+         * data object, or a completely new data object. The transform can be a function, or an object 
+         * with a 'fn' key and an optional 'scope' key. Example usage:
+         *
+         *     Ext.create('Ext.data.Store', {
+         *         model: 'User',
+         *         proxy: {
+         *             type: 'ajax',
+         *             url : 'users.json',
+         *             writer: {
+         *                 type: 'json',
+         *                 transform: {
+         *                     fn: function(data, request) {
+         *                         // do some manipulation of the unserialized data object
+         *                         return data;
+         *                     },
+         *                     scope: this
+         *                 }
+         *             }
+         *         },
+         *     });
+         *
+         */ 
+        transform: null
     },
 
     /**
@@ -216,6 +245,16 @@ Ext.define('Ext.data.writer.Writer', {
      */
     constructor: function(config) {
         this.initConfig(config);
+    },
+    
+    applyTransform: function(transform) {
+        if (transform) {
+            if (Ext.isFunction(transform)) {
+                transform = {fn:transform};
+            }
+            return transform.fn.bind(transform.scope || this);
+        }
+        return transform;
     },
 
     /**
@@ -233,6 +272,7 @@ Ext.define('Ext.data.writer.Writer', {
         for (i = 0; i < len; i++) {
             data.push(this.getRecordData(records[i], operation));
         }
+
         return this.writeRecords(request, data);
     },
     

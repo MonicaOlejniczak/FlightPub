@@ -27,7 +27,6 @@ Ext.define('Ext.FocusManager', {
 
     requires: [
         'Ext.Component',
-        'Ext.Component',
         'Ext.ComponentManager',
         'Ext.ComponentQuery',
         'Ext.util.HashMap',
@@ -110,14 +109,7 @@ Ext.define('Ext.FocusManager', {
 
         // Gain control on Component focus, blur, hide and destroy
         Ext.override(Ext.Component, {
-            onFocus: function() {
-                this.callParent(arguments);
-                if (me.enabled && this.hasFocus) {
-                    Array.prototype.unshift.call(arguments, this);
-                    me.onComponentFocus.apply(me, arguments);
-                }
-            },
-            onBlur: function() {
+            onBlur: function () {
                 this.callParent(arguments);
                 if (me.enabled && !this.hasFocus) {
                     Array.prototype.unshift.call(arguments, this);
@@ -129,6 +121,13 @@ Ext.define('Ext.FocusManager', {
                 if (me.enabled) {
                     Array.prototype.unshift.call(arguments, this);
                     me.onComponentDestroy.apply(me, arguments);
+                }
+            },
+            onFocus: function () {
+                this.callParent(arguments);
+                if (me.enabled && this.hasFocus) {
+                    Array.prototype.unshift.call(arguments, this);
+                    me.onComponentFocus.apply(me, arguments);
                 }
             }
         });

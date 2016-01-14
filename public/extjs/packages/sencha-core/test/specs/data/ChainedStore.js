@@ -84,9 +84,9 @@ describe("Ext.data.ChainedStore", function() {
         Ext.data.Model.schema.clear();
         Ext.undefine('spec.User');
         if (source) {
-            source.destroyStore();
+            source.destroy();
         }
-        store.destroyStore();
+        store.destroy();
         User = source = store = null;
     });
     
@@ -130,15 +130,15 @@ describe("Ext.data.ChainedStore", function() {
             createStore();
             source = null;
             expect(store.getSource()).toBe(idSource);
-            idSource.destroyStore();
+            idSource.destroy();
         });
     });
 
     it("should not join the records to the store", function() {
         createStore();
-        var stores = edRec.stores;
-        expect(stores.length).toBe(1);
-        expect(stores[0]).toBe(source);
+        var joined = edRec.joined;
+        expect(joined.length).toBe(1);
+        expect(joined[0]).toBe(source);
     });
 
     describe("sorting", function() {
@@ -216,6 +216,34 @@ describe("Ext.data.ChainedStore", function() {
                 source.getFilters().removeAll();
                 expect(store.indexOf(rec)).toBe(4);
             });
+
+            describe("events", function() {
+                it("should fire the refresh event on the store", function() {
+                    var spy = jasmine.createSpy();
+                    createStore();
+                    store.on('refresh', spy);
+                    source.filter('group', 'code');
+                    expect(spy).toHaveBeenCalled();
+                    expect(spy.callCount).toBe(1);
+                });
+
+                it("should fire the datachanged event on the store", function() {
+                    var spy = jasmine.createSpy();
+                    createStore();
+                    store.on('datachanged', spy);
+                    source.filter('group', 'code');
+                    expect(spy).toHaveBeenCalled();
+                    expect(spy.callCount).toBe(1);
+                });
+
+                it("should not fire the filterchange event", function() {
+                    var spy = jasmine.createSpy();
+                    createStore();
+                    store.on('filterchange', spy);
+                    source.filter('group', 'code');
+                    expect(spy).not.toHaveBeenCalled();
+                });
+            });
         });
 
         describe("filtering the store", function() {
@@ -251,6 +279,35 @@ describe("Ext.data.ChainedStore", function() {
                 source.filter('group', 'admin');
                 expect(store.getCount()).toBe(2);
                 expectOrder([abeRec, aaronRec], store);
+            });
+
+            describe("events", function() {
+                it("should fire the refresh event", function() {
+                    var spy = jasmine.createSpy();
+                    createStore();
+                    store.on('refresh', spy);
+                    store.filter('group', 'code');
+                    expect(spy).toHaveBeenCalled();
+                    expect(spy.callCount).toBe(1);
+                });
+
+                it("should fire the datachanged event", function() {
+                    var spy = jasmine.createSpy();
+                    createStore();
+                    store.on('datachanged', spy);
+                    store.filter('group', 'code');
+                    expect(spy).toHaveBeenCalled();
+                    expect(spy.callCount).toBe(1);
+                });
+
+                it("should fire the filterchange event", function() {
+                    var spy = jasmine.createSpy();
+                    createStore();
+                    store.on('filterchange', spy);
+                    store.filter('group', 'code');
+                    expect(spy).toHaveBeenCalled();
+                    expect(spy.callCount).toBe(1);
+                });
             });
         });
     });

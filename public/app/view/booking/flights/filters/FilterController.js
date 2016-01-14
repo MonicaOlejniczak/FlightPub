@@ -1,3 +1,6 @@
+/**
+ * @author Monica Olejniczak
+ */
 Ext.define('FB.view.booking.flights.filters.FilterController', {
 	extend: 'FB.view.ViewController',
 	alias: 'controller.FlightsFilter',

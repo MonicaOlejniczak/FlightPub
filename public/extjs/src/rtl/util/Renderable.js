@@ -8,7 +8,7 @@ Ext.define('Ext.rtl.util.Renderable', {
     // of right and left TD elements switched.
     rtlFrameTableTpl: [
         '{%this.renderDockedItems(out,values,0);%}',
-        '<table id="{fgid}Table" class="', Ext.plainTableCls, '" cellpadding="0" role="presentation">',
+        '<table id="{fgid}Table" class="{frameCls} ', Ext.baseCSSPrefix, 'table-plain" cellpadding="0" role="presentation">',
             '<tpl if="top">',
                 '<tr role="presentation">',
                     '<tpl if="right"><td id="{fgid}TR" class="{frameCls}-tr {baseCls}-tr {baseCls}-{ui}-tr<tpl for="uiCls"> {parent.baseCls}-{parent.ui}-{.}-tr</tpl>{frameElCls}" role="presentation"></td></tpl>',
@@ -18,7 +18,7 @@ Ext.define('Ext.rtl.util.Renderable', {
             '</tpl>',
             '<tr role="presentation">',
                 '<tpl if="right"><td id="{fgid}MR" class="{frameCls}-mr {baseCls}-mr {baseCls}-{ui}-mr<tpl for="uiCls"> {parent.baseCls}-{parent.ui}-{.}-mr</tpl>{frameElCls}" role="presentation"></td></tpl>',
-                '<td id="{fgid}MC" class="{frameCls}-mc {baseCls}-mc {baseCls}-{ui}-mc<tpl for="uiCls"> {parent.baseCls}-{parent.ui}-{.}-mc</tpl>{frameElCls}" role="presentation">',
+                '<td id="{fgid}MC" class="{frameCls}-mc {baseCls}-mc {baseCls}-{ui}-mc<tpl for="uiCls"> {parent.baseCls}-{parent.ui}-{.}-mc</tpl>{frameElCls}" style="{mcStyle}" role="presentation">',
                     '{%this.applyRenderTpl(out, values)%}',
                 '</td>',
                 '<tpl if="left"><td id="{fgid}ML" class="{frameCls}-ml {baseCls}-ml {baseCls}-{ui}-ml<tpl for="uiCls"> {parent.baseCls}-{parent.ui}-{.}-ml</tpl>{frameElCls}" role="presentation"></td></tpl>',
@@ -45,11 +45,6 @@ Ext.define('Ext.rtl.util.Renderable', {
         this.callParent();
     },
 
-    getFrameTpl: function(table) {
-        return (table && this.getInherited().rtl) ?
-            this.getTpl('rtlFrameTableTpl') : this.callParent(arguments);
-    },
-
     initRenderData: function() {
         var me = this,
             renderData = me.callParent(),
@@ -62,15 +57,22 @@ Ext.define('Ext.rtl.util.Renderable', {
         return renderData;
     },
 
-    getFrameRenderData: function () {
-        var me = this,
-            data = me.callParent(),
-            rtlCls = me._rtlCls;
+    privates: {
+        getFrameTpl: function(table) {
+            return (table && this.getInherited().rtl) ?
+                this.getTpl('rtlFrameTableTpl') : this.callParent(arguments);
+        },
 
-        if (rtlCls && me.getInherited().rtl) {
-            data.frameElCls = ' ' + rtlCls;
+        getFrameRenderData: function () {
+            var me = this,
+                data = me.callParent(),
+                rtlCls = me._rtlCls;
+
+            if (rtlCls && me.getInherited().rtl) {
+                data.frameElCls = ' ' + rtlCls;
+            }
+
+            return data;
         }
-
-        return data;
     }
 });

@@ -1,6 +1,7 @@
 /**
  * This layout extends `Ext.layout.container.Column` and adds splitters between adjacent
  * columns allowing the user to resize them.
+ * @private
  */
 Ext.define('Ext.layout.container.SplitColumn', {
     extend: 'Ext.layout.container.Column',

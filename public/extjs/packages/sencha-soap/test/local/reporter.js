@@ -1480,7 +1480,7 @@ Test.SandBoxImpl.prototype.clearDomElements = function() {
             }
         }
     }
-}
+};
 
 Test.SandBoxImpl.prototype.clearComponents = function() {
     var me = this,
@@ -1937,7 +1937,7 @@ Test.jsCoverage = {
         }
     },
 /**
- * Updates suite coverage results after execution.
+ * Updates suite js.jasmine.coverage results after execution.
  * @param {jasmine.Suite} The jasmine suite.
  */
     update: function(suite) {
@@ -1984,23 +1984,23 @@ Test.jsCoverage = {
         }
     },
 /**
- * Returns suite coverage text.
+ * Returns suite js.jasmine.coverage text.
  * @param {jasmine.Suite} The jasmine suite.
- * @return {String} The Code coverage text<
+ * @return {String} The Code js.jasmine.coverage text<
  */
    getSuiteCoverage: function(suite) {
 	    if (suite.jscoverage) {
-        	return " - Code coverage: " + suite.jscoverage.percentage + "%";
+        	return " - Code js.jasmine.coverage: " + suite.jscoverage.percentage + "%";
 		}
 		return '';
    },
 /**
- * Gets total code coverage.
- * @return {String} A string with total code coverage.
+ * Gets total code js.jasmine.coverage.
+ * @return {String} A string with total code js.jasmine.coverage.
  */
     getTotal: function() {
         if (this.percentage) {
-            return " - Code coverage: " + this.percentage + "%";
+            return " - Code js.jasmine.coverage: " + this.percentage + "%";
         }
         
         return '';
@@ -2926,7 +2926,7 @@ Test.panel.TreeGrid.prototype.addSuite = function(suite) {
 };
 
 /**
- * Updates suite dom element by adding a code coverage percentage to it's description.
+ * Updates suite dom element by adding a code js.jasmine.coverage percentage to it's description.
  * @param {HTMLElement} The suite dom element.
  * @param {jasmine.Suite} The jasmine suite.
  */

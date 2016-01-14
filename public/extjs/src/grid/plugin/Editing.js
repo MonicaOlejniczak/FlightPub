@@ -7,8 +7,8 @@
  * {@link Ext.grid.plugin.RowEditing}.
  */
 Ext.define('Ext.grid.plugin.Editing', {
+    extend: 'Ext.plugin.Abstract',
     alias: 'editing.editing',
-    extend: 'Ext.AbstractPlugin',
 
     requires: [
         'Ext.grid.column.Column',
@@ -56,7 +56,7 @@ Ext.define('Ext.grid.plugin.Editing', {
     /**
      * @cfg {String} default UI for editor fields
      */
-    defaultFieldUI: 'grid',
+    defaultFieldUI: 'default',
 
     // @private
     defaultFieldXType: 'textfield',
@@ -438,7 +438,7 @@ Ext.define('Ext.grid.plugin.Editing', {
             columnHeader = view.ownerCt.getColumnManager().getHeaderAtIndex(colIdx),
             editor = columnHeader.getEditor(record);
 
-        if (editor && !expanderSelector || !e.getTarget(expanderSelector)) {
+        if (this.shouldStartEdit(editor) && (!expanderSelector || !e.getTarget(expanderSelector))) {
             this.startEdit(record, columnHeader);
         }
     },
@@ -450,12 +450,9 @@ Ext.define('Ext.grid.plugin.Editing', {
         me.mon(headerCt, {
             scope: me,
             add: me.onColumnAdd,
-            columnmove: me.onColumnMove
+            columnmove: me.onColumnMove,
+            beforedestroy: me.beforeGridHeaderDestroy
         });
-
-        // Use an interceptor on the header container's beforeDestroy method because the event is vetoable.
-        // Before the header container is destroyed, we must clean up the column editors.
-        headerCt.beforeDestroy = Ext.Function.createInterceptor(headerCt.beforeDestroy, me.beforeGridHeaderDestroy, me);
     },
 
     initKeyNavHeaderEvents: function() {
@@ -517,6 +514,10 @@ Ext.define('Ext.grid.plugin.Editing', {
      */
     beforeEdit: Ext.emptyFn,
 
+    shouldStartEdit: function(editor) {
+        return !!editor;
+    },
+
     /**
      * Starts editing the specified record, using the specified Column definition to define which field is being edited.
      * @param {Ext.data.Model/Number} record The Store data record which backs the row to be edited, or index of the record in Store.
@@ -560,13 +561,13 @@ Ext.define('Ext.grid.plugin.Editing', {
      * @private
      * Collects all information necessary for any subclasses to perform their editing functions.
      * @param record
-     * @param columnHeader
+     * @param {Ext.grid.column.Column/Number} columnHeader
      * @returns {Object/undefined} The editing context based upon the passed record and column
      */
     getEditingContext: function(record, columnHeader) {
         var me = this,
             grid = me.grid,
-            colMgr = grid.getColumnManager(),
+            colMgr = grid.columnManager,
             view,
             gridRow,
             rowIdx, colIdx;
@@ -577,14 +578,14 @@ Ext.define('Ext.grid.plugin.Editing', {
             columnHeader = colMgr.getHeaderAtIndex(columnHeader);
         }
 
-        // Coerce the column to the closest visible column
-        if (columnHeader.hidden) {
-            columnHeader = columnHeader.next(':not([hidden])') || columnHeader.prev(':not([hidden])');
-        }
-
         // No corresponding column. Possible if all columns have been moved to the other side of a lockable grid pair
         if (!columnHeader) {
             return;
+        }
+
+        // Coerce the column to the closest visible column
+        if (columnHeader.hidden) {
+            columnHeader = columnHeader.next(':not([hidden])') || columnHeader.prev(':not([hidden])');
         }
 
         // Navigate to the view which the column header relates to.

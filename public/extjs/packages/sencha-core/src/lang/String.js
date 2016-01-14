@@ -277,7 +277,7 @@ Ext.String = (function() {
         },
 
         /**
-         * Capitalize the given string
+         * Capitalize the first letter of the given string.
          * @param {String} string
          * @return {String}
          */
@@ -289,7 +289,7 @@ Ext.String = (function() {
         },
 
         /**
-         * Uncapitalize the given string.
+         * Uncapitalize the first letter of a given string.
          * @param {String} string
          * @return {String}
          */

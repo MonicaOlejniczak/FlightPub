@@ -74,11 +74,11 @@ Ext.define('Ext.draw.engine.ImageExporter', {
      * @param {Ext.draw.Surface} surface The surface to export
      * @param {Object} [config] The following config options are supported:
      *
-     * @param {Number} config.width A width to send to the server to for
-     * configuring the image height
+     * @param {Number} config.width A width to send to the server for
+     * configuring the image width.
      *
      * @param {Number} config.height A height to send to the server for
-     * configuring the image height
+     * configuring the image height.
      *
      * @param {String} config.url The url to post the data to. Defaults to
      * the {@link #defaultUrl} configuration on the class.

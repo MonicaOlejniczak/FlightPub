@@ -6,7 +6,7 @@ Ext.define('Ext.form.field.FileButton', {
     alias: 'widget.filebutton',
     
     childEls: [
-        'btnEl', 'btnWrap', 'btnInnerEl', 'btnIconEl', 'fileInputEl'
+        'fileInputEl'
     ],
     
     inputCls: Ext.baseCSSPrefix + 'form-file-input',
@@ -20,25 +20,13 @@ Ext.define('Ext.form.field.FileButton', {
         unselectable: 'on'
     },
 
-    renderTpl: [
-        '<span id="{id}-btnWrap" role="presentation" class="{baseCls}-wrap',
-            '<tpl if="splitCls"> {splitCls}</tpl>',
-            '{childElCls}" unselectable="on">',
-            '<span id="{id}-btnEl" class="{baseCls}-button" role="button">',
-                '<span id="{id}-btnInnerEl" class="{baseCls}-inner {innerCls}',
-                    '{childElCls}" unselectable="on">',
-                    '{text}',
-                '</span>',
-                '<span role="presentation" id="{id}-btnIconEl" class="{baseCls}-icon-el {iconCls}',
-                    '{childElCls} {glyphCls}" unselectable="on" style="',
-                    '<tpl if="iconUrl">background-image:url({iconUrl});</tpl>',
-                    '<tpl if="glyph && glyphFontFamily">font-family:{glyphFontFamily};</tpl>">',
-                    '<tpl if="glyph">&#{glyph};</tpl><tpl if="iconCls || iconUrl">&#160;</tpl>',
-                '</span>',
-            '</span>',
-        '</span>',
-        '<input id="{id}-fileInputEl" class="{childElCls} {inputCls}" type="file" size="1" name="{inputName}" role="{role}" tabIndex="{tabIndex}">'
-    ],
+    afterTpl: '<input id="{id}-fileInputEl" data-ref="fileInputEl" class="{childElCls} {inputCls}" ' +
+        'type="file" size="1" name="{inputName}" role="{role}" tabIndex="{tabIndex}">',
+
+    // private
+    getAfterMarkup: function(values) {
+        return this.getTpl('afterTpl').apply(values);
+    },
     
     getTemplateArgs: function(){
         var args = this.callParent();

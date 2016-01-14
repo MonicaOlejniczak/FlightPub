@@ -1093,21 +1093,16 @@ Ext.define('Ext.chart.series.Line', {
     isItemInPoint: function(x, y, item, i) {
         var me = this,
             items = me.items,
+            ln = items.length,
             tolerance = me.selectionTolerance,
-            result = null,
             prevItem,
             nextItem,
             prevPoint,
             nextPoint,
-            ln,
-            x1,
-            y1,
-            x2,
-            y2,
-            xIntersect,
-            yIntersect,
-            dist1, dist2, dist, midx, midy,
-            sqrt = Math.sqrt, abs = Math.abs;
+            x1, x2,
+            y1, y2,
+            dist1, dist2, dist,
+            sqrt = Math.sqrt;
 
         nextItem = items[i];
         prevItem = i && items[i - 1];
